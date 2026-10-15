@@ -197,3 +197,8 @@ dreamforge/
 ---
 ## 10. 可复用的工作流
 以后换选题时，只需要替换 `projects/<topic>/`。`tools/` 和 `blender/scripts/materials.py`、`lighting.py`、`camera_shots.py` 可以复用。每个新项目照着 S1 到 S10 的检查清单走一遍。
+
+
+## 时长与结构变更（2026-10-15）
+- 成片从约 5 分钟改为约 **10 分钟**。
+- 结构：先按子系统分讲（光源/锡滴与双脉冲、收集镜、真空光路、Mo/Si 多层膜、反射掩模与 pellicle、投影物镜含 High-NA、工件台），再组合成从锡滴到晶圆的完整流程。
