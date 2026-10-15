@@ -10,7 +10,7 @@
 | 4 | 每个锡滴被打两次 | ✅ 先用低强度预脉冲把锡滴压成“煎饼”，再用强主脉冲把它汽化成等离子体 | A | ASML light-and-lasers 页面；TRUMPF 页面 |
 | 4b | 压扁后的尺寸、脉冲能量 | ✅ 被压成直径约 300 μm 的薄盘；预脉冲约几十 mJ，主脉冲约 500 mJ（这是 ASML S2 光源的实验条件） | B | Torretti 等，J. Phys. D 2020，https://doi.org/10.1088/1361-6463/ab56d4 |
 | 4c | 下一代光源 | ✅ 每秒 10 万个锡滴，每滴打三次；属于研发中的规划（2026 年 2 月报道），**不是现役机器** | C | https://www.heise.de/en/news/EUV-Lithography-ASML-will-shoot-tin-droplets-300-000-times-per-second-11187649.html |
-| 5 | 等离子体温度 | ⚠️ 有分歧。ZEISS 说“将近 22 万摄氏度，几乎是太阳表面平均温度的 40 倍”；ASML 说“比太阳表面热 40 倍”；MIT Tech Review 引用 ASML 人员的说法是“约 50 万 K”；论文测得等效电子温度 30 到 40 eV。**旁白建议写：“约 22 万摄氏度，大约是太阳表面的 40 倍”，并注明出处为 ZEISS。** | A/B/C | https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html ；https://www.asml.com/en/company/stories/2022/making-euv-lab-to-fab ；https://ir.arcnl.nl/pub/80/00090OA.pdf |
+| 5 | 等离子体温度 | ⚠️ 有分歧。ZEISS 说“将近 22 万摄氏度，几乎是太阳表面平均温度的 40 倍”；ASML 说“比太阳表面热 40 倍”；MIT Tech Review 引用 ASML 人员的说法是“约 50 万 K”；论文测得等效电子温度 30 到 40 eV。**旁白采用用户决定：“约 50 万开尔文”，并注明出自 ASML 相关人员对媒体的表述（MIT Tech Review）。ZEISS 的“约 22 万 ℃ / 约太阳表面 40 倍”作为对照保留在本表。** | A/B/C | https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html ；https://www.asml.com/en/company/stories/2022/making-euv-lab-to-fab ；https://ir.arcnl.nl/pub/80/00090OA.pdf |
 | 6 | CO₂ 驱动激光功率 | ⚠️ TRUMPF 写 40 kW，并说放大倍数超过 1 万倍；ZEISS 写 30 kW。**建议写“几十千瓦”。** | A | TRUMPF 页面；ZEISS 页面 |
 | 7 | 反射镜数量 | ✅ 投影物镜有 6 面反射镜（ZEISS）。⚠️ 整机总数没有官方数字：MIT Tech Review 说约 11 面，euvlitho 2024 会议的示意图写“10 面加掩模加收集镜”。**旁白只用“投影物镜 6 面”。** | A / C | ZEISS 页面；https://www.technologyreview.com/2021/10/27/1037118/moores-law-computer-chips/ |
 | 8 | 多层膜和反射率 | ✅ 钼和硅交替镀膜，最多约 100 层，每层只有几纳米厚。单层只能反射约 1%，多层叠加后反射率最高约 70% | A | ZEISS 页面 |
