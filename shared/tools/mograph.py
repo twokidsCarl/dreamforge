@@ -130,8 +130,11 @@ class Canvas:
             kw["outline"] = (*outline, int(255 * a))
             kw["width"] = max(1, int(self.px(width)))
         self.d.ellipse([x - rr, y - rr, x + rr, y + rr], **kw)
-        if glow:
-            self.g.ellipse([x - rr, y - rr, x + rr, y + rr], fill=tuple(int(cc * a) for cc in (fill or outline)))
+        if glow and fill:
+            self.g.ellipse([x - rr, y - rr, x + rr, y + rr], fill=tuple(int(cc * a) for cc in fill))
+        elif glow:                     # outline-only: glow the ring, not the whole disc
+            self.g.ellipse([x - rr, y - rr, x + rr, y + rr], outline=tuple(int(cc * a) for cc in outline),
+                           width=max(1, int(self.px(width * 3))))
 
     def grid(self, step=60, color=BLUE_GRID, a=0.6, major=5):
         for i, x in enumerate(range(0, int(1920) + 1, step)):
