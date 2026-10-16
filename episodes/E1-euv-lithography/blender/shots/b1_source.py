@@ -4,6 +4,8 @@ Simulation events (sim frames, 24 fps): droplets fly 1-100, pre-pulse 100, sheet
 main pulse 192, plasma/debris after, next droplet creeps in 262-346. Each CamB1_xx is keyed in
 absolute sim frames; registry.yaml gives the window each shot renders.
 """
+import bpy
+
 import build_source as S
 import build_vacuum as V
 import sample_b1 as B
@@ -59,6 +61,9 @@ def build(vessel=False, rays=False):
     # B1_21 — pull back: collector lit, EUV cone to IF, next droplet already on its way
     cam("CamB1_21", [(260, (1.0, 0, 0), (6.5, 9.5, 3.0), 35, 4.0),
                      (343, (5.0, 0, 0), (23.0, 15.0, 6.5), 28, 6.0)])
+    # A0_01 — cold open (rendered with step 2): the droplet glides in, pre-pulse, sheet, main-pulse flash
+    cam("CamA0_01", B._follow_keys(hero, 4, B.T_ARRIVE, (1.9, 1.3, 0.3), (1.85, 1.15, 0.3), 85, 1.4)
+        + [(130, (0.2, 0, 0), (3.8, 4.8, 0.7), 55, 2.4), (194, (0.3, 0, 0), (4.6, 5.8, 0.9), 50, 2.8)])
     # ---- B2 reuses the same simulation ---------------------------------------------------
     # B2_01 — after the flash: the collector's iridescent face, embers drifting toward it
     cam("CamB2_01", [(205, (-2.2, 3.4, 1.4), (6.0, 2.0, 2.2), 45, 2.8),
@@ -92,3 +97,15 @@ def after_style(style, shot_id):
     sheet = bpy.data.objects["Pancake"]
     sheet.data.materials.clear()
     sheet.data.materials.append(black)
+
+
+def after_style(style, shot_id):
+    """A0_01 cold open: the same simulation in pure black, no chamber walls."""
+    if shot_id != "A0_01":
+        return
+    import common as C
+    import styles
+    for ob in list(bpy.data.objects):
+        if styles.role_of(ob) == "env":
+            ob.hide_render = True
+    C.set_world(top=(0.0, 0.0, 0.0), horizon=(0.0, 0.0, 0.0), bottom=(0.0, 0.0, 0.0))

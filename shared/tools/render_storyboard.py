@@ -82,7 +82,7 @@ def main():
         if new:
             w.writerow(["timestamp", "shot", "engine", "preset", "frame", "seconds"])
         for f in rel:
-            sc.frame_set(spec["start"] + f - 1)
+            sc.frame_set(spec["start"] + (f - 1) * spec.get("step", 1))   # step: sample every Nth sim frame
             sc.render.filepath = os.path.join(out, f"{f:04d}.png")
             t0 = time.time()
             bpy.ops.render.render(write_still=True)
