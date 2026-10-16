@@ -82,10 +82,19 @@ def main():
         if new:
             w.writerow(["timestamp", "shot", "engine", "preset", "frame", "seconds"])
         for f in rel:
-            sc.frame_set(spec["start"] + (f - 1) * spec.get("step", 1))   # step: sample every Nth sim frame
+            fr = spec["start"] + (f - 1) * spec.get("step", 1)      # step: every Nth sim frame (<1 = slow motion)
+            sc.frame_set(int(fr), subframe=fr - int(fr))
             sc.render.filepath = os.path.join(out, f"{f:04d}.png")
             t0 = time.time()
-            bpy.ops.render.render(write_still=True)
+            if f > n - spec.get("black_tail", 0):                  # hard cut to black on the last frames
+                blk = bpy.data.images.new("Black", sc.render.resolution_x * sc.render.resolution_percentage // 100,
+                                          sc.render.resolution_y * sc.render.resolution_percentage // 100)
+                blk.pixels = [0.0, 0.0, 0.0, 1.0] * (blk.size[0] * blk.size[1])
+                blk.filepath_raw = sc.render.filepath
+                blk.file_format = "PNG"
+                blk.save()
+            else:
+                bpy.ops.render.render(write_still=True)
             dt = time.time() - t0
             w.writerow([datetime.datetime.now().isoformat(timespec="seconds"), a.shot, engine, a.quality,
                         f, f"{dt:.2f}"])

@@ -64,6 +64,12 @@ def build(vessel=False, rays=False):
     # A0_01 — cold open (rendered with step 2): the droplet glides in, pre-pulse, sheet, main-pulse flash
     cam("CamA0_01", B._follow_keys(hero, 4, B.T_ARRIVE, (1.9, 1.3, 0.3), (1.85, 1.15, 0.3), 85, 1.4)
         + [(130, (0.2, 0, 0), (3.8, 4.8, 0.7), 55, 2.4), (194, (0.3, 0, 0), (4.6, 5.8, 0.9), 50, 2.8)])
+    # C_02 — long take part 1 (step ~0.73: slow): fly beside the droplet, pre-pulse, main pulse, turn to the collector
+    cam("CamC_02", B._follow_keys(hero, 1, B.T_ARRIVE, (0.9, 1.2, 0.25), (1.0, 1.4, 0.3), 50, 2.0)
+        + [(150, (0.2, 0, 0), (2.4, 3.6, 0.6), 40, 2.8), (192, (0.3, 0, 0), (3.6, 5.2, 0.9), 40, 3.2),
+           (300, (-2.2, 1.5, 0.6), (4.5, 3.5, 1.6), 35, 4.0)])
+    # D_09 — the last shot: tight on the droplet, the orange pre-pulse closing in; cut before the hit
+    cam("CamD_09", B._follow_keys(hero, 40, B.T_ARRIVE, (0.8, 0.55, 0.12), (0.75, 0.5, 0.1), 100, 1.4))
     # ---- B2 reuses the same simulation ---------------------------------------------------
     # B2_01 — after the flash: the collector's iridescent face, embers drifting toward it
     cam("CamB2_01", [(205, (-2.2, 3.4, 1.4), (6.0, 2.0, 2.2), 45, 2.8),
@@ -101,7 +107,7 @@ def after_style(style, shot_id):
 
 def after_style(style, shot_id):
     """A0_01 cold open: the same simulation in pure black, no chamber walls."""
-    if shot_id != "A0_01":
+    if shot_id not in ("A0_01", "D_08", "D_09"):           # cold open and its mirror at the end
         return
     import common as C
     import styles
