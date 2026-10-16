@@ -13,7 +13,6 @@ estimated VO time, at least LEAD + TAIL) around its real VO; visual-only shots k
 design duration.
 """
 import argparse
-import hashlib
 import json
 import os
 import re
@@ -60,8 +59,7 @@ def chunk_subtitle(text):
 
 
 def wav_for(text, voice):
-    key = hashlib.sha1(f"{tts.MODEL}|{voice}|{text}".encode()).hexdigest()[:16]
-    return os.path.join(REPO, "audio", "vo_cache", f"{key}.wav")
+    return os.path.join(REPO, "audio", "vo_cache", f"{tts.cache_key(text, voice)}.wav")
 
 
 def read_wav(path):

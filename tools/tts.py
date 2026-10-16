@@ -19,6 +19,7 @@ import time
 
 sys.path.insert(0, os.path.dirname(__file__))
 from lint_script import parse  # noqa: E402
+from speech_text import normalize  # noqa: E402
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ENDPOINTS = {"singapore": "https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation",
@@ -39,12 +40,18 @@ def load_env():
                 os.environ.setdefault(k.strip(), v.strip())
 
 
+def cache_key(text, voice):
+    """Cache by what is actually spoken, so pronunciation fixes re-synthesize just those lines."""
+    return hashlib.sha1(f"{MODEL}|{voice}|{normalize(text)}".encode()).hexdigest()[:16]
+
+
 def synth(text, voice, cache_dir):
-    key = hashlib.sha1(f"{MODEL}|{voice}|{text}".encode()).hexdigest()[:16]
+    key = cache_key(text, voice)
     wav = os.path.join(cache_dir, f"{key}.wav")
     if os.path.exists(wav):
         return wav
-    body = json.dumps({"model": MODEL, "input": {"text": text, "voice": voice, "language_type": "Chinese"}}).encode()
+    body = json.dumps({"model": MODEL, "input": {"text": normalize(text), "voice": voice,
+                                                  "language_type": "Chinese"}}).encode()
     url = ENDPOINTS[os.environ.get("QWEN_REGION", "singapore")]
     r = None
     for attempt in range(5):

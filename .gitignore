@@ -6,3 +6,4 @@ audio/vo_cache/
 audio/auditions/
 audio/vo/
 .venv/
+.blender_pylib/

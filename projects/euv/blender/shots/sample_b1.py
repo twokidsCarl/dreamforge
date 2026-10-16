@@ -104,13 +104,17 @@ def _camera(name, keys, focus=None):
     return cam
 
 
-def _follow_keys(obj, f0, f1, offset0, offset1, lens, fstop, step=2):
-    """Camera keys that track obj exactly between f0 and f1 with an interpolated offset."""
+def _follow_keys(obj, f0, f1, offset0, offset1, lens, fstop, step=2, aim_offset=(0, 0, 0)):
+    """Camera keys that track obj exactly between f0 and f1 with an interpolated offset;
+    aim_offset shifts the look-at point (and the camera with it) relative to obj."""
     sc = bpy.context.scene
     keys = []
     for f in list(range(f0, f1, step)) + [f1]:
         sc.frame_set(f)
         p = obj.matrix_world.translation.copy()
+        p.x += aim_offset[0]
+        p.y += aim_offset[1]
+        p.z += aim_offset[2]
         u = (f - f0) / max(1, f1 - f0)
         off = [a + (b - a) * u for a, b in zip(offset0, offset1)]
         keys.append((f, tuple(p), (p.x + off[0], p.y + off[1], p.z + off[2]), lens, fstop))
