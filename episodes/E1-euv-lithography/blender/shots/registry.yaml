@@ -89,3 +89,6 @@ B8_10: {scene: b8_scenes, args: {variant: sync}, camera: CamB8_10, start: 1, sty
 B8_14: {scene: b8_scenes, args: {variant: actuator}, camera: CamB8_14, start: 1, style: photoreal, engine: cycles}
 B8_15: {scene: b8_scenes, args: {variant: layers}, camera: CamB8_15, start: 1, style: clay, engine: eevee}
 B8_16: {scene: b8_scenes, args: {variant: dual}, camera: CamB8_16, start: 1, style: xray, engine: eevee}
+B9_04: {scene: b9_scenes, args: {variant: rain}, camera: CamB9_04, start: 1, style: energy, engine: eevee}
+B9_05: {scene: b9_scenes, args: {variant: rain}, camera: CamB9_05, start: 141, style: energy, engine: eevee}
+B9_06: {scene: b9_scenes, args: {variant: rain}, camera: CamB9_06, start: 261, style: energy, engine: eevee}
