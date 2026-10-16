@@ -171,32 +171,34 @@ AI 生成资产的流程（借鉴 X 上已经验证有效的做法）：
 **总计约 4 到 5 周**（单人加 AI，按全职估算）。
 
 ---
-## 9. 仓库目录结构（twokidsCarl/dreamforge）
+## 9. 仓库目录结构（多期视频）
+每一期一个文件夹 `episodes/E<序号>-<英文短名>/`，所有期共用的代码放在 `shared/`。
+
 ```
 dreamforge/
 ├── README.md
-├── WORKFLOW.md
-├── projects/euv/
-│   ├── research/   facts.yaml  sources.md  patents.md  refs/（只放来源链接；图片不入库，或用 Git LFS）
-│   ├── script/     script_zh.md  script_en.md
-│   ├── storyboard/ storyboard.yaml  animatic_notes.md
-│   ├── art/        styleframes/  refs4view/  prompts.md
-│   ├── blender/
-│   │   ├── scripts/   build_source.py  build_optics.py  build_stage.py  materials.py  lighting.py  camera_shots.py
-│   │   ├── shots/     shot01.blend …（Git LFS）
-│   │   └── assets/    （AI 生成资产，Git LFS）
-│   ├── audio/      vo/  music/  sfx/  LICENSES.md
-│   ├── subs/       zh.srt  en.srt
-│   ├── renders/    （不入库，加进 .gitignore）
-│   ├── bts/        logs/  timelapse/  session_transcripts/
-│   └── final/
-└── tools/  render_batch.py  timelapse.py  srt_align.py
+├── docs/WORKFLOW.md                本文件：通用制作流程
+├── shared/                         所有期共用
+│   ├── tools/                      配音、读音、对齐、分镜、渲染、剪辑、二维动画、校验等工具
+│   │   └── paths.py                当前是哪一期、渲染和音频放哪（默认 E1，可用 DREAMFORGE_EPISODE 切换）
+│   └── blender/                    场景设置、材质库、画面语言风格系统
+└── episodes/
+    └── E1-euv-lithography/         第一期《一台光刻机里发生了什么》
+        ├── research/  facts.yaml
+        ├── script/    script_zh.md  pronunciation.yaml
+        ├── storyboard/ parts/  storyboard.yaml  storyboard.timed.yaml  REVIEW.md
+        ├── subs/      zh.srt
+        ├── blender/   scripts/（本期建模）  shots/（本期镜头与 registry.yaml）
+        ├── mograph/   本期二维动画镜头
+        ├── docs/      早期调研文档与第三稿剧本（历史）
+        ├── experiments/  冒烟测试
+        ├── audio/     配音缓存与成品（不入库）
+        └── renders/   渲染输出（不入库）
 ```
-.gitignore 至少排除：`renders/`、`*.exr`、大型缓存。`.blend` 文件和资产用 Git LFS 管理。
+新开一期：复制 `episodes/E1-*/` 的目录骨架（不复制 audio、renders），设置 `DREAMFORGE_EPISODE=E2-xxx` 后运行同一套工具。
 
----
 ## 10. 可复用的工作流
-以后换选题时，只需要替换 `projects/<topic>/`。`tools/` 和 `blender/scripts/materials.py`、`lighting.py`、`camera_shots.py` 可以复用。每个新项目照着 S1 到 S10 的检查清单走一遍。
+`shared/` 下的工具和 Blender 模块对每一期都通用；每期只写自己的事实库、剧本、分镜、建模和镜头。每个新项目照着 S1 到 S10 的检查清单走一遍。
 
 
 ## 时长与结构变更（2026-10-15）
