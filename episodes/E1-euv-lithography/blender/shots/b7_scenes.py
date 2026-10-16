@@ -322,6 +322,8 @@ def cones(sc, rnd):
     sc.collection.objects.link(sheet)
     sheet.data.materials.append(rip)
     styles.tag(sheet, "emitter")
+    _key(sheet, 1, hide_render=False)
+    _key(sheet, 176, hide_render=True)                            # unlit ripples would read as black marks
     # mask plane (dark, faint edge) and one photon sliding along the reflected cone's inner edge (B7_12)
     _box("MaskPlane", (0, 0, -0.06), (14, 8, 0.1), M.principled("MaskDark", (0.02, 0.02, 0.025)))
     ph_m = M.emission("Photon", (0.85, 0.75, 1.0), 10.0)
