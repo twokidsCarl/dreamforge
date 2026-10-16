@@ -59,6 +59,17 @@ def build(vessel=False, rays=False):
     # B1_21 — pull back: collector lit, EUV cone to IF, next droplet already on its way
     cam("CamB1_21", [(260, (1.0, 0, 0), (6.5, 9.5, 3.0), 35, 4.0),
                      (343, (5.0, 0, 0), (23.0, 15.0, 6.5), 28, 6.0)])
+    # ---- B2 reuses the same simulation ---------------------------------------------------
+    # B2_01 — after the flash: the collector's iridescent face, embers drifting toward it
+    cam("CamB2_01", [(205, (-2.2, 3.4, 1.4), (6.0, 2.0, 2.2), 45, 2.8),
+                     (308, (-2.2, 3.0, 1.2), (5.0, 1.8, 1.9), 45, 2.8)])
+    # B2_03 — the main-pulse moment again, wider, debris shell heading for the mirror
+    c3 = cam("CamB2_03", [(188, (PX - 0.6, 0, 0), (5.0, 7.2, 2.0), 32, 4.0),
+                          (348, (PX - 1.2, 0, 0), (5.6, 7.8, 2.2), 32, 4.0)])
+    B._shake(c3, B.T_MAIN, 12, 0.05, seed=23)
+    # B2_12 — wide interior, crane up over the collector
+    cam("CamB2_12", [(262, (1.0, 0, 0), (12.0, 7.0, 1.0), 28, 6.0),
+                     (346, (1.0, 0, 0), (12.5, 7.4, 4.5), 28, 6.0)])
     return sc
 
 
