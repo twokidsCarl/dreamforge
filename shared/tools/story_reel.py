@@ -140,12 +140,28 @@ def rendered_frames(sid, quality_order=("final", "sample", "preview")):
     return None, [], None
 
 
+def mograph_ids():
+    """Shots drawn by mograph/*.py carry their own on-frame text; no extra label for them."""
+    import glob
+    import re
+    ids = set()
+    for p in glob.glob(os.path.join(EP, "mograph", "*.py")):
+        ids |= set(re.findall(r'@shot\("([A-Z0-9_]+)"\)', open(p, encoding="utf-8").read()))
+    return ids
+
+
+MOGRAPH = None
+
+
 def label_layer(s, W, H, k, a=1.0):
     """On-screen labels planned for the shot (non-chapter), stacked bottom-left above subtitles."""
     from overlay_labels import draw_label
+    global MOGRAPH
     layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    if MOGRAPH is None:
+        MOGRAPH = mograph_ids()
     ovs = [o for o in s.get("overlays") or [] if o.get("kind") != "chapter"]
-    if not ovs:
+    if not ovs or s["id"] in MOGRAPH:
         return layer
     lab = {"text": ovs[0]["text"], "sub": " ｜ ".join(o["text"] for o in ovs[1:3]),
            "source": "事实库", "facts": sorted({f for o in ovs for f in o.get("facts") or []}) or ["—"],
