@@ -163,6 +163,8 @@ def label_layer(s, W, H, k, a=1.0):
     ovs = [o for o in s.get("overlays") or [] if o.get("kind") != "chapter"]
     if not ovs or s["id"] in MOGRAPH:
         return layer
+    sub_digits = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "0123456789")      # Heiti has no subscript glyphs
+    ovs = [dict(o, text=o["text"].translate(sub_digits)) for o in ovs]
     lab = {"text": ovs[0]["text"], "sub": " ｜ ".join(o["text"] for o in ovs[1:3]),
            "source": "事实库", "facts": sorted({f for o in ovs for f in o.get("facts") or []}) or ["—"],
            "pos": "upper_right"}

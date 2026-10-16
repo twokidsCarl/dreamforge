@@ -8,6 +8,7 @@ import math
 import random
 
 import bpy
+from mathutils import Vector
 
 import common as C
 import materials as M
@@ -126,26 +127,27 @@ def build(explode=False, seed=5):
     # lights: cool key and rim; reflection cards for the steel
     B._area("Key", (10, -8, 9), (0.8, 0, -0.6), 14, 1300, (0.7, 0.8, 1.0))
     B._area("Rim", (12, 9, 4), (1.3, 0, 2.6), 12, 1800, (0.5, 0.7, 1.0))
-    C.softbox("ChainSoft", (12, -6, 4), (1.2, 0, -0.4), (30, 6), 0.7, (0.75, 0.85, 1.0))
+    C.softbox("ChainSoft", (12, -6, 4), (1.2, 0, -0.4), (30, 6), 0.35, (0.75, 0.85, 1.0))
     if explode:
-        # orderly exploded view: every part moves out radially from the chain axis, a little
-        # along X by module, with small rotations; modules open one after another
+        # calm exploded view: each kind of part has one direction and one distance, modules open in turn
         for p in parts:
             m = p.get("module", 0)
-            radial = p.location.copy()
-            radial.x = 0.0
-            if radial.length < 1e-3:
-                radial.z = 1.0
-            radial.normalize()
+            n = p.name
+            if "Panel" in n:
+                d = Vector((0, 0, 1.3))
+            elif "Pipe" in n:
+                d = Vector((0, -1.1, -0.3))
+            elif "Flange" in n or "Bolt" in n:
+                side = 1 if ("Flange1" in n or "Bolt1" in n) else -1
+                d = Vector((0.55 * side, 0, 0))
+            elif "Stand" in n:
+                d = Vector((0, 0, -0.6))
+            else:
+                d = Vector((0, 0, 0))
             f0 = 20 + 14 * m
             p.keyframe_insert("location", frame=f0)
-            p.keyframe_insert("rotation_euler", frame=f0)
-            p.location = p.location + radial * rnd.uniform(0.9, 1.8) + type(radial)(((m - 3) * 0.6, 0, 0))
-            r0 = p.rotation_euler.copy()
-            p.rotation_euler = (r0.x + rnd.uniform(-0.15, 0.15), r0.y + rnd.uniform(-0.15, 0.15),
-                                r0.z + rnd.uniform(-0.15, 0.15))
-            p.keyframe_insert("location", frame=f0 + 40)
-            p.keyframe_insert("rotation_euler", frame=f0 + 40)
+            p.location = p.location + d
+            p.keyframe_insert("location", frame=f0 + 36)
     # cameras
     B._camera("CamB1_22", [(1, (10.0, 0, 0), (10.0, -22.0, 3.0), 50, 11.0),
                            (120, (16.0, 0, 0), (16.0, -22.0, 3.0), 50, 11.0)])

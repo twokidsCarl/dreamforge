@@ -9,7 +9,6 @@ B1_03: {scene: b1_source, camera: CamB1_03, start: 1, style: photoreal, engine: 
 B1_04: {scene: b1_source, camera: CamB1_04, start: 1, style: photoreal, engine: cycles}
 B1_07: {scene: b1_source, camera: CamB1_07, start: 1, style: photoreal, engine: cycles}
 B1_08: {scene: b1_source, camera: CamB1_08, start: 1, style: photoreal, engine: cycles}
-B1_09: {scene: b1_source, camera: CamB1_09, start: 80, style: energy, engine: eevee}
 B1_10: {scene: b1_source, camera: CamB1_10, start: 65, style: photoreal, engine: cycles}
 B1_11: {scene: b1_source, camera: CamB1_11, start: 150, hold: true, style: sem, engine: eevee}
 B1_12: {scene: b1_source, camera: CamB1_12, start: 140, style: photoreal, engine: cycles}

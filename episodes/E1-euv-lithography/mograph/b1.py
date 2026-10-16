@@ -182,3 +182,27 @@ def ledger_b1(t, dur, W, H):
     c.text((1120, y1000), "1000 W 原理样机（实验室，据报道）", 28, VIOLET, a * d, anchor="lm")
     c.text((960, 1010), "量级示意 · 对数刻度", 22, INK2, a, anchor="mm")
     return c.finish()
+
+
+@shot("B1_09")
+def two_pulses(t, dur, W, H):
+    """Energy view: the droplet as a dark outline; two orange pulses, thin then thick, queue up from the
+    collector's central hole toward it (F4)."""
+    c = Canvas(W, H, bg=(0, 0, 0))
+    a = fade(t, 0.0, dur, dur, 0.3)
+    dx, dy = 1300, 540
+    c.circle((dx, dy), 60, outline=(90, 110, 150), width=3, a=a)          # the droplet's silhouette
+    c.circle((dx, dy), 60, outline=(90, 110, 150), width=1, a=a * 0.4, glow=True)
+    c.circle((200, dy), 46, outline=(60, 70, 96), width=2, a=a * 0.8)     # the collector's central hole
+    for k, (t0, w, length, lab) in enumerate(((0.6, 6, 220, "预脉冲：细"), (1.8, 18, 300, "主脉冲：粗"))):
+        p = ease(seg(t, t0, t0 + 1.4))
+        if p <= 0:
+            continue
+        head = 200 + (dx - 80 - 200) * p - 160 * k * (1 - p)
+        c.line((max(200, head - length), dy), (head, dy), ORANGE, w, a, glow=True)
+        c.text((head - length / 2, dy - 50 - 20 * k), lab, 26, ORANGE, a * min(1.0, p * 3), anchor="mm")
+    x2 = ease(seg(t, 2.8, 3.3))
+    c.text((1760, 200), "×2", 120, ORANGE, a * x2, anchor="mm", weight_glow=True)
+    c.text((1760, 290), "每颗锡滴打两次", 28, INK, a * x2, anchor="mm")
+    c.text((1880, 1030), "CO2 激光为红外光，橙色为示意 · F4", 18, INK2, a, anchor="rm")
+    return c.finish(glow_radius=10, glow_gain=1.0)
