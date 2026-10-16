@@ -2,26 +2,27 @@
 shots:
 - id: A0_01
   segment: A0
-  duration: 3.0
+  duration: 4.0
   vo: []
   facts: []
   style: photoreal
   style_why: 冷开场先给一个不解释的“真东西”谜面：一颗锡滴；全片结尾（D 段）会回到它。
   transition_in: fade
-  visual: 纯黑中，一颗银亮的锡滴从画左进入，以超慢动作掠过镜头前，表面映着冷蓝反光和一点紫色辉光，焦外是几颗 LED 散景；锡滴飞出画右的一瞬硬切。
+  visual: 纯黑中，一颗银亮的锡滴从画左超慢动作掠入，表面映着冷蓝反光，焦外几颗 LED 散景；一道橙色细脉冲擦过，锡滴摊成薄盘；下一帧全屏紫白闪光、发光碎屑炸开——闪光最亮的一帧硬切黑。（全片的预告：结尾 D_09 在同一颗锡滴被击中前切黑，首尾呼应。）
   camera:
     move: locked-off
     lens_mm: 100
     fstop: 1.4
     notes: 焦平面刚好落在锡滴轨迹上，进出画都虚；沿用 sample_b1 的 Key/Rim 布光
-  ref: sample_b1:CamNozzle
+  ref: sample_b1:CamPrePulse
   builders:
   - build_source.droplet
   - build_vacuum.chamber
   fx:
   - shallow_dof
   - motion_blur
-  - bloom
+  - flash_white
+  - debris_particles
   - led_bokeh
   overlays: []
   engine: cycles
@@ -40,7 +41,7 @@ shots:
   style: documentary
   style_why: 回答“它在真实世界的哪里”：一次真实发生过的运输，用纪实氛围建立可信度。
   transition_in: cut
-  visual: 夜间货运机场（风格化，无航司与品牌标识）。宽银幕构图，大型货机机头舱门在液压声中缓缓抬起，舱内冷白顶光照出一排排木质板条箱；地勤人员和叉车是小小的剪影，湿地面反射着跑道灯。
+  visual: 夜间货运机场（风格化，无航司与品牌标识）。宽银幕构图，大型货机机头舱门在液压声中缓缓抬起，舱内冷白顶光照出一排排木质板条箱。画面里不出现人物。
   camera:
     move: slow dolly-in
     lens_mm: 35
@@ -613,7 +614,7 @@ shots:
   facts: []
   style: energy
   style_why: 过渡镜头：把比喻里的“笔”换成真正的光，引出下一段光的脾气。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 字的纹理暗下去，只剩写字的那支“笔”化成一束细光，在黑底上画出一条发光直线；线越画越细，到最细时边缘开始发毛、晕开。
   camera:
     move: lateral track
@@ -890,7 +891,7 @@ shots:
   facts: []
   style: energy
   style_why: 让光在能量图里熄灭，用画面说出“造不出来”，引出三道难题。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 黑底中那支紫色“光笔”开始闪烁、变暗，像接触不良的灯丝；最后熄灭，只剩一缕余辉，画面全黑后留半秒静默。
   camera:
     move: locked-off
@@ -1544,7 +1545,7 @@ shots:
   facts: []
   style: energy
   style_why: 闪白褪去后只看能量：碎屑由热到冷的颜色就是温度的语言。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 闪白褪去时腔体结构消失：黑底上只剩发光碎屑由白紫冷却成橙红，慢慢四散；等离子核心仍在脉动。
   camera:
     move: slow drift
@@ -1993,7 +1994,7 @@ shots:
   facts: []
   style: energy
   style_why: 段尾留白：只剩光，交给下一段“刚造出来的光，处境非常危险”。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 外壳和结构淡去，只剩一束细细的紫光在黑暗里穿过中间焦点向前；光的账本在右侧静止。
   camera:
     move: slow follow
@@ -2528,7 +2529,7 @@ shots:
   - F56
   style: energy
   style_why: 纯画面节拍（本段震撼时刻）：网格与线稿退去，只剩成百上千条光线汇成一点——几何变成能量。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 蓝底网格与线稿淡出成黑；数百条紫色光线从 焦点① 炸开、打到看不见的镜面、再一齐收拢进 焦点②，在那里聚成一颗刺眼的光点；随后连续几次脉冲，每次都精确地汇进同一点。
   camera:
     move: static
@@ -2694,7 +2695,7 @@ shots:
   - F8
   style: energy
   style_why: 相长干涉是看不见的波动物理，在同一截面上把灰阶换成发光的波最清楚。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 同一截面里灰阶退去，只剩发光的层界线；一列紫色光波斜射进来，每过一层界面就分出一缕微弱的反射小波；几十缕小波波峰对齐、同相叠加，汇成一道明亮的反射光束。
   camera:
     move: slow-pull-back
@@ -2999,7 +3000,7 @@ shots:
   style: documentary
   style_why: “它在真实世界的哪里、有多大”——用风格化的大厅和人影给出尺度。
   transition_in: dissolve
-  visual: 风格化的测量大厅（不仿制具体工厂）：一面镜子被吊装缓缓降入一座巨大的真空测量舱，舱门边站着几个穿洁净服的人影，只到舱体的一角。
+  visual: 风格化的测量大厅（不仿制具体工厂）：一面镜子被吊装缓缓降入一座巨大的真空测量舱，舱门边站着几个逆光剪影（不出现面部），只到舱体的一角。
   camera:
     move: slow-tilt-down
     lens_mm: 24
@@ -3062,7 +3063,7 @@ shots:
   - F8
   style: energy
   style_why: 回到主线一“光的账本”——光的损耗只能在能量图里看见。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 白模淡成暗色描边，只剩一面镜子和一束紫光；光束打到镜面，最多七成反射出去，其余化成暗橙色的热晕留在镜面上；右侧“光的账本”计量条重新出现，跟着掉下一截。
   camera:
     move: static
@@ -3325,7 +3326,7 @@ shots:
   - F34
   style: energy
   style_why: 光瞳形状是光的分布，黑底能量图里只看光最清楚。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 正视光瞳，黑底：一块块小光斑像马赛克一样拼出圆盘，随后重排成圆环、再分裂成上下两极、再变成四极和一个自由形状，每次重排都是成百小块光点滑动归位。
   camera:
     move: static
@@ -3407,7 +3408,7 @@ shots:
   facts: []
   style: xray
   style_why: 纯画面节拍：回到整机剖视，整形后的光离开照明模块向掩模爬升，作为 B6 的桥。
-  transition_in: scan-wipe
+  transition_in: dissolve
   visual: 透明剖视，构图与 B5_01 相同；一束两极形状的紫色光离开照明模块，斜着爬向上方的掩模台，镜头跟着光往上摇。
   camera:
     move: tilt-up
@@ -3851,7 +3852,7 @@ shots:
   facts: []
   style: energy
   style_why: 离焦是光学现象，能量图里能直接看到光线在像面上散开。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 结构变成暗色描边，只剩光线：掩模平面上的图形成像锐利；一粒落在膜上的灰尘离掩模面有一段距离，它在像面上的影子被拉成一团越来越淡的光晕，最后完全化开。
   camera:
     move: rack-focus
@@ -4883,7 +4884,7 @@ shots:
   - F58
   style: xray
   style_why: 双台交换是机器内部的空间关系，透明剖视能同时看见曝光位和测量位
-  transition_in: scan-wipe
+  transition_in: dissolve
   visual: 幽灵玻璃底座里有两个工位：左边曝光位上一片晶圆正被紫色光缝扫描，右边测量位上另一片被计量青的激光点阵快速扫过。两台在中间交叉换位，像双人舞一样擦肩而过，换完立刻开始下一轮。
   camera:
     move: slow-orbit
@@ -4943,7 +4944,7 @@ shots:
   - F45
   style: energy
   style_why: 本段视觉高潮之一：把 96 次曝光变成一片晶圆上真实节奏的光的闪烁
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 黑底中一片暗色晶圆，紫色光缝像节拍器一样沿蛇形路径扫过 96 个场，每场亮一下留下潜像余辉；一片扫满，晶圆被瞬间换走、下一片又开始——四五片之后连成一片持续的紫色脉动。
   camera:
     move: top-down-drift
@@ -5246,7 +5247,7 @@ shots:
   - F59
   style: energy
   style_why: 用同一场光子雨的“加密”直接展示功率提高的意义，比一张功率表更有说服力
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 画面左右分屏：左边是刚才的稀疏光子雨和毛糙线条；右边光源功率读数从 600 W 往 1000 W 爬升，光子雨明显更密，下方的线条边缘随之变平滑、断线消失。分屏中线是一条计量青细线。
   camera:
     move: static-split
@@ -5675,7 +5676,7 @@ shots:
   facts: []
   style: energy
   style_why: 高潮后的落点：整台机器只剩一口呼吸般的光，然后熄灭，给 D 段留出安静的入口
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 坐标网格与结构一起退去，只剩整条光路在黑暗中像心跳一样亮、暗、亮，最后一次亮起后缓缓熄灭，只在等离子体的位置留下一颗极小的紫色余烬。
   camera:
     move: static
@@ -5733,7 +5734,7 @@ shots:
   style: sem
   style_why: 与开场 A0_04 呼应：从指尖拉近到晶体管阵列，用显微风格收住尺度主线
   transition_in: zoom-through
-  visual: 一颗芯片停在指尖上（与 A0_04 同构图），镜头一路推进，画面转成灰阶 SEM 风格的晶体管阵列，阵列一片片点亮成暖白色。
+  visual: 一颗芯片停在指尖上（与 A0_08 同构图），镜头一路推进，画面转成灰阶 SEM 风格的晶体管阵列，阵列一片片点亮成暖白色。
   camera:
     move: scale-zoom
     lens_mm: 0
@@ -5798,7 +5799,7 @@ shots:
   style: infographic
   style_why: 回答“多少”：耗电量级和能耗下降比例是两个对照的数字，信息图最干净
   transition_in: cut
-  visual: 左侧一只功率表指针摆到“兆瓦量级”区间（不标精确刻度）；右侧一根“每片晶圆能耗”柱状条从 2018 年的满高度逐年下降，最后停在原高度的 43% 处，被削去的 57% 部分化成碎片飘走。
+  visual: 左侧一只功率表指针摆到“兆瓦量级”区间（不标精确刻度，据行业估算）；右侧两根“每片晶圆能耗”柱：2018 年满高度，旁边 2025 年只剩 43% 高度，中间一个“−57%”标注。只画这两个有出处的数据点，不画逐年曲线。
   camera:
     move: static
     lens_mm: 0
@@ -5884,7 +5885,7 @@ shots:
   style: documentary
   style_why: 回答“它从哪里来”：灯光一亮，巨物旁边出现人，外星科技变回人类工程
   transition_in: flash
-  visual: 大厅顶灯一排排亮起，暖白光驱散雾气：机器体块旁站着几十个穿洁净服的人影，有人在调试、有人在交谈。镜头后拉，大厅墙面上浮现一张世界地图，5100 个光点（A0_03 同款）从各地亮起，汇向这台机器。
+  visual: 大厅顶灯一排排亮起，暖白光驱散雾气：机器体块旁站着几十个逆光的洁净服剪影（不出现面部），有人在调试、有人在交谈。镜头后拉，大厅墙面上浮现一张世界地图，5100 个光点（A0_03 同款）从各地亮起，汇向这台机器。
   camera:
     move: pull-back-crane
     lens_mm: 35

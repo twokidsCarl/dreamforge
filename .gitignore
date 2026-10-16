@@ -1,3 +1,7 @@
 renders/
 *.blend1
 __pycache__/
+.env
+audio/vo_cache/
+audio/auditions/
+audio/vo/

@@ -980,7 +980,7 @@ shots:
   - F58
   style: xray
   style_why: 双台交换是机器内部的空间关系，透明剖视能同时看见曝光位和测量位
-  transition_in: scan-wipe
+  transition_in: dissolve
   visual: 幽灵玻璃底座里有两个工位：左边曝光位上一片晶圆正被紫色光缝扫描，右边测量位上另一片被计量青的激光点阵快速扫过。两台在中间交叉换位，像双人舞一样擦肩而过，换完立刻开始下一轮。
   camera:
     move: slow-orbit
@@ -1040,7 +1040,7 @@ shots:
   - F45
   style: energy
   style_why: 本段视觉高潮之一：把 96 次曝光变成一片晶圆上真实节奏的光的闪烁
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 黑底中一片暗色晶圆，紫色光缝像节拍器一样沿蛇形路径扫过 96 个场，每场亮一下留下潜像余辉；一片扫满，晶圆被瞬间换走、下一片又开始——四五片之后连成一片持续的紫色脉动。
   camera:
     move: top-down-drift
@@ -1343,7 +1343,7 @@ shots:
   - F59
   style: energy
   style_why: 用同一场光子雨的“加密”直接展示功率提高的意义，比一张功率表更有说服力
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 画面左右分屏：左边是刚才的稀疏光子雨和毛糙线条；右边光源功率读数从 600 W 往 1000 W 爬升，光子雨明显更密，下方的线条边缘随之变平滑、断线消失。分屏中线是一条计量青细线。
   camera:
     move: static-split
@@ -1772,7 +1772,7 @@ shots:
   facts: []
   style: energy
   style_why: 高潮后的落点：整台机器只剩一口呼吸般的光，然后熄灭，给 D 段留出安静的入口
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 坐标网格与结构一起退去，只剩整条光路在黑暗中像心跳一样亮、暗、亮，最后一次亮起后缓缓熄灭，只在等离子体的位置留下一颗极小的紫色余烬。
   camera:
     move: static
@@ -1830,7 +1830,7 @@ shots:
   style: sem
   style_why: 与开场 A0_04 呼应：从指尖拉近到晶体管阵列，用显微风格收住尺度主线
   transition_in: zoom-through
-  visual: 一颗芯片停在指尖上（与 A0_04 同构图），镜头一路推进，画面转成灰阶 SEM 风格的晶体管阵列，阵列一片片点亮成暖白色。
+  visual: 一颗芯片停在指尖上（与 A0_08 同构图），镜头一路推进，画面转成灰阶 SEM 风格的晶体管阵列，阵列一片片点亮成暖白色。
   camera:
     move: scale-zoom
     lens_mm: 0
@@ -1895,7 +1895,7 @@ shots:
   style: infographic
   style_why: 回答“多少”：耗电量级和能耗下降比例是两个对照的数字，信息图最干净
   transition_in: cut
-  visual: 左侧一只功率表指针摆到“兆瓦量级”区间（不标精确刻度）；右侧一根“每片晶圆能耗”柱状条从 2018 年的满高度逐年下降，最后停在原高度的 43% 处，被削去的 57% 部分化成碎片飘走。
+  visual: 左侧一只功率表指针摆到“兆瓦量级”区间（不标精确刻度，据行业估算）；右侧两根“每片晶圆能耗”柱：2018 年满高度，旁边 2025 年只剩 43% 高度，中间一个“−57%”标注。只画这两个有出处的数据点，不画逐年曲线。
   camera:
     move: static
     lens_mm: 0
@@ -1981,7 +1981,7 @@ shots:
   style: documentary
   style_why: 回答“它从哪里来”：灯光一亮，巨物旁边出现人，外星科技变回人类工程
   transition_in: flash
-  visual: 大厅顶灯一排排亮起，暖白光驱散雾气：机器体块旁站着几十个穿洁净服的人影，有人在调试、有人在交谈。镜头后拉，大厅墙面上浮现一张世界地图，5100 个光点（A0_03 同款）从各地亮起，汇向这台机器。
+  visual: 大厅顶灯一排排亮起，暖白光驱散雾气：机器体块旁站着几十个逆光的洁净服剪影（不出现面部），有人在调试、有人在交谈。镜头后拉，大厅墙面上浮现一张世界地图，5100 个光点（A0_03 同款）从各地亮起，汇向这台机器。
   camera:
     move: pull-back-crane
     lens_mm: 35

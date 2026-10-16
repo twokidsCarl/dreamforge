@@ -14,26 +14,27 @@
 shots:
 - id: A0_01
   segment: A0
-  duration: 3.0
+  duration: 4.0
   vo: []
   facts: []
   style: photoreal
   style_why: 冷开场先给一个不解释的“真东西”谜面：一颗锡滴；全片结尾（D 段）会回到它。
   transition_in: fade
-  visual: 纯黑中，一颗银亮的锡滴从画左进入，以超慢动作掠过镜头前，表面映着冷蓝反光和一点紫色辉光，焦外是几颗 LED 散景；锡滴飞出画右的一瞬硬切。
+  visual: 纯黑中，一颗银亮的锡滴从画左超慢动作掠入，表面映着冷蓝反光，焦外几颗 LED 散景；一道橙色细脉冲擦过，锡滴摊成薄盘；下一帧全屏紫白闪光、发光碎屑炸开——闪光最亮的一帧硬切黑。（全片的预告：结尾 D_09 在同一颗锡滴被击中前切黑，首尾呼应。）
   camera:
     move: locked-off
     lens_mm: 100
     fstop: 1.4
     notes: 焦平面刚好落在锡滴轨迹上，进出画都虚；沿用 sample_b1 的 Key/Rim 布光
-  ref: sample_b1:CamNozzle
+  ref: sample_b1:CamPrePulse
   builders:
   - build_source.droplet
   - build_vacuum.chamber
   fx:
   - shallow_dof
   - motion_blur
-  - bloom
+  - flash_white
+  - debris_particles
   - led_bokeh
   overlays: []
   engine: cycles
@@ -52,7 +53,7 @@ shots:
   style: documentary
   style_why: 回答“它在真实世界的哪里”：一次真实发生过的运输，用纪实氛围建立可信度。
   transition_in: cut
-  visual: 夜间货运机场（风格化，无航司与品牌标识）。宽银幕构图，大型货机机头舱门在液压声中缓缓抬起，舱内冷白顶光照出一排排木质板条箱；地勤人员和叉车是小小的剪影，湿地面反射着跑道灯。
+  visual: 夜间货运机场（风格化，无航司与品牌标识）。宽银幕构图，大型货机机头舱门在液压声中缓缓抬起，舱内冷白顶光照出一排排木质板条箱。画面里不出现人物。
   camera:
     move: slow dolly-in
     lens_mm: 35
@@ -625,7 +626,7 @@ shots:
   facts: []
   style: energy
   style_why: 过渡镜头：把比喻里的“笔”换成真正的光，引出下一段光的脾气。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 字的纹理暗下去，只剩写字的那支“笔”化成一束细光，在黑底上画出一条发光直线；线越画越细，到最细时边缘开始发毛、晕开。
   camera:
     move: lateral track
@@ -902,7 +903,7 @@ shots:
   facts: []
   style: energy
   style_why: 让光在能量图里熄灭，用画面说出“造不出来”，引出三道难题。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 黑底中那支紫色“光笔”开始闪烁、变暗，像接触不良的灯丝；最后熄灭，只剩一缕余辉，画面全黑后留半秒静默。
   camera:
     move: locked-off
@@ -1556,7 +1557,7 @@ shots:
   facts: []
   style: energy
   style_why: 闪白褪去后只看能量：碎屑由热到冷的颜色就是温度的语言。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 闪白褪去时腔体结构消失：黑底上只剩发光碎屑由白紫冷却成橙红，慢慢四散；等离子核心仍在脉动。
   camera:
     move: slow drift
@@ -2005,7 +2006,7 @@ shots:
   facts: []
   style: energy
   style_why: 段尾留白：只剩光，交给下一段“刚造出来的光，处境非常危险”。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 外壳和结构淡去，只剩一束细细的紫光在黑暗里穿过中间焦点向前；光的账本在右侧静止。
   camera:
     move: slow follow

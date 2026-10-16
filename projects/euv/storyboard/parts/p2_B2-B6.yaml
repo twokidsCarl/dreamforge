@@ -549,7 +549,7 @@ shots:
   - F56
   style: energy
   style_why: 纯画面节拍（本段震撼时刻）：网格与线稿退去，只剩成百上千条光线汇成一点——几何变成能量。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 蓝底网格与线稿淡出成黑；数百条紫色光线从 焦点① 炸开、打到看不见的镜面、再一齐收拢进 焦点②，在那里聚成一颗刺眼的光点；随后连续几次脉冲，每次都精确地汇进同一点。
   camera:
     move: static
@@ -715,7 +715,7 @@ shots:
   - F8
   style: energy
   style_why: 相长干涉是看不见的波动物理，在同一截面上把灰阶换成发光的波最清楚。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 同一截面里灰阶退去，只剩发光的层界线；一列紫色光波斜射进来，每过一层界面就分出一缕微弱的反射小波；几十缕小波波峰对齐、同相叠加，汇成一道明亮的反射光束。
   camera:
     move: slow-pull-back
@@ -1020,7 +1020,7 @@ shots:
   style: documentary
   style_why: “它在真实世界的哪里、有多大”——用风格化的大厅和人影给出尺度。
   transition_in: dissolve
-  visual: 风格化的测量大厅（不仿制具体工厂）：一面镜子被吊装缓缓降入一座巨大的真空测量舱，舱门边站着几个穿洁净服的人影，只到舱体的一角。
+  visual: 风格化的测量大厅（不仿制具体工厂）：一面镜子被吊装缓缓降入一座巨大的真空测量舱，舱门边站着几个逆光剪影（不出现面部），只到舱体的一角。
   camera:
     move: slow-tilt-down
     lens_mm: 24
@@ -1083,7 +1083,7 @@ shots:
   - F8
   style: energy
   style_why: 回到主线一“光的账本”——光的损耗只能在能量图里看见。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 白模淡成暗色描边，只剩一面镜子和一束紫光；光束打到镜面，最多七成反射出去，其余化成暗橙色的热晕留在镜面上；右侧“光的账本”计量条重新出现，跟着掉下一截。
   camera:
     move: static
@@ -1346,7 +1346,7 @@ shots:
   - F34
   style: energy
   style_why: 光瞳形状是光的分布，黑底能量图里只看光最清楚。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 正视光瞳，黑底：一块块小光斑像马赛克一样拼出圆盘，随后重排成圆环、再分裂成上下两极、再变成四极和一个自由形状，每次重排都是成百小块光点滑动归位。
   camera:
     move: static
@@ -1428,7 +1428,7 @@ shots:
   facts: []
   style: xray
   style_why: 纯画面节拍：回到整机剖视，整形后的光离开照明模块向掩模爬升，作为 B6 的桥。
-  transition_in: scan-wipe
+  transition_in: dissolve
   visual: 透明剖视，构图与 B5_01 相同；一束两极形状的紫色光离开照明模块，斜着爬向上方的掩模台，镜头跟着光往上摇。
   camera:
     move: tilt-up
@@ -1872,7 +1872,7 @@ shots:
   facts: []
   style: energy
   style_why: 离焦是光学现象，能量图里能直接看到光线在像面上散开。
-  transition_in: fade-to-energy
+  transition_in: cut
   visual: 结构变成暗色描边，只剩光线：掩模平面上的图形成像锐利；一粒落在膜上的灰尘离掩模面有一段距离，它在像面上的影子被拉成一团越来越淡的光晕，最后完全化开。
   camera:
     move: rack-focus
