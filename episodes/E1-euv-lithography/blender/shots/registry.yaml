@@ -56,3 +56,9 @@ B4_13: {scene: b4_scenes, args: {variant: hall}, camera: CamB4_13, start: 1, sty
 B4_14: {scene: b4_scenes, args: {variant: explode}, camera: CamB4_14, start: 1, style: clay, engine: eevee}
 B4_15: {scene: b4_scenes, args: {variant: bounce}, camera: CamB4_15, start: 1, style: energy, engine: eevee}
 B4_16: {scene: b4_scenes, args: {variant: bounce}, camera: CamB4_16, start: 1, style: energy, engine: eevee}
+B5_01: {scene: b5_scenes, args: {variant: machine}, camera: CamB5_01, start: 1, style: xray, engine: eevee}
+B5_02: {scene: b5_scenes, args: {variant: module}, camera: CamB5_02, start: 1, style: xray, engine: eevee}
+B5_03: {scene: b5_scenes, args: {variant: terrain}, camera: CamB5_03, start: 1, style: energy, engine: eevee}
+B5_04: {scene: b5_scenes, args: {variant: facets}, camera: CamB5_04, start: 1, style: photoreal, engine: cycles}
+B5_05: {scene: b5_scenes, args: {variant: facets}, camera: CamB5_05, start: 121, style: photoreal, engine: cycles}
+B5_09: {scene: b5_scenes, args: {variant: machine}, camera: CamB5_09, start: 120, style: xray, engine: eevee}
