@@ -120,3 +120,6 @@ C_09: {scene: c_scenes, args: {variant: accents}, camera: CamC_09, start: 241, s
 C_10: {scene: c_scenes, args: {variant: heart}, camera: CamC_10, start: 1, style: energy, engine: eevee}
 D_08: {scene: b1_source, camera: CamA0_01, start: 4, style: photoreal, engine: cycles}
 D_09: {scene: b1_source, camera: CamD_09, start: 42, black_tail: 2, style: photoreal, engine: cycles}
+D_01: {scene: d_scenes, args: {variant: foup}, camera: CamD_01, start: 1, style: photoreal, engine: cycles}
+D_06: {scene: d_scenes, args: {variant: monolith}, camera: CamD_06, start: 1, style: photoreal, engine: eevee}
+D_07: {scene: d_scenes, args: {variant: crowd}, camera: CamD_07, start: 1, style: photoreal, engine: eevee}
