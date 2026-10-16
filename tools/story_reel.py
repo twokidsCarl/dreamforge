@@ -111,6 +111,100 @@ def board(s, W, H, seg_title):
     return img
 
 
+def draw_sub(img, s, t0, W, H, total, k):
+    d = ImageDraw.Draw(img, "RGBA")
+    cue = next((c for c in s.get("subs", []) if c["start"] <= t0 + 1e-3 < c["end"]), None)
+    if cue:
+        f = font(int(28 * k))
+        tw = d.textlength(cue["text"], font=f)
+        lines = [cue["text"]] if tw < W * 0.86 else wrap_px(d, cue["text"], f, W * 0.8)
+        y = H - int(110 * k) - (len(lines) - 1) * int(40 * k)
+        for ln in lines:
+            lw = d.textlength(ln, font=f)
+            d.rectangle([(W - lw) / 2 - 12 * k, y - 4 * k, (W + lw) / 2 + 12 * k, y + 38 * k], fill=(0, 0, 0, 150))
+            d.text(((W - lw) / 2, y), ln, font=f, fill=(255, 255, 255))
+            y += int(40 * k)
+    gt = s["start"] + t0
+    d.rectangle([0, H - int(6 * k), int(W * gt / total), H], fill=(150, 110, 255))
+    d.text((W - int(180 * k), H - int(40 * k)), tc(gt), font=font(int(16 * k)), fill=(200, 204, 216))
+    return img
+
+
+def rendered_frames(sid, quality_order=("final", "sample", "preview")):
+    for q in quality_order:
+        d = os.path.join(RENDERS, "shots", sid, q)
+        if os.path.isdir(d):
+            fr = sorted(f for f in os.listdir(d) if f.endswith(".png"))
+            if fr:
+                return d, fr, q
+    return None, [], None
+
+
+def label_layer(s, W, H, k, a=1.0):
+    """On-screen labels planned for the shot (non-chapter), stacked bottom-left above subtitles."""
+    from overlay_labels import draw_label
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ovs = [o for o in s.get("overlays") or [] if o.get("kind") != "chapter"]
+    if not ovs:
+        return layer
+    lab = {"text": ovs[0]["text"], "sub": " ｜ ".join(o["text"] for o in ovs[1:3]),
+           "source": "事实库", "facts": sorted({f for o in ovs for f in o.get("facts") or []}) or ["—"],
+           "pos": "upper_right"}
+    draw_label(layer, lab, a, W, H)
+    return layer
+
+
+def build_clip(s, W, H, total, k, title, out):
+    """One mp4 per shot; rebuilt only when its inputs are newer than the clip."""
+    clip = os.path.join(out, "clips", f"{s['id']}.mp4")
+    fdir, frames, q = rendered_frames(s["id"])
+    n = max(1, round(s["duration"] * FPS))
+    stamp = max([os.path.getmtime(os.path.join(fdir, f)) for f in frames] if frames else [0]
+                + [os.path.getmtime(os.path.join(REPO, "projects/euv/storyboard/storyboard.timed.yaml"))])
+    if os.path.exists(clip) and os.path.getmtime(clip) > stamp:
+        return clip
+    tmp = os.path.join(out, "tmp", s["id"])
+    os.makedirs(tmp, exist_ok=True)
+    for f in os.listdir(tmp):
+        os.remove(os.path.join(tmp, f))
+    if frames:
+        name, _, acc = STYLE[s["style"]]
+        labels = label_layer(s, W, H, k)
+        for i in range(n):
+            src = frames[min(i, len(frames) - 1)] if len(frames) > 1 else frames[0]
+            img = Image.open(os.path.join(fdir, src)).convert("RGB").resize((W, H), Image.LANCZOS)
+            img = Image.alpha_composite(img.convert("RGBA"), labels).convert("RGB")
+            d = ImageDraw.Draw(img, "RGBA")
+            m = int(36 * k)
+            d.rectangle([m, m, m + int(12 * k), m + int(12 * k)], fill=acc)
+            d.text((m + int(20 * k), m - int(6 * k)), f"{s['id']} · {name} · {q}", font=font(int(15 * k)),
+                   fill=(230, 232, 240))
+            draw_sub(img, s, i / FPS, W, H, total, k).save(os.path.join(tmp, f"{i + 1:05d}.png"))
+        cmd = ["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", os.path.join(tmp, "%05d.png")]
+    else:
+        base = board(s, W, H, title)
+        subs = s.get("subs", [])
+        marks = sorted(set(round(x, 3) for x in [0.0, s["duration"]] + [c["start"] for c in subs]
+                           + [c["end"] for c in subs] if 0 <= x <= s["duration"]))
+        lst = os.path.join(tmp, "list.txt")
+        with open(lst, "w") as fh:
+            last = None
+            for i in range(len(marks) - 1):
+                t0, t1 = marks[i], marks[i + 1]
+                if t1 - t0 < 1 / FPS:
+                    continue
+                p = os.path.join(tmp, f"b{i:02d}.png")
+                draw_sub(base.copy(), s, t0, W, H, total, k).save(p)
+                fh.write(f"file '{p}'\nduration {t1 - t0:.4f}\n")
+                last = p
+            fh.write(f"file '{last}'\n")
+        cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", lst]
+    os.makedirs(os.path.dirname(clip), exist_ok=True)
+    subprocess.run(cmd + ["-vf", f"fps={FPS},format=yuv420p", "-frames:v", str(n), "-c:v", "libx264",
+                          "-preset", "veryfast", "-crf", "20", clip], check=True)
+    return clip
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--voice", default="Andre")
@@ -118,55 +212,24 @@ def main():
     a = ap.parse_args()
     W, H = (int(x) for x in a.size.split("x"))
     sb = yaml.safe_load(open(os.path.join(REPO, "projects/euv/storyboard/storyboard.timed.yaml"), encoding="utf-8"))
-    sys.path.insert(0, os.path.dirname(__file__))
     from lint_script import parse
     titles = {x["id"]: x["title"] for x in parse(os.path.join(REPO, "projects/euv/script/script_zh.md"))}
     out = os.path.join(RENDERS, "reel")
-    os.makedirs(os.path.join(out, "boards"), exist_ok=True)
     total = sb["timing"]["total"]
     k = H / 720
-    lst = []
+    clips, rendered = [], 0
     for s in sb["shots"]:
-        base = board(s, W, H, titles.get(s["segment"], ""))
-        # one frame per subtitle state inside the shot (no cue / each cue)
-        subs = s.get("subs", [])
-        marks = [0.0] + [c["start"] for c in subs] + [c["end"] for c in subs] + [s["duration"]]
-        marks = sorted(set(round(x, 3) for x in marks if 0 <= x <= s["duration"]))
-        for i in range(len(marks) - 1):
-            t0, t1 = marks[i], marks[i + 1]
-            if t1 - t0 < 1 / FPS:
-                continue
-            img = base.copy()
-            d = ImageDraw.Draw(img, "RGBA")
-            cue = next((c for c in subs if c["start"] <= t0 + 1e-3 < c["end"]), None)
-            if cue:
-                f = font(int(28 * k))
-                tw = d.textlength(cue["text"], font=f)
-                lines = [cue["text"]] if tw < W * 0.86 else wrap_px(d, cue["text"], f, W * 0.8)
-                y = H - int(110 * k) - (len(lines) - 1) * int(40 * k)
-                for ln in lines:
-                    lw = d.textlength(ln, font=f)
-                    d.rectangle([(W - lw) / 2 - 12 * k, y - 4 * k, (W + lw) / 2 + 12 * k, y + 38 * k], fill=(0, 0, 0, 150))
-                    d.text(((W - lw) / 2, y), ln, font=f, fill=(255, 255, 255))
-                    y += int(40 * k)
-            gt = s["start"] + t0
-            d.rectangle([0, H - int(6 * k), int(W * gt / total), H], fill=(150, 110, 255))
-            d.text((W - int(180 * k), H - int(40 * k)), tc(gt), font=font(int(16 * k)), fill=(200, 204, 216))
-            p = os.path.join(out, "boards", f"{s['id']}_{i:02d}.png")
-            img.save(p)
-            lst.append((p, t1 - t0))
-    with open(os.path.join(out, "boards.txt"), "w") as fh:
-        for p, dur in lst:
-            fh.write(f"file '{p}'\nduration {dur:.4f}\n")
-        fh.write(f"file '{lst[-1][0]}'\n")
+        clips.append(build_clip(s, W, H, total, k, titles.get(s["segment"], ""), out))
+        rendered += bool(rendered_frames(s["id"])[1])
+    lst = os.path.join(out, "clips.txt")
+    with open(lst, "w") as fh:
+        fh.writelines(f"file '{c}'\n" for c in clips)
     vo = os.path.join(REPO, "audio", "vo", a.voice, "vo_track.wav")
     mp4 = os.path.join(out, "story_reel.mp4")
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i",
-                    os.path.join(out, "boards.txt"), "-i", vo, "-vf", f"fps={FPS},format=yuv420p",
-                    "-c:v", "libx264", "-preset", "medium", "-crf", "22",
-                    "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", "-c:a", "aac", "-b:a", "160k",
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", lst, "-i", vo,
+                    "-c:v", "copy", "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", "-c:a", "aac", "-b:a", "160k",
                     "-shortest", "-movflags", "+faststart", mp4], check=True)
-    print(mp4, f"{len(lst)} boards, {total / 60:.2f} min")
+    print(mp4, f"{len(clips)} shots ({rendered} rendered), {total / 60:.2f} min")
 
 
 if __name__ == "__main__":

@@ -17,3 +17,14 @@ B1_13: {scene: b1_source, camera: CamB1_13, start: 186, style: photoreal, engine
 B1_14: {scene: b1_source, camera: CamB1_14, start: 200, style: energy, engine: eevee}
 B1_15: {scene: b1_source, camera: CamB1_15, start: 205, style: photoreal, engine: cycles}
 B1_21: {scene: b1_source, camera: CamB1_21, start: 260, style: photoreal, engine: cycles}
+B1_05: {scene: b1_jet, camera: CamB1_05, start: 25, style: photoreal, engine: cycles}
+B1_17: {scene: b1_atom, args: {variant: atom}, camera: CamB1_17, start: 1, style: energy, engine: eevee}
+B1_19: {scene: b1_atom, args: {variant: web}, camera: CamB1_19, start: 1, style: energy, engine: eevee}
+B1_20: {scene: b1_atom, args: {variant: web}, camera: CamB1_20, start: 150, style: energy, engine: eevee}
+B1_22: {scene: b1_laser, camera: CamB1_22, start: 1, style: blueprint, engine: eevee}
+B1_23: {scene: b1_laser, camera: CamB1_23, start: 40, style: photoreal, engine: cycles}
+B1_24: {scene: b1_laser, camera: CamB1_24, start: 140, style: energy, engine: eevee}
+B1_26: {scene: b1_laser, args: {explode: true}, camera: CamB1_26, start: 1, style: clay, engine: eevee}
+B1_25: {scene: b1_machine, args: {variant: hall}, camera: CamB1_25, start: 1, style: photoreal, engine: cycles}
+B1_28: {scene: b1_machine, camera: CamB1_28, start: 1, style: xray, engine: cycles}
+B1_29: {scene: b1_machine, camera: CamB1_29, start: 100, style: energy, engine: eevee}
