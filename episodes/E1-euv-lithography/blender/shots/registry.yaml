@@ -105,3 +105,7 @@ A1_04: {scene: a1_scenes, args: {variant: expose}, camera: CamA1_04, start: 1, s
 A1_06: {scene: a1_scenes, args: {variant: process}, camera: CamA1_06, start: 1, style: clay, engine: eevee}
 A1_07: {scene: a1_scenes, args: {variant: process}, camera: CamA1_07, start: 181, style: clay, engine: eevee}
 A1_09: {scene: a1_scenes, args: {variant: stack}, camera: CamA1_09, start: 1, style: xray, engine: eevee}
+A2_08: {scene: a23_scenes, args: {variant: ribbon}, camera: CamA2_08, start: 1, style: energy, engine: eevee}
+A3_04: {scene: a23_scenes, args: {variant: lens}, camera: CamA3_04, start: 1, style: photoreal, engine: cycles}
+A3_05: {scene: a23_scenes, args: {variant: montage}, camera: CamA3_05, start: 1, style: photoreal, engine: cycles}
+A3_06: {scene: a23_scenes, args: {variant: tour}, camera: CamA3_06, start: 1, style: xray, engine: eevee}
