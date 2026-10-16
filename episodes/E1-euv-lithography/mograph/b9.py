@@ -63,10 +63,11 @@ def photon_energy(t, dur, W, H):
     c.text((1320, 480), "EUV（13.5 nm）", 30, INK, a * on, anchor="mm")
     g = ease_out(seg(t, 1.6, 3.6))
     base = 960
-    c.rect((560, base - 40 * g, 640, base), fill=DUV, a=a, radius=4)
-    c.rect((1280, base - 40 * 14.4 * g * 0.72, 1360, base), fill=VIOLET, a=a, glow=True, radius=4)
-    c.text((700, base - 40 * g - 10), f"{6.4 * g:.1f} eV", 30, INK2, a * ease(seg(t, 1.8, 2.2)), anchor="lm")
-    c.text((1420, base - 40 * 14.4 * g * 0.72 - 10), f"{92 * g:.0f} eV", 40, INK, a * ease(seg(t, 1.8, 2.2)),
+    u = 30                                                         # px per 6.4 eV: bars strictly to scale
+    c.rect((560, base - u * g, 640, base), fill=DUV, a=a, radius=4)
+    c.rect((1280, base - u * 92 / 6.4 * g, 1360, base), fill=VIOLET, a=a, glow=True, radius=4)
+    c.text((700, base - u * g - 10), f"{6.4 * g:.1f} eV", 30, INK2, a * ease(seg(t, 1.8, 2.2)), anchor="lm")
+    c.text((1420, base - u * 92 / 6.4 * g - 10), f"{92 * g:.0f} eV", 40, INK, a * ease(seg(t, 1.8, 2.2)),
            anchor="lm", weight_glow=True)
     c.text((960, 620), "× 14", 72, VIOLET, a * ease(seg(t, 3.8, 4.4)), anchor="mm", weight_glow=True)
     c.text((960, 1030), "F47", 18, INK2, a, anchor="mm")
