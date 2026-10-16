@@ -58,7 +58,16 @@ def chunk_subtitle(text):
     return [re.sub(r"[，。、；]+$", "", c).strip() for c in fixed if c.strip()]
 
 
+_MANIFEST = {}
+
+
 def wav_for(text, voice):
+    """Sentence audio: paragraph-mode manifest if present, else the per-sentence cache."""
+    if voice not in _MANIFEST:
+        p = os.path.join(REPO, "audio", "vo", voice, "sentences.json")
+        _MANIFEST[voice] = json.load(open(p, encoding="utf-8")) if os.path.exists(p) else {}
+    if text in _MANIFEST[voice]:
+        return _MANIFEST[voice][text]
     return os.path.join(REPO, "audio", "vo_cache", f"{tts.cache_key(text, voice)}.wav")
 
 
