@@ -5444,9 +5444,9 @@ shots:
   facts:
   - F18
   style: clay
-  style_why: 回答“零件怎么组装”：白模爆炸图安静地展示一台 12 吨的光学模块由多少零件构成，不必伪装成真实 CAD
+  style_why: 无旁白的呼吸镜头：B4_14 已经炸开过同一模块，这里改用白模转台加一个人形比例尺，安静地交代它有多大，避免重复
   transition_in: dissolve
-  visual: 纯白哑光的投影光学模块（示意外形）悬在浅灰棚里，缓缓爆炸展开成层层零件：镜座、框架、支撑杆、上千颗螺钉像星云一样散开。零件计数器一路滚到 40,000+，重量标签落定“12 吨”。爆炸到最大时停顿半秒，再回收。
+  visual: 纯白哑光的 High-NA 投影光学模块（示意外形）立在浅灰无缝棚里缓缓转动，旁边站着一个同样白模的人形比例尺，只到模块腰部；顶光在模块的层层框架上留下柔和的 AO 阴影。
   camera:
     move: orbit
     lens_mm: 65
@@ -5459,7 +5459,7 @@ shots:
   - ambient_occlusion
   - explode_stagger
   overlays:
-  - text: High-NA 投影光学：超过 4 万个零件 · 12 吨
+  - text: High-NA 投影光学（外形示意，人形为比例参考）
     facts:
     - F18
   - text: 外形示意
