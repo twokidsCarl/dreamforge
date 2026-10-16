@@ -458,14 +458,23 @@ F42:
   segments: [B8]
 
 F43:
-  claim: 套刻精度：NXE:3800E 匹配机台套刻 ≤0.9 nm（产能 ≥220 片/小时）；High-NA EXE:5200B 在英特尔验收测试中达到 0.7 nm
-  values: {nxe_overlay_nm: 0.9, exe_overlay_nm: 0.7}
+  claim: 套刻精度：NXE:3800E 匹配机台套刻 ≤0.9 nm（产能 ≥220 片/小时）
+  values: {nxe_overlay_nm: 0.9}
   status: verified
   grade: B
   sources:
     - https://euvlitho.com/2023/P62.pdf
+  notes: ASML 作者的会议报告。
+  segments: [B8]
+
+F43b:
+  claim: High-NA EXE:5200B 在英特尔验收测试中套刻精度达到 0.7 nm（产能 175 片/小时）
+  values: {exe_overlay_nm: 0.7}
+  status: reported
+  grade: C
+  narration: 据报道，英特尔的验收测试做到了 0.7 纳米
+  sources:
     - https://bits-chips.com/?p=231162
-  notes: 0.9 nm 为 ASML 自己的会议报告（B）；0.7 nm 为媒体转述英特尔数据（C），旁白写“英特尔的验收测试中”。
   segments: [B8]
 
 F44:
@@ -621,3 +630,23 @@ F59:
     - https://journals.spiedigitallibrary.org/journals/Journal-of-MicroNanolithography-MEMS-and-MOEMS/volume-19/issue-03/034001/Fundamental-characterization-of-stochastic-variation-for-improved-single-expose-extreme/10.1117/1.JMM.19.3.034001.full
     - https://spiedigitallibrary.org/journals/journal-of-micro-nanolithography-mems-and-moems/volume-18/issue-1/013503/Localized-and-cascading-secondary-electron-generation-as-causes-of-stochastic/10.1117/1.JMM.18.1.013503.full
   segments: [B9]
+
+F60:
+  claim: 硅晶格常数约 543 pm（NIST/CODATA）；相邻两个硅原子相距约 235 pm（= a·√3/4，推算）
+  values: {lattice_pm: 543.1, si_si_pm: 235}
+  status: derived
+  grade: A
+  narration: 相邻两个硅原子，相距大约 235 皮米
+  sources:
+    - https://www.physics.nist.gov/cuu/pdf/xray_2014.pdf
+  notes: “硅原子标尺”的标准刻度。60 pm 传感器（F42）约为原子间距的四分之一；20 pm 镜面误差（F29）约为十分之一。
+  segments: [B4, B8]
+
+F61:
+  claim: ASML 总部位于荷兰埃因霍温附近的费尔德霍芬（Veldhoven），EUV 系统在此总装后运往客户工厂
+  status: verified
+  grade: A
+  sources:
+    - https://www.sec.gov/Archives/edgar/data/0000937966/000162828026011378/asml-20251231.htm
+    - https://intel.com/content/www/us/en/newsroom/news/intel-foundry-opens-new-frontier-chipmaking.html
+  segments: [A0]
