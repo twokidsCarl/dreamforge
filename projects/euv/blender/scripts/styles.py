@@ -4,6 +4,8 @@
   xray       light studio, ghost-glass shells, glowing core   "what it looks like inside"
   blueprint  white linework on blue, Freestyle               "how it is designed"
   energy     black, only light / plasma / particles / rays   "the invisible physics"
+  clay       matte warm-white models on a soft studio cyc      "how it is assembled / moves"
+  sem        greyscale, edge-bright, electron-microscope look  "what the nanoscale looks like"
 
 Builders tag objects with a `role` custom property; apply_style() swaps materials, world,
 lights and line rendering per role. Untagged objects are classified automatically:
@@ -15,7 +17,7 @@ import common as C
 import materials as M
 
 ROLES = ("structure", "shell", "emitter", "env", "rig", "rays")
-STYLES = ("photoreal", "xray", "blueprint", "energy")
+STYLES = ("photoreal", "xray", "blueprint", "energy", "clay", "sem")
 
 BLUEPRINT_BG = (0.010, 0.055, 0.20)
 BLUEPRINT_FILL = (0.016, 0.075, 0.25)
@@ -122,6 +124,31 @@ def dark_rim(name="EnergyRim", color=(0.15, 0.4, 1.0), strength=1.2):
     return m
 
 
+def clay_material(name="Clay"):
+    return M.principled(name, (0.70, 0.68, 0.64), metallic=0.0, roughness=0.55)
+
+
+def sem_material(name="SEM"):
+    """Secondary-electron look: surfaces seen edge-on glow brighter than those facing the beam."""
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    nt.nodes.remove(nt.nodes["Principled BSDF"])
+    lw = nt.nodes.new("ShaderNodeLayerWeight")
+    lw.inputs["Blend"].default_value = 0.5
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].position = 0.15
+    ramp.color_ramp.elements[0].color = (0.035, 0.035, 0.035, 1)
+    ramp.color_ramp.elements[1].position = 1.0
+    ramp.color_ramp.elements[1].color = (0.62, 0.62, 0.62, 1)
+    ramp.color_ramp.interpolation = "EASE"
+    em = nt.nodes.new("ShaderNodeEmission")
+    nt.links.new(lw.outputs["Facing"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], em.inputs["Color"])
+    nt.links.new(em.outputs[0], nt.nodes["Material Output"].inputs["Surface"])
+    return m
+
+
 def _flat_world(color, strength=1.0):
     sc = bpy.context.scene
     w = bpy.data.worlds.new("StyleWorld")
@@ -176,7 +203,9 @@ def apply_style(style, line_px=1.3):
     show = {"photoreal": {"structure", "emitter", "env", "rig", "shell"},
             "xray": {"structure", "shell", "emitter", "rays"},
             "blueprint": {"structure", "shell"},
-            "energy": {"structure", "shell", "emitter", "rays"}}[style]
+            "energy": {"structure", "shell", "emitter", "rays"},
+            "clay": {"structure", "shell", "emitter"},
+            "sem": {"structure", "shell"}}[style]
     for o in objs:
         if roles[o] in ROLES and roles[o] not in show:
             o.hide_render = True
@@ -238,4 +267,29 @@ def apply_style(style, line_px=1.3):
             if roles[o] in ("structure", "shell"):
                 _set_material(o, rim)
         _lights(False)
+        return
+
+    if style == "clay":
+        C.set_world(top=(0.42, 0.42, 0.41), horizon=(0.30, 0.30, 0.29), bottom=(0.14, 0.14, 0.135))
+        C.set_color_management(look="Base Contrast", exposure=-0.2)
+        clay = clay_material()
+        for o in objs:
+            if roles[o] in ("structure", "shell"):
+                _set_material(o, clay)
+        _lights(True)
+        return
+
+    if style == "sem":
+        _flat_world((0.0, 0.0, 0.0))
+        sc.view_settings.view_transform = "Standard"
+        sc.view_settings.look = "None"
+        sc.view_settings.exposure = 0.0
+        mat = sem_material()
+        for o in objs:
+            if roles[o] in ("structure", "shell"):
+                _set_material(o, mat)
+        _lights(False)
+        sc.render.use_motion_blur = False
+        sc["no_glare"] = True
+        # grain, scan lines and the scale bar are added in post (tools/post_looks.py)
         return

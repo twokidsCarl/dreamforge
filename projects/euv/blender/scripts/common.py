@@ -124,7 +124,7 @@ def setup_compositor(glare_strength=0.6, glare_size=7, dispersion=0.012):
     glare = n.new("CompositorNodeGlare")
     glare.inputs["Type"].default_value = "Bloom"
     glare.inputs["Threshold"].default_value = 0.8
-    glare.inputs["Strength"].default_value = glare_strength
+    glare.inputs["Strength"].default_value = 0.0 if sc.get("no_glare") else glare_strength
     glare.inputs["Size"].default_value = glare_size / 9
     lens = n.new("CompositorNodeLensdist")
     lens.inputs["Dispersion"].default_value = dispersion

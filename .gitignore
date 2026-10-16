@@ -5,3 +5,4 @@ __pycache__/
 audio/vo_cache/
 audio/auditions/
 audio/vo/
+.venv/

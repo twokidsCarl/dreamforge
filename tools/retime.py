@@ -16,6 +16,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 
 import numpy as np
@@ -29,6 +30,33 @@ REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 LEAD, TAIL = 0.3, 0.4          # minimum silence before the first / after the last sentence
 GAP = tts.PAUSE_LINE
 EST_PAUSE = 0.35               # per-line pause assumed by the design estimate
+END_HOLD = 2.5                 # hold on the last card after the final sentence
+SUB_MAX = 18                   # max characters per subtitle
+SUB_SPLIT = re.compile(r"(?<=[，；：？！。、])|(?<=——)")
+
+
+def chunk_subtitle(text):
+    """Split a sentence into subtitle-sized pieces at punctuation; drop trailing ，。"""
+    pieces = [p for p in SUB_SPLIT.split(text) if p.strip()]
+    out, cur = [], ""
+    for p in pieces:
+        if cur and spoken_len(cur + p) > SUB_MAX:
+            out.append(cur)
+            cur = p
+        else:
+            cur += p
+    if cur:
+        out.append(cur)
+    fixed = []
+    for c in out:  # a single clause that is still too long: cut near the middle, not inside Latin words
+        while spoken_len(c) > SUB_MAX + 4:
+            mid = len(c) // 2
+            k = next((i for d in range(len(c)) for i in (mid + d, mid - d)
+                      if 0 < i < len(c) and not (c[i - 1].isascii() and c[i].isascii() and c[i].isalnum())), mid)
+            fixed.append(c[:k])
+            c = c[k:]
+        fixed.append(c)
+    return [re.sub(r"[，。、；]+$", "", c).strip() for c in fixed if c.strip()]
 
 
 def wav_for(text, voice):
@@ -73,8 +101,28 @@ def main():
                 s["cues"].append({"text": v, "start": round(c - t, 3), "end": round(c - t + d, 3)})
                 c += d + GAP
         s["start"] = round(t, 3)
+        if s is shots[-1]:
+            s["duration"] = round(s["duration"] + END_HOLD, 2)
         t += s["duration"]
     total = t
+
+    # subtitle pieces: each cue split at punctuation, time shared by spoken length
+    subs = []
+    for c in cues:
+        parts = chunk_subtitle(c["text"])
+        w = [max(spoken_len(p), 1) for p in parts]
+        t0, span = c["start"], c["end"] - c["start"]
+        for p, wi in zip(parts, w):
+            d = span * wi / sum(w)
+            subs.append({"shot": c["shot"], "text": p, "start": round(t0, 3), "end": round(t0 + d, 3)})
+            t0 += d
+    by_shot = {}
+    for x in subs:
+        by_shot.setdefault(x["shot"], []).append(x)
+    for s in shots:
+        if s["id"] in by_shot:
+            s["subs"] = [{"text": x["text"], "start": round(x["start"] - s["start"], 3),
+                          "end": round(x["end"] - s["start"], 3)} for x in by_shot[s["id"]]]
 
     track = np.zeros(int(np.ceil(total * tts.SR)) + tts.SR, dtype=np.int32)
     for c in cues:
@@ -92,7 +140,7 @@ def main():
 
     os.makedirs(os.path.join(REPO, "projects/euv/subs"), exist_ok=True)
     with open(os.path.join(REPO, "projects/euv/subs/zh.srt"), "w", encoding="utf-8") as fh:
-        for i, c in enumerate(cues, 1):
+        for i, c in enumerate(subs, 1):
             fh.write(f"{i}\n{srt_time(c['start'])} --> {srt_time(c['end'])}\n{c['text']}\n\n")
     sb["timing"] = {"voice": a.voice, "total": round(total, 2), "design_total": round(design_total, 2)}
     with open(os.path.join(REPO, "projects/euv/storyboard/storyboard.timed.yaml"), "w", encoding="utf-8") as fh:
@@ -106,7 +154,8 @@ def main():
         segs[s["segment"]][1] += s["duration"]
     for k, (d0, d1) in segs.items():
         print(f"{k:<4} design {d0:6.1f}s -> timed {d1:6.1f}s")
-    print(f"total design {design_total / 60:.2f} min -> timed {total / 60:.2f} min; {len(cues)} cues")
+    print(f"total design {design_total / 60:.2f} min -> timed {total / 60:.2f} min; {len(cues)} cues, "
+          f"{len(subs)} subtitles (max {max(spoken_len(x['text']) for x in subs)} chars)")
 
 
 if __name__ == "__main__":

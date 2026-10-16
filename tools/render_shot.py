@@ -30,7 +30,7 @@ def parse():
     ap.add_argument("--engine", choices=["eevee", "cycles"], default="eevee")
     ap.add_argument("--preset", choices=list(C.PRESETS), default="sample")
     ap.add_argument("--cut", help="camera name from the shot's CUTS")
-    ap.add_argument("--style", choices=["photoreal", "xray", "blueprint", "energy"],
+    ap.add_argument("--style", choices=["photoreal", "xray", "blueprint", "energy", "clay", "sem"],
                     help="re-render the shot in one of the visual languages (styles.py)")
     ap.add_argument("--frames", help="comma-separated frame list; default renders the full range")
     ap.add_argument("--save-blend", action="store_true")

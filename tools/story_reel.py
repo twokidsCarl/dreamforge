@@ -129,7 +129,8 @@ def main():
     for s in sb["shots"]:
         base = board(s, W, H, titles.get(s["segment"], ""))
         # one frame per subtitle state inside the shot (no cue / each cue)
-        marks = [0.0] + [c["start"] for c in s.get("cues", [])] + [c["end"] for c in s.get("cues", [])] + [s["duration"]]
+        subs = s.get("subs", [])
+        marks = [0.0] + [c["start"] for c in subs] + [c["end"] for c in subs] + [s["duration"]]
         marks = sorted(set(round(x, 3) for x in marks if 0 <= x <= s["duration"]))
         for i in range(len(marks) - 1):
             t0, t1 = marks[i], marks[i + 1]
@@ -137,7 +138,7 @@ def main():
                 continue
             img = base.copy()
             d = ImageDraw.Draw(img, "RGBA")
-            cue = next((c for c in s.get("cues", []) if c["start"] <= t0 + 1e-3 < c["end"]), None)
+            cue = next((c for c in subs if c["start"] <= t0 + 1e-3 < c["end"]), None)
             if cue:
                 f = font(int(28 * k))
                 tw = d.textlength(cue["text"], font=f)
@@ -162,7 +163,8 @@ def main():
     mp4 = os.path.join(out, "story_reel.mp4")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i",
                     os.path.join(out, "boards.txt"), "-i", vo, "-vf", f"fps={FPS},format=yuv420p",
-                    "-c:v", "libx264", "-preset", "medium", "-crf", "22", "-c:a", "aac", "-b:a", "160k",
+                    "-c:v", "libx264", "-preset", "medium", "-crf", "22",
+                    "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", "-c:a", "aac", "-b:a", "160k",
                     "-shortest", "-movflags", "+faststart", mp4], check=True)
     print(mp4, f"{len(lst)} boards, {total / 60:.2f} min")
 
