@@ -16,6 +16,7 @@ from PIL import Image
 
 sys.path.insert(0, os.path.dirname(__file__))
 from lint_script import parse  # noqa: E402
+from zh_terms import ENGINES, TRANSITIONS, camera_zh, fx_zh  # noqa: E402
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 RENDERS = os.environ.get("DREAMFORGE_RENDER_DIR", os.path.join(REPO, "renders"))
@@ -115,22 +116,22 @@ def main():
                 + (f'<span class="fid">{esc("、".join(o.get("facts") or []))}</span>' if o.get("facts") else "")
                 + "</li>" for o in s.get("overlays") or [])
             cam = s.get("camera") or {}
-            cam_txt = " · ".join(str(x) for x in [cam.get("move"), f'{cam["lens_mm"]}mm' if cam.get("lens_mm") else None,
-                                                    f'f/{cam["fstop"]}' if cam.get("fstop") else None] if x)
+            cam_txt = " · ".join(str(x) for x in [camera_zh(cam.get("move")),
+                                                    f'{cam["lens_mm"]} 毫米焦距' if cam.get("lens_mm") else None,
+                                                    f'光圈 f/{cam["fstop"]}' if cam.get("fstop") else None] if x)
             extra = "".join(f"<dt>{k}</dt><dd>{esc(v)}</dd>" for k, v in [
                 ("机位", cam_txt + (f'；{cam["notes"]}' if cam.get("notes") else "")),
-                ("模块", "、".join(s.get("builders") or [])),
-                ("特效", "、".join(s.get("fx") or [])),
+                ("特效", "、".join(fx_zh(f) for f in s.get("fx") or [])),
                 ("声音", "、".join(s.get("sfx") or [])),
-                ("引擎", s.get("engine", "")),
-                ("复用", s.get("ref", "")),
+                ("渲染", ENGINES.get(s.get("engine", ""), s.get("engine", ""))),
+                ("复用", ("沿用 B1 样片机位 " + s["ref"].split(":")[-1]) if s.get("ref") else ""),
             ] if v)
             body.append(
                 f'<article class="shot" id="{esc(s["id"])}" data-style="{s["style"]}">'
                 f'<div class="meta"><span class="sid">{esc(s["id"])}</span>'
                 f'<span class="tc">{tc(s["_t0"])}</span><span class="dur">{s["duration"]:.1f}s</span>'
                 f'<span class="chip sm st-{s["style"]}"><span class="dot"></span>{STYLE_ZH[s["style"]]}</span>'
-                f'<span class="tr">入：{esc(s.get("transition_in", ""))}</span></div>'
+                f'<span class="tr">转场：{esc(TRANSITIONS.get(s.get("transition_in", ""), s.get("transition_in", "")))}</span></div>'
                 f'<div class="main"><p class="visual">{esc(s.get("visual", ""))}</p>'
                 f'<div class="vo">{vo}</div>'
                 f'<p class="why">为什么用{STYLE_ZH[s["style"]]}：{esc(s.get("style_why", ""))}</p>'
@@ -233,7 +234,7 @@ figcaption b {{ color: var(--ink); font-weight: 500; margin-right: 6px; }}
 details {{ font-size: 13px; color: var(--ink-2); }}
 summary {{ cursor: pointer; width: max-content; }}
 summary:focus-visible {{ outline: 2px solid var(--euv); outline-offset: 2px; }}
-dl {{ display: grid; grid-template-columns: 4em minmax(0, 1fr); gap: 2px 10px; margin: 8px 0 0; }}
+dl {{ display: grid; grid-template-columns: 5em minmax(0, 1fr); gap: 2px 10px; margin: 8px 0 0; }}
 dt {{ color: var(--ink); }} dd {{ margin: 0; overflow-wrap: anywhere; }}
 .filtering .shot:not(.on) {{ display: none; }}
 .filtering .seg:not(.has) {{ display: none; }}
@@ -247,7 +248,7 @@ dt {{ color: var(--ink); }} dd {{ margin: 0; overflow-wrap: anywhere; }}
 </style>
 <div class="wrap">
   <header>
-    <p class="label">Dreamforge · EUV 光刻机 · 分镜第一版</p>
+    <p class="label">Dreamforge · 极紫外光刻机 · 分镜第一版</p>
     <h1>一台光刻机里发生了什么</h1>
     <p class="lede">约 20 分钟单集。先讲为什么需要 EUV，再沿着光的路线拆开机器里的每个子系统，最后用一条长镜头总装。每个镜头按“它在回答什么问题”选择画面语言；所有上屏数字都能追溯到事实库编号。</p>
     <div class="stats"><span><b>{n}</b>个镜头</span><span><b>{mins}</b>分钟（按旁白字数估算）</span><span><b>{nseg}</b>个段落</span><span><b>10</b>种画面语言</span></div>
@@ -268,7 +269,7 @@ dt {{ color: var(--ink); }} dd {{ margin: 0; overflow-wrap: anywhere; }}
     <div>
       <p class="label">混搭规则</p>
       <ol class="rules">
-        <li>同一种语言连续不超过 3 个镜头（C 段长镜头除外）。</li>
+        <li>同一种画面语言连续不超过 3 个镜头（C 段长镜头除外）。</li>
         <li>每段至少用 3 种语言；切换要有动机：线稿实体化、扫描光带、结构淡出只剩能量、显微拉近。</li>
         <li>全片共用四个强调色：EUV 紫、激光橙、计量青、线稿白；同一物体跨风格保持同一构图。</li>
         <li>三条主线反复出现：光的账本、硅原子标尺、暴力与温柔。</li>
