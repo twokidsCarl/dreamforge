@@ -32,7 +32,7 @@ shots:
   start: 0.0
 - id: A0_02
   segment: A0
-  duration: 6.22
+  duration: 6.18
   vo:
   - 2023 年底，一批特殊的货物从荷兰出发，运往美国俄勒冈。
   facts:
@@ -72,18 +72,18 @@ shots:
   cues:
   - text: 2023 年底，一批特殊的货物从荷兰出发，运往美国俄勒冈。
     start: 0.3
-    end: 5.82
+    end: 5.78
   start: 4.0
   subs:
   - text: 2023 年底，一批特殊的货物从荷兰出发
     start: 0.3
-    end: 4.274
+    end: 4.246
   - text: 运往美国俄勒冈
-    start: 4.274
-    end: 5.82
+    start: 4.246
+    end: 5.78
 - id: A0_03
   segment: A0
-  duration: 8.46
+  duration: 8.64
   vo:
   - 250 多个板条箱，装满 43 个集装箱，坐了好几架货机，落地后又换上 20 辆卡车。
   facts:
@@ -123,15 +123,15 @@ shots:
   cues:
   - text: 250 多个板条箱，装满 43 个集装箱，坐了好几架货机，落地后又换上 20 辆卡车。
     start: 0.3
-    end: 8.06
-  start: 10.22
+    end: 8.24
+  start: 10.18
   subs:
   - text: 250 多个板条箱，装满 43 个集装箱
     start: 0.3
-    end: 3.952
+    end: 4.036
   - text: 坐了好几架货机，落地后又换上 20 辆卡车
-    start: 3.952
-    end: 8.06
+    start: 4.036
+    end: 8.24
 - id: A0_04
   segment: A0
   duration: 2.5
@@ -157,10 +157,10 @@ shots:
   engine: cycles
   sfx:
   - 重卡低频轰鸣由远及近
-  start: 18.68
+  start: 18.82
 - id: A0_05
   segment: A0
-  duration: 6.62
+  duration: 5.92
   vo:
   - 箱子里，是一台拆开的机器，组装起来超过 150 吨。
   facts:
@@ -197,18 +197,18 @@ shots:
   cues:
   - text: 箱子里，是一台拆开的机器，组装起来超过 150 吨。
     start: 0.3
-    end: 6.22
-  start: 21.18
+    end: 5.52
+  start: 21.32
   subs:
   - text: 箱子里，是一台拆开的机器
     start: 0.3
-    end: 3.401
+    end: 3.034
   - text: 组装起来超过 150 吨
-    start: 3.401
-    end: 6.22
+    start: 3.034
+    end: 5.52
 - id: A0_06
   segment: A0
-  duration: 4.14
+  duration: 4.08
   vo:
   - 为了造它，背后站着 5100 家供应商。
   facts:
@@ -241,15 +241,15 @@ shots:
   cues:
   - text: 为了造它，背后站着 5100 家供应商。
     start: 0.3
-    end: 3.74
-  start: 27.8
+    end: 3.68
+  start: 27.24
   subs:
   - text: 为了造它，背后站着 5100 家供应商
     start: 0.3
-    end: 3.74
+    end: 3.68
 - id: A0_07
   segment: A0
-  duration: 4.3
+  duration: 4.0
   vo:
   - 它只做一件事：把电路“印”在硅片上。
   facts: []
@@ -279,15 +279,15 @@ shots:
   cues:
   - text: 它只做一件事：把电路“印”在硅片上。
     start: 0.3
-    end: 3.9
-  start: 31.94
+    end: 3.6
+  start: 31.32
   subs:
   - text: 它只做一件事：把电路“印”在硅片上
     start: 0.3
-    end: 3.9
+    end: 3.6
 - id: A0_08
   segment: A0
-  duration: 4.86
+  duration: 5.26
   vo:
   - 一块比指尖略大的芯片里，装着 1840 亿个元件；
   facts:
@@ -319,18 +319,18 @@ shots:
   cues:
   - text: 一块比指尖略大的芯片里，装着 1840 亿个元件；
     start: 0.3
-    end: 4.46
-  start: 36.24
+    end: 4.86
+  start: 35.32
   subs:
   - text: 一块比指尖略大的芯片里
     start: 0.3
-    end: 2.479
+    end: 2.689
   - text: 装着 1840 亿个元件
-    start: 2.479
-    end: 4.46
+    start: 2.689
+    end: 4.86
 - id: A0_09
   segment: A0
-  duration: 6.3
+  duration: 4.6
   vo:
   - 每一个，都要靠这台机器里的光，一笔一笔画出来。
   facts: []
@@ -359,18 +359,18 @@ shots:
   cues:
   - text: 每一个，都要靠这台机器里的光，一笔一笔画出来。
     start: 0.3
-    end: 5.9
-  start: 41.1
+    end: 4.2
+  start: 40.58
   subs:
   - text: 每一个，都要靠这台机器里的光
     start: 0.3
-    end: 3.94
+    end: 2.835
   - text: 一笔一笔画出来
-    start: 3.94
-    end: 5.9
+    start: 2.835
+    end: 4.2
 - id: A0_10
   segment: A0
-  duration: 6.22
+  duration: 6.16
   vo:
   - 这台机器里发生的事，听起来像外星科技。今天，我们把它拆开。
   facts: []
@@ -403,15 +403,15 @@ shots:
   cues:
   - text: 这台机器里发生的事，听起来像外星科技。今天，我们把它拆开。
     start: 0.3
-    end: 5.82
-  start: 47.4
+    end: 5.76
+  start: 45.18
   subs:
   - text: 这台机器里发生的事，听起来像外星科技
     start: 0.3
-    end: 4.054
+    end: 4.013
   - text: 今天，我们把它拆开
-    start: 4.054
-    end: 5.82
+    start: 4.013
+    end: 5.76
 - id: A1_01
   segment: A1
   duration: 3.5
@@ -436,10 +436,10 @@ shots:
   engine: pillow
   sfx:
   - 清脆的章节音
-  start: 53.62
+  start: 51.34
 - id: A1_02
   segment: A1
-  duration: 6.13
+  duration: 5.21
   vo:
   - 先说清楚，光刻到底在做什么。
   facts: []
@@ -465,15 +465,15 @@ shots:
   cues:
   - text: 先说清楚，光刻到底在做什么。
     start: 0.831
-    end: 4.191
-  start: 57.12
+    end: 3.271
+  start: 54.84
   subs:
   - text: 先说清楚，光刻到底在做什么
     start: 0.831
-    end: 4.191
+    end: 3.271
 - id: A1_03
   segment: A1
-  duration: 7.25
+  duration: 7.27
   vo:
   - 在硅片上，先涂一层光刻胶——一种见了光就会变化的材料。
   facts: []
@@ -504,18 +504,18 @@ shots:
   cues:
   - text: 在硅片上，先涂一层光刻胶——一种见了光就会变化的材料。
     start: 0.639
-    end: 5.759
-  start: 63.25
+    end: 5.779
+  start: 60.05
   subs:
   - text: 在硅片上，先涂一层光刻胶——
     start: 0.639
-    end: 3.088
+    end: 3.097
   - text: 一种见了光就会变化的材料
-    start: 3.088
-    end: 5.759
+    start: 3.097
+    end: 5.779
 - id: A1_04
   segment: A1
-  duration: 6.87
+  duration: 7.09
   vo:
   - 光透过画着电路的“底片”照下来，被照到的地方，化学性质就变了。
   facts: []
@@ -546,15 +546,15 @@ shots:
   cues:
   - text: 光透过画着电路的“底片”照下来，被照到的地方，化学性质就变了。
     start: 0.573
-    end: 5.533
-  start: 70.5
+    end: 5.757
+  start: 67.32
   subs:
   - text: 光透过画着电路的“底片”照下来
     start: 0.573
-    end: 3.053
+    end: 3.165
   - text: 被照到的地方，化学性质就变了
-    start: 3.053
-    end: 5.533
+    start: 3.165
+    end: 5.757
 - id: A1_05
   segment: A1
   duration: 4.0
@@ -581,10 +581,10 @@ shots:
   engine: eevee
   sfx:
   - 极细的嘶嘶声
-  start: 77.37
+  start: 74.41
 - id: A1_06
   segment: A1
-  duration: 6.77
+  duration: 7.35
   vo:
   - 洗掉一部分胶，再刻蚀、再沉积，一层电路就这样留了下来。
   facts: []
@@ -614,18 +614,18 @@ shots:
   cues:
   - text: 洗掉一部分胶，再刻蚀、再沉积，一层电路就这样留了下来。
     start: 0.639
-    end: 5.279
-  start: 81.37
+    end: 5.859
+  start: 78.41
   subs:
   - text: 洗掉一部分胶，再刻蚀、再沉积
     start: 0.639
-    end: 3.06
+    end: 3.362
   - text: 一层电路就这样留了下来
-    start: 3.06
-    end: 5.279
+    start: 3.362
+    end: 5.859
 - id: A1_07
   segment: A1
-  duration: 5.41
+  duration: 5.87
   vo:
   - 然后再涂胶、再曝光、再刻蚀，一遍又一遍。
   facts: []
@@ -651,15 +651,15 @@ shots:
   cues:
   - text: 然后再涂胶、再曝光、再刻蚀，一遍又一遍。
     start: 0.543
-    end: 4.143
-  start: 88.14
+    end: 4.603
+  start: 85.76
   subs:
   - text: 然后再涂胶、再曝光、再刻蚀，一遍又一遍
     start: 0.543
-    end: 4.143
+    end: 4.603
 - id: A1_08
   segment: A1
-  duration: 5.73
+  duration: 4.7
   vo:
   - 一颗芯片，最多要叠大约 100 层图形；
   facts:
@@ -689,15 +689,15 @@ shots:
   cues:
   - text: 一颗芯片，最多要叠大约 100 层图形；
     start: 0.543
-    end: 4.463
-  start: 93.55
+    end: 3.433
+  start: 91.63
   subs:
   - text: 一颗芯片，最多要叠大约 100 层图形
     start: 0.543
-    end: 4.463
+    end: 3.433
 - id: A1_09
   segment: A1
-  duration: 7.09
+  duration: 7.12
   vo:
   - 据报道，其中最精细的二十多层，要交给极紫外光刻机来画。
   facts:
@@ -730,18 +730,18 @@ shots:
   cues:
   - text: 据报道，其中最精细的二十多层，要交给极紫外光刻机来画。
     start: 0.567
-    end: 5.767
-  start: 99.28
+    end: 5.797
+  start: 96.33
   subs:
   - text: 据报道，其中最精细的二十多层
     start: 0.567
-    end: 3.384
+    end: 3.4
   - text: 要交给极紫外光刻机来画
-    start: 3.384
-    end: 5.767
+    start: 3.4
+    end: 5.797
 - id: A1_10
   segment: A1
-  duration: 5.67
+  duration: 5.49
   vo:
   - 而且每一层，都必须和下面那层对得严丝合缝。
   facts: []
@@ -770,18 +770,18 @@ shots:
   cues:
   - text: 而且每一层，都必须和下面那层对得严丝合缝。
     start: 0.477
-    end: 4.557
-  start: 106.37
+    end: 4.377
+  start: 103.45
   subs:
   - text: 而且每一层
     start: 0.477
-    end: 1.551
+    end: 1.503
   - text: 都必须和下面那层对得严丝合缝
-    start: 1.551
-    end: 4.557
+    start: 1.503
+    end: 4.377
 - id: A1_11
   segment: A1
-  duration: 10.57
+  duration: 10.32
   vo:
   - 所以光刻的本质，就是用光写字：笔越细，字越小，一块芯片能装下的东西就越多。
   facts: []
@@ -808,15 +808,15 @@ shots:
   cues:
   - text: 所以光刻的本质，就是用光写字：笔越细，字越小，一块芯片能装下的东西就越多。
     start: 0.891
-    end: 8.491
-  start: 112.04
+    end: 8.241
+  start: 108.94
   subs:
   - text: 所以光刻的本质，就是用光写字：笔越细
     start: 0.891
-    end: 4.691
+    end: 4.566
   - text: 字越小，一块芯片能装下的东西就越多
-    start: 4.691
-    end: 8.491
+    start: 4.566
+    end: 8.241
 - id: A1_12
   segment: A1
   duration: 3.5
@@ -840,10 +840,10 @@ shots:
   engine: eevee
   sfx:
   - 笔划声被拉长成电子音
-  start: 122.61
+  start: 119.26
 - id: A2_01
   segment: A2
-  duration: 5.85
+  duration: 6.32
   vo:
   - 可是光有个脾气：它会绕过细小的东西，向两边散开。
   facts: []
@@ -875,18 +875,18 @@ shots:
   cues:
   - text: 可是光有个脾气：它会绕过细小的东西，向两边散开。
     start: 0.483
-    end: 4.723
-  start: 126.11
+    end: 5.195
+  start: 122.76
   subs:
   - text: 可是光有个脾气：它会绕过细小的东西
     start: 0.483
-    end: 3.713
+    end: 4.073
   - text: 向两边散开
-    start: 3.713
-    end: 4.723
+    start: 4.073
+    end: 5.195
 - id: A2_02
   segment: A2
-  duration: 5.47
+  duration: 6.08
   vo:
   - 缝越窄，光散得越厉害，画出来的线就越糊。
   facts: []
@@ -913,15 +913,15 @@ shots:
   cues:
   - text: 缝越窄，光散得越厉害，画出来的线就越糊。
     start: 0.321
-    end: 4.721
-  start: 131.96
+    end: 5.331
+  start: 129.08
   subs:
   - text: 缝越窄，光散得越厉害，画出来的线就越糊
     start: 0.321
-    end: 4.721
+    end: 5.331
 - id: A2_03
   segment: A2
-  duration: 12.37
+  duration: 12.27
   vo:
   - 光刻界有一个公式，写明了这个极限：能画多细，取决于光的波长，除以镜头收光的能力——数值孔径。
   facts:
@@ -953,21 +953,21 @@ shots:
   cues:
   - text: 光刻界有一个公式，写明了这个极限：能画多细，取决于光的波长，除以镜头收光的能力——数值孔径。
     start: 0.687
-    end: 10.767
-  start: 137.43
+    end: 10.667
+  start: 135.16
   subs:
   - text: 光刻界有一个公式，写明了这个极限：
     start: 0.687
-    end: 4.564
+    end: 4.525
   - text: 能画多细，取决于光的波长
-    start: 4.564
-    end: 7.407
+    start: 4.525
+    end: 7.34
   - text: 除以镜头收光的能力——数值孔径
-    start: 7.407
-    end: 10.767
+    start: 7.34
+    end: 10.667
 - id: A2_04
   segment: A2
-  duration: 7.37
+  duration: 6.95
   vo:
   - 想画得更细，只有两条路：波长更短，或者镜头“张得”更大。
   facts:
@@ -996,18 +996,18 @@ shots:
   cues:
   - text: 想画得更细，只有两条路：波长更短，或者镜头“张得”更大。
     start: 0.411
-    end: 6.411
-  start: 149.8
+    end: 5.991
+  start: 147.43
   subs:
   - text: 想画得更细，只有两条路：波长更短
     start: 0.411
-    end: 4.229
+    end: 3.962
   - text: 或者镜头“张得”更大
-    start: 4.229
-    end: 6.411
+    start: 3.962
+    end: 5.991
 - id: A2_05
   segment: A2
-  duration: 8.13
+  duration: 8.49
   vo:
   - 过去二十多年的主力，是 193 纳米的深紫外光，一次曝光大约只能画到 40 纳米。
   facts:
@@ -1039,21 +1039,21 @@ shots:
   cues:
   - text: 过去二十多年的主力，是 193 纳米的深紫外光，一次曝光大约只能画到 40 纳米。
     start: 0.447
-    end: 7.087
-  start: 157.17
+    end: 7.448
+  start: 154.38
   subs:
   - text: 过去二十多年的主力
     start: 0.447
-    end: 2.205
+    end: 2.3
   - text: 是 193 纳米的深紫外光
-    start: 2.205
-    end: 4.353
+    start: 2.3
+    end: 4.565
   - text: 一次曝光大约只能画到 40 纳米
-    start: 4.353
-    end: 7.087
+    start: 4.565
+    end: 7.448
 - id: A2_06
   segment: A2
-  duration: 7.74
+  duration: 7.28
   vo:
   - 想再细，只能把一层拆成两次、四次曝光，同一套工序反复走好几遍。
   facts:
@@ -1084,18 +1084,18 @@ shots:
   cues:
   - text: 想再细，只能把一层拆成两次、四次曝光，同一套工序反复走好几遍。
     start: 0.3
-    end: 7.34
-  start: 165.3
+    end: 6.88
+  start: 162.87
   subs:
   - text: 想再细，只能把一层拆成两次、四次曝光
     start: 0.3
-    end: 4.472
+    end: 4.199
   - text: 同一套工序反复走好几遍
-    start: 4.472
-    end: 7.34
+    start: 4.199
+    end: 6.88
 - id: A2_07
   segment: A2
-  duration: 9.09
+  duration: 9.46
   vo:
   - 极紫外光，也就是 EUV，波长只有 13.5 纳米，比它短了 14 倍以上。
   facts:
@@ -1128,15 +1128,15 @@ shots:
   cues:
   - text: 极紫外光，也就是 EUV，波长只有 13.5 纳米，比它短了 14 倍以上。
     start: 0.879
-    end: 7.039
-  start: 173.04
+    end: 7.408
+  start: 170.15
   subs:
   - text: 极紫外光，也就是 EUV
     start: 0.879
-    end: 3.079
+    end: 3.211
   - text: 波长只有 13.5 纳米，比它短了 14 倍以上
-    start: 3.079
-    end: 7.039
+    start: 3.211
+    end: 7.408
 - id: A2_08
   segment: A2
   duration: 2.5
@@ -1161,10 +1161,10 @@ shots:
   engine: eevee
   sfx:
   - 高频纯音
-  start: 182.13
+  start: 179.61
 - id: A2_09
   segment: A2
-  duration: 8.05
+  duration: 6.68
   vo:
   - 有些关键层，原来要走好几轮的工序，换成 EUV 一次曝光就够了。
   facts:
@@ -1193,18 +1193,18 @@ shots:
   cues:
   - text: 有些关键层，原来要走好几轮的工序，换成 EUV 一次曝光就够了。
     start: 0.351
-    end: 7.231
-  start: 184.63
+    end: 5.858
+  start: 182.11
   subs:
   - text: 有些关键层，原来要走好几轮的工序
     start: 0.351
-    end: 4.173
+    end: 3.41
   - text: 换成 EUV 一次曝光就够了
-    start: 4.173
-    end: 7.231
+    start: 3.41
+    end: 5.858
 - id: A2_10
   segment: A2
-  duration: 5.31
+  duration: 5.51
   vo:
   - 问题是——这支笔，几乎造不出来。
   facts: []
@@ -1231,12 +1231,12 @@ shots:
   cues:
   - text: 问题是——这支笔，几乎造不出来。
     start: 0.681
-    end: 3.721
-  start: 192.68
+    end: 3.921
+  start: 188.79
   subs:
   - text: 问题是——这支笔，几乎造不出来
     start: 0.681
-    end: 3.721
+    end: 3.921
 - id: A3_01
   segment: A3
   duration: 3.0
@@ -1265,10 +1265,10 @@ shots:
   sfx:
   - 章节音
   - 卡片落桌声
-  start: 197.99
+  start: 194.3
 - id: A3_02
   segment: A3
-  duration: 5.65
+  duration: 5.25
   vo:
   - 第一，自然界里没有现成的 13.5 纳米强光源。
   facts:
@@ -1296,18 +1296,18 @@ shots:
   cues:
   - text: 第一，自然界里没有现成的 13.5 纳米强光源。
     start: 0.327
-    end: 4.887
-  start: 200.99
+    end: 4.487
+  start: 197.3
   subs:
   - text: 第一
     start: 0.327
-    end: 0.807
+    end: 0.765
   - text: 自然界里没有现成的 13.5 纳米强光源
-    start: 0.807
-    end: 4.887
+    start: 0.765
+    end: 4.487
 - id: A3_03
   segment: A3
-  duration: 5.99
+  duration: 5.86
   vo:
   - 第二，这种光会被几乎所有物质吸收，连空气也不例外。
   facts:
@@ -1338,18 +1338,18 @@ shots:
   cues:
   - text: 第二，这种光会被几乎所有物质吸收，连空气也不例外。
     start: 0.3
-    end: 5.42
-  start: 206.64
+    end: 5.29
+  start: 202.55
   subs:
   - text: 第二，这种光会被几乎所有物质吸收
     start: 0.3
-    end: 3.791
+    end: 3.702
   - text: 连空气也不例外
-    start: 3.791
-    end: 5.42
+    start: 3.702
+    end: 5.29
 - id: A3_04
   segment: A3
-  duration: 8.95
+  duration: 7.79
   vo:
   - 第三，玻璃透镜同样会把它吞掉——整台机器里，一片透镜都不能用，只能用镜子。
   facts:
@@ -1385,18 +1385,18 @@ shots:
   cues:
   - text: 第三，玻璃透镜同样会把它吞掉——整台机器里，一片透镜都不能用，只能用镜子。
     start: 0.3
-    end: 8.54
-  start: 212.63
+    end: 7.38
+  start: 208.41
   subs:
   - text: 第三，玻璃透镜同样会把它吞掉——整台机器里
     start: 0.3
-    end: 5.085
+    end: 4.411
   - text: 一片透镜都不能用，只能用镜子
-    start: 5.085
-    end: 8.54
+    start: 4.411
+    end: 7.38
 - id: A3_05
   segment: A3
-  duration: 11.98
+  duration: 10.79
   vo:
   - 为了攻下这三道题，ASML 在 17 年里投入了 60 多亿欧元，联合蔡司、通快等伙伴，才把它送进芯片工厂。
   facts:
@@ -1436,21 +1436,21 @@ shots:
   cues:
   - text: 为了攻下这三道题，ASML 在 17 年里投入了 60 多亿欧元，联合蔡司、通快等伙伴，才把它送进芯片工厂。
     start: 0.3
-    end: 11.58
-  start: 221.58
+    end: 10.39
+  start: 216.2
   subs:
   - text: 为了攻下这三道题
     start: 0.3
-    end: 2.351
+    end: 2.135
   - text: ASML 在 17 年里投入了 60 多亿欧元
-    start: 2.351
-    end: 6.965
+    start: 2.135
+    end: 6.262
   - text: 联合蔡司、通快等伙伴，才把它送进芯片工厂
-    start: 6.965
-    end: 11.58
+    start: 6.262
+    end: 10.39
 - id: A3_06
   segment: A3
-  duration: 5.21
+  duration: 5.61
   vo:
   - 接下来，我们跟着光走一遍：它从哪里来，又怎样走到晶圆上。
   facts: []
@@ -1480,18 +1480,18 @@ shots:
   cues:
   - text: 接下来，我们跟着光走一遍：它从哪里来，又怎样走到晶圆上。
     start: 0.3
-    end: 4.62
-  start: 233.56
+    end: 5.02
+  start: 226.99
   subs:
   - text: 接下来，我们跟着光走一遍：它从哪里来
     start: 0.3
-    end: 3.18
+    end: 3.447
   - text: 又怎样走到晶圆上
-    start: 3.18
-    end: 4.62
+    start: 3.447
+    end: 5.02
 - id: A3_07
   segment: A3
-  duration: 6.73
+  duration: 5.75
   vo:
   - 屏幕右边这根条，是光的账本——看看走到最后，还能剩下多少。
   facts: []
@@ -1518,15 +1518,15 @@ shots:
   cues:
   - text: 屏幕右边这根条，是光的账本——看看走到最后，还能剩下多少。
     start: 0.3
-    end: 6.14
-  start: 238.77
+    end: 5.16
+  start: 232.6
   subs:
   - text: 屏幕右边这根条，是光的账本——看看走到最后
     start: 0.3
-    end: 4.68
+    end: 3.945
   - text: 还能剩下多少
-    start: 4.68
-    end: 6.14
+    start: 3.945
+    end: 5.16
 - id: B1_01
   segment: B1
   duration: 3.0
@@ -1553,10 +1553,10 @@ shots:
   sfx:
   - 章节音
   - 真空泵低频底噪淡入
-  start: 245.5
+  start: 238.35
 - id: B1_02
   segment: B1
-  duration: 5.31
+  duration: 4.96
   vo:
   - 第一站：光源。既然没有这种光，那就自己造。
   facts: []
@@ -1596,15 +1596,15 @@ shots:
   cues:
   - text: 第一站：光源。既然没有这种光，那就自己造。
     start: 0.321
-    end: 4.561
-  start: 248.5
+    end: 4.209
+  start: 241.35
   subs:
   - text: 第一站：光源。既然没有这种光，那就自己造
     start: 0.321
-    end: 4.561
+    end: 4.209
 - id: B1_03
   segment: B1
-  duration: 4.97
+  duration: 4.44
   vo:
   - 一个喷嘴，把熔化的锡喷进真空腔。
   facts: []
@@ -1636,15 +1636,15 @@ shots:
   cues:
   - text: 一个喷嘴，把熔化的锡喷进真空腔。
     start: 0.387
-    end: 4.067
-  start: 253.81
+    end: 3.537
+  start: 246.31
   subs:
   - text: 一个喷嘴，把熔化的锡喷进真空腔
     start: 0.387
-    end: 4.067
+    end: 3.537
 - id: B1_04
   segment: B1
-  duration: 7.82
+  duration: 8.17
   vo:
   - 按 ASML 的专利描述，喷嘴内径只有 3 到 5 微米，比要造的锡滴还细好几倍。
   facts:
@@ -1676,21 +1676,21 @@ shots:
   cues:
   - text: 按 ASML 的专利描述，喷嘴内径只有 3 到 5 微米，比要造的锡滴还细好几倍。
     start: 0.3
-    end: 7.42
-  start: 258.78
+    end: 7.77
+  start: 250.75
   subs:
   - text: 按 ASML 的专利描述
     start: 0.3
-    end: 2.525
+    end: 2.634
   - text: 喷嘴内径只有 3 到 5 微米
-    start: 2.525
-    end: 4.972
+    start: 2.634
+    end: 5.202
   - text: 比要造的锡滴还细好几倍
-    start: 4.972
-    end: 7.42
+    start: 5.202
+    end: 7.77
 - id: B1_05
   segment: B1
-  duration: 7.19
+  duration: 7.55
   vo:
   - 锡流先碎成一串更小的液滴，再在飞行中合并，变成一颗颗间距均匀的锡滴。
   facts:
@@ -1725,21 +1725,21 @@ shots:
   cues:
   - text: 锡流先碎成一串更小的液滴，再在飞行中合并，变成一颗颗间距均匀的锡滴。
     start: 0.3
-    end: 6.78
-  start: 266.6
+    end: 7.14
+  start: 258.92
   subs:
   - text: 锡流先碎成一串更小的液滴
     start: 0.3
-    end: 2.808
+    end: 2.948
   - text: 再在飞行中合并
-    start: 2.808
-    end: 4.272
+    start: 2.948
+    end: 4.492
   - text: 变成一颗颗间距均匀的锡滴
-    start: 4.272
-    end: 6.78
+    start: 4.492
+    end: 7.14
 - id: B1_06
   segment: B1
-  duration: 4.7
+  duration: 5.23
   vo:
   - 每颗直径约 25 微米，以每秒约 70 米的速度飞行，
   facts:
@@ -1775,18 +1775,18 @@ shots:
   cues:
   - text: 每颗直径约 25 微米，以每秒约 70 米的速度飞行，
     start: 0.3
-    end: 4.3
-  start: 273.79
+    end: 4.83
+  start: 266.47
   subs:
   - text: 每颗直径约 25 微米
     start: 0.3
-    end: 2.014
+    end: 2.241
   - text: 以每秒约 70 米的速度飞行
-    start: 2.014
-    end: 4.3
+    start: 2.241
+    end: 4.83
 - id: B1_07
   segment: B1
-  duration: 3.91
+  duration: 3.84
   vo:
   - 每秒最多 5 万颗。
   facts:
@@ -1823,15 +1823,15 @@ shots:
   cues:
   - text: 每秒最多 5 万颗。
     start: 0.741
-    end: 2.181
-  start: 278.49
+    end: 2.111
+  start: 271.7
   subs:
   - text: 每秒最多 5 万颗
     start: 0.741
-    end: 2.181
+    end: 2.111
 - id: B1_08
   segment: B1
-  duration: 4.89
+  duration: 4.3
   vo:
   - 每一颗，都会被单独拍照、单独瞄准。
   facts:
@@ -1865,15 +1865,15 @@ shots:
   cues:
   - text: 每一颗，都会被单独拍照、单独瞄准。
     start: 0.387
-    end: 3.987
-  start: 282.4
+    end: 3.397
+  start: 275.54
   subs:
   - text: 每一颗，都会被单独拍照、单独瞄准
     start: 0.387
-    end: 3.987
+    end: 3.397
 - id: B1_09
   segment: B1
-  duration: 4.86
+  duration: 4.31
   vo:
   - 然后，激光开火——每颗锡滴要被打两次。
   facts:
@@ -1908,15 +1908,15 @@ shots:
   cues:
   - text: 然后，激光开火——每颗锡滴要被打两次。
     start: 0.3
-    end: 4.46
-  start: 287.29
+    end: 3.906
+  start: 279.84
   subs:
   - text: 然后，激光开火——每颗锡滴要被打两次
     start: 0.3
-    end: 4.46
+    end: 3.906
 - id: B1_10
   segment: B1
-  duration: 5.21
+  duration: 5.56
   vo:
   - 第一发预脉冲，把锡滴拍成一张直径约 300 微米的薄饼；
   facts:
@@ -1952,15 +1952,15 @@ shots:
   cues:
   - text: 第一发预脉冲，把锡滴拍成一张直径约 300 微米的薄饼；
     start: 0.3
-    end: 4.62
-  start: 292.15
+    end: 4.97
+  start: 284.15
   subs:
   - text: 第一发预脉冲
     start: 0.3
-    end: 1.38
+    end: 1.468
   - text: 把锡滴拍成一张直径约 300 微米的薄饼
-    start: 1.38
-    end: 4.62
+    start: 1.468
+    end: 4.97
 - id: B1_11
   segment: B1
   duration: 2.5
@@ -1991,7 +1991,7 @@ shots:
   engine: eevee
   sfx:
   - 快门声
-  start: 297.36
+  start: 289.71
 - id: B1_12
   segment: B1
   duration: 2.0
@@ -2017,10 +2017,10 @@ shots:
   engine: cycles
   sfx:
   - 声音抽空，只剩心跳般的低频
-  start: 299.86
+  start: 292.21
 - id: B1_13
   segment: B1
-  duration: 6.35
+  duration: 5.98
   vo:
   - 紧接着主脉冲命中薄饼，把它变成约 50 万开尔文的等离子体。
   facts:
@@ -2064,15 +2064,15 @@ shots:
   cues:
   - text: 紧接着主脉冲命中薄饼，把它变成约 50 万开尔文的等离子体。
     start: 0.3
-    end: 5.74
-  start: 301.86
+    end: 5.37
+  start: 294.21
   subs:
   - text: 紧接着主脉冲命中薄饼
     start: 0.3
-    end: 2.392
+    end: 2.25
   - text: 把它变成约 50 万开尔文的等离子体
-    start: 2.392
-    end: 5.74
+    start: 2.25
+    end: 5.37
 - id: B1_14
   segment: B1
   duration: 2.0
@@ -2099,7 +2099,7 @@ shots:
   engine: eevee
   sfx:
   - 碎屑飞过的细碎嘶声
-  start: 308.21
+  start: 300.19
 - id: B1_15
   segment: B1
   duration: 1.5
@@ -2125,10 +2125,10 @@ shots:
   engine: cycles
   sfx:
   - 一声清亮的高音
-  start: 310.21
+  start: 302.19
 - id: B1_16
   segment: B1
-  duration: 6.87
+  duration: 7.42
   vo:
   - 先拍扁再加热，薄饼受热更均匀，更多的能量才能变成我们要的那一种光。
   facts:
@@ -2161,18 +2161,18 @@ shots:
   cues:
   - text: 先拍扁再加热，薄饼受热更均匀，更多的能量才能变成我们要的那一种光。
     start: 0.3
-    end: 6.22
-  start: 311.71
+    end: 6.77
+  start: 303.69
   subs:
   - text: 先拍扁再加热，薄饼受热更均匀
     start: 0.3
-    end: 2.865
+    end: 3.104
   - text: 更多的能量才能变成我们要的那一种光
-    start: 2.865
-    end: 6.22
+    start: 3.104
+    end: 6.77
 - id: B1_17
   segment: B1
-  duration: 6.15
+  duration: 5.06
   vo:
   - 在这团等离子体里，锡原子被剥掉 8 到 14 个电子。
   facts:
@@ -2205,18 +2205,18 @@ shots:
   cues:
   - text: 在这团等离子体里，锡原子被剥掉 8 到 14 个电子。
     start: 0.333
-    end: 5.373
-  start: 318.58
+    end: 4.281
+  start: 311.11
   subs:
   - text: 在这团等离子体里
     start: 0.333
-    end: 2.253
+    end: 1.837
   - text: 锡原子被剥掉 8 到 14 个电子
-    start: 2.253
-    end: 5.373
+    start: 1.837
+    end: 4.281
 - id: B1_18
   segment: B1
-  duration: 7.13
+  duration: 8.36
   vo:
   - 这些离子发出成千上万条谱线，恰好都挤在 13.5 纳米附近——这就是选锡的原因。
   facts:
@@ -2249,21 +2249,21 @@ shots:
   cues:
   - text: 这些离子发出成千上万条谱线，恰好都挤在 13.5 纳米附近——这就是选锡的原因。
     start: 0.3
-    end: 6.7
-  start: 324.73
+    end: 7.93
+  start: 316.17
   subs:
   - text: 这些离子发出成千上万条谱线
     start: 0.3
-    end: 2.821
+    end: 3.306
   - text: 恰好都挤在 13.5 纳米附近——
-    start: 2.821
-    end: 5.148
+    start: 3.306
+    end: 6.08
   - text: 这就是选锡的原因
-    start: 5.148
-    end: 6.7
+    start: 6.08
+    end: 7.93
 - id: B1_19
   segment: B1
-  duration: 6.47
+  duration: 7.01
   vo:
   - 物理学家算过：光是 12 价锡离子这一种，就有超过 100 亿种可能的跃迁。
   facts:
@@ -2296,18 +2296,18 @@ shots:
   cues:
   - text: 物理学家算过：光是 12 价锡离子这一种，就有超过 100 亿种可能的跃迁。
     start: 0.3
-    end: 6.06
-  start: 331.86
+    end: 6.6
+  start: 324.53
   subs:
   - text: 物理学家算过：光是 12 价锡离子这一种
     start: 0.3
-    end: 3.459
+    end: 3.755
   - text: 就有超过 100 亿种可能的跃迁
-    start: 3.459
-    end: 6.06
+    start: 3.755
+    end: 6.6
 - id: B1_20
   segment: B1
-  duration: 8.78
+  duration: 8.45
   vo:
   - 2020 年的研究发现，这些光主要来自电子被多重激发的状态——改写了原来的教科书解释。
   facts:
@@ -2341,18 +2341,18 @@ shots:
   cues:
   - text: 2020 年的研究发现，这些光主要来自电子被多重激发的状态——改写了原来的教科书解释。
     start: 0.3
-    end: 8.38
-  start: 338.33
+    end: 8.05
+  start: 331.54
   subs:
   - text: 2020 年的研究发现
     start: 0.3
-    end: 2.426
+    end: 2.339
   - text: 这些光主要来自电子被多重激发的状态——
-    start: 2.426
-    end: 6.041
+    start: 2.339
+    end: 5.807
   - text: 改写了原来的教科书解释
-    start: 6.041
-    end: 8.38
+    start: 5.807
+    end: 8.05
 - id: B1_21
   segment: B1
   duration: 3.5
@@ -2384,10 +2384,10 @@ shots:
   engine: cycles
   sfx:
   - 稳定的低频嗡鸣
-  start: 347.11
+  start: 339.99
 - id: B1_22
   segment: B1
-  duration: 4.19
+  duration: 4.23
   vo:
   - 开这两枪的，是德国通快的二氧化碳激光器。
   facts:
@@ -2420,15 +2420,15 @@ shots:
   cues:
   - text: 开这两枪的，是德国通快的二氧化碳激光器。
     start: 0.3
-    end: 3.66
-  start: 350.61
+    end: 3.696
+  start: 343.49
   subs:
   - text: 开这两枪的，是德国通快的二氧化碳激光器
     start: 0.3
-    end: 3.66
+    end: 3.696
 - id: B1_23
   segment: B1
-  duration: 7.58
+  duration: 6.78
   vo:
   - 几瓦的种子光，先放大到 100 瓦，再经过 4 级放大，最终达到几十千瓦，
   facts:
@@ -2462,15 +2462,15 @@ shots:
   cues:
   - text: 几瓦的种子光，先放大到 100 瓦，再经过 4 级放大，最终达到几十千瓦，
     start: 0.3
-    end: 7.18
-  start: 354.8
+    end: 6.38
+  start: 347.72
   subs:
   - text: 几瓦的种子光，先放大到 100 瓦
     start: 0.3
-    end: 3.621
+    end: 3.235
   - text: 再经过 4 级放大，最终达到几十千瓦
-    start: 3.621
-    end: 7.18
+    start: 3.235
+    end: 6.38
 - id: B1_24
   segment: B1
   duration: 2.0
@@ -2496,10 +2496,10 @@ shots:
   engine: eevee
   sfx:
   - 电弧般的炸响
-  start: 362.38
+  start: 354.5
 - id: B1_25
   segment: B1
-  duration: 5.75
+  duration: 6.6
   vo:
   - 然后沿着最长约 30 米的光路，穿过厂房，送进锡滴腔。
   facts:
@@ -2531,18 +2531,18 @@ shots:
   cues:
   - text: 然后沿着最长约 30 米的光路，穿过厂房，送进锡滴腔。
     start: 0.3
-    end: 5.18
-  start: 364.38
+    end: 6.033
+  start: 356.5
   subs:
   - text: 然后沿着最长约 30 米的光路，穿过厂房
     start: 0.3
-    end: 4.071
+    end: 4.73
   - text: 送进锡滴腔
-    start: 4.071
-    end: 5.18
+    start: 4.73
+    end: 6.033
 - id: B1_26
   segment: B1
-  duration: 6.17
+  duration: 6.05
   vo:
   - 新一代激光器本身就有 45 万多个零件，重 20 多吨。
   facts:
@@ -2575,18 +2575,18 @@ shots:
   cues:
   - text: 新一代激光器本身就有 45 万多个零件，重 20 多吨。
     start: 0.411
-    end: 5.211
-  start: 370.13
+    end: 5.091
+  start: 363.1
   subs:
   - text: 新一代激光器本身就有 45 万多个零件
     start: 0.411
-    end: 4.12
+    end: 4.027
   - text: 重 20 多吨
-    start: 4.12
-    end: 5.211
+    start: 4.027
+    end: 5.091
 - id: B1_27
   segment: B1
-  duration: 9.02
+  duration: 8.88
   vo:
   - 据报道，今天量产机器的光源最高约 600 瓦，ASML 已经在实验室演示了 1000 瓦的原理样机。
   facts:
@@ -2622,24 +2622,24 @@ shots:
   cues:
   - text: 据报道，今天量产机器的光源最高约 600 瓦，ASML 已经在实验室演示了 1000 瓦的原理样机。
     start: 0.3
-    end: 8.62
-  start: 376.3
+    end: 8.48
+  start: 369.15
   subs:
   - text: 据报道
     start: 0.3
-    end: 0.894
+    end: 0.884
   - text: 今天量产机器的光源最高约 600 瓦
-    start: 0.894
-    end: 4.064
+    start: 0.884
+    end: 4.0
   - text: ASML 已经在实验室演示
-    start: 4.064
-    end: 6.441
+    start: 4.0
+    end: 6.338
   - text: 了 1000 瓦的原理样机
-    start: 6.441
-    end: 8.62
+    start: 6.338
+    end: 8.48
 - id: B1_28
   segment: B1
-  duration: 4.69
+  duration: 4.94
   vo:
   - 为什么要拼命提高功率？答案，在旅程的终点。
   facts: []
@@ -2669,12 +2669,12 @@ shots:
   cues:
   - text: 为什么要拼命提高功率？答案，在旅程的终点。
     start: 0.399
-    end: 3.759
-  start: 385.32
+    end: 4.009
+  start: 378.03
   subs:
   - text: 为什么要拼命提高功率？答案，在旅程的终点
     start: 0.399
-    end: 3.759
+    end: 4.009
 - id: B1_29
   segment: B1
   duration: 2.5
@@ -2699,10 +2699,10 @@ shots:
   engine: eevee
   sfx:
   - 低频嗡鸣渐弱
-  start: 390.01
+  start: 382.97
 - id: B2_01
   segment: B2
-  duration: 4.81
+  duration: 4.31
   vo:
   - 刚造出来的光，处境非常危险。
   facts: []
@@ -2738,15 +2738,15 @@ shots:
   cues:
   - text: 刚造出来的光，处境非常危险。
     start: 0.531
-    end: 3.571
-  start: 392.51
+    end: 3.071
+  start: 385.47
   subs:
   - text: 刚造出来的光，处境非常危险
     start: 0.531
-    end: 3.571
+    end: 3.071
 - id: B2_02
   segment: B2
-  duration: 7.17
+  duration: 7.14
   vo:
   - 13.5 纳米的光会被空气吞掉，所以整条光路都必须待在真空里。
   facts:
@@ -2789,18 +2789,18 @@ shots:
   cues:
   - text: 13.5 纳米的光会被空气吞掉，所以整条光路都必须待在真空里。
     start: 0.351
-    end: 6.351
-  start: 397.32
+    end: 6.323
+  start: 389.78
   subs:
   - text: 13.5 纳米的光会被空气吞掉
     start: 0.351
-    end: 3.24
+    end: 3.226
   - text: 所以整条光路都必须待在真空里
-    start: 3.24
-    end: 6.351
+    start: 3.226
+    end: 6.323
 - id: B2_03
   segment: B2
-  duration: 5.98
+  duration: 6.71
   vo:
   - 更麻烦的是，等离子体每炸一次，都会向四面八方喷出锡离子，
   facts:
@@ -2835,18 +2835,18 @@ shots:
   cues:
   - text: 更麻烦的是，等离子体每炸一次，都会向四面八方喷出锡离子，
     start: 0.3
-    end: 5.58
-  start: 404.49
+    end: 6.31
+  start: 396.92
   subs:
   - text: 更麻烦的是，等离子体每炸一次
     start: 0.3
-    end: 3.046
+    end: 3.425
   - text: 都会向四面八方喷出锡离子
-    start: 3.046
-    end: 5.58
+    start: 3.425
+    end: 6.31
 - id: B2_04
   segment: B2
-  duration: 6.87
+  duration: 6.25
   vo:
   - 能量可达数千电子伏，像弹片一样射向旁边的镜子。
   facts:
@@ -2881,18 +2881,18 @@ shots:
   cues:
   - text: 能量可达数千电子伏，像弹片一样射向旁边的镜子。
     start: 0.333
-    end: 6.093
-  start: 410.47
+    end: 5.473
+  start: 403.63
   subs:
   - text: 能量可达数千电子伏
     start: 0.333
-    end: 2.802
+    end: 2.536
   - text: 像弹片一样射向旁边的镜子
-    start: 2.802
-    end: 6.093
+    start: 2.536
+    end: 5.473
 - id: B2_05
   segment: B2
-  duration: 4.85
+  duration: 5.39
   vo:
   - 如果任它们落在镜面上，反射率很快就会下降。
   facts:
@@ -2928,18 +2928,18 @@ shots:
   cues:
   - text: 如果任它们落在镜面上，反射率很快就会下降。
     start: 0.327
-    end: 4.087
-  start: 417.34
+    end: 4.627
+  start: 409.88
   subs:
   - text: 如果任它们落在镜面上
     start: 0.327
-    end: 2.306
+    end: 2.59
   - text: 反射率很快就会下降
-    start: 2.306
-    end: 4.087
+    start: 2.59
+    end: 4.627
 - id: B2_06
   segment: B2
-  duration: 6.41
+  duration: 6.8
   vo:
   - 工程师的办法，是在腔里铺一层氢气，给这些“弹片”减速；
   facts:
@@ -2976,15 +2976,15 @@ shots:
   cues:
   - text: 工程师的办法，是在腔里铺一层氢气，给这些“弹片”减速；
     start: 0.411
-    end: 5.451
-  start: 422.19
+    end: 5.841
+  start: 415.27
   subs:
   - text: 工程师的办法，是在腔里铺一层氢气
     start: 0.411
-    end: 3.847
+    end: 4.113
   - text: 给这些“弹片”减速
-    start: 3.847
-    end: 5.451
+    start: 4.113
+    end: 5.841
 - id: B2_07
   segment: B2
   duration: 3.5
@@ -3013,10 +3013,10 @@ shots:
   engine: eevee
   sfx:
   - 三四下递减的“咚”声，节奏放慢
-  start: 428.6
+  start: 422.07
 - id: B2_08
   segment: B2
-  duration: 9.53
+  duration: 10.87
   vo:
   - 极紫外光又把氢分子打碎成活泼的氢自由基，它们抓住落下的锡，变成一种气体——锡烷，再被泵抽走。
   facts:
@@ -3057,18 +3057,18 @@ shots:
   cues:
   - text: 极紫外光又把氢分子打碎成活泼的氢自由基，它们抓住落下的锡，变成一种气体——锡烷，再被泵抽走。
     start: 0.315
-    end: 8.795
-  start: 432.1
+    end: 10.135
+  start: 425.57
   subs:
   - text: 极紫外光又把氢分子打碎成活泼的氢自由基
     start: 0.315
-    end: 4.343
+    end: 4.979
   - text: 它们抓住落下的锡，变成一种气体——锡烷
-    start: 4.343
-    end: 7.735
+    start: 4.979
+    end: 8.907
   - text: 再被泵抽走
-    start: 7.735
-    end: 8.795
+    start: 8.907
+    end: 10.135
 - id: B2_09
   segment: B2
   duration: 3.0
@@ -3096,10 +3096,10 @@ shots:
   engine: eevee
   sfx:
   - 真空泵高速旋转的稳定嗡声
-  start: 441.63
+  start: 436.44
 - id: B2_10
   segment: B2
-  duration: 5.71
+  duration: 6.74
   vo:
   - 所以，扫描仪里其实并不是绝对真空，而是保留着约 5 帕的氢气。
   facts:
@@ -3126,18 +3126,18 @@ shots:
   cues:
   - text: 所以，扫描仪里其实并不是绝对真空，而是保留着约 5 帕的氢气。
     start: 0.3
-    end: 5.1
-  start: 444.63
+    end: 6.13
+  start: 439.44
   subs:
   - text: 所以，扫描仪里其实并不是绝对真空
     start: 0.3
-    end: 3.069
+    end: 3.663
   - text: 而是保留着约 5 帕的氢气
-    start: 3.069
-    end: 5.1
+    start: 3.663
+    end: 6.13
 - id: B2_11
   segment: B2
-  duration: 6.25
+  duration: 6.53
   vo:
   - 光一照，这些氢气就电离成一层淡淡的等离子体辉光。
   facts:
@@ -3168,15 +3168,15 @@ shots:
   cues:
   - text: 光一照，这些氢气就电离成一层淡淡的等离子体辉光。
     start: 0.411
-    end: 5.291
-  start: 450.34
+    end: 5.571
+  start: 446.18
   subs:
   - text: 光一照
     start: 0.411
-    end: 1.076
+    end: 1.115
   - text: 这些氢气就电离成一层淡淡的等离子体辉光
-    start: 1.076
-    end: 5.291
+    start: 1.115
+    end: 5.571
 - id: B2_12
   segment: B2
   duration: 3.5
@@ -3205,10 +3205,10 @@ shots:
   engine: cycles
   sfx:
   - 低沉的脉冲节拍，与配乐对齐
-  start: 456.59
+  start: 452.71
 - id: B3_01
   segment: B3
-  duration: 5.01
+  duration: 5.4
   vo:
   - 爆炸的光向四面八方散开，必须先把它收回来。
   facts: []
@@ -3239,18 +3239,18 @@ shots:
   cues:
   - text: 爆炸的光向四面八方散开，必须先把它收回来。
     start: 0.327
-    end: 4.247
-  start: 460.09
+    end: 4.637
+  start: 456.21
   subs:
   - text: 爆炸的光向四面八方散开
     start: 0.327
-    end: 2.596
+    end: 2.822
   - text: 必须先把它收回来
-    start: 2.596
-    end: 4.247
+    start: 2.822
+    end: 4.637
 - id: B3_02
   segment: B3
-  duration: 5.01
+  duration: 5.1
   vo:
   - 负责这件事的，是一面巨大的椭球形收集镜。
   facts:
@@ -3284,12 +3284,12 @@ shots:
   cues:
   - text: 负责这件事的，是一面巨大的椭球形收集镜。
     start: 0.399
-    end: 4.079
-  start: 465.1
+    end: 4.169
+  start: 461.61
   subs:
   - text: 负责这件事的，是一面巨大的椭球形收集镜
     start: 0.399
-    end: 4.079
+    end: 4.169
 - id: B3_03
   segment: B3
   duration: 4.0
@@ -3321,10 +3321,10 @@ shots:
   sfx:
   - 铅笔划线声
   - 绷线的轻响
-  start: 470.11
+  start: 466.71
 - id: B3_04
   segment: B3
-  duration: 7.93
+  duration: 8.29
   vo:
   - 椭球有个特性：从一个焦点出发的光，反射后必定穿过另一个焦点。
   facts:
@@ -3357,15 +3357,15 @@ shots:
   cues:
   - text: 椭球有个特性：从一个焦点出发的光，反射后必定穿过另一个焦点。
     start: 0.651
-    end: 6.411
-  start: 474.11
+    end: 6.771
+  start: 470.71
   subs:
   - text: 椭球有个特性：从一个焦点出发的光
     start: 0.651
-    end: 3.851
+    end: 4.051
   - text: 反射后必定穿过另一个焦点
-    start: 3.851
-    end: 6.411
+    start: 4.051
+    end: 6.771
 - id: B3_05
   segment: B3
   duration: 3.5
@@ -3399,10 +3399,10 @@ shots:
   engine: eevee
   sfx:
   - 光线聚拢的上扬音效，落点一声重低音
-  start: 482.04
+  start: 479.0
 - id: B3_06
   segment: B3
-  duration: 8.29
+  duration: 8.88
   vo:
   - 等离子体就放在第一个焦点上；第二个焦点叫“中间焦点”，是光源和扫描仪交接的窗口。
   facts:
@@ -3447,21 +3447,21 @@ shots:
   cues:
   - text: 等离子体就放在第一个焦点上；第二个焦点叫“中间焦点”，是光源和扫描仪交接的窗口。
     start: 0.375
-    end: 7.415
-  start: 485.54
+    end: 8.005
+  start: 482.5
   subs:
   - text: 等离子体就放在第一个焦点上
     start: 0.375
-    end: 2.99
+    end: 3.209
   - text: 第二个焦点叫“中间焦点”
-    start: 2.99
-    end: 5.001
+    start: 3.209
+    end: 5.389
   - text: 是光源和扫描仪交接的窗口
-    start: 5.001
-    end: 7.415
+    start: 5.389
+    end: 8.005
 - id: B3_07
   segment: B3
-  duration: 5.19
+  duration: 5.53
   vo:
   - 从这里开始，光进入了真正的精密光学世界。
   facts: []
@@ -3492,15 +3492,15 @@ shots:
   cues:
   - text: 从这里开始，光进入了真正的精密光学世界。
     start: 0.549
-    end: 3.909
-  start: 493.83
+    end: 4.249
+  start: 491.38
   subs:
   - text: 从这里开始，光进入了真正的精密光学世界
     start: 0.549
-    end: 3.909
+    end: 4.249
 - id: B4_01
   segment: B4
-  duration: 3.93
+  duration: 4.18
   vo:
   - 普通镜子，几乎反射不了极紫外光。
   facts: []
@@ -3532,15 +3532,15 @@ shots:
   cues:
   - text: 普通镜子，几乎反射不了极紫外光。
     start: 0.387
-    end: 3.027
-  start: 499.02
+    end: 3.277
+  start: 496.91
   subs:
   - text: 普通镜子，几乎反射不了极紫外光
     start: 0.387
-    end: 3.027
+    end: 3.277
 - id: B4_02
   segment: B4
-  duration: 7.67
+  duration: 7.5
   vo:
   - 蔡司的办法，是在镜面上交替镀钼和硅，最多约 100 层，每层只有几纳米厚。
   facts:
@@ -3573,18 +3573,18 @@ shots:
   cues:
   - text: 蔡司的办法，是在镜面上交替镀钼和硅，最多约 100 层，每层只有几纳米厚。
     start: 0.3
-    end: 7.26
-  start: 502.95
+    end: 7.091
+  start: 501.09
   subs:
   - text: 蔡司的办法，是在镜面上交替镀钼和硅
     start: 0.3
-    end: 3.892
+    end: 3.805
   - text: 最多约 100 层，每层只有几纳米厚
-    start: 3.892
-    end: 7.26
+    start: 3.805
+    end: 7.091
 - id: B4_03
   segment: B4
-  duration: 9.63
+  duration: 9.66
   vo:
   - 单独一层只能反射约 1% 的光，可是层层叠加、步调一致，反射率最高能到约 70%。
   facts:
@@ -3620,18 +3620,18 @@ shots:
   cues:
   - text: 单独一层只能反射约 1% 的光，可是层层叠加、步调一致，反射率最高能到约 70%。
     start: 0.3
-    end: 8.94
-  start: 510.62
+    end: 8.97
+  start: 508.59
   subs:
   - text: 单独一层只能反射约 1% 的光
     start: 0.3
-    end: 3.604
+    end: 3.615
   - text: 可是层层叠加、步调一致
-    start: 3.604
-    end: 6.145
+    start: 3.615
+    end: 6.165
   - text: 反射率最高能到约 70%
-    start: 6.145
-    end: 8.94
+    start: 6.165
+    end: 8.97
 - id: B4_04
   segment: B4
   duration: 4.0
@@ -3659,10 +3659,10 @@ shots:
   engine: cycles
   sfx:
   - 洁净室通风的白噪声
-  start: 520.25
+  start: 518.25
 - id: B4_05
   segment: B4
-  duration: 3.69
+  duration: 4.28
   vo:
   - 但光有了，镜子的形状本身也必须完美。
   facts: []
@@ -3691,15 +3691,15 @@ shots:
   cues:
   - text: 但光有了，镜子的形状本身也必须完美。
     start: 0.3
-    end: 3.18
-  start: 524.25
+    end: 3.77
+  start: 522.25
   subs:
   - text: 但光有了，镜子的形状本身也必须完美
     start: 0.3
-    end: 3.18
+    end: 3.77
 - id: B4_06
   segment: B4
-  duration: 7.61
+  duration: 7.05
   vo:
   - 如果把一面镜子放大到德国那么大，它与理想形状的最大偏差只有 0.1 毫米。
   facts:
@@ -3728,15 +3728,15 @@ shots:
   cues:
   - text: 如果把一面镜子放大到德国那么大，它与理想形状的最大偏差只有 0.1 毫米。
     start: 0.3
-    end: 6.94
-  start: 527.94
+    end: 6.38
+  start: 526.53
   subs:
   - text: 如果把一面镜子放大到德国那么大
     start: 0.3
-    end: 3.412
+    end: 3.15
   - text: 它与理想形状的最大偏差只有 0.1 毫米
-    start: 3.412
-    end: 6.94
+    start: 3.15
+    end: 6.38
 - id: B4_07
   segment: B4
   duration: 6.0
@@ -3768,10 +3768,10 @@ shots:
   sfx:
   - 持续上升的音调
   - 落到原子层时音效骤停
-  start: 535.55
+  start: 533.58
 - id: B4_08
   segment: B4
-  duration: 7.9
+  duration: 7.74
   vo:
   - 到了新一代 High-NA，蔡司要求镜面误差控制在约 20 皮米——大约十分之一个原子。
   facts:
@@ -3808,21 +3808,21 @@ shots:
   cues:
   - text: 到了新一代 High-NA，蔡司要求镜面误差控制在约 20 皮米——大约十分之一个原子。
     start: 0.3
-    end: 7.5
-  start: 541.55
+    end: 7.34
+  start: 539.58
   subs:
   - text: 到了新一代 High-NA
     start: 0.3
-    end: 2.5
+    end: 2.451
   - text: 蔡司要求镜面误差控制在约 20 皮米——
-    start: 2.5
-    end: 5.7
+    start: 2.451
+    end: 5.58
   - text: 大约十分之一个原子
-    start: 5.7
-    end: 7.5
+    start: 5.58
+    end: 7.34
 - id: B4_09
   segment: B4
-  duration: 5.89
+  duration: 5.26
   vo:
   - 镜子的指向也必须稳：倾角误差小于 0.1 纳弧度，
   facts:
@@ -3855,18 +3855,18 @@ shots:
   cues:
   - text: 镜子的指向也必须稳：倾角误差小于 0.1 纳弧度，
     start: 0.3
-    end: 5.34
-  start: 549.45
+    end: 4.71
+  start: 547.32
   subs:
   - text: 镜子的指向也必须稳：
     start: 0.3
-    end: 2.568
+    end: 2.285
   - text: 倾角误差小于 0.1 纳弧度
-    start: 2.568
-    end: 5.34
+    start: 2.285
+    end: 4.71
 - id: B4_10
   segment: B4
-  duration: 6.77
+  duration: 6.75
   vo:
   - 相当于从地球射一束激光到月球，能落在一颗高尔夫球上。
   facts:
@@ -3902,15 +3902,15 @@ shots:
   cues:
   - text: 相当于从地球射一束激光到月球，能落在一颗高尔夫球上。
     start: 0.567
-    end: 5.447
-  start: 555.34
+    end: 5.427
+  start: 552.58
   subs:
   - text: 相当于从地球射一束激光到月球
     start: 0.567
-    end: 3.414
+    end: 3.402
   - text: 能落在一颗高尔夫球上
-    start: 3.414
-    end: 5.447
+    start: 3.402
+    end: 5.427
 - id: B4_11
   segment: B4
   duration: 4.5
@@ -3935,10 +3935,10 @@ shots:
   engine: cycles
   sfx:
   - 无声，只留配乐一个长音
-  start: 562.11
+  start: 559.33
 - id: B4_12
   segment: B4
-  duration: 7.42
+  duration: 6.78
   vo:
   - High-NA 的一面镜子，比上一代大约 2 倍、重 10 倍，造一面就要大约一年；
   facts:
@@ -3974,21 +3974,21 @@ shots:
   cues:
   - text: High-NA 的一面镜子，比上一代大约 2 倍、重 10 倍，造一面就要大约一年；
     start: 0.3
-    end: 7.02
-  start: 566.61
+    end: 6.38
+  start: 563.83
   subs:
   - text: High-NA 的一面镜子
     start: 0.3
-    end: 2.61
+    end: 2.39
   - text: 比上一代大约 2 倍、重 10 倍
-    start: 2.61
-    end: 5.13
+    start: 2.39
+    end: 4.67
   - text: 造一面就要大约一年
-    start: 5.13
-    end: 7.02
+    start: 4.67
+    end: 6.38
 - id: B4_13
   segment: B4
-  duration: 6.31
+  duration: 5.33
   vo:
   - 用来测量它们的设备，本身就重约 150 吨。
   facts:
@@ -4021,15 +4021,15 @@ shots:
   cues:
   - text: 用来测量它们的设备，本身就重约 150 吨。
     start: 0.549
-    end: 5.029
-  start: 574.03
+    end: 4.049
+  start: 570.61
   subs:
   - text: 用来测量它们的设备，本身就重约 150 吨
     start: 0.549
-    end: 5.029
+    end: 4.049
 - id: B4_14
   segment: B4
-  duration: 5.77
+  duration: 5.68
   vo:
   - 整套 High-NA 投影光学重 12 吨，零件超过 4 万个。
   facts:
@@ -4064,18 +4064,18 @@ shots:
   cues:
   - text: 整套 High-NA 投影光学重 12 吨，零件超过 4 万个。
     start: 0.339
-    end: 4.979
-  start: 580.34
+    end: 4.889
+  start: 575.94
   subs:
   - text: 整套 High-NA 投影光学重 12 吨
     start: 0.339
-    end: 3.567
+    end: 3.504
   - text: 零件超过 4 万个
-    start: 3.567
-    end: 4.979
+    start: 3.504
+    end: 4.889
 - id: B4_15
   segment: B4
-  duration: 6.17
+  duration: 5.57
   vo:
   - 可即便做到这个地步，每反射一次，仍会丢掉三成以上的光。
   facts:
@@ -4110,18 +4110,18 @@ shots:
   cues:
   - text: 可即便做到这个地步，每反射一次，仍会丢掉三成以上的光。
     start: 0.3
-    end: 5.58
-  start: 586.11
+    end: 4.98
+  start: 581.62
   subs:
   - text: 可即便做到这个地步，每反射一次
     start: 0.3
-    end: 3.38
+    end: 3.03
   - text: 仍会丢掉三成以上的光
-    start: 3.38
-    end: 5.58
+    start: 3.03
+    end: 4.98
 - id: B4_16
   segment: B4
-  duration: 5.01
+  duration: 5.0
   vo:
   - 从光源到晶圆，要经过大约 10 面镜子——
   facts:
@@ -4154,15 +4154,15 @@ shots:
   cues:
   - text: 从光源到晶圆，要经过大约 10 面镜子——
     start: 0.543
-    end: 3.743
-  start: 592.28
+    end: 3.733
+  start: 587.19
   subs:
   - text: 从光源到晶圆，要经过大约 10 面镜子——
     start: 0.543
-    end: 3.743
+    end: 3.733
 - id: B4_17
   segment: B4
-  duration: 6.77
+  duration: 5.1
   vo:
   - 进去 100 瓦，到晶圆上，最多只剩约 1 瓦。
   facts:
@@ -4191,12 +4191,12 @@ shots:
   cues:
   - text: 进去 100 瓦，到晶圆上，最多只剩约 1 瓦。
     start: 0.471
-    end: 5.671
-  start: 597.29
+    end: 4.001
+  start: 592.19
   subs:
   - text: 进去 100 瓦，到晶圆上，最多只剩约 1 瓦
     start: 0.471
-    end: 5.671
+    end: 4.001
 - id: B4_18
   segment: B4
   duration: 4.0
@@ -4222,10 +4222,10 @@ shots:
   engine: manim
   sfx:
   - 一下孤零零的钢琴单音
-  start: 604.06
+  start: 597.29
 - id: B5_01
   segment: B5
-  duration: 5.09
+  duration: 4.59
   vo:
   - 光在照到掩模之前，还要经过一套照明系统。
   facts: []
@@ -4261,15 +4261,15 @@ shots:
   cues:
   - text: 光在照到掩模之前，还要经过一套照明系统。
     start: 0.399
-    end: 4.159
-  start: 608.06
+    end: 3.659
+  start: 601.29
   subs:
   - text: 光在照到掩模之前，还要经过一套照明系统
     start: 0.399
-    end: 4.159
+    end: 3.659
 - id: B5_02
   segment: B5
-  duration: 6.31
+  duration: 5.9
   vo:
   - 它的任务，是把光变得极其均匀，再按需要整形。
   facts:
@@ -4303,15 +4303,15 @@ shots:
   cues:
   - text: 它的任务，是把光变得极其均匀，再按需要整形。
     start: 0.477
-    end: 5.197
-  start: 613.15
+    end: 4.785
+  start: 605.88
   subs:
   - text: 它的任务，是把光变得极其均匀
     start: 0.477
-    end: 3.706
+    end: 3.425
   - text: 再按需要整形
-    start: 3.706
-    end: 5.197
+    start: 3.425
+    end: 4.785
 - id: B5_03
   segment: B5
   duration: 4.5
@@ -4338,10 +4338,10 @@ shots:
   engine: eevee
   sfx:
   - 起伏的嗡声逐渐平稳成一个纯音
-  start: 619.46
+  start: 611.78
 - id: B5_04
   segment: B5
-  duration: 4.51
+  duration: 4.29
   vo:
   - 里面是大量可以单独转动的小镜片，
   facts:
@@ -4373,12 +4373,12 @@ shots:
   cues:
   - text: 里面是大量可以单独转动的小镜片，
     start: 0.465
-    end: 3.425
-  start: 623.96
+    end: 3.206
+  start: 616.28
   subs:
   - text: 里面是大量可以单独转动的小镜片
     start: 0.465
-    end: 3.425
+    end: 3.206
 - id: B5_05
   segment: B5
   duration: 5.0
@@ -4404,10 +4404,10 @@ shots:
   engine: cycles
   sfx:
   - 成千上万片镜子同时翻动的沙沙声，像风吹树叶
-  start: 628.47
+  start: 620.57
 - id: B5_06
   segment: B5
-  duration: 8.33
+  duration: 8.29
   vo:
   - 它们像一面会变形的马赛克墙，把光拼成圆环、两极或者别的形状；
   facts:
@@ -4441,18 +4441,18 @@ shots:
   cues:
   - text: 它们像一面会变形的马赛克墙，把光拼成圆环、两极或者别的形状；
     start: 0.651
-    end: 6.811
-  start: 633.47
+    end: 6.771
+  start: 625.57
   subs:
   - text: 它们像一面会变形的马赛克墙
     start: 0.651
-    end: 3.617
+    end: 3.598
   - text: 把光拼成圆环、两极或者别的形状
-    start: 3.617
-    end: 6.811
+    start: 3.598
+    end: 6.771
 - id: B5_07
   segment: B5
-  duration: 5.43
+  duration: 5.84
   vo:
   - 按蔡司的数据，这样改变照明形状时，几乎不损失光。
   facts:
@@ -4480,18 +4480,18 @@ shots:
   cues:
   - text: 按蔡司的数据，这样改变照明形状时，几乎不损失光。
     start: 0.333
-    end: 4.653
-  start: 641.8
+    end: 5.063
+  start: 633.86
   subs:
   - text: 按蔡司的数据，这样改变照明形状时
     start: 0.333
-    end: 3.419
+    end: 3.712
   - text: 几乎不损失光
-    start: 3.419
-    end: 4.653
+    start: 3.712
+    end: 5.063
 - id: B5_08
   segment: B5
-  duration: 5.29
+  duration: 5.65
   vo:
   - 不同的电路图案，配不同的打光方式，才能印得最清楚。
   facts: []
@@ -4519,15 +4519,15 @@ shots:
   cues:
   - text: 不同的电路图案，配不同的打光方式，才能印得最清楚。
     start: 0.411
-    end: 4.331
-  start: 647.23
+    end: 4.691
+  start: 639.7
   subs:
   - text: 不同的电路图案，配不同的打光方式
     start: 0.411
-    end: 3.084
+    end: 3.329
   - text: 才能印得最清楚
-    start: 3.084
-    end: 4.331
+    start: 3.329
+    end: 4.691
 - id: B5_09
   segment: B5
   duration: 5.0
@@ -4555,10 +4555,10 @@ shots:
   engine: eevee
   sfx:
   - 上行的弦乐过渡
-  start: 652.52
+  start: 645.35
 - id: B6_01
   segment: B6
-  duration: 4.09
+  duration: 5.33
   vo:
   - 下一站：掩模，也就是芯片的设计底片。
   facts: []
@@ -4590,15 +4590,15 @@ shots:
   cues:
   - text: 下一站：掩模，也就是芯片的设计底片。
     start: 0.315
-    end: 3.355
-  start: 657.52
+    end: 4.598
+  start: 650.35
   subs:
   - text: 下一站：掩模，也就是芯片的设计底片
     start: 0.315
-    end: 3.355
+    end: 4.598
 - id: B6_02
   segment: B6
-  duration: 5.75
+  duration: 5.31
   vo:
   - 在 EUV 光刻机里，掩模本身也是一面多层反射镜，
   facts:
@@ -4630,18 +4630,18 @@ shots:
   cues:
   - text: 在 EUV 光刻机里，掩模本身也是一面多层反射镜，
     start: 0.333
-    end: 4.973
-  start: 661.61
+    end: 4.533
+  start: 655.68
   subs:
   - text: 在 EUV 光刻机里
     start: 0.333
-    end: 2.101
+    end: 1.933
   - text: 掩模本身也是一面多层反射镜
-    start: 2.101
-    end: 4.973
+    start: 1.933
+    end: 4.533
 - id: B6_03
   segment: B6
-  duration: 5.25
+  duration: 5.27
   vo:
   - 有图案的地方反射光，吸收层的地方把光“关掉”。
   facts:
@@ -4674,18 +4674,18 @@ shots:
   cues:
   - text: 有图案的地方反射光，吸收层的地方把光“关掉”。
     start: 0.327
-    end: 4.487
-  start: 667.36
+    end: 4.507
+  start: 660.99
   subs:
   - text: 有图案的地方反射光
     start: 0.327
-    end: 2.298
+    end: 2.307
   - text: 吸收层的地方把光“关掉”
-    start: 2.298
-    end: 4.487
+    start: 2.307
+    end: 4.507
 - id: B6_04
   segment: B6
-  duration: 5.69
+  duration: 5.94
   vo:
   - 光以大约 6 度的角度斜照上去，再带着电路图形反射出来。
   facts:
@@ -4719,18 +4719,18 @@ shots:
   cues:
   - text: 光以大约 6 度的角度斜照上去，再带着电路图形反射出来。
     start: 0.3
-    end: 5.1
-  start: 672.61
+    end: 5.35
+  start: 666.26
   subs:
   - text: 光以大约 6 度的角度斜照上去
     start: 0.3
-    end: 2.9
+    end: 3.035
   - text: 再带着电路图形反射出来
-    start: 2.9
-    end: 5.1
+    start: 3.035
+    end: 5.35
 - id: B6_05
   segment: B6
-  duration: 4.51
+  duration: 4.46
   vo:
   - 奇怪的是，掩模上的图形看起来是“歪”的。
   facts:
@@ -4761,15 +4761,15 @@ shots:
   cues:
   - text: 奇怪的是，掩模上的图形看起来是“歪”的。
     start: 0.393
-    end: 3.593
-  start: 678.3
+    end: 3.543
+  start: 672.2
   subs:
   - text: 奇怪的是，掩模上的图形看起来是“歪”的
     start: 0.393
-    end: 3.593
+    end: 3.543
 - id: B6_06
   segment: B6
-  duration: 10.46
+  duration: 10.36
   vo:
   - 这是故意的：计算光刻提前算好了衍射和光刻胶会造成的变形，把图形反着画，投到晶圆上才变成笔直的线。
   facts:
@@ -4799,18 +4799,18 @@ shots:
   cues:
   - text: 这是故意的：计算光刻提前算好了衍射和光刻胶会造成的变形，把图形反着画，投到晶圆上才变成笔直的线。
     start: 0.3
-    end: 10.06
-  start: 682.81
+    end: 9.96
+  start: 676.66
   subs:
   - text: 这是故意的：
     start: 0.3
-    end: 1.409
+    end: 1.398
   - text: 计算光刻提前算好了衍射和光刻胶会造成的变形
-    start: 1.409
-    end: 6.067
+    start: 1.398
+    end: 6.008
   - text: 把图形反着画，投到晶圆上才变成笔直的线
-    start: 6.067
-    end: 10.06
+    start: 6.008
+    end: 9.96
 - id: B6_07
   segment: B6
   duration: 3.5
@@ -4837,10 +4837,10 @@ shots:
   engine: eevee
   sfx:
   - 上行的满足感音效
-  start: 693.27
+  start: 687.02
 - id: B6_08
   segment: B6
-  duration: 2.41
+  duration: 2.4
   vo:
   - 掩模最怕灰尘。
   facts: []
@@ -4868,15 +4868,15 @@ shots:
   cues:
   - text: 掩模最怕灰尘。
     start: 0.363
-    end: 1.563
-  start: 696.77
+    end: 1.553
+  start: 690.52
   subs:
   - text: 掩模最怕灰尘
     start: 0.363
-    end: 1.563
+    end: 1.553
 - id: B6_09
   segment: B6
-  duration: 5.99
+  duration: 6.66
   vo:
   - 只要表面落上一颗颗粒，它就会被复制到整片晶圆的每一颗芯片上。
   facts:
@@ -4908,18 +4908,18 @@ shots:
   cues:
   - text: 只要表面落上一颗颗粒，它就会被复制到整片晶圆的每一颗芯片上。
     start: 0.429
-    end: 4.989
-  start: 699.18
+    end: 5.659
+  start: 692.92
   subs:
   - text: 只要表面落上一颗颗粒
     start: 0.429
-    end: 2.058
+    end: 2.297
   - text: 它就会被复制到整片晶圆的每一颗芯片上
-    start: 2.058
-    end: 4.989
+    start: 2.297
+    end: 5.659
 - id: B6_10
   segment: B6
-  duration: 6.22
+  duration: 6.11
   vo:
   - 所以搬运掩模的机械手，每移动 100 万次，最多只允许落下 1 个颗粒。
   facts:
@@ -4952,15 +4952,15 @@ shots:
   cues:
   - text: 所以搬运掩模的机械手，每移动 100 万次，最多只允许落下 1 个颗粒。
     start: 0.3
-    end: 5.82
-  start: 705.17
+    end: 5.71
+  start: 699.58
   subs:
   - text: 所以搬运掩模的机械手，每移动 100 万次
     start: 0.3
-    end: 3.726
+    end: 3.658
   - text: 最多只允许落下 1 个颗粒
-    start: 3.726
-    end: 5.82
+    start: 3.658
+    end: 5.71
 - id: B6_11
   segment: B6
   duration: 3.5
@@ -4985,10 +4985,10 @@ shots:
   engine: manim
   sfx:
   - 一声极轻的“叮”
-  start: 711.39
+  start: 705.69
 - id: B6_12
   segment: B6
-  duration: 5.74
+  duration: 6.06
   vo:
   - 掩模上方还罩着一层保护膜，叫 pellicle，只有 13 纳米厚，
   facts:
@@ -5027,18 +5027,18 @@ shots:
   cues:
   - text: 掩模上方还罩着一层保护膜，叫 pellicle，只有 13 纳米厚，
     start: 0.3
-    end: 5.34
-  start: 714.89
+    end: 5.662
+  start: 709.19
   subs:
   - text: 掩模上方还罩着一层保护膜
     start: 0.3
-    end: 2.46
+    end: 2.598
   - text: 叫 pellicle，只有 13 纳米厚
-    start: 2.46
-    end: 5.34
+    start: 2.598
+    end: 5.662
 - id: B6_13
   segment: B6
-  duration: 4.19
+  duration: 4.41
   vo:
   - 却要在真空中承受最高 500 摄氏度。
   facts:
@@ -5073,12 +5073,12 @@ shots:
   cues:
   - text: 却要在真空中承受最高 500 摄氏度。
     start: 0.393
-    end: 3.273
-  start: 720.63
+    end: 3.493
+  start: 715.25
   subs:
   - text: 却要在真空中承受最高 500 摄氏度
     start: 0.393
-    end: 3.273
+    end: 3.493
 - id: B6_14
   segment: B6
   duration: 4.0
@@ -5108,10 +5108,10 @@ shots:
   engine: cycles
   sfx:
   - 配乐一个悬置的和弦
-  start: 724.82
+  start: 719.66
 - id: B6_15
   segment: B6
-  duration: 4.51
+  duration: 4.66
   vo:
   - 灰尘落在膜上，离开了焦点，就印不出来。
   facts: []
@@ -5143,15 +5143,15 @@ shots:
   cues:
   - text: 灰尘落在膜上，离开了焦点，就印不出来。
     start: 0.393
-    end: 3.593
-  start: 728.82
+    end: 3.743
+  start: 723.66
   subs:
   - text: 灰尘落在膜上，离开了焦点，就印不出来
     start: 0.393
-    end: 3.593
+    end: 3.743
 - id: B6_16
   segment: B6
-  duration: 4.61
+  duration: 5.64
   vo:
   - ASML 给介绍它的文章取名叫：“与魔法无异”。
   facts:
@@ -5183,15 +5183,15 @@ shots:
   cues:
   - text: ASML 给介绍它的文章取名叫：“与魔法无异”。
     start: 0.327
-    end: 3.847
-  start: 733.33
+    end: 4.877
+  start: 728.32
   subs:
   - text: ASML 给介绍它的文章取名叫：
     start: 0.327
-    end: 2.921
+    end: 3.68
   - text: “与魔法无异”
-    start: 2.921
-    end: 3.847
+    start: 3.68
+    end: 4.877
 - id: B6_17
   segment: B6
   duration: 3.5
@@ -5218,10 +5218,10 @@ shots:
   engine: eevee
   sfx:
   - 下行的过渡音
-  start: 737.94
+  start: 733.96
 - id: B7_01
   segment: B7
-  duration: 6.43
+  duration: 6.95
   vo:
   - 从掩模反射出的光，进入投影物镜——由六面反射镜组成。
   facts:
@@ -5262,18 +5262,18 @@ shots:
   cues:
   - text: 从掩模反射出的光，进入投影物镜——由六面反射镜组成。
     start: 0.561
-    end: 5.121
-  start: 741.44
+    end: 5.641
+  start: 737.46
   subs:
   - text: 从掩模反射出的光，进入投影物镜——
     start: 0.561
-    end: 3.463
+    end: 3.794
   - text: 由六面反射镜组成
-    start: 3.463
-    end: 5.121
+    start: 3.794
+    end: 5.641
 - id: B7_02
   segment: B7
-  duration: 4.49
+  duration: 4.73
   vo:
   - 它把图形缩小 4 倍，投向晶圆。
   facts:
@@ -5306,15 +5306,15 @@ shots:
   cues:
   - text: 它把图形缩小 4 倍，投向晶圆。
     start: 0.531
-    end: 3.251
-  start: 747.87
+    end: 3.491
+  start: 744.41
   subs:
   - text: 它把图形缩小 4 倍，投向晶圆
     start: 0.531
-    end: 3.251
+    end: 3.491
 - id: B7_03
   segment: B7
-  duration: 7.74
+  duration: 7.1
   vo:
   - 现役 NXE 的数值孔径是 0.33，能分辨约 13 纳米的线条；
   facts:
@@ -5342,18 +5342,18 @@ shots:
   cues:
   - text: 现役 NXE 的数值孔径是 0.33，能分辨约 13 纳米的线条；
     start: 0.3
-    end: 7.34
-  start: 752.36
+    end: 6.702
+  start: 749.14
   subs:
   - text: 现役 NXE 的数值孔径是 0.33
     start: 0.3
-    end: 4.242
+    end: 3.885
   - text: 能分辨约 13 纳米的线条
-    start: 4.242
-    end: 7.34
+    start: 3.885
+    end: 6.702
 - id: B7_04
   segment: B7
-  duration: 6.06
+  duration: 6.9
   vo:
   - 新一代 High-NA 把数值孔径提高到 0.55，分辨率达到约 8 纳米。
   facts:
@@ -5387,18 +5387,18 @@ shots:
   cues:
   - text: 新一代 High-NA 把数值孔径提高到 0.55，分辨率达到约 8 纳米。
     start: 0.3
-    end: 5.66
-  start: 760.1
+    end: 6.5
+  start: 756.24
   subs:
   - text: 新一代 High-NA 把数值孔径提高到 0.55
     start: 0.3
-    end: 3.997
+    end: 4.576
   - text: 分辨率达到约 8 纳米
-    start: 3.997
-    end: 5.66
+    start: 4.576
+    end: 6.5
 - id: B7_05
   segment: B7
-  duration: 4.09
+  duration: 4.36
   vo:
   - 第一台已经在 2023 年 12 月交付。
   facts:
@@ -5431,12 +5431,12 @@ shots:
   cues:
   - text: 第一台已经在 2023 年 12 月交付。
     start: 0.3
-    end: 3.58
-  start: 766.16
+    end: 3.85
+  start: 763.14
   subs:
   - text: 第一台已经在 2023 年 12 月交付
     start: 0.3
-    end: 3.58
+    end: 3.85
 - id: B7_06
   segment: B7
   duration: 6.0
@@ -5468,10 +5468,10 @@ shots:
   sfx:
   - 零件散开的细碎金属叮当
   - 回收时一声厚重的合拢
-  start: 770.25
+  start: 767.5
 - id: B7_07
   segment: B7
-  duration: 4.41
+  duration: 4.49
   vo:
   - 可是孔径一变大，光锥也跟着变粗。
   facts: []
@@ -5500,15 +5500,15 @@ shots:
   cues:
   - text: 可是孔径一变大，光锥也跟着变粗。
     start: 0.387
-    end: 3.507
-  start: 776.25
+    end: 3.587
+  start: 773.5
   subs:
   - text: 可是孔径一变大，光锥也跟着变粗
     start: 0.387
-    end: 3.507
+    end: 3.587
 - id: B7_08
   segment: B7
-  duration: 6.85
+  duration: 7.24
   vo:
   - 如果还按 4 倍缩小，射向掩模的光和反射回来的光，就会撞在一起。
   facts:
@@ -5542,18 +5542,18 @@ shots:
   cues:
   - text: 如果还按 4 倍缩小，射向掩模的光和反射回来的光，就会撞在一起。
     start: 0.351
-    end: 6.031
-  start: 780.66
+    end: 6.421
+  start: 777.99
   subs:
   - text: 如果还按 4 倍缩小
     start: 0.351
-    end: 2.034
+    end: 2.15
   - text: 射向掩模的光和反射回来的光
-    start: 2.034
-    end: 4.769
+    start: 2.15
+    end: 5.072
   - text: 就会撞在一起
-    start: 4.769
-    end: 6.031
+    start: 5.072
+    end: 6.421
 - id: B7_09
   segment: B7
   duration: 4.0
@@ -5584,10 +5584,10 @@ shots:
   sfx:
   - 两股低频轰鸣对撞
   - 高频干涉啸叫
-  start: 787.51
+  start: 785.23
 - id: B7_10
   segment: B7
-  duration: 7.23
+  duration: 6.75
   vo:
   - 工程师的解法很巧妙：一个方向缩小 4 倍，另一个方向缩小 8 倍，
   facts:
@@ -5616,18 +5616,18 @@ shots:
   cues:
   - text: 工程师的解法很巧妙：一个方向缩小 4 倍，另一个方向缩小 8 倍，
     start: 0.3
-    end: 6.62
-  start: 791.51
+    end: 6.14
+  start: 789.23
   subs:
   - text: 工程师的解法很巧妙：一个方向缩小 4 倍
     start: 0.3
-    end: 4.432
+    end: 4.118
   - text: 另一个方向缩小 8 倍
-    start: 4.432
-    end: 6.62
+    start: 4.118
+    end: 6.14
 - id: B7_11
   segment: B7
-  duration: 6.21
+  duration: 6.01
   vo:
   - 入射角从 6 度降到 5.4 度，两只光锥恰好错开；
   facts:
@@ -5658,15 +5658,15 @@ shots:
   cues:
   - text: 入射角从 6 度降到 5.4 度，两只光锥恰好错开；
     start: 0.327
-    end: 5.447
-  start: 798.74
+    end: 5.247
+  start: 795.98
   subs:
   - text: 入射角从 6 度降到 5.4 度
     start: 0.327
-    end: 3.291
+    end: 3.175
   - text: 两只光锥恰好错开
-    start: 3.291
-    end: 5.447
+    start: 3.175
+    end: 5.247
 - id: B7_12
   segment: B7
   duration: 3.5
@@ -5691,10 +5691,10 @@ shots:
   engine: eevee
   sfx:
   - 寂静中轻微的空气声
-  start: 804.95
+  start: 801.99
 - id: B7_13
   segment: B7
-  duration: 9.93
+  duration: 10.27
   vo:
   - 代价是掩模图形要在一个方向拉长一倍，一次只能曝光半个场，一片晶圆要曝光 188 次。
   facts:
@@ -5732,21 +5732,21 @@ shots:
   cues:
   - text: 代价是掩模图形要在一个方向拉长一倍，一次只能曝光半个场，一片晶圆要曝光 188 次。
     start: 0.531
-    end: 8.691
-  start: 808.45
+    end: 9.031
+  start: 805.49
   subs:
   - text: 代价是掩模图形要在一个方向拉长一倍
     start: 0.531
-    end: 4.28
+    end: 4.436
   - text: 一次只能曝光半个场
-    start: 4.28
-    end: 6.265
+    start: 4.436
+    end: 6.504
   - text: 一片晶圆要曝光 188 次
-    start: 6.265
-    end: 8.691
+    start: 6.504
+    end: 9.031
 - id: B7_14
   segment: B7
-  duration: 6.69
+  duration: 7.13
   vo:
   - 还有一个更大胆的设计：最后两面镜子的正中间，开了一个洞。
   facts:
@@ -5780,15 +5780,15 @@ shots:
   cues:
   - text: 还有一个更大胆的设计：最后两面镜子的正中间，开了一个洞。
     start: 0.495
-    end: 5.535
-  start: 818.38
+    end: 5.975
+  start: 815.76
   subs:
   - text: 还有一个更大胆的设计：
     start: 0.495
-    end: 2.511
+    end: 2.687
   - text: 最后两面镜子的正中间，开了一个洞
-    start: 2.511
-    end: 5.535
+    start: 2.687
+    end: 5.975
 - id: B7_15
   segment: B7
   duration: 6.0
@@ -5817,10 +5817,10 @@ shots:
   sfx:
   - 穿孔时的气流 whoosh（风格化，真空中无声，但作为情绪音效）
   - 穿出后一声长混响
-  start: 825.07
+  start: 822.89
 - id: B7_16
   segment: B7
-  duration: 10.57
+  duration: 12.36
   vo:
   - 这样能让更多光通过，却也让描述镜头误差的标准数学工具失效了——蔡司和 ASML 只好换用另一套多项式。
   facts:
@@ -5851,21 +5851,21 @@ shots:
   cues:
   - text: 这样能让更多光通过，却也让描述镜头误差的标准数学工具失效了——蔡司和 ASML 只好换用另一套多项式。
     start: 0.555
-    end: 9.275
-  start: 831.07
+    end: 11.065
+  start: 828.89
   subs:
   - text: 这样能让更多光通过
     start: 0.555
-    end: 2.299
+    end: 2.657
   - text: 却也让描述镜头误差的标准数学工具失效了——
-    start: 2.299
-    end: 5.981
+    start: 2.657
+    end: 7.095
   - text: 蔡司和 ASML 只好换用另一套多项式
-    start: 5.981
-    end: 9.275
+    start: 7.095
+    end: 11.065
 - id: B8_01
   segment: B8
-  duration: 2.81
+  duration: 2.57
   vo:
   - 最后一站：晶圆。
   facts: []
@@ -5898,15 +5898,15 @@ shots:
   cues:
   - text: 最后一站：晶圆。
     start: 0.363
-    end: 1.963
-  start: 841.64
+    end: 1.723
+  start: 841.25
   subs:
   - text: 最后一站：晶圆
     start: 0.363
-    end: 1.963
+    end: 1.723
 - id: B8_02
   segment: B8
-  duration: 5.74
+  duration: 5.75
   vo:
   - 光刻机并不是一下照亮整片晶圆，而是把光整形成一条窄缝，
   facts:
@@ -5938,18 +5938,18 @@ shots:
   cues:
   - text: 光刻机并不是一下照亮整片晶圆，而是把光整形成一条窄缝，
     start: 0.3
-    end: 5.34
-  start: 844.45
+    end: 5.35
+  start: 843.82
   subs:
   - text: 光刻机并不是一下照亮整片晶圆
     start: 0.3
-    end: 3.122
+    end: 3.128
   - text: 而是把光整形成一条窄缝
-    start: 3.122
-    end: 5.34
+    start: 3.128
+    end: 5.35
 - id: B8_03
   segment: B8
-  duration: 6.62
+  duration: 6.4
   vo:
   - 掩模和晶圆反向移动，像扫描仪一样，让图形一条一条扫过去。
   facts:
@@ -5982,18 +5982,18 @@ shots:
   cues:
   - text: 掩模和晶圆反向移动，像扫描仪一样，让图形一条一条扫过去。
     start: 0.3
-    end: 6.22
-  start: 850.19
+    end: 6.0
+  start: 849.57
   subs:
   - text: 掩模和晶圆反向移动，像扫描仪一样
     start: 0.3
-    end: 3.852
+    end: 3.72
   - text: 让图形一条一条扫过去
-    start: 3.852
-    end: 6.22
+    start: 3.72
+    end: 6.0
 - id: B8_04
   segment: B8
-  duration: 3.98
+  duration: 5.07
   vo:
   - 缩小 4 倍，就意味着掩模要跑得比晶圆快 4 倍。
   facts:
@@ -6025,18 +6025,18 @@ shots:
   cues:
   - text: 缩小 4 倍，就意味着掩模要跑得比晶圆快 4 倍。
     start: 0.3
-    end: 3.58
-  start: 856.81
+    end: 4.67
+  start: 855.97
   subs:
   - text: 缩小 4 倍
     start: 0.3
-    end: 0.991
+    end: 1.22
   - text: 就意味着掩模要跑得比晶圆快 4 倍
-    start: 0.991
-    end: 3.58
+    start: 1.22
+    end: 4.67
 - id: B8_05
   segment: B8
-  duration: 6.46
+  duration: 6.91
   vo:
   - 在 High-NA 上，晶圆台的加速度达到 8 g，掩模台达到 32 g。
   facts:
@@ -6071,18 +6071,18 @@ shots:
   cues:
   - text: 在 High-NA 上，晶圆台的加速度达到 8 g，掩模台达到 32 g。
     start: 0.3
-    end: 6.06
-  start: 860.79
+    end: 6.51
+  start: 861.04
   subs:
   - text: 在 High-NA 上
     start: 0.3
-    end: 2.007
+    end: 2.14
   - text: 晶圆台的加速度达到 8 g
-    start: 2.007
-    end: 4.353
+    start: 2.14
+    end: 4.67
   - text: 掩模台达到 32 g
-    start: 4.353
-    end: 6.06
+    start: 4.67
+    end: 6.51
 - id: B8_06
   segment: B8
   duration: 3.0
@@ -6112,10 +6112,10 @@ shots:
   sfx:
   - 红线报警声
   - 一记重低音冲击
-  start: 867.25
+  start: 867.95
 - id: B8_07
   segment: B8
-  duration: 8.43
+  duration: 9.28
   vo:
   - 掩模台的电机推力超过 1 万牛——ASML 形容，就像每次加速，都有一辆车砸在台面上。
   facts:
@@ -6151,18 +6151,18 @@ shots:
   cues:
   - text: 掩模台的电机推力超过 1 万牛——ASML 形容，就像每次加速，都有一辆车砸在台面上。
     start: 0.3
-    end: 7.98
-  start: 870.25
+    end: 8.827
+  start: 870.95
   subs:
   - text: 掩模台的电机推力超过 1 万牛——
     start: 0.3
-    end: 3.153
+    end: 3.467
   - text: ASML 形容，就像每次加速
-    start: 3.153
-    end: 5.786
+    start: 3.467
+    end: 6.391
   - text: 都有一辆车砸在台面上
-    start: 5.786
-    end: 7.98
+    start: 6.391
+    end: 8.827
 - id: B8_08
   segment: B8
   duration: 3.5
@@ -6190,10 +6190,10 @@ shots:
   sfx:
   - 拉长变调的撞击回声
   - 一声细小的‘叮’——掩模不动
-  start: 878.68
+  start: 880.23
 - id: B8_09
   segment: B8
-  duration: 5.34
+  duration: 4.8
   vo:
   - 可台面上的掩模，移动或变形都不能超过几皮米。
   facts:
@@ -6224,18 +6224,18 @@ shots:
   cues:
   - text: 可台面上的掩模，移动或变形都不能超过几皮米。
     start: 0.3
-    end: 4.94
-  start: 882.18
+    end: 4.4
+  start: 883.73
   subs:
   - text: 可台面上的掩模
     start: 0.3
-    end: 1.924
+    end: 1.735
   - text: 移动或变形都不能超过几皮米
-    start: 1.924
-    end: 4.94
+    start: 1.735
+    end: 4.4
 - id: B8_10
   segment: B8
-  duration: 4.86
+  duration: 4.51
   vo:
   - 两张台子反向冲刺，同步要精确到纳米和纳秒。
   facts:
@@ -6267,18 +6267,18 @@ shots:
   cues:
   - text: 两张台子反向冲刺，同步要精确到纳米和纳秒。
     start: 0.3
-    end: 4.46
-  start: 887.52
+    end: 4.11
+  start: 888.53
   subs:
   - text: 两张台子反向冲刺
     start: 0.3
-    end: 2.052
+    end: 1.904
   - text: 同步要精确到纳米和纳秒
-    start: 2.052
-    end: 4.46
+    start: 1.904
+    end: 4.11
 - id: B8_11
   segment: B8
-  duration: 6.3
+  duration: 5.72
   vo:
   - 位置怎么测？传感器的精度约 60 皮米——比一个硅原子还小。
   facts:
@@ -6316,18 +6316,18 @@ shots:
   cues:
   - text: 位置怎么测？传感器的精度约 60 皮米——比一个硅原子还小。
     start: 0.3
-    end: 5.9
-  start: 892.38
+    end: 5.32
+  start: 893.04
   subs:
   - text: 位置怎么测？传感器的精度约 60 皮米——
     start: 0.3
-    end: 4.033
+    end: 3.647
   - text: 比一个硅原子还小
-    start: 4.033
-    end: 5.9
+    start: 3.647
+    end: 5.32
 - id: B8_12
   segment: B8
-  duration: 5.66
+  duration: 6.07
   vo:
   - 晶圆刚放进机器时，位置只准到约 80 微米，差不多一根头发丝；
   facts:
@@ -6359,18 +6359,18 @@ shots:
   cues:
   - text: 晶圆刚放进机器时，位置只准到约 80 微米，差不多一根头发丝；
     start: 0.3
-    end: 5.26
-  start: 898.68
+    end: 5.67
+  start: 898.76
   subs:
   - text: 晶圆刚放进机器时，位置只准到约 80 微米
     start: 0.3
-    end: 3.734
+    end: 4.018
   - text: 差不多一根头发丝
-    start: 3.734
-    end: 5.26
+    start: 4.018
+    end: 5.67
 - id: B8_13
   segment: B8
-  duration: 6.62
+  duration: 5.95
   vo:
   - 随后，机器读取超过 1000 个套刻标记，把它修正到亚纳米。
   facts:
@@ -6403,18 +6403,18 @@ shots:
   cues:
   - text: 随后，机器读取超过 1000 个套刻标记，把它修正到亚纳米。
     start: 0.3
-    end: 6.22
-  start: 904.34
+    end: 5.55
+  start: 904.83
   subs:
   - text: 随后，机器读取超过 1000 个套刻标记
     start: 0.3
-    end: 4.326
+    end: 3.87
   - text: 把它修正到亚纳米
-    start: 4.326
-    end: 6.22
+    start: 3.87
+    end: 5.55
 - id: B8_14
   segment: B8
-  duration: 8.54
+  duration: 6.24
   vo:
   - 每次曝光，晶圆都被定位在四分之一纳米以内，每秒校正 2 万次。
   facts:
@@ -6446,21 +6446,21 @@ shots:
   cues:
   - text: 每次曝光，晶圆都被定位在四分之一纳米以内，每秒校正 2 万次。
     start: 0.3
-    end: 8.14
-  start: 910.96
+    end: 5.84
+  start: 910.78
   subs:
   - text: 每次曝光
     start: 0.3
-    end: 1.506
+    end: 1.152
   - text: 晶圆都被定位在四分之一纳米以内
-    start: 1.506
-    end: 6.029
+    start: 1.152
+    end: 4.348
   - text: 每秒校正 2 万次
-    start: 6.029
-    end: 8.14
+    start: 4.348
+    end: 5.84
 - id: B8_15
   segment: B8
-  duration: 8.46
+  duration: 7.63
   vo:
   - 一层叠一层，层与层的对准误差，据报道，英特尔的验收测试做到了 0.7 纳米。
   facts:
@@ -6492,18 +6492,18 @@ shots:
   cues:
   - text: 一层叠一层，层与层的对准误差，据报道，英特尔的验收测试做到了 0.7 纳米。
     start: 0.3
-    end: 8.06
-  start: 919.5
+    end: 7.23
+  start: 917.02
   subs:
   - text: 一层叠一层，层与层的对准误差，据报道
     start: 0.3
-    end: 4.305
+    end: 3.877
   - text: 英特尔的验收测试做到了 0.7 纳米
-    start: 4.305
-    end: 8.06
+    start: 3.877
+    end: 7.23
 - id: B8_16
   segment: B8
-  duration: 7.9
+  duration: 7.51
   vo:
   - 它也从不空等：两张晶圆台轮流工作，一片在曝光，另一片同时完成测量。
   facts:
@@ -6535,18 +6535,18 @@ shots:
   cues:
   - text: 它也从不空等：两张晶圆台轮流工作，一片在曝光，另一片同时完成测量。
     start: 0.3
-    end: 7.5
-  start: 927.96
+    end: 7.11
+  start: 924.65
   subs:
   - text: 它也从不空等：两张晶圆台轮流工作
     start: 0.3
-    end: 4.024
+    end: 3.822
   - text: 一片在曝光，另一片同时完成测量
-    start: 4.024
-    end: 7.5
+    start: 3.822
+    end: 7.11
 - id: B8_17
   segment: B8
-  duration: 6.86
+  duration: 7.18
   vo:
   - 一片晶圆约 96 个曝光场，一小时 220 片——每小时两万多次曝光。
   facts:
@@ -6579,15 +6579,15 @@ shots:
   cues:
   - text: 一片晶圆约 96 个曝光场，一小时 220 片——每小时两万多次曝光。
     start: 0.3
-    end: 6.46
-  start: 935.86
+    end: 6.78
+  start: 932.16
   subs:
   - text: 一片晶圆约 96 个曝光场，一小时 220 片——
     start: 0.3
-    end: 4.407
+    end: 4.62
   - text: 每小时两万多次曝光
-    start: 4.407
-    end: 6.46
+    start: 4.62
+    end: 6.78
 - id: B8_18
   segment: B8
   duration: 4.0
@@ -6618,10 +6618,10 @@ shots:
   engine: eevee
   sfx:
   - 快门声加速成连续的嗡鸣
-  start: 942.72
+  start: 939.34
 - id: B8_19
   segment: B8
-  duration: 9.1
+  duration: 9.22
   vo:
   - 这台机器每周光是传感器就产生最多 31 TB 数据，是哈勃望远镜一年数据量的 3 倍。
   facts:
@@ -6654,15 +6654,15 @@ shots:
   cues:
   - text: 这台机器每周光是传感器就产生最多 31 TB 数据，是哈勃望远镜一年数据量的 3 倍。
     start: 0.3
-    end: 8.7
-  start: 946.72
+    end: 8.82
+  start: 943.34
   subs:
   - text: 这台机器每周光是传感器就产生最多 31 TB 数据
     start: 0.3
-    end: 5.433
+    end: 5.507
   - text: 是哈勃望远镜一年数据量的 3 倍
-    start: 5.433
-    end: 8.7
+    start: 5.507
+    end: 8.82
 - id: B8_20
   segment: B8
   duration: 3.5
@@ -6689,10 +6689,10 @@ shots:
   engine: manim
   sfx:
   - 瀑布声渐远
-  start: 955.82
+  start: 952.56
 - id: B9_01
   segment: B9
-  duration: 5.51
+  duration: 6.11
   vo:
   - 现在，光终于落到了光刻胶上。回到我们的光的账本。
   facts:
@@ -6725,18 +6725,18 @@ shots:
   cues:
   - text: 现在，光终于落到了光刻胶上。回到我们的光的账本。
     start: 0.333
-    end: 4.733
-  start: 959.32
+    end: 5.333
+  start: 956.06
   subs:
   - text: 现在，光终于落到了光刻胶上
     start: 0.333
-    end: 2.847
+    end: 3.19
   - text: 回到我们的光的账本
-    start: 2.847
-    end: 4.733
+    start: 3.19
+    end: 5.333
 - id: B9_02
   segment: B9
-  duration: 8.19
+  duration: 6.73
   vo:
   - 每个 EUV 光子的能量约 92 电子伏，是深紫外光子的 14 倍。
   facts:
@@ -6773,18 +6773,18 @@ shots:
   cues:
   - text: 每个 EUV 光子的能量约 92 电子伏，是深紫外光子的 14 倍。
     start: 0.3
-    end: 7.58
-  start: 964.83
+    end: 6.12
+  start: 962.17
   subs:
   - text: 每个 EUV 光子的能量约 92 电子伏
     start: 0.3
-    end: 4.78
+    end: 3.882
   - text: 是深紫外光子的 14 倍
-    start: 4.78
-    end: 7.58
+    start: 3.882
+    end: 6.12
 - id: B9_03
   segment: B9
-  duration: 5.33
+  duration: 5.41
   vo:
   - 所以同样的曝光能量，光子数反而少了十几倍。
   facts:
@@ -6812,15 +6812,15 @@ shots:
   cues:
   - text: 所以同样的曝光能量，光子数反而少了十几倍。
     start: 0.327
-    end: 4.567
-  start: 973.02
+    end: 4.647
+  start: 968.9
   subs:
   - text: 所以同样的曝光能量
     start: 0.327
-    end: 2.335
+    end: 2.373
   - text: 光子数反而少了十几倍
-    start: 2.335
-    end: 4.567
+    start: 2.373
+    end: 4.647
 - id: B9_04
   segment: B9
   duration: 5.43
@@ -6858,7 +6858,7 @@ shots:
   - text: 按常用的剂量算，每平方纳米只落下大约 20 个光子。
     start: 0.3
     end: 4.86
-  start: 978.35
+  start: 974.31
   subs:
   - text: 按常用的剂量算
     start: 0.3
@@ -6893,10 +6893,10 @@ shots:
   sfx:
   - 一滴雨落在水面的放大音效
   - 长混响
-  start: 983.78
+  start: 979.74
 - id: B9_06
   segment: B9
-  duration: 6.03
+  duration: 6.72
   vo:
   - 这 20 个光子是随机落下的：有的格子多几个，有的格子少几个。
   facts:
@@ -6928,18 +6928,18 @@ shots:
   cues:
   - text: 这 20 个光子是随机落下的：有的格子多几个，有的格子少几个。
     start: 0.3
-    end: 5.42
-  start: 988.28
+    end: 6.11
+  start: 984.24
   subs:
   - text: 这 20 个光子是随机落下的：
     start: 0.3
-    end: 2.663
+    end: 2.982
   - text: 有的格子多几个，有的格子少几个
-    start: 2.663
-    end: 5.42
+    start: 2.982
+    end: 6.11
 - id: B9_07
   segment: B9
-  duration: 8.71
+  duration: 8.63
   vo:
   - 于是线条边缘变得毛糙，严重时线会断开、或者粘在一起，成为随机缺陷。
   facts:
@@ -6974,18 +6974,18 @@ shots:
   cues:
   - text: 于是线条边缘变得毛糙，严重时线会断开、或者粘在一起，成为随机缺陷。
     start: 0.357
-    end: 7.877
-  start: 994.31
+    end: 7.797
+  start: 990.96
   subs:
   - text: 于是线条边缘变得毛糙，严重时线会断开
     start: 0.357
-    end: 4.765
+    end: 4.718
   - text: 或者粘在一起，成为随机缺陷
-    start: 4.765
-    end: 7.877
+    start: 4.718
+    end: 7.797
 - id: B9_08
   segment: B9
-  duration: 8.13
+  duration: 9.44
   vo:
   - 这也是为什么，据报道 ASML 要把光源从几百瓦推向一千瓦——多一个光子，线条就稳一分。
   facts:
@@ -7021,21 +7021,21 @@ shots:
   cues:
   - text: 这也是为什么，据报道 ASML 要把光源从几百瓦推向一千瓦——多一个光子，线条就稳一分。
     start: 0.3
-    end: 7.66
-  start: 1003.02
+    end: 8.97
+  start: 999.59
   subs:
   - text: 这也是为什么
     start: 0.3
-    end: 1.494
+    end: 1.706
   - text: 据报道 ASML 要把光源从几百瓦推向一千瓦——
-    start: 1.494
-    end: 5.472
+    start: 1.706
+    end: 6.392
   - text: 多一个光子，线条就稳一分
-    start: 5.472
-    end: 7.66
+    start: 6.392
+    end: 8.97
 - id: B9_09
   segment: B9
-  duration: 8.33
+  duration: 8.25
   vo:
   - 从吞下巨量电力的激光，到每平方纳米 20 个光子——这本账，算到了最后一位。
   facts:
@@ -7076,18 +7076,18 @@ shots:
   cues:
   - text: 从吞下巨量电力的激光，到每平方纳米 20 个光子——这本账，算到了最后一位。
     start: 0.363
-    end: 7.483
-  start: 1011.15
+    end: 7.403
+  start: 1009.03
   subs:
   - text: 从吞下巨量电力的激光
     start: 0.363
-    end: 2.66
+    end: 2.634
   - text: 到每平方纳米 20 个光子——这本账
-    start: 2.66
-    end: 5.875
+    start: 2.634
+    end: 5.813
   - text: 算到了最后一位
-    start: 5.875
-    end: 7.483
+    start: 5.813
+    end: 7.403
 - id: B9_10
   segment: B9
   duration: 4.0
@@ -7115,10 +7115,10 @@ shots:
   sfx:
   - 合书的闷响
   - 静音一拍
-  start: 1019.48
+  start: 1017.28
 - id: C_01
   segment: C
-  duration: 7.49
+  duration: 7.79
   vo:
   - 现在，把所有零件装回去，跟着一滴锡，走完全程。
   facts: []
@@ -7153,18 +7153,18 @@ shots:
   cues:
   - text: 现在，把所有零件装回去，跟着一滴锡，走完全程。
     start: 0.927
-    end: 5.327
-  start: 1023.48
+    end: 5.624
+  start: 1021.28
   subs:
   - text: 现在，把所有零件装回去，跟着一滴锡
     start: 0.927
-    end: 4.401
+    end: 4.635
   - text: 走完全程
-    start: 4.401
-    end: 5.327
+    start: 4.635
+    end: 5.624
 - id: C_02
   segment: C
-  duration: 16.87
+  duration: 17.14
   vo:
   - 锡滴飞出，被单独锁定；
   - 预脉冲把它拍扁，主脉冲把它点燃；
@@ -7225,27 +7225,27 @@ shots:
   cues:
   - text: 锡滴飞出，被单独锁定；
     start: 1.2
-    end: 3.2
+    end: 3.57
   - text: 预脉冲把它拍扁，主脉冲把它点燃；
-    start: 3.6
-    end: 6.48
+    start: 3.97
+    end: 7.07
   - text: 等离子体里的锡离子，放出 13.5 纳米的光；
-    start: 6.88
-    end: 10.96
-  start: 1030.97
+    start: 7.47
+    end: 11.23
+  start: 1029.07
   subs:
   - text: 锡滴飞出，被单独锁定
     start: 1.2
-    end: 3.2
+    end: 3.57
   - text: 预脉冲把它拍扁，主脉冲把它点燃
-    start: 3.6
-    end: 6.48
+    start: 3.97
+    end: 7.07
   - text: 等离子体里的锡离子，放出 13.5 纳米的光
-    start: 6.88
-    end: 10.96
+    start: 7.47
+    end: 11.23
 - id: C_03
   segment: C
-  duration: 16.71
+  duration: 16.72
   vo:
   - 收集镜把光聚向中间焦点；
   - 照明系统把它匀化、整形；
@@ -7296,27 +7296,27 @@ shots:
   cues:
   - text: 收集镜把光聚向中间焦点；
     start: 1.2
-    end: 3.28
+    end: 3.417
   - text: 照明系统把它匀化、整形；
-    start: 3.68
-    end: 6.16
+    start: 3.817
+    end: 6.177
   - text: 掩模把电路图形反射出来；
-    start: 6.56
-    end: 8.64
-  start: 1047.84
+    start: 6.577
+    end: 8.648
+  start: 1046.21
   subs:
   - text: 收集镜把光聚向中间焦点
     start: 1.2
-    end: 3.28
+    end: 3.417
   - text: 照明系统把它匀化、整形
-    start: 3.68
-    end: 6.16
+    start: 3.817
+    end: 6.177
   - text: 掩模把电路图形反射出来
-    start: 6.56
-    end: 8.64
+    start: 6.577
+    end: 8.648
 - id: C_04
   segment: C
-  duration: 18.63
+  duration: 20.34
   vo:
   - 六面镜子把图形缩小，投向晶圆；
   - 狭缝扫过，掩模和晶圆反向飞驰；
@@ -7370,24 +7370,24 @@ shots:
   cues:
   - text: 六面镜子把图形缩小，投向晶圆；
     start: 1.2
-    end: 4.0
+    end: 4.58
   - text: 狭缝扫过，掩模和晶圆反向飞驰；
-    start: 4.4
-    end: 7.52
+    start: 4.98
+    end: 8.885
   - text: 光子落进光刻胶，一层电路就此写定。
-    start: 7.92
-    end: 10.72
-  start: 1064.55
+    start: 9.285
+    end: 12.435
+  start: 1062.93
   subs:
   - text: 六面镜子把图形缩小，投向晶圆
     start: 1.2
-    end: 4.0
+    end: 4.58
   - text: 狭缝扫过，掩模和晶圆反向飞驰
-    start: 4.4
-    end: 7.52
+    start: 4.98
+    end: 8.885
   - text: 光子落进光刻胶，一层电路就此写定
-    start: 7.92
-    end: 10.72
+    start: 9.285
+    end: 12.435
 - id: C_05
   segment: C
   duration: 6.0
@@ -7415,10 +7415,10 @@ shots:
   sfx:
   - 倒放的上升音
   - 落定时一声深沉的低音
-  start: 1083.18
+  start: 1083.27
 - id: C_06
   segment: C
-  duration: 5.67
+  duration: 5.74
   vo:
   - 这一切，每秒最多发生 5 万次。
   facts:
@@ -7449,12 +7449,12 @@ shots:
   cues:
   - text: 这一切，每秒最多发生 5 万次。
     start: 0.981
-    end: 3.381
-  start: 1089.18
+    end: 3.451
+  start: 1089.27
   subs:
   - text: 这一切，每秒最多发生 5 万次
     start: 0.981
-    end: 3.381
+    end: 3.451
 - id: C_07
   segment: C
   duration: 4.0
@@ -7481,10 +7481,10 @@ shots:
   engine: cycles
   sfx:
   - 四记鼓点
-  start: 1094.85
+  start: 1095.01
 - id: C_08
   segment: C
-  duration: 9.61
+  duration: 9.78
   vo:
   - 没有哪一个部件能单独做到：光源造光，镜子传光，掩模给图，工件台对准。
   facts: []
@@ -7515,18 +7515,18 @@ shots:
   cues:
   - text: 没有哪一个部件能单独做到：光源造光，镜子传光，掩模给图，工件台对准。
     start: 0.507
-    end: 8.427
-  start: 1098.85
+    end: 8.6
+  start: 1099.01
   subs:
   - text: 没有哪一个部件能单独做到：光源造光
     start: 0.507
-    end: 4.877
+    end: 4.972
   - text: 镜子传光，掩模给图，工件台对准
-    start: 4.877
-    end: 8.427
+    start: 4.972
+    end: 8.6
 - id: C_09
   segment: C
-  duration: 7.35
+  duration: 7.86
   vo:
   - 千百个“不可能”，在同一时刻、同一个坐标系里成立。
   facts: []
@@ -7556,15 +7556,15 @@ shots:
   cues:
   - text: 千百个“不可能”，在同一时刻、同一个坐标系里成立。
     start: 1.005
-    end: 5.005
-  start: 1108.46
+    end: 5.515
+  start: 1108.79
   subs:
   - text: 千百个“不可能”，在同一时刻
     start: 1.005
-    end: 3.205
+    end: 3.485
   - text: 同一个坐标系里成立
-    start: 3.205
-    end: 5.005
+    start: 3.485
+    end: 5.515
 - id: C_10
   segment: C
   duration: 4.0
@@ -7590,10 +7590,10 @@ shots:
   sfx:
   - 心跳般的低频两下
   - 余音
-  start: 1115.81
+  start: 1116.65
 - id: D_01
   segment: D
-  duration: 4.22
+  duration: 4.64
   vo:
   - 每一片晶圆上的图案，都是这样一层一层写出来的。
   facts: []
@@ -7625,18 +7625,18 @@ shots:
   cues:
   - text: 每一片晶圆上的图案，都是这样一层一层写出来的。
     start: 0.3
-    end: 3.82
-  start: 1119.81
+    end: 4.24
+  start: 1120.65
   subs:
   - text: 每一片晶圆上的图案
     start: 0.3
-    end: 1.809
+    end: 1.989
   - text: 都是这样一层一层写出来的
-    start: 1.809
-    end: 3.82
+    start: 1.989
+    end: 4.24
 - id: D_02
   segment: D
-  duration: 4.38
+  duration: 4.49
   vo:
   - 比指尖略大的芯片上，1840 亿个元件，
   facts:
@@ -7669,15 +7669,15 @@ shots:
   cues:
   - text: 比指尖略大的芯片上，1840 亿个元件，
     start: 0.3
-    end: 3.98
-  start: 1124.03
+    end: 4.09
+  start: 1125.29
   subs:
   - text: 比指尖略大的芯片上，1840 亿个元件
     start: 0.3
-    end: 3.98
+    end: 4.09
 - id: D_03
   segment: D
-  duration: 5.5
+  duration: 4.82
   vo:
   - 每一个，都来自一滴锡、两发激光、大约 10 面镜子。
   facts:
@@ -7711,18 +7711,18 @@ shots:
   cues:
   - text: 每一个，都来自一滴锡、两发激光、大约 10 面镜子。
     start: 0.3
-    end: 5.1
-  start: 1128.41
+    end: 4.424
+  start: 1129.78
   subs:
   - text: 每一个，都来自一滴锡、两发激光
     start: 0.3
-    end: 3.42
+    end: 2.981
   - text: 大约 10 面镜子
-    start: 3.42
-    end: 5.1
+    start: 2.981
+    end: 4.424
 - id: D_04
   segment: D
-  duration: 11.02
+  duration: 11.48
   vo:
   - 据行业估算，这样一台机器的耗电在兆瓦量级；
   - 而 ASML 说，自 2018 年以来，每片晶圆的能耗已经下降了 57%。
@@ -7756,27 +7756,27 @@ shots:
   cues:
   - text: 据行业估算，这样一台机器的耗电在兆瓦量级；
     start: 0.3
-    end: 3.9
+    end: 3.92
   - text: 而 ASML 说，自 2018 年以来，每片晶圆的能耗已经下降了 57%。
-    start: 4.3
-    end: 10.62
-  start: 1133.91
+    start: 4.32
+    end: 11.08
+  start: 1134.6
   subs:
   - text: 据行业估算
     start: 0.3
-    end: 1.247
+    end: 1.253
   - text: 这样一台机器的耗电在兆瓦量级
-    start: 1.247
-    end: 3.9
+    start: 1.253
+    end: 3.92
   - text: 而 ASML 说，自 2018 年以来
-    start: 4.3
-    end: 7.351
+    start: 4.32
+    end: 7.583
   - text: 每片晶圆的能耗已经下降了 57%
-    start: 7.351
-    end: 10.62
+    start: 7.583
+    end: 11.08
 - id: D_05
   segment: D
-  duration: 4.7
+  duration: 4.73
   vo:
   - 下一代光源，据报道已经在实验室里冲到了 1000 瓦。
   facts:
@@ -7808,18 +7808,18 @@ shots:
   cues:
   - text: 下一代光源，据报道已经在实验室里冲到了 1000 瓦。
     start: 0.3
-    end: 4.3
-  start: 1144.93
+    end: 4.33
+  start: 1146.08
   subs:
   - text: 下一代光源
     start: 0.3
-    end: 1.17
+    end: 1.176
   - text: 据报道已经在实验室里冲到了 1000 瓦
-    start: 1.17
-    end: 4.3
+    start: 1.176
+    end: 4.33
 - id: D_06
   segment: D
-  duration: 3.58
+  duration: 3.12
   vo:
   - 这台机器，像是外星人留下的科技。
   facts: []
@@ -7847,15 +7847,15 @@ shots:
   cues:
   - text: 这台机器，像是外星人留下的科技。
     start: 0.3
-    end: 3.18
-  start: 1149.63
+    end: 2.72
+  start: 1150.81
   subs:
   - text: 这台机器，像是外星人留下的科技
     start: 0.3
-    end: 3.18
+    end: 2.72
 - id: D_07
   segment: D
-  duration: 6.14
+  duration: 6.04
   vo:
   - 但它其实是 5100 家供应商和无数工程师，一点一点做出来的。
   facts:
@@ -7890,18 +7890,18 @@ shots:
   cues:
   - text: 但它其实是 5100 家供应商和无数工程师，一点一点做出来的。
     start: 0.3
-    end: 5.74
-  start: 1153.21
+    end: 5.64
+  start: 1153.93
   subs:
   - text: 但它其实是 5100 家供应商和无数工程师
     start: 0.3
-    end: 4.128
+    end: 4.058
   - text: 一点一点做出来的
-    start: 4.128
-    end: 5.74
+    start: 4.058
+    end: 5.64
 - id: D_08
   segment: D
-  duration: 3.51
+  duration: 3.36
   vo:
   - 而这一切的起点，仍然是那一滴锡。
   facts:
@@ -7933,12 +7933,12 @@ shots:
   cues:
   - text: 而这一切的起点，仍然是那一滴锡。
     start: 0.3
-    end: 3.02
-  start: 1159.35
+    end: 2.87
+  start: 1159.97
   subs:
   - text: 而这一切的起点，仍然是那一滴锡
     start: 0.3
-    end: 3.02
+    end: 2.87
 - id: D_09
   segment: D
   duration: 2.5
@@ -7964,10 +7964,10 @@ shots:
   sfx:
   - 激光逼近的高频渐强
   - 切黑瞬间完全静音
-  start: 1162.86
+  start: 1163.33
 - id: D_10
   segment: D
-  duration: 7.6
+  duration: 7.96
   vo:
   - 下一期，我们会公开这部片子是怎么用 AI 和 Blender 做出来的。
   facts: []
@@ -7994,19 +7994,19 @@ shots:
   cues:
   - text: 下一期，我们会公开这部片子是怎么用 AI 和 Blender 做出来的。
     start: 0.3
-    end: 4.7
-  start: 1165.36
+    end: 5.062
+  start: 1165.83
   subs:
   - text: 下一期
     start: 0.3
-    end: 0.74
+    end: 0.776
   - text: 我们会公开这部片子是怎么用 AI
-    start: 0.74
-    end: 2.94
+    start: 0.776
+    end: 3.157
   - text: 和 Blender 做出来的
-    start: 2.94
-    end: 4.7
+    start: 3.157
+    end: 5.062
 timing:
   voice: Andre
-  total: 1172.96
+  total: 1173.79
   design_total: 1284.4
