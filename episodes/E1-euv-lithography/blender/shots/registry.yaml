@@ -39,3 +39,8 @@ B2_08: {scene: b2_scenes, args: {variant: clean}, camera: CamB2_08, start: 1, st
 B2_09: {scene: b2_scenes, args: {variant: pumps}, camera: CamB2_09, start: 1, style: xray, engine: eevee}
 B2_11: {scene: b2_scenes, args: {variant: glow}, camera: CamB2_11, start: 1, style: photoreal, engine: cycles}
 B2_12: {scene: b1_source, camera: CamB2_12, start: 262, style: photoreal, engine: cycles}
+B3_01: {scene: b3_scenes, args: {variant: burst}, camera: CamB3_01, start: 1, style: energy, engine: eevee}
+B3_02: {scene: b1_source, camera: CamB3_02, start: 1, style: photoreal, engine: cycles}
+B3_05: {scene: b3_scenes, args: {variant: focus}, camera: CamB3_05, start: 1, style: energy, engine: eevee}
+B3_06: {scene: b3_scenes, args: {variant: handoff}, camera: CamB3_06, start: 1, style: xray, engine: eevee}
+B3_07: {scene: b3_scenes, args: {variant: nave}, camera: CamB3_07, start: 1, style: photoreal, engine: cycles}

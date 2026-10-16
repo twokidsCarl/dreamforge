@@ -70,6 +70,9 @@ def build(vessel=False, rays=False):
     # B2_12 — wide interior, crane up over the collector
     cam("CamB2_12", [(262, (1.0, 0, 0), (12.0, 7.0, 1.0), 28, 6.0),
                      (346, (1.0, 0, 0), (12.5, 7.4, 4.5), 28, 6.0)])
+    # B3_02 — the collector before the main pulse: iridescent face, droplets crossing in front
+    cam("CamB3_02", [(1, (-2.0, 0.0, 0.0), (11.0, 8.5, 3.6), 30, 5.6),
+                     (123, (-2.0, 0.0, 0.0), (11.5, -6.5, 3.2), 30, 5.6)])
     return sc
 
 
