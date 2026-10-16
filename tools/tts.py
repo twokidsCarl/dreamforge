@@ -24,7 +24,7 @@ REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ENDPOINTS = {"singapore": "https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation",
              "beijing": "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation"}
 MODEL = "qwen3-tts-flash"
-PAUSE_LINE = 0.25   # between sentences inside a segment
+PAUSE_LINE = 0.4    # between sentences inside a segment (documentary breathing)
 PAUSE_SEG = 0.8     # appended after each segment
 SR = 24000
 
