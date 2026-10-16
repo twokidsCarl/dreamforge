@@ -13,6 +13,7 @@ import bpy
 from mathutils import Matrix
 
 import materials as M
+import styles
 
 UNIT_UM = 125.0                      # micrometres per Blender unit near the droplet
 DROPLET_DIAMETER_UM = 25.0           # F3
@@ -197,9 +198,10 @@ def collector_housing():
     return ring
 
 
-def laser_beam(name, radius, color, strength, x_from=-40.0, x_to=0.0):
+def laser_beam(name, radius, color, x_from=-40.0, x_to=0.0):
     """Drive-laser pulse along +X ending at the plasma site. CO2 light is infrared and
-    invisible; the beam is a visual stand-in."""
+    invisible; the beam is a visual stand-in. Returns (object, material, length); animate
+    with materials.set_beam (front runs from -length/2 to +length/2 = the target)."""
     length = x_to - x_from
     bpy.ops.mesh.primitive_cylinder_add(radius=radius, depth=length, vertices=48,
                                         location=((x_from + x_to) / 2, 0, 0),
@@ -207,9 +209,38 @@ def laser_beam(name, radius, color, strength, x_from=-40.0, x_to=0.0):
     beam = bpy.context.object
     beam.name = name
     _shade_smooth(beam)
-    mat = M.volume_glow(name + "Mat", color, density=0.0, emission_strength=strength)
+    mat = M.beam(name + "Mat", color, radius, length)
     beam.data.materials.append(mat)
-    return beam, mat
+    return beam, mat, length
+
+
+def debris(frame, location, count=500, speed=2.6, lifetime=110, seed=3):
+    """Burst of glowing tin fragments flung out by the main pulse (no gravity: vacuum)."""
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, radius=0.25, location=location)
+    emitter = bpy.context.object
+    emitter.name = "DebrisEmitter"
+    emitter.show_instancer_for_render = False
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.018, segments=8, ring_count=4,
+                                         location=(0, 0, -200))
+    frag = bpy.context.object
+    frag.name = "DebrisFragment"
+    frag.data.materials.append(M.debris())
+    ps = emitter.modifiers.new("Debris", "PARTICLE_SYSTEM").particle_system
+    ps.seed = seed
+    st = ps.settings
+    st.count = count
+    st.frame_start = frame
+    st.frame_end = frame + 3
+    st.lifetime = lifetime
+    st.lifetime_random = 0.5
+    st.normal_factor = speed
+    st.factor_random = speed * 0.6
+    st.effector_weights.gravity = 0.0
+    st.render_type = "OBJECT"
+    st.instance_object = frag
+    st.particle_size = 1.0
+    st.size_random = 0.7
+    return emitter
 
 
 def plasma(name="Plasma"):
@@ -232,6 +263,7 @@ def plasma(name="Plasma"):
     light.data.color = (0.78, 0.62, 1.0)
     light.data.energy = 0.0
     light.data.shadow_soft_size = 0.4
+    light["keep_light"] = True
     return shell, vol, core, core_mat, light
 
 
@@ -247,6 +279,45 @@ def euv_cone(name="EUVCone"):
     mat = M.volume_glow(name + "Mat", (0.55, 0.45, 1.0), density=0.0, emission_strength=0.0)
     cone.data.materials.append(mat)
     return cone, mat
+
+
+def light_rays(n=64, seed=5, name="EUVRay", radius=0.018):
+    """Ray-traced EUV paths F1 -> collector -> F2: any ray leaving one focus of an ellipsoid
+    reflects through the other. Tagged `rays` (shown in the energy and xray styles)."""
+    import random
+    from mathutils import Vector
+    c = IF_X / 2
+    a = c - COLLECTOR_VERTEX_X
+    b2 = a * a - c * c
+    rnd = random.Random(seed)
+    mat = M.emission(name + "Mat", (0.62, 0.48, 1.0), 6.0)
+    f2 = Vector((IF_X, 0, 0))
+    rays, tries = [], 0
+    while len(rays) < n and tries < 20000:
+        tries += 1
+        d = Vector((rnd.uniform(-1, 0), rnd.uniform(-1, 1), rnd.uniform(-1, 1)))
+        if d.length < 1e-3:
+            continue
+        d.normalize()
+        cos_t = d.x                                   # angle measured from +X (toward F2)
+        r = b2 / (a - c * cos_t)
+        p = d * r
+        radial = (p.y ** 2 + p.z ** 2) ** 0.5
+        if p.x > COLLECTOR_RIM_X or radial < COLLECTOR_HOLE_R * 1.3:
+            continue
+        cu = bpy.data.curves.new(f"{name}{len(rays)}", "CURVE")
+        cu.dimensions = "3D"
+        cu.bevel_depth = radius
+        sp = cu.splines.new("POLY")
+        sp.points.add(2)
+        for k, q in enumerate((Vector((0, 0, 0)), p, f2)):
+            sp.points[k].co = (*q, 1)
+        ob = bpy.data.objects.new(cu.name, cu)
+        bpy.context.scene.collection.objects.link(ob)
+        ob.data.materials.append(mat)
+        styles.tag(ob, "rays")
+        rays.append(ob)
+    return rays, mat
 
 
 def intermediate_focus(name="IF"):

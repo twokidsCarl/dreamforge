@@ -25,14 +25,31 @@ def reset_scene(frame_end, fps=24):
     return sc
 
 
-def set_world(color=(0.004, 0.006, 0.010), strength=1.0):
+def set_world(top=(0.05, 0.066, 0.1), horizon=(0.02, 0.028, 0.045), bottom=(0.006, 0.008, 0.014),
+              strength=1.0):
+    """Studio gradient: lighter overhead, dark below. Gives metals and mirrors something to
+    reflect and keeps the background off pure black."""
     sc = bpy.context.scene
     w = bpy.data.worlds.new("World")
     sc.world = w
     w.use_nodes = True
-    bg = w.node_tree.nodes["Background"]
-    bg.inputs["Color"].default_value = (*color, 1)
+    nt = w.node_tree
+    bg = nt.nodes["Background"]
     bg.inputs["Strength"].default_value = strength
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    els = ramp.color_ramp.elements
+    els[0].position, els[0].color = 0.35, (*bottom, 1)
+    els[1].position, els[1].color = 1.0, (*top, 1)
+    mid = els.new(0.52)
+    mid.color = (*horizon, 1)
+    rng = nt.nodes.new("ShaderNodeMapRange")       # direction z in [-1, 1] -> [0, 1]
+    rng.inputs["From Min"].default_value = -1.0
+    nt.links.new(tc.outputs["Generated"], sep.inputs[0])
+    nt.links.new(sep.outputs["Z"], rng.inputs["Value"])
+    nt.links.new(rng.outputs["Result"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], bg.inputs["Color"])
 
 
 def softbox(name, location, rotation, size, strength, color=(0.7, 0.8, 1.0), receivers=None):
@@ -52,9 +69,10 @@ def softbox(name, location, rotation, size, strength, color=(0.7, 0.8, 1.0), rec
     return card
 
 
-def set_color_management(look="Punchy"):
+def set_color_management(look="Base Contrast", exposure=0.0):
     vs = bpy.context.scene.view_settings
     vs.view_transform = "AgX"
+    vs.exposure = exposure
     # Look names differ across Blender versions ("AgX - Punchy" vs "Punchy").
     for name in (look, f"AgX - {look}"):
         try:
@@ -117,9 +135,9 @@ def setup_compositor(glare_strength=0.6, glare_size=7, dispersion=0.012):
     sc.compositing_node_group = ng
 
 
-def set_output(shot, engine, fmt="PNG"):
+def set_output(shot, engine, fmt="PNG", sub="frames"):
     sc = bpy.context.scene
-    path = os.path.join(render_root(), shot, engine, "frames", "")
+    path = os.path.join(render_root(), shot, engine, sub, "")
     os.makedirs(path, exist_ok=True)
     sc.render.filepath = path
     sc.render.image_settings.file_format = fmt

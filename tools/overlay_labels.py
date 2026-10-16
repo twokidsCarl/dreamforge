@@ -11,7 +11,7 @@ import json
 import os
 import subprocess
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 FONT = "/System/Library/Fonts/STHeiti Medium.ttc"
@@ -30,6 +30,16 @@ def alpha_at(f, start, end):
     return max(0.0, min(1.0, (f - start) / FADE, (end - f) / FADE))
 
 
+def scrim(layer, box, a, s):
+    """Soft dark backing behind text so captions stay legible over bright footage."""
+    pad = int(26 * s)
+    sh = Image.new("RGBA", layer.size, (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rounded_rectangle(
+        [box[0] - pad, box[1] - pad, box[2] + pad, box[3] + pad], radius=int(20 * s),
+        fill=(4, 7, 14, int(165 * a)))
+    layer.alpha_composite(sh.filter(ImageFilter.GaussianBlur(int(18 * s))))
+
+
 def draw_label(layer, lab, a, W, H):
     d = ImageDraw.Draw(layer)
     s = H / 540
@@ -46,6 +56,7 @@ def draw_label(layer, lab, a, W, H):
         x0, y0 = W - m - max(widths), m + int(24 * s)
     else:
         x0, y0 = m + int(10 * s), H - m - block_h - int(24 * s)
+    scrim(layer, (x0 - int(12 * s), y0, x0 + max(widths), y0 + block_h), a, s)
     # accent bar slides in with the fade
     bar_x = x0 - int(12 * s)
     d.rectangle([bar_x, y0 + 2, bar_x + max(2, int(3 * s)), y0 + int(block_h * a)],
@@ -98,4 +109,5 @@ def main():
     print(out)
 
 
-main()
+if __name__ == "__main__":
+    main()

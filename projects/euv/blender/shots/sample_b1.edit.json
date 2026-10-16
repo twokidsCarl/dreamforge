@@ -1,0 +1,39 @@
+{
+  "fps": 24,
+  "size": [1920, 1080],
+  "fade_in": 12,
+  "fade_out": 20,
+  "tag": "示意 · 慢动作 · 非比例",
+  "clips": [
+    {"cut": "CamEstablish", "in": 1, "out": 64, "transition": "cut"},
+    {"cut": "CamNozzle", "in": 28, "out": 88, "transition": "dissolve", "frames": 10},
+    {"cut": "CamPrePulse", "in": 86, "out": 132, "transition": "cut"},
+    {"cut": "CamSheet", "in": 128, "out": 190, "transition": "dissolve", "frames": 8},
+    {"cut": "CamPlasma", "in": 187, "out": 258, "transition": "cut", "flash_at": 192},
+    {"cut": "CamReveal", "in": 246, "out": 346, "transition": "dissolve", "frames": 12}
+  ],
+  "titles": [
+    {"clip": "CamEstablish", "from": 10, "to": 58,
+     "text": "光源", "sub": "一滴锡的 20 微秒", "source": "每秒最多 5 万滴，间隔 20 μs", "facts": ["F2"]}
+  ],
+  "labels": [
+    {"clip": "CamNozzle", "from": 8, "to": 58, "pos": "lower_left",
+     "text": "锡滴直径约 25 μm", "sub": "喷出速度约 70 m/s · 每秒最多 5 万滴",
+     "source": "ASML", "facts": ["F2", "F3"]},
+    {"clip": "CamPrePulse", "from": 12, "to": 46, "pos": "lower_left",
+     "text": "预脉冲：先把锡滴压扁", "sub": "每一滴锡都要被激光打两次",
+     "source": "ASML；TRUMPF", "facts": ["F4"]},
+    {"clip": "CamSheet", "from": 6, "to": 56, "pos": "lower_left",
+     "text": "薄盘直径约 300 μm", "sub": "展开后，主脉冲才能更均匀地加热",
+     "source": "Torretti et al., J. Phys. D 2020", "facts": ["F4b"]},
+    {"clip": "CamPlasma", "from": 14, "to": 68, "pos": "lower_left",
+     "text": "主脉冲 → 约 50 万开尔文的锡等离子体", "sub": "放出波长 13.5 nm 的极紫外光",
+     "source": "ASML；MIT Technology Review 援引 ASML", "facts": ["F1", "F5"]},
+    {"clip": "CamReveal", "from": 16, "to": 58, "pos": "upper_right",
+     "text": "收集镜把光汇聚到中间焦点（IF）", "sub": "EUV 肉眼不可见，光锥为示意 · 全程高真空",
+     "source": "ASML", "facts": ["F10"]},
+    {"clip": "CamReveal", "from": 60, "to": 98, "pos": "lower_left",
+     "text": "下一滴锡已经在路上", "sub": "同样的过程，每秒最多重复 5 万次",
+     "source": "ASML", "facts": ["F2"]}
+  ]
+}

@@ -1,0 +1,623 @@
+# EUV film fact base. Every number on screen or in narration must map to an entry here.
+#
+# status:  verified   - may be used as stated
+#          disputed   - use only the wording in `narration`
+#          reported   - grade C; narration must carry「据报道」or name the outlet
+#          derived    - our own arithmetic from verified inputs; show the inputs
+#          rejected   - must not be used
+# grade:   A = ASML / ZEISS / TRUMPF official; B = peer-reviewed, conference, patent, customer
+#          first-party; C = media
+# Checked 2026-10-16 unless noted. Supersedes docs/FACTS.md (kept for history).
+
+F1:
+  claim: EUV 波长 13.5 nm，比 DUV 的 193 nm 短 14 倍以上
+  values: {euv_nm: 13.5, duv_nm: 193}
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/technology/lithography-principles/light-and-lasers
+  segments: [A2, B1]
+
+F2:
+  claim: 锡滴每秒最多 50,000 个（每 20 μs 一滴，推算）
+  values: {droplets_per_s: 50000, interval_us: 20}
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/products/euv-lithography-systems
+    - https://www.trumpf.com/en_US/solutions/applications/euv-lithography/euv-drive-laser/
+  segments: [B1, C, D]
+
+F3:
+  claim: 锡滴直径约 25 μm，喷出速度约 70 m/s
+  values: {droplet_um: 25, speed_m_s: 70}
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/technology/lithography-principles/light-and-lasers
+  segments: [B1, C]
+
+F4:
+  claim: 每个锡滴被激光打两次：低强度预脉冲压扁，强主脉冲汽化成等离子体
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/technology/lithography-principles/light-and-lasers
+  segments: [B1, C]
+
+F4b:
+  claim: 预脉冲把锡滴压成直径约 300 μm 的薄盘；预脉冲约几十 mJ，主脉冲约 500 mJ（ASML S2 光源实验条件）
+  values: {disk_um: 300, main_pulse_mj: 500}
+  status: verified
+  grade: B
+  sources:
+    - https://doi.org/10.1088/1361-6463/ab56d4
+  segments: [B1]
+
+F4c:
+  claim: 光源功率路线：量产最高约 600 W；1000 W 原理样机已演示（10 万滴/秒、每滴多一发整形脉冲，即每秒 30 万次激光脉冲）；ASML 称通往 1500 W 路径清晰，2000 W 没有根本障碍；商用约 2030 年或更晚
+  values: {production_w: 600, demo_w: 1000, droplets_per_s_next: 100000, pulses_per_s_next: 300000}
+  status: reported
+  grade: C
+  narration: 据报道，ASML 已演示 1000 瓦原理样机……
+  sources:
+    - https://bits-chips.com/article/asml-hits-1000-w-in-euv-source-proof-of-concept/
+    - https://heise.de/-11187649
+    - https://www.implicator.ai/asml-pushes-euv-light-source-to-1-000-watts-targets-50-more-chip-output-by-2030/
+  notes: 旧液滴频率有 50 kHz 与 60 kHz 两种说法；旁白统一用 F2 的 5 万。研发里程碑，不是现役产品。
+  segments: [B1, D]
+
+F5:
+  claim: 锡等离子体温度
+  status: disputed
+  grade: C
+  narration: 约 50 万开尔文（ASML 相关人员对媒体的表述）
+  sources:
+    - https://www.technologyreview.com/2021/10/27/1037118/moores-law-computer-chips/
+    - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
+  notes: ZEISS 写“将近 22 万 ℃，约太阳表面 40 倍”；论文测得电子温度 30–40 eV。用户已拍板用 50 万 K。
+  segments: [B1, C]
+
+F6:
+  claim: TRUMPF CO₂ 驱动激光：种子光几瓦 → 预放大到 100 W → 4 级谐振放大链到最高 40 kW（放大 1 万倍以上），峰值功率兆瓦级；光束最长传输约 30 m 进入锡滴腔；三套冷却回路
+  values: {seed_w: few, preamp_w: 100, stages: 4, output_kw: 40, beam_path_m: 30}
+  status: verified
+  grade: A
+  narration: 输出功率达几十千瓦（用户决定）；分级放大时可写“4 级”
+  sources:
+    - https://www.trumpf.com/en_US/products/lasers/euv-drive-laser
+  notes: 旧文章写“5 级、>30 kW”，以新版产品页为准；ZEISS 写 30 kW。
+  segments: [B1, C]
+
+F7:
+  claim: 投影物镜有 6 面反射镜；从光源到晶圆整条光路约 10 面反射镜
+  values: {projection_mirrors: 6, total_mirrors_approx: 10}
+  status: verified
+  grade: B
+  sources:
+    - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
+    - https://cpmi.illinois.edu/files/2023/10/Ch18-1.pdf
+  notes: 6 面为 A 级（ZEISS）；“约 10 面”为教材（B），旁白用“约 10 面”，不写死精确总数。
+  segments: [B4, B7]
+
+F8:
+  claim: 钼硅交替镀膜，最多约 100 层，每层几纳米；单层反射约 1%，叠加后最高约 70%
+  values: {layers: 100, single_pct: 1, stack_pct: 70}
+  status: verified
+  grade: A
+  sources:
+    - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
+  segments: [B4]
+
+F9:
+  claim: 把镜子放大到德国那么大，相对理想形状的最大偏差只有 0.1 mm
+  values: {max_deviation_mm: 0.1}
+  status: verified
+  grade: A
+  sources:
+    - https://euvlitho.com/2022/P53.pdf
+    - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
+  notes: 这是“最大偏差”。另一个指标（RMS）见 F29，二者不得混用。
+  segments: [B4]
+
+F9b:
+  claim: 镜面偏转精度：用它把激光打到月球上，能命中一颗高尔夫球
+  status: verified
+  grade: A
+  sources:
+    - https://euvlitho.com/2022/P53.pdf
+  notes: 更正——旧稿写“乒乓球”，ZEISS 原文是 golf ball。与 F30（<0.1 nrad）一致：0.1 nrad × 38.4 万 km ≈ 3.8 cm。
+  segments: [B4]
+
+F10:
+  claim: EUV 会被几乎所有物质（包括空气）吸收，从光源到晶圆整条光路处在高真空中
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/products/euv-lithography-systems
+  notes: 精确说法是“不是空气”：扫描仪内保留约 5 Pa 氢气（F28）。
+  segments: [A3, B2]
+
+F11:
+  claim: NXE 把掩模图形缩小 4 倍
+  values: {reduction: 4}
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/products/euv-lithography-systems
+  segments: [B7, C]
+
+F12:
+  claim: High-NA：NA 0.55，非扫描方向缩小 4 倍、扫描方向 8 倍，分辨率 8 nm
+  values: {na: 0.55, reduction_x: 4, reduction_y: 8, resolution_nm: 8}
+  status: verified
+  grade: A
+  sources:
+    - https://euvlitho.com/2023/P21.pdf
+    - https://www.asml.com/en/news/stories/2024/5-things-high-na-euv
+  segments: [B7]
+
+F13:
+  claim: NXE：NA 0.33，分辨率 13 nm
+  values: {na: 0.33, resolution_nm: 13}
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/products/euv-lithography-systems
+  segments: [B7]
+
+F14:
+  claim: EUV 掩模本身是一面多层反射镜，吸收层“关掉”不需要的区域
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/products/euv-lithography-systems
+  segments: [B6]
+
+F15:
+  claim: 每次曝光把晶圆定位到四分之一纳米以内，每秒测量调整 2 万次
+  values: {position_nm: 0.25, corrections_per_s: 20000}
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/products/euv-lithography-systems
+  segments: [B8, C]
+
+F15b:
+  claim: 工件台加速度：High-NA（EXE）晶圆台 8 g、掩模台 32 g，分别是 NXE 的 2 倍和 4 倍；NXE 掩模台超过 15 g、匀速超过 3 m/s
+  values: {exe_wafer_g: 8, exe_reticle_g: 32, nxe_reticle_g: 15, nxe_reticle_speed_m_s: 3}
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/news/stories/2024/5-things-high-na-euv
+    - https://www.asml.com/en/company/about-asml/locations/wilton-ct
+  notes: 更正——旧表标为“仅媒体”，实为 ASML 官方，但 32 g 只属于 EXE。ASML 的“0.1 秒内 0 到 100 km/h”比喻对应约 28 g，只能配 EXE 用，不能配 NXE。
+  segments: [B8]
+
+F15c:
+  claim: “两架飞机并排飞行、对准一根针”
+  status: rejected
+  notes: 找不到一手出处。
+
+F16:
+  claim: 首台 High-NA 系统重量超过 150 吨
+  values: {weight_t: 150}
+  status: verified
+  grade: B
+  sources:
+    - https://intel.com/content/www/us/en/newsroom/news/intel-foundry-opens-new-frontier-chipmaking.html
+  notes: Bloomberg 写 165 t（C）。NXE 的 180 t 等说法不用。
+  segments: [A0]
+
+F17:
+  claim: 首台 High-NA 运往英特尔：超过 250 个板条箱、装进 43 个集装箱，多架货机运到西雅图，再用 20 辆卡车运到俄勒冈
+  values: {crates: 250, containers: 43, trucks: 20}
+  status: verified
+  grade: B
+  sources:
+    - https://intel.com/content/www/us/en/newsroom/news/intel-foundry-opens-new-frontier-chipmaking.html
+  notes: NXE 的“3 架 747、40 个集装箱”原始页已 404，不用。
+  segments: [A0]
+
+F18:
+  claim: ZEISS 光学零件：NXE 照明系统 1.5 万个零件、1.5 吨；投影物镜约 2 万个零件、2 吨。High-NA 投影光学超过 4 万个零件、12 吨，照明系统超过 2.5 万个零件、6 吨以上
+  values: {nxe_ill_parts: 15000, nxe_po_parts: 20000, exe_po_parts: 40000, exe_po_t: 12, exe_ill_parts: 25000, exe_ill_t: 6}
+  status: verified
+  grade: A
+  sources:
+    - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
+    - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/high-na-euv-lithography.html
+  notes: “整机约 10 万个零件”只见媒体，不用。
+  segments: [B4, B7]
+
+F19:
+  claim: 比指尖略大的面积上有 1840 亿个元件
+  values: {components: 184000000000}
+  status: verified
+  grade: A
+  sources:
+    - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
+  narration: 措辞固定为“1840 亿个元件”，不改成“晶体管”或“约 2000 亿”。
+  segments: [A0, D]
+
+F20:
+  claim: ASML 在 17 年里投入超过 60 亿欧元；首台 High-NA 于 2023 年 12 月交付
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/products/euv-lithography-systems
+  segments: [A3, B7, D]
+
+# ---- new: light source -------------------------------------------------------------------
+
+F21:
+  claim: 喷嘴内径仅 3–5 μm，比锡滴还小数倍；射流先断裂成更小的液滴，经 MHz 级与 kHz 级双重调制在飞行中合并成一颗
+  values: {nozzle_um: [3, 5]}
+  status: verified
+  grade: B
+  narration: 按 ASML 专利描述……（示意，不是量产规格）
+  sources:
+    - https://patents.google.com/patent/US9715174
+    - https://patents.google.com/patent/US11240904
+  segments: [B1]
+
+F22:
+  claim: 每一颗锡滴都被单独成像、单独瞄准，再由两发高功率 CO₂ 激光脉冲击中
+  status: verified
+  grade: A
+  sources:
+    - https://asml.com/company/about-asml/locations/san-diego
+  segments: [B1]
+
+F23:
+  claim: 仅 Sn¹²⁺ 一种离子就有超过 100 亿种允许的电偶极跃迁；EUV 光主要来自“多重激发态”之间的跃迁
+  values: {transitions: 1.0e10}
+  status: verified
+  grade: B
+  sources:
+    - https://pmc.ncbi.nlm.nih.gov/articles/PMC7214432
+  notes: Torretti, Versolato et al., Nature Communications 11:2334 (2020)。
+  segments: [B1]
+
+F24:
+  claim: 为什么用锡：Sn⁸⁺ 到 Sn¹⁴⁺ 各价态的成千上万条谱线都挤在 13.5 nm 附近（未分辨跃迁阵列 UTA）
+  status: verified
+  grade: B
+  sources:
+    - https://ar5iv.labs.arxiv.org/html/1709.02626
+  segments: [B1]
+
+F25:
+  claim: TRUMPF 新一代 EUV 驱动激光由超过 45 万个零件组成，重 20 多吨；2026 年起量产交付
+  values: {parts: 450000, weight_t: 20}
+  status: verified
+  grade: A
+  sources:
+    - https://www.trumpf.com/en_INT/newsroom/global-press-releases/press-release-detail-page/release/asml-honors-trumpf-for-new-euv-laser-9838/
+  notes: 旧一代写“10 多吨”。
+  segments: [B1]
+
+F26:
+  claim: 锡等离子体喷出 1 至 8 价的锡离子，能量可达数 keV，会沉积、注入或溅射收集镜
+  status: verified
+  grade: B
+  sources:
+    - https://pmc.ncbi.nlm.nih.gov/articles/PMC8818011/
+  notes: 实验室测量（Nd:YAG 激光），旁白用“可达数千电子伏”，不写具体上限。
+  segments: [B2]
+
+F27:
+  claim: 氢气缓冲层给锡离子减速；EUV 把氢分子打成氢自由基，与锡反应生成气态 SnH₄ 被抽走
+  status: verified
+  grade: B
+  sources:
+    - https://patents.google.com/patent/US11013096B2
+    - https://patents.google.com/patent/US7372049B2
+  segments: [B2]
+
+F28:
+  claim: 扫描仪内部不是绝对真空，而是约 5 Pa 氢气（防止镜面氧化、清除积碳）；EUV 会把这些氢气电离成等离子体
+  values: {h2_pa: 5}
+  status: verified
+  grade: A
+  sources:
+    - https://www.euvlitho.com/2019/P23.pdf
+  segments: [B2, B6]
+
+# ---- new: optics & mask --------------------------------------------------------------------
+
+F29:
+  claim: High-NA 镜面形状控制在 1 Å（0.1 nm）以内，所需 RMS 约 20 pm；打磨实测 42–61 pm RMS
+  values: {figure_control_pm: 100, rms_target_pm: 20}
+  status: verified
+  grade: A
+  sources:
+    - https://euvlitho.com/2024/P22.pdf
+    - https://euvlitho.com/2021/P52.pdf
+  notes: “约十分之一个原子”为我们的推算（原子直径约 100–300 pm）。旁白写“约 20 皮米，大约十分之一个原子的大小”。
+  segments: [B4]
+
+F30:
+  claim: 镜面倾角控制精度小于 0.1 纳弧度
+  values: {tilt_nrad: 0.1}
+  status: verified
+  grade: A
+  sources:
+    - https://euvlitho.com/2024/P22.pdf
+  segments: [B4]
+
+F31:
+  claim: High-NA 单面镜比上一代大约 2 倍、重 10 倍，每面镜子要造约一年
+  status: verified
+  grade: A
+  sources:
+    - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/high-na-euv-lithography.html
+  notes: 具体直径（如约 1 m）未核实，不用。
+  segments: [B4, B7]
+
+F32:
+  claim: 测量 High-NA 镜子的设备装在 5 × 10 m 的真空腔里，重约 150 吨
+  values: {weight_t: 150}
+  status: verified
+  grade: A
+  sources:
+    - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/high-na-euv-lithography.html
+  segments: [B4]
+
+F33:
+  claim: 经过约 10 面反射镜，进入扫描仪的 100 W EUV 到晶圆时最多只剩约 1 W
+  values: {in_w: 100, out_w: 1}
+  status: verified
+  grade: B
+  sources:
+    - https://cpmi.illinois.edu/files/2023/10/Ch18-1.pdf
+  narration: 到达晶圆的光只剩约 1%
+  segments: [B4, B9, C]
+
+F34:
+  claim: 照明系统用可动分面镜改变照明形状，在缩小照明区域时几乎不损失光（ZEISS：100% 照明效率）
+  status: verified
+  grade: A
+  sources:
+    - https://www.euvlitho.com/2017/P23.pdf
+    - https://euvlitho.com/2021/P52.pdf
+  notes: 分面数量（数百或数千）未核实，画面用“很多”。
+  segments: [B5]
+
+F35:
+  claim: 掩模正面的一颗颗粒会被复制到整片晶圆的每一颗芯片上（满场芯片良率损失 100%）；7 nm 节点的损伤阈值约 52 nm
+  status: verified
+  grade: A
+  sources:
+    - https://www.euvlitho.com/2019/P23.pdf
+  segments: [B6]
+
+F36:
+  claim: EUV 保护膜（pellicle）只有 13 nm 厚，在高真空中能承受最高 500 ℃
+  values: {thickness_nm: 13, max_c: 500}
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/news/stories/2022/the-euv-pellicle-indistinguishable-from-magic
+  notes: ASML 文章标题意为“与魔法无异”。旧代 50 nm 多晶硅数据不用。
+  segments: [B6]
+
+F37:
+  claim: 掩模搬运机械手每移动 100 万次，最多只允许 1 个颗粒落到掩模上；放置精度 20–25 μm
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/company/about-asml/locations/wilton-ct
+  segments: [B6]
+
+F38:
+  claim: 计算光刻：故意让掩模上的图形变形，以抵消衍射和光刻胶效应，投到晶圆上才是想要的形状
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/products/computational-lithography
+  segments: [B6]
+
+F39:
+  claim: High-NA 最后两面镜子中间开孔（中心遮拦），以换取更高透过率；常规的 Zernike 多项式因此不再正交，ZEISS/ASML 改用 Tatian 多项式描述像差
+  status: verified
+  grade: A
+  sources:
+    - https://euvlitho.com/2024/P22.pdf
+    - https://euvlitho.com/2022/P53.pdf
+  segments: [B7]
+
+F40:
+  claim: High-NA 若维持 4×/4×，入射与反射光锥会重叠；改成 4×/8× 后入射角从 6° 降到 5.4°；掩模图形在扫描方向被拉长 2 倍
+  values: {nxe_angle_deg: 6, exe_angle_deg: 5.4}
+  status: verified
+  grade: A
+  sources:
+    - https://euvlitho.com/2024/P22.pdf
+    - https://euvlitho.com/2022/P53.pdf
+  segments: [B6, B7]
+
+# ---- new: mechatronics & system ----------------------------------------------------------
+
+F41:
+  claim: 掩模台电机推力超过 1 万牛（ASML 比作每次加速都有一辆车砸在台上），掩模本身的位移或变形却不能超过几皮米
+  values: {thrust_n: 10000}
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/company/about-asml/locations/wilton-ct
+  segments: [B8]
+
+F42:
+  claim: 工件台位置传感器精度约 60 皮米，比一个硅原子还小
+  values: {sensor_pm: 60}
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/technology/lithography-principles/mechanics-and-mechatronics
+  segments: [B8]
+
+F43:
+  claim: 套刻精度：NXE:3800E 匹配机台套刻 ≤0.9 nm（产能 ≥220 片/小时）；High-NA EXE:5200B 在英特尔验收测试中达到 0.7 nm
+  values: {nxe_overlay_nm: 0.9, exe_overlay_nm: 0.7}
+  status: verified
+  grade: B
+  sources:
+    - https://euvlitho.com/2023/P62.pdf
+    - https://bits-chips.com/?p=231162
+  notes: 0.9 nm 为 ASML 自己的会议报告（B）；0.7 nm 为媒体转述英特尔数据（C），旁白写“英特尔的验收测试中”。
+  segments: [B8]
+
+F44:
+  claim: 晶圆刚放进机器时的定位精度约 80 μm（约一根头发丝），随后用几十个对准标记和超过 1000 个套刻标记修正到亚纳米；一颗芯片最多约 100 层图形
+  values: {initial_um: 80, overlay_marks: 1000, layers_max: 100}
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/company/stories/2021/fellow-simon-mathijssen-aligning-lithography-nanometer
+  segments: [A1, B8]
+
+F45:
+  claim: NXE:3800E 产能 220 片/小时（30 mJ/cm²，每片 96 个满场）；推算每小时约 2.1 万次曝光，每秒约 6 次
+  values: {wph: 220, fields: 96, dose_mj_cm2: 30, exposures_per_h: 21120}
+  status: verified
+  grade: A
+  sources:
+    - https://euvlitho.com/2023/P62.pdf
+    - https://www.sec.gov/Archives/edgar/data/937966/000162828026011377/asml-2025xannualxreportx.htm
+  notes: 曝光次数为推算（220 × 96）。
+  segments: [B8]
+
+F46:
+  claim: 一台机器每周仅传感器就产生最多 31 TB 数据，是哈勃望远镜一年所收集数据的 3 倍
+  values: {tb_per_week: 31}
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/technology/lithography-principles/measuring-accuracy
+  segments: [B8]
+
+F47:
+  claim: EUV 光子能量约 92 eV，是 193 nm 光子（约 6.4 eV）的 14 倍；同样剂量下光子数只有 DUV 的约 1/14。在 30 mJ/cm² 剂量下，每平方纳米约 20 个光子
+  values: {euv_ev: 92, duv_ev: 6.4, photons_per_nm2_at_30mj: 20}
+  status: derived
+  grade: B
+  sources:
+    - https://semiengineering.com/searching-for-euv-defects
+    - https://semiengineering.com/euvs-new-problem-areas
+  notes: 92 eV = hc/λ（1240 eV·nm ÷ 13.5 nm）；30 mJ/cm² = 3×10⁻¹⁶ J/nm²，除以 1.47×10⁻¹⁷ J ≈ 20 个。
+  segments: [B9]
+
+F48:
+  claim: 每台 EUV 光刻机耗电约 1 MW 量级（TechInsights 估算每年最高约 10.2 GWh）
+  status: reported
+  grade: C
+  narration: 据行业估算，一台机器的耗电量在兆瓦量级
+  sources:
+    - https://www.techinsights.com/ja/node/58697
+    - https://semiengineering.com/keeping-euv-cool/
+  segments: [D]
+
+F49:
+  claim: 每片晶圆的能耗自 2018 年以来下降了 57%；光源是 EUV 系统中最大的能耗部分
+  values: {reduction_pct: 57}
+  status: verified
+  grade: A
+  sources:
+    - https://www.sec.gov/Archives/edgar/data/937966/000162828026011377/asml-2025xannualxreportx.htm
+  segments: [D]
+
+F50:
+  claim: ASML 共有 5100 家供应商
+  values: {suppliers: 5100}
+  status: verified
+  grade: A
+  sources:
+    - https://www.sec.gov/Archives/edgar/data/937966/000162828026011377/asml-2025xannualxreportx.htm
+  segments: [A0]
+
+F51:
+  claim: 晶圆台与掩模台反向加速，同步精度达到纳米与纳秒
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/company/about-asml/locations/wilton-ct
+  segments: [B8, C]
+
+F52:
+  claim: High-NA 曝光场减半，每片晶圆 188 个半场
+  values: {half_fields: 188}
+  status: verified
+  grade: B
+  sources:
+    - https://euvlitho.com/2022/P3.pdf
+  segments: [B7, B8]
+
+# ---- new: lithography basics -------------------------------------------------------------
+
+F53:
+  claim: 分辨率公式 CD = k₁·λ/NA；k₁ 的物理极限是 0.25；更短波长加更大 NA 才能做出更小的图形
+  values: {k1_limit: 0.25}
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/technology/lithography-principles/rayleigh-criterion
+  segments: [A2]
+
+F54:
+  claim: 193 nm DUV 单次曝光的极限约 40 nm；多重曝光能做到 20 nm（两次）或 10 nm（四次加额外工序），代价是同一套工序重复多遍。EUV 能把多次曝光合并成一次，部分关键层的非光刻工序最多减少 3–5 倍（ASML 引用 imec 研究）
+  values: {duv_single_nm: 40}
+  status: verified
+  grade: A
+  sources:
+    - https://www.sec.gov/Archives/edgar/data/937966/000093796623000016/a2022annualreportbasedon.htm
+    - https://www.sec.gov/Archives/edgar/data/0000937966/000162828026011378/asml-20251231.htm
+  notes: “3–5 倍”是“最多、部分关键层”，不要说成全厂平均。
+  segments: [A2]
+
+F55:
+  claim: 先进芯片的 EUV 层数：三星 3 nm 约 20 层，2 nm 增加到 20 多层（late-20s）
+  status: reported
+  grade: C
+  narration: 据报道，一颗先进芯片要经历二十多次 EUV 曝光
+  sources:
+    - https://www.trendforce.com/news/2024/07/22/news-samsungs-2nm-node-will-reportedly-feature-30-more-euv-layers/
+  segments: [A1, D]
+
+F56:
+  claim: 收集镜是近正入射的椭球多层膜镜：第一焦点在等离子体处，第二焦点即中间焦点（IF），光在这里交给扫描仪
+  status: verified
+  grade: B
+  sources:
+    - https://patents.google.com/patent/US7439530B2
+    - https://patents.google.com/patent/US7872245B2
+  notes: 椭球“一个焦点发出的光必经另一个焦点”是几何事实；尺寸未公开，画面标“示意”。
+  segments: [B3, C]
+
+F57:
+  claim: 步进扫描：光被整形成一条狭缝，掩模台与晶圆台反向同步扫描；4 倍缩小时，掩模移动速度是晶圆的 4 倍；扫完一个曝光场再步进到下一个
+  values: {reticle_to_wafer_speed: 4}
+  status: verified
+  grade: B
+  sources:
+    - https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/5831716
+    - https://www.designnews.com/industry/a-speedy-machine-for-wafer-makers
+  segments: [B8, C]
+
+F58:
+  claim: 双工件台（TWINSCAN）：一片晶圆在曝光的同时，另一片在第二个台上完成测量和对准；ASML 于 2000 年推出，是唯一拥有两套完整晶圆台的光刻平台
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/news/stories/2021/twinscan-20-years-innovation
+    - https://www.sec.gov/Archives/edgar/data/937966/000134100406002188/ex99_4prel.htm
+  segments: [B8]
+
+F59:
+  claim: 光子散粒噪声等随机效应会造成线边缘粗糙，以及线条桥连、断线等随机缺陷，直接影响良率
+  status: verified
+  grade: B
+  sources:
+    - https://journals.spiedigitallibrary.org/journals/Journal-of-MicroNanolithography-MEMS-and-MOEMS/volume-19/issue-03/034001/Fundamental-characterization-of-stochastic-variation-for-improved-single-expose-extreme/10.1117/1.JMM.19.3.034001.full
+    - https://spiedigitallibrary.org/journals/journal-of-micro-nanolithography-mems-and-moems/volume-18/issue-1/013503/Localized-and-cascading-secondary-electron-generation-as-causes-of-stochastic/10.1117/1.JMM.18.1.013503.full
+  segments: [B9]
