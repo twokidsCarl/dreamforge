@@ -37,5 +37,5 @@ B2_06: {scene: b2_scenes, args: {variant: ions_h2}, camera: CamB2_06, start: 1, 
 B2_07: {scene: b2_scenes, args: {variant: bounce}, camera: CamB2_07, start: 1, style: energy, engine: eevee}
 B2_08: {scene: b2_scenes, args: {variant: clean}, camera: CamB2_08, start: 1, style: sem, engine: eevee}
 B2_09: {scene: b2_scenes, args: {variant: pumps}, camera: CamB2_09, start: 1, style: xray, engine: eevee}
-B2_11: {scene: b2_scenes, args: {variant: glow}, camera: CamB2_11, start: 1, style: photoreal, engine: eevee}
+B2_11: {scene: b2_scenes, args: {variant: glow}, camera: CamB2_11, start: 1, style: photoreal, engine: cycles}
 B2_12: {scene: b1_source, camera: CamB2_12, start: 262, style: photoreal, engine: cycles}

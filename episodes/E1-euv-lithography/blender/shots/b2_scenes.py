@@ -309,22 +309,22 @@ def glow(sc, rnd):
         if ob.get("role") == "shell":
             ob.hide_render = True
     # a soft volumetric sheath along each leg of the light path, pulsed once
-    vol = styles.dark_rim("H2Plasma", color=(0.6, 0.45, 1.0), strength=0.0)   # additive glowing sheath
+    vol = M.volume_glow("H2Plasma", (0.6, 0.45, 1.0), density=0.0, emission_strength=0.0)
     for i in range(len(BM.PATH) - 1):
         a, b = Vector(BM.PATH[i]), Vector(BM.PATH[i + 1])
         mid, d = (a + b) / 2, (b - a)
-        bpy.ops.mesh.primitive_cylinder_add(radius=0.16, depth=d.length, vertices=32, location=mid)
+        bpy.ops.mesh.primitive_cylinder_add(radius=0.12, depth=d.length, vertices=32, location=mid)
         ob = bpy.context.object
         ob.rotation_euler = d.to_track_quat("Z", "Y").to_euler()
         ob.data.materials.append(vol)
         styles.tag(ob, "emitter")
-    mul = next(n for n in vol.node_tree.nodes if n.type == "MATH")
-    for f, e in ((1, 0.0), (30, 0.0), (40, 6.0), (80, 2.5), (150, 0.0)):
-        mul.inputs[1].default_value = e
-        mul.inputs[1].keyframe_insert("default_value", frame=f)
+    for f, e in ((1, 0.0), (30, 0.0), (40, 0.9), (80, 0.35), (150, 0.0)):
+        M.set_volume_strength(vol, f, emission_strength=e)
     lp = bpy.data.objects.get("LightPath")
     if lp:
-        lp.hide_render = True
+        lmat = lp.data.materials[0]
+        for f, e in ((1, 0.0), (30, 0.0), (40, 12.0), (80, 4.0), (150, 0.0)):
+            M.set_emission_strength(lmat, f, e)
     B._area("GlowKey", (0, -6, 6), (0.8, 0, 0), 8, 120, (0.6, 0.7, 1.0))
     B._camera("CamB2_11", [(1, (0.4, 0, 1.0), (-3.2, -3.4, 1.6), 35, 4.0),
                            (156, (0.6, 0, 0.6), (-2.2, -3.6, 1.2), 35, 4.0)])
