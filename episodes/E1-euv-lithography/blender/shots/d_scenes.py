@@ -32,7 +32,8 @@ def _pod(name, loc, mat, lid):
 
 def foup(sc, rnd):
     C.set_world(top=(0.05, 0.035, 0.006), horizon=(0.03, 0.02, 0.004), bottom=(0.004, 0.003, 0.001))
-    floor = M.principled("YFloor", (0.3, 0.28, 0.24), roughness=0.25)
+    floor = M.pbr("YFloor", "brushed_concrete", scale=0.3, tint=(0.55, 0.5, 0.42), rough_mul=0.4, rough_add=0.08,
+                  fallback=(0.3, 0.28, 0.24))
     _box("Floor", (0, 0, -0.05), (40, 40, 0.1), floor)
     panel = M.principled("ToolPanel", (0.72, 0.72, 0.7), roughness=0.5)
     _box("ToolFace", (0, 1.2, 1.5), (4.0, 0.2, 3.0), panel, bevel=0.03)      # only the front of a tool
@@ -72,7 +73,8 @@ def foup(sc, rnd):
 
 # ---- D_06 / D_07 ---------------------------------------------------------------------------
 def _hall(sc, lamps_on_from=None):
-    floor = M.principled("DarkFloor", (0.02, 0.022, 0.025), roughness=0.08)
+    floor = M.pbr("DarkFloor", "brushed_concrete", scale=0.1, tint=(0.08, 0.085, 0.09), rough_mul=0.3, rough_add=0.03,
+                  normal=0.4, fallback=(0.02, 0.022, 0.025))
     _box("Floor", (0, 0, -0.05), (120, 120, 0.1), floor)
     wall = M.principled("FarWall", (0.08, 0.085, 0.09), roughness=0.7)
     _box("FarWall", (0, 22, 8), (80, 0.4, 16), wall)

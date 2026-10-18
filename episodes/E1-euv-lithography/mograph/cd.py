@@ -99,7 +99,7 @@ def energy(t, dur, W, H):
     th = a0_ + (a1_ - a0_) * v
     c.line((cx, cy), (cx + 0.82 * R * math.cos(th), cy - 0.82 * R * math.sin(th)), INK, 6, a * l, glow=True)
     c.text((cx, cy + 120), "兆瓦量级", 44, ORANGE, a * ease(seg(t, 2.0, 2.6)), anchor="mm", weight_glow=True)
-    c.text((cx, cy + 180), "据报道 · 行业估算（F48）", 22, INK2, a * ease(seg(t, 2.0, 2.6)), anchor="mm")
+    c.text((cx, cy + 180), "行业估算（F48）", 22, INK2, a * ease(seg(t, 2.0, 2.6)), anchor="mm")
     # right: energy per wafer, two data points only
     r = ease(seg(t, 5.2, 6.4))
     base, hmax = 860, 520
@@ -127,7 +127,7 @@ def power_curve(t, dur, W, H):
         c.line(pts[i], pts[i + 1], VIOLET, 4, a, glow=True)
     if n:
         c.circle(pts[n], 10, fill=(240, 230, 255), a=a, glow=True)
-    for w, lab in ((600, "据报道：量产约 600 W"), (1000, "据报道：1000 W 原理样机（实验室）")):
+    for w, lab in ((600, "量产约 600 W"), (1000, "1000 W 原理样机（实验室）")):
         y = Y(w)
         for x in range(160, 1760, 30):
             c.line((x, y), (x + 16, y), INK2, 2, a * 0.7)

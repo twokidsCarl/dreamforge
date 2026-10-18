@@ -291,3 +291,65 @@ def set_emission_strength(mat, frame, strength):
     s = mat.node_tree.nodes["Emission"].inputs["Strength"]
     s.default_value = strength
     s.keyframe_insert("default_value", frame=frame)
+
+
+def pbr(name, tex, scale=1.0, tint=None, rough_mul=1.0, rough_add=0.0, metallic=None, normal=1.0, fallback=(0.3, 0.3, 0.3)):
+    """Poly Haven (CC0) PBR surface, box-projected in object space so it works on any primitive.
+    Falls back to a flat principled material if the asset is missing (shared/tools/fetch_assets.py)."""
+    import glob
+    import os
+    root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "polyhaven", "tex", tex)
+    def find(short):  # noqa: E306
+        h = glob.glob(os.path.join(root, f"{tex}_{short}_*.jpg"))
+        return h[0] if h else None
+    if not find("diff"):
+        return principled(name, fallback, metallic=metallic or 0.0, roughness=0.4)
+    m, nodes, links = _new(name)
+    b = nodes["Principled BSDF"]
+    tc = nodes.new("ShaderNodeTexCoord")
+    mp = nodes.new("ShaderNodeMapping")
+    mp.inputs["Scale"].default_value = (scale, scale, scale)
+    links.new(tc.outputs["Object"], mp.inputs["Vector"])
+
+    def img(short, color=False):
+        p = find(short)
+        if not p:
+            return None
+        n = nodes.new("ShaderNodeTexImage")
+        n.image = bpy.data.images.load(p, check_existing=True)
+        n.image.colorspace_settings.name = "sRGB" if color else "Non-Color"
+        n.projection = "BOX"
+        n.projection_blend = 0.25
+        links.new(mp.outputs["Vector"], n.inputs["Vector"])
+        return n
+    d = img("diff", color=True)
+    if tint:
+        mix = nodes.new("ShaderNodeMix")
+        mix.data_type = "RGBA"
+        mix.blend_type = "MULTIPLY"
+        mix.inputs["Factor"].default_value = 1.0
+        mix.inputs["B"].default_value = (*tint, 1)
+        links.new(d.outputs["Color"], mix.inputs["A"])
+        links.new(mix.outputs["Result"], b.inputs["Base Color"])
+    else:
+        links.new(d.outputs["Color"], b.inputs["Base Color"])
+    r = img("rough")
+    if r:
+        mr = nodes.new("ShaderNodeMapRange")
+        mr.inputs["To Min"].default_value = rough_add
+        mr.inputs["To Max"].default_value = rough_add + rough_mul
+        links.new(r.outputs["Color"], mr.inputs["Value"])
+        links.new(mr.outputs["Result"], b.inputs["Roughness"])
+    if metallic is not None:
+        b.inputs["Metallic"].default_value = metallic
+    else:
+        mt = img("metal")
+        if mt:
+            links.new(mt.outputs["Color"], b.inputs["Metallic"])
+    nm = img("nor_gl")
+    if nm and normal > 0:
+        nmap = nodes.new("ShaderNodeNormalMap")
+        nmap.inputs["Strength"].default_value = normal
+        links.new(nm.outputs["Color"], nmap.inputs["Color"])
+        links.new(nmap.outputs["Normal"], b.inputs["Normal"])
+    return m

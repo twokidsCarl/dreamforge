@@ -7,3 +7,6 @@ episodes/*/audio/
 .blender_pylib/
 __pycache__/
 *.blend1
+
+# third-party assets, re-fetch with shared/tools/fetch_assets.py
+shared/assets/

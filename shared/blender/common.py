@@ -159,3 +159,46 @@ def fcurves(action):
             for bag in strip.channelbags:
                 out.extend(bag.fcurves)
     return out
+
+
+ASSETS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "polyhaven")
+
+
+def reflection_env(name="studio_small_09", strength=0.5, rotation=0.0):
+    """Add a Poly Haven HDRI (CC0) to the current world for glossy rays only: the camera and diffuse
+    lighting keep the designed gradient, but metals and mirrors reflect a real environment.
+    No-op if the asset has not been fetched (shared/tools/fetch_assets.py)."""
+    import glob
+    hits = glob.glob(os.path.join(ASSETS, "hdri", f"{name}_*.hdr"))
+    sc = bpy.context.scene
+    if not hits or sc.world is None or not sc.world.use_nodes:
+        return False
+    nt = sc.world.node_tree
+    bg = nt.nodes.get("Background")
+    if bg is None or not bg.inputs["Color"].links:
+        return False
+    grad = bg.inputs["Color"].links[0].from_socket
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    mp = nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Rotation"].default_value = (0, 0, rotation)
+    env = nt.nodes.new("ShaderNodeTexEnvironment")
+    env.image = bpy.data.images.load(hits[0], check_existing=True)
+    lp = nt.nodes.new("ShaderNodeLightPath")
+    mul = nt.nodes.new("ShaderNodeMix")
+    mul.data_type = "RGBA"
+    mul.blend_type = "MULTIPLY"
+    mul.inputs["Factor"].default_value = 1.0
+    gain = nt.nodes.new("ShaderNodeMath")
+    gain.operation = "MULTIPLY"
+    gain.inputs[1].default_value = strength
+    add = nt.nodes.new("ShaderNodeMix")
+    add.data_type = "RGBA"
+    add.blend_type = "ADD"
+    nt.links.new(tc.outputs["Generated"], mp.inputs["Vector"])
+    nt.links.new(mp.outputs["Vector"], env.inputs["Vector"])
+    nt.links.new(lp.outputs["Is Glossy Ray"], gain.inputs[0])
+    nt.links.new(gain.outputs[0], add.inputs["Factor"])
+    nt.links.new(grad, add.inputs["A"])
+    nt.links.new(env.outputs["Color"], add.inputs["B"])
+    nt.links.new(add.outputs["Result"], bg.inputs["Color"])
+    return True

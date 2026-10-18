@@ -47,7 +47,7 @@ def draw_label(layer, lab, a, W, H):
     m = int(36 * s)
     lines = [(lab["text"], f_main, (255, 255, 255)),
              (lab.get("sub", ""), f_sub, (205, 212, 230)),
-             ("来源：" + lab["source"] + "（" + "、".join(lab["facts"]) + "）", f_src, (140, 148, 170))]
+             (("来源：" + lab["source"]) if lab.get("source") else "", f_src, (140, 148, 170))]
     heights = [d.textbbox((0, 0), t or " ", font=fo)[3] for t, fo, _ in lines]
     gap = int(8 * s)
     block_h = sum(heights) + gap * (len(lines) - 1)

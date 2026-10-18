@@ -120,7 +120,8 @@ def machine(with_path=True):
 
 def fab_hall(seed=3, people=6):
     rnd = random.Random(seed)
-    floor = M.principled("HallFloor", (0.06, 0.065, 0.07), metallic=0.0, roughness=0.12)
+    floor = M.pbr("HallFloor", "brushed_concrete", scale=0.12, tint=(0.13, 0.135, 0.145), rough_mul=0.3, rough_add=0.03,
+                  normal=0.4, fallback=(0.06, 0.065, 0.07))      # polished clean-room concrete (CC0)
     wall = M.principled("HallWall", (0.18, 0.19, 0.2), metallic=0.0, roughness=0.6)
     lamp = M.emission("HallLamp", (0.95, 0.97, 1.0), 6.0)
     bpy.ops.mesh.primitive_plane_add(size=120, location=(0, 0, -2.2))

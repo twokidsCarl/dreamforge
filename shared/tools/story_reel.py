@@ -153,6 +153,27 @@ def mograph_ids():
 MOGRAPH = None
 
 
+ORGS = [("asml", "ASML"), ("zeiss", "ZEISS"), ("trumpf", "TRUMPF"), ("intel", "Intel"), ("imec", "imec"),
+        ("nature.com", "Nature"), ("iop", "IOP"), ("arcnl", "ARCNL"), ("nist", "NIST"), ("euvlitho", "EUVL 研讨会"),
+        ("spie", "SPIE"), ("ieee", "IEEE"), ("nvidia", "NVIDIA"), ("technologyreview", "MIT Tech Review"),
+        ("illinois", "伊利诺伊大学"), ("patents.google", "ASML 专利")]
+_FACTS = None
+
+
+def fact_orgs(ids):
+    """Who said it, for the on-screen label: organisation names from the facts' source URLs."""
+    global _FACTS
+    if _FACTS is None:
+        _FACTS = yaml.safe_load(open(os.path.join(EP, "research/facts.yaml"), encoding="utf-8")) or {}
+    names = []
+    for f in ids:
+        for url in (_FACTS.get(f) or {}).get("sources") or []:
+            for key, name in ORGS:
+                if key in url and name not in names:
+                    names.append(name)
+    return " · ".join(names[:3])
+
+
 def label_layer(s, W, H, k, a=1.0):
     """On-screen labels planned for the shot (non-chapter), stacked bottom-left above subtitles."""
     from overlay_labels import draw_label
@@ -166,7 +187,8 @@ def label_layer(s, W, H, k, a=1.0):
     sub_digits = str.maketrans("₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻", "01234567890123456789+-")   # Heiti lacks most of these
     ovs = [dict(o, text=o["text"].translate(sub_digits)) for o in ovs]
     lab = {"text": ovs[0]["text"], "sub": " ｜ ".join(o["text"] for o in ovs[1:3]),
-           "source": "事实库", "facts": sorted({f for o in ovs for f in o.get("facts") or []}) or ["—"],
+           "source": fact_orgs(sorted({f for o in ovs for f in o.get("facts") or []})),
+           "facts": [],
            "pos": "upper_right"}
     draw_label(layer, lab, a, W, H)
     return layer

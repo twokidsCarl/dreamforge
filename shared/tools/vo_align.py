@@ -23,7 +23,7 @@ from asr_check import load16k, norm  # noqa: E402
 from lint_script import parse, spoken_len  # noqa: E402
 from speech_text import normalize  # noqa: E402
 
-from paths import AUDIO, REPO  # noqa: E402
+from paths import AUDIO, EP, REPO  # noqa: E402
 
 
 def char_times(model, wav):

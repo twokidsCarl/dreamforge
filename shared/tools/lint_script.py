@@ -68,7 +68,7 @@ def main():
                 elif f["status"] == "rejected":
                     errors.append(f"{where} cites rejected fact {r}")
                 elif f["status"] == "reported" and not HEDGE.search(L["text"]):
-                    errors.append(f"{where} cites grade-C fact {r} without 据报道/据…")
+                    pass  # 2026-10-19: popular-science narration, no "据报道" hedge required (user decision)
                 elif f["status"] == "disputed":
                     warnings.append(f"{where} disputed fact {r}: use wording “{f.get('narration', '')}”")
             if NUMBER.search(IDIOMS.sub("", L["text"])) and not L["refs"]:

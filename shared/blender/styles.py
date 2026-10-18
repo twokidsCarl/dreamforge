@@ -217,23 +217,33 @@ def apply_style(style, line_px=1.3):
                         fc.mute = True
 
     if style == "photoreal":
-        cam = sc.camera
-        if cam is not None:
-            import build_vacuum as V
-            sc.frame_set(sc.frame_current)
-            p = cam.matrix_world.translation
-            if (p.x ** 2 + p.y ** 2) ** 0.5 > V.CHAMBER_R * 0.95:
-                # exterior view: no chamber walls; dark product-studio backdrop instead
-                for o in objs:
-                    if roles[o] == "env":
-                        o.hide_render = o.hide_viewport = True
-                C.set_world(top=(0.06, 0.07, 0.085), horizon=(0.025, 0.028, 0.034),
-                            bottom=(0.008, 0.009, 0.011))
-                for o in objs:
-                    if roles[o] == "shell":
-                        o.hide_render = o.hide_viewport = False
+        _photoreal_world(sc, objs, roles)
+        if sc.render.engine == "CYCLES":                          # real reflections for metal and glass
+            C.reflection_env(sc.get("hdri", "studio_small_09"), sc.get("hdri_strength", 0.35))
         return
+    _non_photoreal(style, sc, objs, roles, line_px)
 
+
+def _photoreal_world(sc, objs, roles):
+    """Exterior shots of the source scene drop the chamber walls for a dark studio backdrop."""
+    cam = sc.camera
+    if cam is not None:
+        import build_vacuum as V
+        sc.frame_set(sc.frame_current)
+        p = cam.matrix_world.translation
+        if (p.x ** 2 + p.y ** 2) ** 0.5 > V.CHAMBER_R * 0.95:
+            # exterior view: no chamber walls; dark product-studio backdrop instead
+            for o in objs:
+                if roles[o] == "env":
+                    o.hide_render = o.hide_viewport = True
+            C.set_world(top=(0.06, 0.07, 0.085), horizon=(0.025, 0.028, 0.034),
+                        bottom=(0.008, 0.009, 0.011))
+            for o in objs:
+                if roles[o] == "shell":
+                    o.hide_render = o.hide_viewport = False
+
+
+def _non_photoreal(style, sc, objs, roles, line_px):
     if style == "xray":
         C.set_world(top=(0.92, 0.93, 0.95), horizon=(0.80, 0.81, 0.84), bottom=(0.62, 0.63, 0.66))
         C.set_color_management(look="Base Contrast", exposure=0.0)

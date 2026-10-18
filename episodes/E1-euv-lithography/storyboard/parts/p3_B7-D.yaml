@@ -945,7 +945,7 @@ shots:
   segment: B8
   duration: 8.2
   vo:
-  - 一层叠一层，层与层的对准误差，据报道，英特尔的验收测试做到了 0.7 纳米。
+  - 一层叠一层，层与层的对准误差，英特尔的验收测试做到了 0.7 纳米。
   facts:
   - F43b
   - F44
@@ -965,7 +965,7 @@ shots:
   - ambient_occlusion
   - drop_settle
   overlays:
-  - text: 层间套刻误差 0.7 nm（英特尔验收测试，据报道）
+  - text: 层间套刻误差 0.7 nm（英特尔验收测试）
     facts:
     - F43b
   engine: eevee
@@ -1337,7 +1337,7 @@ shots:
   segment: B9
   duration: 10.0
   vo:
-  - 这也是为什么，据报道 ASML 要把光源从几百瓦推向一千瓦——多一个光子，线条就稳一分。
+  - 这也是为什么，ASML 要把光源从几百瓦推向一千瓦——多一个光子，线条就稳一分。
   facts:
   - F4c
   - F59
@@ -1358,7 +1358,7 @@ shots:
   - bloom
   - edge_smooth_morph
   overlays:
-  - text: 据报道：量产约 600 W → 1000 W 原理样机
+  - text: 量产约 600 W → 1000 W 原理样机
     facts:
     - F4c
   - text: 示意
@@ -1391,7 +1391,7 @@ shots:
   - overlay:light_ledger
   fx: []
   overlays:
-  - text: 电力：兆瓦量级（据报道，行业估算）
+  - text: 电力：兆瓦量级（行业估算）
     facts:
     - F48
   - text: 驱动激光：最高 40 kW
@@ -1905,7 +1905,7 @@ shots:
   - manim:EnergyPerWafer
   fx: []
   overlays:
-  - text: 耗电：兆瓦量级（据报道，行业估算）
+  - text: 耗电：兆瓦量级（行业估算）
     facts:
     - F48
   - text: 每片晶圆能耗：自 2018 年以来 −57%
@@ -1919,7 +1919,7 @@ shots:
   segment: D
   duration: 6.0
   vo:
-  - 下一代光源，据报道已经在实验室里冲到了 1000 瓦。
+  - 下一代光源，已经在实验室里冲到了 1000 瓦。
   facts:
   - F4c
   style: infographic
@@ -1936,10 +1936,10 @@ shots:
   fx:
   - glow_tip
   overlays:
-  - text: 据报道：量产约 600 W
+  - text: 量产约 600 W
     facts:
     - F4c
-  - text: 据报道：1000 W 原理样机（实验室）
+  - text: 1000 W 原理样机（实验室）
     facts:
     - F4c
   engine: manim

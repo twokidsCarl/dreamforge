@@ -12,7 +12,7 @@ DUV = (190, 70, 110)
 RED = (240, 72, 72)
 
 # the ledger's stages, top to bottom (labels only; heights are illustrative, not to scale)
-LEDGER = [("电力", "兆瓦量级（据报道）"), ("驱动激光", "最高 40 kW"), ("EUV 产生", "几百瓦"),
+LEDGER = [("电力", "兆瓦量级"), ("驱动激光", "最高 40 kW"), ("EUV 产生", "几百瓦"),
           ("进入扫描仪", "约 100 W"), ("约 10 面反射镜", "每面损失三成以上"), ("到达晶圆", "约 1 W · 约 1%")]
 
 
@@ -173,12 +173,12 @@ def more_power(t, dur, W, H):
     c.line((960, 40), (960, 1040), CYAN, 2, a)
     c.text((480, 1010), "约 600 W", 30, INK2, a, anchor="mm")
     c.text((1440, 1010), f"{watts:,.0f} W", 40, INK, a, anchor="mm", weight_glow=True)
-    c.text((960, 40), "据报道：量产约 600 W → 1000 W 原理样机（F4c · 示意）", 24, INK2, a, anchor="mt")
+    c.text((960, 40), "量产约 600 W → 1000 W 原理样机（F4c · 示意）", 24, INK2, a, anchor="mt")
     return c.finish(glow_radius=10, glow_gain=0.9)
 
 
 # ---- the whole ledger as one page --------------------------------------------------------------
-PAGE = [("电力", "兆瓦量级", "据报道 · 行业估算", 1.0), ("驱动激光", "最高 40 kW", "F6", 0.62),
+PAGE = [("电力", "兆瓦量级", "行业估算", 1.0), ("驱动激光", "最高 40 kW", "F6", 0.62),
         ("EUV 进入扫描仪", "约 100 W", "F33", 0.34), ("到达晶圆", "约 1 W · 约 1%", "F33", 0.14),
         ("每 nm²", "≈ 20 个光子", "F47 · 推算", 0.0)]
 

@@ -81,11 +81,14 @@ def hundred_layers(t, dur, W, H):
     n = int(100 * ease(seg(t, 0.2, dur - 0.9)))
     base = 960
     lh = 7.6
+    w = 300                                                         # one straight column, like the tower
     for i in range(n):
         y = base - (i + 1) * lh
-        w = 220 + i * 3.2                                           # coarser toward the top
-        col = VIOLET if i < 22 else (120 + i, 126 + i, 150 + i // 2)
+        fine = i < 22                                               # the finest ~20 layers sit at the bottom
+        col = VIOLET if fine else (110 + i // 2, 116 + i // 2, 140 + i // 3)
         c.rect((640 - w / 2, y, 640 + w / 2, y + lh - 1.4), fill=tuple(min(255, v) for v in col), a=a * 0.9)
+    if n >= 22:
+        c.text((640 + w / 2 + 24, base - 11 * lh), "最精细的约 20 层", 22, VIOLET, a, anchor="lm")
     c.text((640, base + 50), f"约 {n} 层", 40, INK, a, anchor="mm", weight_glow=n >= 100)
     # a 100-storey tower lighting floor by floor
     tx, tw = 1300, 160

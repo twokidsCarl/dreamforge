@@ -14,9 +14,13 @@
 shots:
 - id: A0_01
   segment: A0
-  duration: 4.0
-  vo: []
-  facts: []
+  duration: 10.8
+  vo:
+  - 这是一滴锡，比头发丝还细。下一瞬间，它会被激光连打两次，炸成一团发出极紫外光的等离子体。
+  facts:
+  - F3
+  - F4
+  - F44
   style: photoreal
   style_why: 冷开场先给一个不解释的“真东西”谜面：一颗锡滴；全片结尾（D 段）会回到它。
   transition_in: fade
@@ -36,7 +40,11 @@ shots:
   - flash_white
   - debris_particles
   - led_bokeh
-  overlays: []
+  overlays:
+  - text: 锡滴 ≈ 25 μm（头发丝约 80 μm）
+    facts:
+    - F3
+    - F44
   engine: cycles
   sfx:
   - 低频嗡鸣淡入
@@ -540,7 +548,7 @@ shots:
   segment: A1
   duration: 8.0
   vo:
-  - 据报道，其中最精细的二十多层，要交给极紫外光刻机来画。
+  - 其中最精细的二十多层，要交给极紫外光刻机来画。
   facts:
   - F55
   style: xray
@@ -559,7 +567,7 @@ shots:
   - ghost_glass_fresnel
   - bloom
   overlays:
-  - text: 据报道：先进芯片约二十多层用 EUV 曝光
+  - text: 先进芯片约二十多层用 EUV 曝光
     facts:
     - F55
   - text: 示意
@@ -1540,7 +1548,7 @@ shots:
   - bloom
   - chromatic_dispersion
   overlays:
-  - text: 约 50 万开尔文 · 据报道（ASML 人员对媒体的表述）
+  - text: 约 50 万开尔文
     facts:
     - F5
   - text: 主脉冲约 500 mJ（实验条件）
@@ -1941,7 +1949,7 @@ shots:
   segment: B1
   duration: 11.0
   vo:
-  - 据报道，今天量产机器的光源最高约 600 瓦，ASML 已经在实验室演示了 1000 瓦的原理样机。
+  - 今天量产机器的光源最高约 600 瓦，ASML 已经在实验室演示了 1000 瓦的原理样机。
   facts:
   - F6
   - F4c
@@ -1962,10 +1970,10 @@ shots:
   - text: 激光 几十 kW
     facts:
     - F6
-  - text: 据报道：量产光源最高约 600 W
+  - text: 量产光源最高约 600 W
     facts:
     - F4c
-  - text: 据报道：1000 W 原理样机已在实验室演示
+  - text: 1000 W 原理样机已在实验室演示
     facts:
     - F4c
   engine: manim

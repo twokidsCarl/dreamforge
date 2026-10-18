@@ -138,13 +138,14 @@ def _text(body, loc, rot, size, mat, extrude=0.0):
 
 def crate(sc, rnd):
     C.set_world(top=(0.004, 0.006, 0.012), horizon=(0.003, 0.004, 0.007), bottom=(0.0, 0.0, 0.001))
-    wet = M.principled("WetAsphalt", (0.02, 0.022, 0.025), roughness=0.08)
+    wet = M.pbr("WetAsphalt", "asphalt_02", scale=0.25, tint=(0.11, 0.115, 0.13), rough_mul=0.22, rough_add=0.01,
+                normal=0.6, fallback=(0.02, 0.022, 0.025))                     # wet asphalt (CC0)
     _box("Ground", (0, 0, -0.05), (60, 60, 0.1), wet)
     wall = M.principled("DockWall", (0.12, 0.13, 0.14), roughness=0.7)
     _box("Wall", (0, 14.0, 4.0), (40, 0.4, 8), wall)
     _box("DockOpening", (-2.0, 13.7, 2.4), (6.0, 0.2, 4.4), M.emission("DockGlow", (0.7, 0.8, 0.95), 0.6))
     # container: open end facing -Y (toward the forklift)
-    steel = M.principled("Container", (0.18, 0.26, 0.34), metallic=0.4, roughness=0.5)
+    steel = M.pbr("Container", "container_side", scale=0.4, tint=(0.55, 0.75, 1.0), metallic=0.3, fallback=(0.18, 0.26, 0.34))
     for (x, y, z, sx, sy, sz) in ((5.0 - 1.2, 6.0, 1.45, 0.06, 12.0, 2.9), (5.0 + 1.2, 6.0, 1.45, 0.06, 12.0, 2.9),
                                   (5.0, 6.0, 2.9, 2.44, 12.0, 0.06), (5.0, 6.0, 0.02, 2.44, 12.0, 0.04),
                                   (5.0, 12.0, 1.45, 2.44, 0.06, 2.9)):

@@ -140,7 +140,8 @@ def _text(body, loc, rot, size, mat, align="CENTER"):
 # ---- A0_02 ---------------------------------------------------------------------------------
 def cargo(sc, rnd):
     C.set_world(top=(0.004, 0.006, 0.012), horizon=(0.003, 0.004, 0.008), bottom=(0.0, 0.0, 0.001))
-    wet = M.principled("Apron", (0.02, 0.022, 0.026), roughness=0.07)
+    wet = M.pbr("Apron", "asphalt_02", scale=0.08, tint=(0.1, 0.105, 0.12), rough_mul=0.22, rough_add=0.01, normal=0.6,
+                fallback=(0.02, 0.022, 0.026))                                  # wet apron (CC0)
     _box("Apron", (0, 0, -0.05), (200, 200, 0.1), wet)
     skin = M.principled("Fuselage", (0.55, 0.57, 0.6), metallic=0.3, roughness=0.5)
     body = _cyl("Fuselage", 3.0, 36.0, (-18.0, 0, 4.2), skin, rot=(0, math.pi / 2, 0), verts=96)
