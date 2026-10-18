@@ -161,7 +161,7 @@ def label_layer(s, W, H, k, a=1.0):
     if MOGRAPH is None:
         MOGRAPH = mograph_ids()
     ovs = [o for o in s.get("overlays") or [] if o.get("kind") != "chapter"]
-    if not ovs or s["id"] in MOGRAPH:
+    if not ovs or s["id"] in MOGRAPH or s.get("style") == "type":     # text already drawn in frame
         return layer
     sub_digits = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "0123456789")      # Heiti has no subscript glyphs
     ovs = [dict(o, text=o["text"].translate(sub_digits)) for o in ovs]
