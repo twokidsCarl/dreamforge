@@ -233,8 +233,8 @@ def clean(sc, rnd):
         _key(a, f_grab + 70, location=(x + rnd.uniform(-0.4, 0.4), y, lift))
         for h, v in hs:
             _key(h, f_grab + 70, location=(a.location.x + v.x * 0.1, y + v.y * 0.1, lift + v.z * 0.1))
-    B._camera("CamB2_08", [(1, (0, 0, 0.2), (0.0, -7.0, 0.6), 100, 11.0),
-                           (262, (0, 0, 0.9), (0.0, -7.0, 1.8), 100, 11.0)])
+    B._camera("CamB2_08", [(1, (0, 0, 0.6), (0.0, -8.0, 0.9), 70, 11.0),          # wide enough to keep the
+                           (262, (0, 0, 1.4), (0.0, -9.0, 1.7), 70, 11.0)])        # rising SnH4 in frame
 
 
 def pumps(sc, rnd):
