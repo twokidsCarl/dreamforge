@@ -94,7 +94,14 @@ def main():
                 blk.file_format = "PNG"
                 blk.save()
             else:
-                bpy.ops.render.render(write_still=True)
+                try:
+                    bpy.ops.render.render(write_still=True)
+                except RuntimeError as e:                        # e.g. Metal out of memory: retry on the CPU
+                    if sc.render.engine != "CYCLES" or sc.cycles.device == "CPU":
+                        raise
+                    print(f"[render_storyboard] GPU failed ({e}); retrying {a.shot} frame {f} on CPU", flush=True)
+                    sc.cycles.device = "CPU"
+                    bpy.ops.render.render(write_still=True)
             dt = time.time() - t0
             w.writerow([datetime.datetime.now().isoformat(timespec="seconds"), a.shot, engine, a.quality,
                         f, f"{dt:.2f}"])

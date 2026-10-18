@@ -194,6 +194,8 @@ def multipatterning(t, dur, W, H):
 
 def _wave(c, x0, y, lam_px, length, amp, col, a, width=3, glow=True):
     n = int(length / 3)
+    if n < 1:
+        return
     prev = None
     for i in range(n + 1):
         x = x0 + length * i / n
