@@ -143,7 +143,8 @@ def build(voice, segments, out_dir, max_lines=None):
 
 
 TARGET_RATE = 255.0      # spoken chars per minute, the measured natural pace of a whole-paragraph take
-RATE_TOL, PITCH_TOL = 0.07, 0.07
+RATE_TOL, PITCH_TOL = 0.07, 0.04
+TARGET_PITCH = 107.0     # Hz, the film-wide median of Andre's takes: every segment is held to it
 STRETCH_IF, STRETCH_MAX = 0.15, 0.08   # stretch a sentence only if >15% off, by at most 8%
 TARGET_DB = -20.0                      # voiced RMS per sentence (dBFS)
 
@@ -219,8 +220,8 @@ def build_paragraph(voice, segments, out_dir, attempts=3):
                 request(text, voice, wav)
             spans, x = vo_split.split(wav, weights)
             rate, f0 = take_stats(x, spans, weights)
-            ref = ref_pitch or f0
-            score = abs(rate / TARGET_RATE - 1) + abs(f0 / ref - 1)
+            ref = TARGET_PITCH                        # one pitch for the whole film, not per segment
+            score = abs(rate / TARGET_RATE - 1) + 2 * abs(f0 / ref - 1)
             if best is None or score < best[0]:
                 best = (score, wav, spans, x, rate, f0, k)
             if abs(rate / TARGET_RATE - 1) <= RATE_TOL and abs(f0 / ref - 1) <= PITCH_TOL:
