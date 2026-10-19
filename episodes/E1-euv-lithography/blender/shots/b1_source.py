@@ -88,10 +88,8 @@ def build(vessel=False, rays=False):
     return sc
 
 
-def after_style(style, shot_id):
+def _shadowgraph():
     """B1_11 is a shadowgraph (backlit high-speed photo of the sheet), not an SEM image."""
-    if shot_id != "B1_11":
-        return
     import bpy
     import materials as M
     import styles
@@ -106,13 +104,34 @@ def after_style(style, shot_id):
     sheet.data.materials.append(black)
 
 
-def after_style(style, shot_id):
-    """A0_01 cold open: the same simulation in pure black, no chamber walls."""
-    if shot_id not in ("A0_01", "D_08", "D_09"):           # cold open and its mirror at the end
-        return
+def _cold_open():
+    """A0_01 cold open (and D_08/D_09, its mirror at the end): the droplet in pure black. Chamber wall and ribs
+    go (a blurred rib read as a bright bar and its reflection as a second droplet); the collector stays for
+    the flash. The tin reflects a faint studio, the sheet is satin so it does not mirror blotches."""
     import common as C
+    import materials as M
     import styles
     for ob in list(bpy.data.objects):
-        if styles.role_of(ob) == "env":
+        if styles.role_of(ob) == "env" or ob.name == "ChamberWall" or ob.name.startswith("Rib"):
             ob.hide_render = True
     C.set_world(top=(0.0, 0.0, 0.0), horizon=(0.0, 0.0, 0.0), bottom=(0.0, 0.0, 0.0))
+    C.reflection_env("studio_small_09", 0.25)
+    sheet = bpy.data.objects.get("Pancake")
+    if sheet:
+        sheet.data.materials.clear()
+        sheet.data.materials.append(M.tin("TinSheetSatin", roughness=0.32))
+    # a few far LEDs as bokeh, low and to the side, so the black has depth
+    led = M.emission("BokehLED", (0.45, 0.7, 1.0), 6.0)
+    for k, (x, y, z) in enumerate(((-14, -4, 2.5), (-16, -9, -1.8), (-13, -13, 0.6), (-18, -6, -3.2), (-15, 2, 3.4))):
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=0.12, location=(x, y, z))
+        b = bpy.context.object
+        b.name = f"BokehLED{k}"
+        b.data.materials.append(led)
+        styles.tag(b, "emitter")
+
+
+def after_style(style, shot_id):
+    if shot_id == "B1_11":
+        _shadowgraph()
+    elif shot_id in ("A0_01", "D_08", "D_09"):
+        _cold_open()

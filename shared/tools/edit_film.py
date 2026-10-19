@@ -47,9 +47,12 @@ def subtitle(img, text, W, H, a=1.0):
     f = font(int(H * 0.043))
     tw = d.textlength(text, font=f)
     x, y = (W - tw) / 2, H * 0.865
+    # a soft dark halo (stroked glyphs, blurred) keeps white type readable on pale studio shots too
     sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(sh).text((x, y + H * 0.003), text, font=f, fill=(0, 0, 0, int(220 * a)))
-    layer.alpha_composite(sh.filter(ImageFilter.GaussianBlur(H * 0.004)))
+    ImageDraw.Draw(sh).text((x, y + H * 0.002), text, font=f, fill=(0, 0, 0, int(235 * a)),
+                            stroke_width=max(2, round(H * 0.004)), stroke_fill=(0, 0, 0, int(235 * a)))
+    layer.alpha_composite(sh.filter(ImageFilter.GaussianBlur(H * 0.005)))
+    layer.alpha_composite(sh.filter(ImageFilter.GaussianBlur(H * 0.0015)))
     d.text((x, y), text, font=f, fill=(255, 255, 255, int(255 * a)))
     return Image.alpha_composite(img.convert("RGBA"), layer)
 
@@ -120,7 +123,7 @@ def sound(shots, seg_files, dur, voice, out_wav):
     inputs, filters, mixes = [], [], []
     vo = os.path.join(AUDIO, "vo", voice, "vo_track.wav")
     inputs += ["-ss", f"{t0:.3f}", "-t", f"{dur:.3f}", "-i", vo]
-    filters.append("[0:a]aresample=48000,pan=stereo|c0=c0|c1=c0,asplit=2[vo][vokey]")
+    filters.append("[0:a]aresample=48000,pan=stereo|c0=c0|c1=c0,asplit=3[vo][vokey][vokey2]")
     n = 1
     music_parts, sfx_parts = [], []
     for sf in seg_files:
@@ -149,7 +152,9 @@ def sound(shots, seg_files, dur, voice, out_wav):
         mixes.append("[musd]")
     if sfx_parts:
         filters.append("".join(sfx_parts) + f"amix=inputs={len(sfx_parts)}:normalize=0[fx]")
-        mixes.append("[fx]")
+        # effects step back a little under the words (gentler than the music), so no word is masked
+        filters.append("[fx][vokey2]sidechaincompress=threshold=0.04:ratio=3:attack=20:release=350[fxd]")
+        mixes.append("[fxd]")
     filters.append("[vo]" + "".join(mixes) + f"amix=inputs={1 + len(mixes)}:normalize=0,"
                    f"atrim=0:{dur:.3f},loudnorm=I=-16:TP=-1.5:LRA=11[out]")
     cmd = ["ffmpeg", "-loglevel", "error", "-y", *inputs, "-filter_complex", ";".join(filters), "-map", "[out]",

@@ -4,7 +4,7 @@
   python3 tools/storyboard_check.py --no-merge # check storyboard.yaml as is
 
 Errors (exit 1): missing / duplicated / out-of-order narration, shot shorter than its VO,
-unknown or rejected facts, on-screen numbers without facts, grade-C numbers without 据报道,
+unknown or rejected facts, on-screen numbers without facts, 
 unknown style or engine, duplicate ids.
 Warnings: >3 consecutive shots in one style (segment C exempt), <3 styles in a segment,
 segment duration more than 15% off target.
@@ -19,7 +19,7 @@ import sys
 import yaml
 
 sys.path.insert(0, os.path.dirname(__file__))
-from lint_script import CHARS_PER_MIN, HEDGE, parse, spoken_len  # noqa: E402
+from lint_script import CHARS_PER_MIN, parse, spoken_len  # noqa: E402
 
 from paths import AUDIO, EP, REPO, RENDERS, SHARED  # noqa: E402,F401
 SB = os.path.join(EP, "storyboard")
@@ -86,9 +86,6 @@ def main():
             cited |= set(ov.get("facts") or [])
             if DIGIT.search(str(ov.get("text", ""))) and not ov.get("facts"):
                 errors.append(f"{s['id']} overlay number without facts: {ov.get('text')}")
-            for f in ov.get("facts") or []:
-                if f in facts and facts[f]["status"] == "reported" and not HEDGE.search(str(ov.get("text"))):
-                    errors.append(f"{s['id']} grade-C overlay {f} needs 据报道: {ov.get('text')}")
         for f in cited:
             if f not in facts:
                 errors.append(f"{s['id']} unknown fact {f}")

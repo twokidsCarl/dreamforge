@@ -741,28 +741,32 @@ def title(sc, rnd):
     path, pmat = BM.machine(with_path=False)
     mods = BM.attach_small([o for o in bpy.data.objects if o not in before])
     centre = Vector((-1.6, 0, 0.35))
+    # VO (shot time): "外星科技" 2.66-3.36 s, "拆" 5.52 s; the shot holds ~2.4 s after the last word
     for o in mods:                                                # burst into hovering modules on "拆开"
         home = o.location.copy()
         d = home - centre
         d = Vector((d.x, d.y - 0.4, d.z)) if d.length > 0.2 else Vector((0, -1, 0.4))
         out = home + d.normalized() * (1.8 + 0.25 * d.length) + Vector((0, 0, 0.4))
-        _key(o, 92, location=home)
-        _key(o, 108, location=out)
-        _key(o, 160, location=out + d.normalized() * 0.3)
+        _key(o, 132, location=home)
+        _key(o, 144, location=out)
+        _key(o, 215, location=out + d.normalized() * 0.35)              # keep drifting apart through the hold
     chars = "一台光刻机里发生了什么"
     size = 0.9
     x0 = -1.6 - size * (len(chars) - 1) / 2
     for i, ch in enumerate(chars):
         m = M.emission(f"Glyph{i}", (0.92, 0.9, 1.0), 0.0)
         _text(ch, (x0 + i * size, -3.2, 4.9), (math.pi / 2, 0, 0), size, m)
-        M.set_emission_strength(m, 104 + 2 * i, 0.0)
-        M.set_emission_strength(m, 110 + 2 * i, 5.0)
+        M.set_emission_strength(m, 62 + 2 * i, 0.0)                    # lights up, glyph by glyph, on "外星科技"
+        M.set_emission_strength(m, 72 + 2 * i, 5.0)
     sub = M.emission("SubGlyph", (0.6, 0.62, 0.7), 0.0)
     _text("ASML EUV 光刻机", (-1.6, -3.2, 4.05), (math.pi / 2, 0, 0), 0.38, sub)
-    M.set_emission_strength(sub, 130, 0.0)
-    M.set_emission_strength(sub, 142, 2.0)
-    B._camera("CamA0_10", [(1, (-1.6, 0, 0.6), (-4.5, -12.0, 0.9), 40, 11.0), (92, (-1.6, 0, 0.9), (-2.4, -14.5, 1.6), 40, 11.0),
-                           (160, (-1.6, 0, 1.8), (-1.6, -20.5, 2.9), 40, 11.0)])
+    M.set_emission_strength(sub, 96, 0.0)
+    M.set_emission_strength(sub, 110, 2.0)
+    # framed so the title line is always in shot: slow push-in, a kick back on the burst, then a slow drift out
+    B._camera("CamA0_10", [(1, (-1.6, 0, 1.8), (-1.6, -19.8, 2.75), 40, 11.0),
+                           (130, (-1.6, 0, 1.8), (-1.6, -18.4, 2.55), 40, 11.0),
+                           (150, (-1.6, 0, 1.8), (-1.6, -20.6, 2.9), 40, 11.0),
+                           (215, (-1.6, 0, 1.8), (-1.6, -21.6, 3.0), 40, 11.0)])
 
 
 def after_style(style, shot_id):

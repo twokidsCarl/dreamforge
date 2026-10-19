@@ -3,6 +3,7 @@ shots:
 - id: A0_01
   segment: A0
   duration: 10.8
+  hold: 0.8
   vo:
   - 这是一滴锡，比头发丝还细。下一瞬间，它会被激光连打两次，炸成一团发出极紫外光的等离子体。
   facts:
@@ -267,6 +268,7 @@ shots:
 - id: A0_10
   segment: A0
   duration: 7.0
+  hold: 2.4
   vo:
   - 这台机器里发生的事，听起来像外星科技。今天，我们把它拆开。
   facts: []

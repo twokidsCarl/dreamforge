@@ -10,7 +10,7 @@ Outputs: episodes/<episode>/storyboard/storyboard.timed.yaml  shots with real du
 
 Rule: a VO shot keeps the visual padding it was designed with (design duration minus the
 estimated VO time, at least LEAD + TAIL) around its real VO; visual-only shots keep their
-design duration.
+design duration. `hold: <s>` on a shot adds that much picture after its last word.
 """
 import argparse
 import json
@@ -107,6 +107,8 @@ def main():
                 cues.append({"shot": s["id"], "text": v, "start": round(c, 3), "end": round(c + d, 3)})
                 s["cues"].append({"text": v, "start": round(c - t, 3), "end": round(c - t + d, 3)})
                 c += d + GAP
+        if s.get("hold"):                     # pure picture after the last word (a beat, a title settling)
+            s["duration"] = round(s["duration"] + s["hold"], 2)
         s["start"] = round(t, 3)
         if s is shots[-1]:
             s["duration"] = round(s["duration"] + END_HOLD, 2)
