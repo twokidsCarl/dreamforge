@@ -487,18 +487,22 @@ def logistics(sc, rnd):
         root = _group(lambda: freighter(skin, belly, rnd))
         root.name = f"Plane{p_i}"
         start = Vector((80 + p_i * 4, (p_i - 1.5) * 15, 0.0))
-        s0 = 0.22
-        _key(root, 1, location=start, scale=(0.001, 0.001, 0.001))
-        _key(root, 84, location=start, scale=(0.001, 0.001, 0.001))
-        _key(root, 96, location=start, scale=(s0, s0, s0))
-        _key(root, 118 + 4 * p_i, location=start, scale=(s0, s0, s0))
-        _key(root, 150 + 4 * p_i, location=start + Vector((60, 0, 22)), scale=(s0, s0, s0), rotation_euler=(0, math.radians(-12), 0))
+        s0 = 0.32
+        _key(root, 1, location=start + Vector((-40, 0, 0)), scale=(s0, s0, s0))      # taxi in from the left
+        _key(root, 80, location=start + Vector((-40, 0, 0)), scale=(s0, s0, s0))
+        _key(root, 98, location=start, scale=(s0, s0, s0))
+        _key(root, 120 + 3 * p_i, location=start, scale=(s0, s0, s0), rotation_euler=(0, 0, 0))
+        _key(root, 136 + 3 * p_i, location=start + Vector((22, 0, 1.5)), rotation_euler=(0, math.radians(-8), 0))
+        _key(root, 170 + 3 * p_i, location=start + Vector((80, 0, 24)), rotation_euler=(0, math.radians(-10), 0))
+        root.hide_render = True
+        _key(root, 1, hide_render=True)
+        _key(root, 80, hide_render=False)
         planes.append((root, start))
     for j, (k, pos) in enumerate(conts):
         root, start = planes[j % 4]
-        f0 = 96 + (j % 11)
+        f0 = 92 + (j % 11)
         _key(k, f0, location=pos, scale=(1, 1, 1))
-        _key(k, f0 + 16, location=start + Vector((-3, 0, 1.0)), scale=(0.12, 0.12, 0.12))
+        _key(k, f0 + 16, location=start + Vector((-4, 0, 1.4)), scale=(0.15, 0.15, 0.15))
         _key(k, f0 + 17, scale=(0.001, 0.001, 0.001))
     # 4) twenty trucks roll out along a road to the right, f140-198
     road = M.principled("Road", (0.02, 0.022, 0.025), roughness=0.25)
@@ -624,31 +628,32 @@ def assemble(sc, rnd):
     before = set(bpy.data.objects)
     path, pmat = BM.machine()
     new = [o for o in bpy.data.objects if o not in before]
-    parts = [o for o in BM.attach_small(new) if styles.role_of(o) == "structure"]
-    shells = [o for o in bpy.data.objects if o not in before and styles.role_of(o) == "shell"]
+    mods = [o for o in BM.attach_small(new) if o.name != "Housing"]
+    housing = bpy.data.objects["Housing"]
     glass = M.principled("TrailerPanel", (0.78, 0.8, 0.82), metallic=0.2, roughness=0.45)
     nt = 6
-    for k in range(nt):                                            # trailers in a row in front
-        _box(f"Trailer{k}", (-9.0 + 3.6 * k, -7.0, -0.6), (3.2, 2.4, 2.6), glass, role="shell")
-    for i, o in enumerate(parts):
+    for k in range(nt):                                            # the trailers they arrived in, in front
+        _box(f"Trailer{k}", (-9.0 + 3.6 * k, -7.5, -1.0), (3.2, 2.4, 2.6), glass, role="shell")
+    order = sorted(mods, key=lambda o: (o.location.z, o.location.x))   # base first, stages and optics after
+    for i, o in enumerate(order):
         home = o.location.copy()
         k = i % nt
-        start = Vector((-9.0 + 3.6 * k + rnd.uniform(-0.8, 0.8), -7.0 + rnd.uniform(-0.6, 0.6), -1.2 + 0.2 * (i // nt)))
-        f0 = 20 + 4 * i
-        _key(o, 1, location=start)
-        _key(o, f0, location=start)
-        _key(o, f0 + 20, location=Vector((start.x * 0.6 + home.x * 0.4, -3.5, home.z + 2.5)))
-        _key(o, f0 + 45, location=home)
-    for s in shells:                                               # the machine's own casing appears last
-        _key(s, 1, hide_render=True)
-        _key(s, 118, hide_render=False)
+        start = Vector((-9.0 + 3.6 * k, -7.5, -1.0))
+        f0 = 6 + 9 * i
+        _key(o, 1, location=start, scale=(0.3, 0.3, 0.3))
+        _key(o, f0, location=start, scale=(0.3, 0.3, 0.3))
+        _key(o, f0 + 14, location=Vector((home.x, home.y - 3.0, home.z + 2.2)), scale=(1, 1, 1))
+        _key(o, f0 + 28, location=home)
+    for o in [housing] + list(housing.children):                   # the casing closes over it last
+        _key(o, 1, hide_render=True)
+        _key(o, 96, hide_render=False)
     path.data.bevel_factor_end = 0.0
-    path.data.keyframe_insert("bevel_factor_end", frame=100)
+    path.data.keyframe_insert("bevel_factor_end", frame=88)
     path.data.bevel_factor_end = 1.0
-    path.data.keyframe_insert("bevel_factor_end", frame=138)
+    path.data.keyframe_insert("bevel_factor_end", frame=118)
     B._area("MKey", (0, -9, 8), (0.9, 0, 0), 16, 2500, (0.8, 0.85, 1.0))
-    B._camera("CamA0_05", [(1, (-1.0, -6.0, -0.4), (2.0, -16.0, 0.4), 35, 8.0),
-                           (142, (-1.6, -1.0, 0.4), (4.0, -17.0, 6.0), 35, 8.0)])
+    B._camera("CamA0_05", [(1, (-2.0, -3.5, 0.0), (2.5, -14.0, 2.0), 32, 8.0),
+                           (125, (-1.6, 0, 0.4), (3.5, -12.5, 4.5), 32, 8.0)])
 
 
 # ---- A0_07 ---------------------------------------------------------------------------------
@@ -665,16 +670,24 @@ def print_(sc, rnd):
     pat.data.materials.append(m)
     styles.tag(pat, "emitter")
     M.set_emission_strength(m, 30, 0.0)
-    M.set_emission_strength(m, 60, 4.0)
-    beam_m = b7_scenes._cone_mat("PrintBeam", 0.28)
-    bpy.ops.mesh.primitive_cone_add(vertices=64, radius1=2.2, radius2=0.2, depth=9.0, end_fill_type="NOTHING",
-                                    location=(0, 0, 4.5))
+    M.set_emission_strength(m, 60, 2.0)
+    # a shaft of light as an emissive volume (soft edges, no hard geometry), slightly converging
+    beam_m = M.volume_glow("PrintBeam", (0.55, 0.35, 1.0), 0.0, 0.035)
+    bpy.ops.mesh.primitive_cone_add(vertices=64, radius1=2.1, radius2=2.5, depth=9.0, location=(0, 0, 4.5))
     beam = bpy.context.object
     beam.data.materials.append(beam_m)
     styles.tag(beam, "emitter")
-    _key(beam, 1, location=(0, 0, 14.0))
-    _key(beam, 34, location=(0, 0, 4.5))
-    B._camera("CamA0_07", [(1, (0, 0, 6.0), (0.0, -9.0, 9.0), 35, 11.0), (96, (0, 0, 0.0), (0.0, -4.2, 3.2), 35, 11.0)])
+    M.set_volume_strength(beam_m, 1, emission_strength=0.0)
+    M.set_volume_strength(beam_m, 20, emission_strength=0.035)
+    pool = bpy.data.lights.new("BeamPool", "SPOT")                  # the light landing on the silicon
+    pool.energy = 2500
+    pool.spot_size = math.radians(30)
+    pool.spot_blend = 0.5
+    pool.color = (0.7, 0.55, 1.0)
+    po = bpy.data.objects.new("BeamPool", pool)
+    sc.collection.objects.link(po)
+    po.location = (0, 0, 8)
+    B._camera("CamA0_07", [(1, (0, 0, 5.0), (0.0, -11.0, 6.5), 35, 11.0), (85, (0, 0.6, 0.0), (0.0, -5.2, 1.6), 35, 11.0)])
 
 
 # ---- A0_08 ---------------------------------------------------------------------------------
@@ -707,7 +720,9 @@ def chip(sc, rnd):
     body.rotation_euler = (0, math.radians(-4), math.radians(12))
     rim = B._area("BackRim", (-1.0, 4.0, 2.0), (math.radians(-60), 0, math.radians(180)), 3, 900, (1.0, 0.85, 0.7))
     rim.visible_glossy = False                                      # rim the finger only; no hot spot on the die
-    for name, loc, size, st in (("ChipBoxA", (-2.4, 3.6, 2.8), 4, 0.45), ("ChipBoxB", (2.8, 3.0, 2.2), 3, 0.6)):
+    fill = B._area("FingerFill", (2.5, -2.5, -0.6), (math.radians(110), 0, math.radians(45)), 2, 120, (1.0, 0.8, 0.65))
+    fill.visible_glossy = False
+    for name, loc, size, st in (("ChipBoxA", (-2.4, 3.6, 2.8), 2.5, 0.18), ("ChipBoxB", (2.8, 3.0, 2.2), 2, 0.25)):
         bpy.ops.mesh.primitive_plane_add(size=size, location=loc)
         sb = bpy.context.object
         sb.rotation_euler = (Vector((0, 0, 0.8)) - Vector(loc)).to_track_quat("Z", "Y").to_euler()
@@ -731,22 +746,23 @@ def title(sc, rnd):
         d = home - centre
         d = Vector((d.x, d.y - 0.4, d.z)) if d.length > 0.2 else Vector((0, -1, 0.4))
         out = home + d.normalized() * (1.8 + 0.25 * d.length) + Vector((0, 0, 0.4))
-        _key(o, 120, location=home)
-        _key(o, 136, location=out)
-        _key(o, 160, location=out + d.normalized() * 0.25)
+        _key(o, 92, location=home)
+        _key(o, 108, location=out)
+        _key(o, 160, location=out + d.normalized() * 0.3)
     chars = "一台光刻机里发生了什么"
     size = 0.9
     x0 = -1.6 - size * (len(chars) - 1) / 2
     for i, ch in enumerate(chars):
         m = M.emission(f"Glyph{i}", (0.92, 0.9, 1.0), 0.0)
         _text(ch, (x0 + i * size, -3.2, 4.9), (math.pi / 2, 0, 0), size, m)
-        M.set_emission_strength(m, 92 + 3 * i, 0.0)
-        M.set_emission_strength(m, 100 + 3 * i, 5.0)
+        M.set_emission_strength(m, 104 + 2 * i, 0.0)
+        M.set_emission_strength(m, 110 + 2 * i, 5.0)
     sub = M.emission("SubGlyph", (0.6, 0.62, 0.7), 0.0)
     _text("ASML EUV 光刻机", (-1.6, -3.2, 4.05), (math.pi / 2, 0, 0), 0.38, sub)
-    M.set_emission_strength(sub, 128, 0.0)
+    M.set_emission_strength(sub, 130, 0.0)
     M.set_emission_strength(sub, 142, 2.0)
-    B._camera("CamA0_10", [(1, (-1.6, 0, 1.4), (-1.6, -19.0, 2.6), 40, 11.0), (160, (-1.6, 0, 1.8), (-1.6, -20.5, 2.9), 40, 11.0)])
+    B._camera("CamA0_10", [(1, (-1.6, 0, 0.6), (-4.5, -12.0, 0.9), 40, 11.0), (92, (-1.6, 0, 0.9), (-2.4, -14.5, 1.6), 40, 11.0),
+                           (160, (-1.6, 0, 1.8), (-1.6, -20.5, 2.9), 40, 11.0)])
 
 
 def after_style(style, shot_id):

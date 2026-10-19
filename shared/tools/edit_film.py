@@ -99,7 +99,8 @@ def picture(shots, W, H, order, tmp):
             img = Image.blend(prev, img, (f - a + 1) / (DISSOLVE + 1))
         img = img.convert("RGBA")
         if lab:
-            la = max(0.0, min(1.0, (f - a - 10) / 8, (b - f - 4) / 8))
+            end = min(b, a + 5 * FPS)                                # a label reads in 5 s; then get out of the way
+            la = max(0.0, min(1.0, (f - a - 10) / 8, (end - f - 4) / 8))
             if la > 0:
                 layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
                 draw_label(layer, lab, la, W, H)

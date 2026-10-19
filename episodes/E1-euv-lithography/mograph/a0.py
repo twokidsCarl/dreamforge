@@ -211,7 +211,7 @@ def chip_dive(t, dur, W, H, paint=(0.75, 0.55, 1.0)):
     mix = ease(seg(t, dur * 0.48, dur * 0.66))
     if mix > 0:
         z2 = ease(seg(t, dur * 0.48, dur))
-        near = _zoom(_die("zen5_ccd"), 0.27, 0.66, 1.6 * (2.2 ** z2), W, H)     # the regular cell array
+        near = _zoom(_die("zen5_ccd"), 0.4, 0.66, 1.6 * (2.2 ** z2), W, H)     # the regular cell array
         img = Image.blend(far, near, mix)
     else:
         img = far
