@@ -16,13 +16,17 @@ import styles
 
 VIOLET = (0.62, 0.45, 1.0)
 
-# key points of the optical path (x, y, z)
+# key points of the optical path (x, y, z). Every bend is on a mirror whose normal bisects the two rays:
+# the beam runs straight from the plasma through the intermediate focus (a focus, not a mirror) to the
+# first facet mirror; the reticle is a flat horizontal mirror, so the ray from the second facet mirror and
+# the ray to the first PO mirror make equal angles with the vertical (the facet sits in the gap between
+# the PO barrel and the reticle stage, as in the real layout).
 PLASMA = (-5.2, 0.0, 0.0)
 IF = (-2.9, 0.0, 0.0)
-FACET1 = (-2.0, 0.0, 0.9)
-FACET2 = (-0.9, 0.0, 1.7)
-RETICLE = (0.5, 0.0, 2.35)
-PO_MIRRORS = [(1.0, 0.0, 1.75), (0.0, 0.0, 1.3), (1.05, 0.0, 0.85), (0.05, 0.0, 0.35),
+FACET1 = (-2.0, 0.0, 0.0)
+RETICLE = (0.5, 0.0, 3.25)
+FACET2 = (RETICLE[0] - 0.42, 0.0, RETICLE[2] - 1.05)
+PO_MIRRORS = [(RETICLE[0] + 0.6, 0.0, RETICLE[2] - 1.5), (0.0, 0.0, 1.3), (1.05, 0.0, 0.85), (0.05, 0.0, 0.35),
               (0.95, 0.0, -0.1), (0.35, 0.0, -0.5)]
 WAFER = (0.5, 0.0, -1.05)
 PATH = [PLASMA, IF, FACET1, FACET2, RETICLE] + PO_MIRRORS + [WAFER]
@@ -178,16 +182,18 @@ def machine(with_path=True):
     _disc("Collector", (-6.2, 0, 0), 0.9, 0.08, mirror, rot=(0, math.pi / 2, 0))
     MODULE = "illum"
     # ---- illuminator: panelled box, two facet mirrors (with mounts) at the bounce points
-    _panel_box("Illuminator", (-1.45, 0, 1.3), (2.1, 1.3, 1.4), dark, seam, nx=3, nz=2)
+    _panel_box("Illuminator", (-1.45, 0, 0.8), (2.1, 1.3, 2.3), dark, seam, nx=3, nz=2)
+    _panel_box("IllumRelay", (-0.35, 0, 2.12), (1.5, 1.1, 0.65), dark, seam, nx=2, nz=1)   # over the PO top
     for i, pt in enumerate((FACET1, FACET2)):
         _mirror(f"Facet{i}", PATH[1 + i], pt, PATH[3 + i], 0.36, mirror, mount)
     MODULE = "reticle"
     # ---- reticle stage: platen on linear-motor rails, reticle face down
-    _box("ReticleStage", (0.5, 0, 2.62), (2.4, 1.8, 0.3), steel)
+    rz = RETICLE[2]
+    _box("ReticleStage", (0.5, 0, rz + 0.27), (2.4, 1.8, 0.3), steel)
     for y in (-0.95, 0.95):
-        _box(f"RetRail{y}", (0.5, y, 2.42), (4.2, 0.16, 0.14), dark)
+        _box(f"RetRail{y}", (0.5, y, rz + 0.07), (4.2, 0.16, 0.14), dark)
         for k in range(12):
-            _box(f"RetMagnet{y}{k}", (-1.4 + 0.34 * k, y, 2.5), (0.26, 0.17, 0.03), steel, bevel=0.005)
+            _box(f"RetMagnet{y}{k}", (-1.4 + 0.34 * k, y, rz + 0.15), (0.26, 0.17, 0.03), steel, bevel=0.005)
     _box("Reticle", (RETICLE[0], 0, RETICLE[2] + 0.05), (0.6, 0.6, 0.06), mirror, bevel=0.005)
     MODULE = "po"
     # ---- projection optics: a stacked barrel with flanges and struts, six mirrors with mounts
@@ -223,7 +229,7 @@ def machine(with_path=True):
             f"Cable{k}", ((0.6, 0.08, 0.05), (0.08, 0.2, 0.55), (0.75, 0.6, 0.1))[k], roughness=0.5))
     MODULE = "housing"
     # ---- housing: panelled enclosure (shell -> ghost glass in xray)
-    _panel_box("Housing", (-1.6, 0, 0.35), (10.4, 3.2, 4.4), panel, seam, nx=8, nz=3)
+    _panel_box("Housing", (-1.6, 0, 1.0), (10.4, 3.2, 5.7), panel, seam, nx=8, nz=3)
     MODULE = None
     if with_path:
         return light_path()

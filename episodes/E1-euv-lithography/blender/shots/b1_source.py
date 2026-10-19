@@ -106,20 +106,27 @@ def _shadowgraph():
 
 def _cold_open():
     """A0_01 cold open (and D_08/D_09, its mirror at the end): the droplet in pure black. Chamber wall and ribs
-    go (a blurred rib read as a bright bar and its reflection as a second droplet); the collector stays for
-    the flash. The tin reflects a faint studio, the sheet is satin so it does not mirror blotches."""
+    go, and so does the collector (out of focus it read as a flat grey-blue wall, and its edge reflected in
+    the droplet looked like a second droplet). The tin reflects a faint studio, the sheet is satin so it does not mirror blotches."""
     import common as C
     import materials as M
     import styles
     for ob in list(bpy.data.objects):
-        if styles.role_of(ob) == "env" or ob.name == "ChamberWall" or ob.name.startswith("Rib"):
+        if styles.role_of(ob) == "env" or ob.name == "ChamberWall" or ob.name.startswith(("Rib", "Collector")):
             ob.hide_render = True
     C.set_world(top=(0.0, 0.0, 0.0), horizon=(0.0, 0.0, 0.0), bottom=(0.0, 0.0, 0.0))
     C.reflection_env("studio_small_09", 0.25)
     sheet = bpy.data.objects.get("Pancake")
     if sheet:
         sheet.data.materials.clear()
-        sheet.data.materials.append(M.tin("TinSheetSatin", roughness=0.32))
+        sheet.data.materials.append(M.tin("TinSheetSatin", roughness=0.22))
+        ad = sheet.animation_data                                  # gentler ripples: a liquid sheet, not foil
+        for fc in (C.fcurves(ad.action) if ad and ad.action else []):
+            if "Ripple" in fc.data_path and fc.data_path.endswith("strength"):
+                for kp in fc.keyframe_points:
+                    kp.co[1] *= 0.35
+                    kp.handle_left[1] *= 0.35
+                    kp.handle_right[1] *= 0.35
     # a few far LEDs as bokeh, low and to the side, so the black has depth
     led = M.emission("BokehLED", (0.45, 0.7, 1.0), 6.0)
     for k, (x, y, z) in enumerate(((-14, -4, 2.5), (-16, -9, -1.8), (-13, -13, 0.6), (-18, -6, -3.2), (-15, 2, 3.4))):

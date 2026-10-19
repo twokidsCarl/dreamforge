@@ -102,87 +102,167 @@ def circuit_emission(name, color, strength, scale=1.0):
     return m
 
 
-def chip_material(name="ChipSurface"):
-    """Bare die: circuit-patterned metal with a thin-film sheen (diffraction cue)."""
-    m = M.principled(name, (0.5, 0.5, 0.55), metallic=0.9, roughness=0.12, thin_film=520.0, thin_film_ior=2.6)
+GRATING_LIGHT = (-0.25, 0.6, 2.45)        # the lamp whose diffraction the die shows (A0_08 places it here); close, so
+                                          # its direction changes across the die and colour bands sweep through blocks
+
+
+def chip_material(name="ChipSurface", die="xeon_poly", light=GRATING_LIGHT, strength=4.0):
+    """Bare die under a lamp. Its colours are diffraction, not a coating: each functional block is a grating
+    (regular metal lines of one pitch, horizontal or vertical as in a layout), so a block lights up only
+    when lamp and eye satisfy the grating equation, and then in one pure hue that sweeps as the eye moves.
+    Per block (hashed from a region map of the real photo, see fetch_assets.region_map):
+        pitch d in 0.8-1.8 um, line direction t (x or y);
+        wavelength of order m:  lambda = d * |V.t + L.t| / m      (V to the eye, L to the lamp)
+        brightness ~ exp(-((V.b + L.b) / 0.45)^2), b along the lines (light spreads little along them).
+    The rest of the die is a dark, faintly glossy metal surface showing the photographed layout."""
+    m = M.principled(name, (0.05, 0.05, 0.06), metallic=0.6, roughness=0.3)
     nt = m.node_tree
-    b = nt.nodes["Principled BSDF"]
-    tc = nt.nodes.new("ShaderNodeTexCoord")
-    mp = nt.nodes.new("ShaderNodeMapping")
-    mp.inputs["Scale"].default_value = (1, 1, 1)
-    tex = nt.nodes.new("ShaderNodeTexImage")
-    tex.image = circuit_image()
-    nt.links.new(tc.outputs["UV"], mp.inputs["Vector"])
-    nt.links.new(mp.outputs["Vector"], tex.inputs["Vector"])
-    dim = nt.nodes.new("ShaderNodeMix")
+    N = nt.nodes
+    L_ = nt.links.new
+    b = N["Principled BSDF"]
+
+    def mth(op, a=None, b_=None, c=None):
+        n = N.new("ShaderNodeMath")
+        n.operation = op
+        for i, v in enumerate((a, b_, c)):
+            if v is None:
+                continue
+            if isinstance(v, (int, float)):
+                n.inputs[i].default_value = v
+            else:
+                L_(v, n.inputs[i])
+        return n.outputs[0]
+
+    def vmath(op, a, b_=None):
+        n = N.new("ShaderNodeVectorMath")
+        n.operation = op
+        for i, v in enumerate((a, b_)):
+            if v is None:
+                continue
+            if isinstance(v, tuple):
+                n.inputs[i].default_value = v
+            else:
+                L_(v, n.inputs[i])
+        return n.outputs["Value"] if op in ("DOT_PRODUCT", "LENGTH") else n.outputs["Vector"]
+
+    def image(path, interp="Linear", color=True):
+        n = N.new("ShaderNodeTexImage")
+        n.image = bpy.data.images.load(path, check_existing=True)
+        n.image.colorspace_settings.name = "sRGB" if color else "Non-Color"
+        n.interpolation = interp
+        L_(tc.outputs["UV"], n.inputs["Vector"])
+        return n
+
+    tc = N.new("ShaderNodeTexCoord")
+    geo = N.new("ShaderNodeNewGeometry")
+    photo = N.new("ShaderNodeTexImage")
+    photo.image = circuit_image(die)
+    L_(tc.outputs["UV"], photo.inputs["Vector"])
+    luma = N.new("ShaderNodeRGBToBW")
+    L_(photo.outputs["Color"], luma.inputs["Color"])
+    # base: the layout in dark metal (the photo's own colours belong to its lighting, not this one)
+    base = N.new("ShaderNodeMix")
+    base.data_type = "RGBA"
+    base.inputs["Factor"].default_value = 0.75
+    L_(photo.outputs["Color"], base.inputs["A"])
+    L_(luma.outputs["Val"], base.inputs["B"])
+    dim = N.new("ShaderNodeMix")
     dim.data_type = "RGBA"
     dim.blend_type = "MULTIPLY"
     dim.inputs["Factor"].default_value = 1.0
-    dim.inputs["B"].default_value = (1.0, 1.0, 1.0, 1)
-    nt.links.new(tex.outputs["Color"], dim.inputs["A"])
-    nt.links.new(dim.outputs["Result"], b.inputs["Base Color"])        # the real die photograph
-    b.inputs["Metallic"].default_value = 0.0                          # colour comes from the photo, sheen on top
-    b.inputs["Roughness"].default_value = 0.2
-    b.inputs["Specular IOR Level"].default_value = 0.25
-    b.inputs["Coat Weight"].default_value = 0.12                     # glassy passivation layer: a clear highlight
-    b.inputs["Coat Roughness"].default_value = 0.03
-    # grating rainbow: the hue depends on the viewing direction and slides across the die as the camera moves
-    geo = nt.nodes.new("ShaderNodeNewGeometry")
-    sepv = nt.nodes.new("ShaderNodeSeparateXYZ")
-    nt.links.new(geo.outputs["Incoming"], sepv.inputs["Vector"])
-    sepo = nt.nodes.new("ShaderNodeSeparateXYZ")
-    nt.links.new(tc.outputs["Object"], sepo.inputs["Vector"])
-    h1 = nt.nodes.new("ShaderNodeMath")
-    h1.operation = "MULTIPLY_ADD"
-    h1.inputs[1].default_value = 2.2
-    nt.links.new(sepv.outputs["X"], h1.inputs[0])
-    nt.links.new(sepo.outputs["X"], h1.inputs[2])
-    h2 = nt.nodes.new("ShaderNodeMath")
-    h2.operation = "FRACT"
-    nt.links.new(h1.outputs[0], h2.inputs[0])
-    hsv = nt.nodes.new("ShaderNodeCombineColor")
-    hsv.mode = "HSV"
-    hsv.inputs[1].default_value = 0.85
-    hsv.inputs[2].default_value = 1.0
-    nt.links.new(h2.outputs[0], hsv.inputs[0])
-    lum = nt.nodes.new("ShaderNodeRGBToBW")
-    nt.links.new(tex.outputs["Color"], lum.inputs["Color"])
-    rb = nt.nodes.new("ShaderNodeMix")
-    rb.data_type = "RGBA"
-    rb.blend_type = "MULTIPLY"
-    rb.inputs["Factor"].default_value = 1.0
-    nt.links.new(hsv.outputs["Color"], rb.inputs["A"])
-    nt.links.new(lum.outputs["Val"], rb.inputs["B"])
-    em = nt.nodes.new("ShaderNodeMix")
+    dim.inputs["B"].default_value = (0.3, 0.3, 0.33, 1)
+    L_(base.outputs["Result"], dim.inputs["A"])
+    L_(dim.outputs["Result"], b.inputs["Base Color"])
+    b.inputs["Specular IOR Level"].default_value = 0.1
+    # per-block grating parameters from the region map
+    rp = os.path.join(DIES, die + "_regions.png")
+    if os.path.exists(rp):
+        reg = image(rp, interp="Closest", color=False).outputs["Color"]
+    else:
+        reg = photo.outputs["Color"]
+    wn = N.new("ShaderNodeTexWhiteNoise")
+    wn.noise_dimensions = "3D"
+    L_(reg, wn.inputs["Vector"])
+    rnd = N.new("ShaderNodeSeparateColor")
+    L_(wn.outputs["Color"], rnd.inputs["Color"])
+    pitch = mth("MULTIPLY_ADD", rnd.outputs["Red"], 1000.0, 800.0)                 # nm
+    horiz = mth("GREATER_THAN", rnd.outputs["Green"], 0.5)
+    active = mth("GREATER_THAN", rnd.outputs["Blue"], 0.22)                         # most blocks are periodic
+    # line-normal t and line direction b in world space
+    mixt = N.new("ShaderNodeMix")
+    mixt.data_type = "VECTOR"
+    L_(horiz, mixt.inputs["Factor"])
+    mixt.inputs[4].default_value = (0.0, 1.0, 0.0)
+    mixt.inputs[5].default_value = (1.0, 0.0, 0.0)
+    mixb = N.new("ShaderNodeMix")
+    mixb.data_type = "VECTOR"
+    L_(horiz, mixb.inputs["Factor"])
+    mixb.inputs[4].default_value = (1.0, 0.0, 0.0)
+    mixb.inputs[5].default_value = (0.0, 1.0, 0.0)
+    world = []
+    for mx in (mixt, mixb):
+        vt = N.new("ShaderNodeVectorTransform")
+        vt.vector_type = "VECTOR"
+        vt.convert_from, vt.convert_to = "OBJECT", "WORLD"
+        L_(mx.outputs[1], vt.inputs["Vector"])
+        world.append(vmath("NORMALIZE", vt.outputs["Vector"]))
+    t_w, b_w = world
+    lamp = N.new("ShaderNodeCombineXYZ")
+    for i, v in enumerate(light):
+        lamp.inputs[i].default_value = v
+    Ldir = vmath("NORMALIZE", vmath("SUBTRACT", lamp.outputs["Vector"], geo.outputs["Position"]))
+    V = geo.outputs["Incoming"]
+    st = mth("ADD", vmath("DOT_PRODUCT", V, t_w), vmath("DOT_PRODUCT", Ldir, t_w))
+    sb = mth("ADD", vmath("DOT_PRODUCT", V, b_w), vmath("DOT_PRODUCT", Ldir, b_w))
+    lam1 = mth("MULTIPLY", mth("ABSOLUTE", st), pitch)
+    lobe = mth("EXPONENT", mth("MULTIPLY", mth("POWER", mth("DIVIDE", sb, 0.45), 2.0), -1.0))
+    total = None
+    for order, w, spread in ((o, w, k) for o, w in ((1, 1.0), (2, 0.7), (3, 0.45)) for k in (0.94, 1.0, 1.06)):
+        w = w / 3
+        lam = mth("DIVIDE", mth("MULTIPLY", lam1, spread), float(order))
+        wl = N.new("ShaderNodeWavelength")
+        L_(lam, wl.inputs["Wavelength"])
+        lo = N.new("ShaderNodeMapRange")
+        lo.interpolation_type = "SMOOTHSTEP"
+        lo.inputs["From Min"].default_value, lo.inputs["From Max"].default_value = 395.0, 430.0
+        L_(lam, lo.inputs["Value"])
+        hi = N.new("ShaderNodeMapRange")
+        hi.interpolation_type = "SMOOTHSTEP"
+        hi.inputs["From Min"].default_value, hi.inputs["From Max"].default_value = 700.0, 660.0
+        L_(lam, hi.inputs["Value"])
+        win = mth("MULTIPLY", mth("MULTIPLY", lo.outputs["Result"], hi.outputs["Result"]), w)
+        term = N.new("ShaderNodeMix")
+        term.data_type = "RGBA"
+        term.blend_type = "MULTIPLY"
+        term.inputs["Factor"].default_value = 1.0
+        L_(wl.outputs["Color"], term.inputs["A"])
+        L_(win, term.inputs["B"])
+        if total is None:
+            total = term.outputs["Result"]
+        else:
+            add = N.new("ShaderNodeMix")
+            add.data_type = "RGBA"
+            add.blend_type = "ADD"
+            add.inputs["Factor"].default_value = 1.0
+            L_(total, add.inputs["A"])
+            L_(term.outputs["Result"], add.inputs["B"])
+            total = add.outputs["Result"]
+    # the lines themselves carry the light: modulate by the photographed metal (bright = dense lines)
+    dmr = N.new("ShaderNodeMapRange")
+    dmr.interpolation_type = "SMOOTHSTEP"
+    dmr.inputs["From Min"].default_value, dmr.inputs["From Max"].default_value = 0.3, 0.75
+    dmr.inputs["To Min"].default_value = 0.08
+    L_(luma.outputs["Val"], dmr.inputs["Value"])
+    detail = dmr.outputs["Result"]
+    gain = mth("MULTIPLY", mth("MULTIPLY", mth("MULTIPLY", lobe, active), detail), strength * 2.2)
+    em = N.new("ShaderNodeMix")
     em.data_type = "RGBA"
-    em.inputs["Factor"].default_value = 0.7
-    nt.links.new(dim.outputs["Result"], em.inputs["A"])
-    nt.links.new(rb.outputs["Result"], em.inputs["B"])
-    nt.links.new(em.outputs["Result"], b.inputs["Emission Color"])
-    b.inputs["Emission Strength"].default_value = 0.6
-    # the dense metal lines act as a grating: thin-film thickness swept in fine bands -> flowing rainbow
-    wave = nt.nodes.new("ShaderNodeTexWave")
-    wave.inputs["Scale"].default_value = 3.0
-    wave.inputs["Distortion"].default_value = 1.5
-    nt.links.new(tc.outputs["Object"], wave.inputs["Vector"])
-    add = nt.nodes.new("ShaderNodeMath")
-    add.operation = "MULTIPLY_ADD"
-    add.inputs[1].default_value = 500.0
-    add.inputs[2].default_value = 0.0
-    nt.links.new(wave.outputs["Fac"], add.inputs[0])
-    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
-    nt.links.new(tc.outputs["Object"], sep.inputs["Vector"])
-    mr = nt.nodes.new("ShaderNodeMapRange")
-    mr.inputs["From Min"].default_value = -1.0
-    mr.inputs["To Min"].default_value = 280.0
-    mr.inputs["To Max"].default_value = 980.0
-    nt.links.new(sep.outputs["X"], mr.inputs["Value"])
-    plus = nt.nodes.new("ShaderNodeMath")
-    plus.operation = "ADD"
-    nt.links.new(mr.outputs["Result"], plus.inputs[0])
-    nt.links.new(add.outputs[0], plus.inputs[1])
-    nt.links.new(plus.outputs[0], b.inputs["Thin Film Thickness"])
-    b.inputs["Thin Film IOR"].default_value = 2.8
+    em.blend_type = "MULTIPLY"
+    em.inputs["Factor"].default_value = 1.0
+    L_(total, em.inputs["A"])
+    L_(gain, em.inputs["B"])
+    L_(em.outputs["Result"], b.inputs["Emission Color"])
+    b.inputs["Emission Strength"].default_value = 1.0
     return m
 
 
@@ -259,6 +339,38 @@ def _slab(name, pts, thick, mat):
     return ob
 
 
+def _engine(name, at, skin):
+    """Turbofan pod pointing +X: lofted nacelle with a rounded lip, a dark fan face with a polished spinner
+    set back inside, an exhaust cone at the back, and a pylon."""
+    x, y, z = at
+    nac = _loft(name + "Nacelle", cap_start=False, cap_end=False, segs=48,
+                sections=[(2.6, 1.02, 1.02, 0), (2.75, 1.16, 1.16, 0), (2.55, 1.28, 1.28, 0), (1.4, 1.34, 1.34, 0),
+                          (-1.2, 1.22, 1.22, 0), (-2.4, 0.95, 0.95, 0)])
+    nac.data.materials.append(skin)
+    nac.modifiers.new("Skin", "SOLIDIFY").thickness = 0.06
+    nac.location = (x, y, z)
+    styles.tag(nac, "structure")
+    dark = M.principled("FanFace", (0.015, 0.016, 0.018), metallic=0.6, roughness=0.35)
+    _cyl(name + "Fan", 1.0, 0.05, (x + 2.15, y, z), dark, rot=(0, math.pi / 2, 0), verts=48)
+    bpy.ops.mesh.primitive_cone_add(vertices=32, radius1=0.32, depth=0.55, location=(x + 2.4, y, z),
+                                    rotation=(0, math.pi / 2, 0))
+    sp = bpy.context.object
+    sp.name = name + "Spinner"
+    for p in sp.data.polygons:
+        p.use_smooth = True
+    sp.data.materials.append(M.polished_steel(name + "Spin", 0.2))
+    styles.tag(sp, "structure")
+    bpy.ops.mesh.primitive_cone_add(vertices=32, radius1=0.7, radius2=0.12, depth=1.4, location=(x - 2.9, y, z),
+                                    rotation=(0, -math.pi / 2, 0))
+    ex = bpy.context.object
+    ex.name = name + "Exhaust"
+    for p in ex.data.polygons:
+        p.use_smooth = True
+    ex.data.materials.append(M.principled("ExhaustCone", (0.08, 0.075, 0.07), metallic=0.9, roughness=0.4))
+    styles.tag(ex, "structure")
+    _cyl(name + "Pylon", 0.22, 1.5, (x - 0.6, y, z + 1.2), skin, verts=12)
+
+
 def freighter(skin, belly, rnd, visor_open=None):
     """Generic wide-body freighter with a lifting nose visor (no airline, no type marks). Nose points +X."""
     zc = 4.6
@@ -279,14 +391,18 @@ def freighter(skin, belly, rnd, visor_open=None):
     styles.tag(visor, "structure")
     visor.parent = hinge
     visor.matrix_parent_inverse = hinge.matrix_world.inverted()
+    # upper deck: a hump behind the hinge carries the flight deck, so only the nose cone lifts
+    hump = _loft("UpperDeck", cap_start=True, cap_end=True,
+                 sections=[(-0.3, 0.35, 0.3, zc + 3.2), (-0.9, 1.5, 1.3, zc + 3.0), (-2.4, 2.2, 1.85, zc + 2.75),
+                           (-5.5, 2.35, 2.0, zc + 2.65), (-16.0, 2.35, 2.0, zc + 2.65), (-21.0, 1.5, 1.3, zc + 2.95),
+                           (-25.0, 0.3, 0.3, zc + 3.2)])
+    hump.data.materials.append(skin)
+    styles.tag(hump, "structure")
     glass = M.principled("CockpitGlass", (0.01, 0.012, 0.015), roughness=0.05, coat=1.0)
-    for side in (-1, 1):                                           # cockpit windows, part of the visor
-        for k in range(3):
-            w = _box(f"Win{side}{k}", (7.0 + 0.6 * k, side * (1.55 - 0.25 * k), zc + 1.45 - 0.22 * k),
-                     (0.5, 0.1, 0.4), glass)
-            w.rotation_euler = (side * 0.75, 0, 0)
-            w.parent = visor
-            w.matrix_parent_inverse = visor.matrix_world.inverted()
+    for side in (-1, 1):                                           # flight-deck windows on the hump's brow
+        for k, (y, ang) in enumerate(((0.32, 0.3), (0.95, 0.75))):
+            w = _box(f"Win{side}{k}", (-1.05 - 0.4 * k, side * y, zc + 4.15 - 0.15 * k), (0.5, 0.55, 0.32), glass)
+            w.rotation_euler = (0, math.radians(-38), side * ang)
     # belly fairing stripe
     bel = _loft("Belly", [(-1.0, 3.12, 1.4, zc - 1.9), (-37, 3.12, 1.4, zc - 1.9)], cap=False)
     bel.data.materials.append(belly)
@@ -300,10 +416,7 @@ def freighter(skin, belly, rnd, visor_open=None):
             t = (yy - 3) / 28
             xl = -16 - 16 * t                                       # leading edge at this span
             zz = zc - 1.6 + 2.5 * t - 1.3
-            nac = _cyl(f"Nacelle{side}{k}", 1.25, 5.2, (xl + 1.2, side * yy, zz), skin, rot=(0, math.pi / 2, 0), verts=48)
-            _cyl(f"Inlet{side}{k}", 1.05, 0.1, (xl + 3.82, side * yy, zz), M.dark_anodized("Inlet"), rot=(0, math.pi / 2, 0),
-                 verts=48)
-            _cyl(f"Pylon{side}{k}", 0.25, 1.6, (xl + 0.3, side * yy, zz + 1.1), skin, verts=12)
+            _engine(f"Eng{side}{k}", (xl + 1.2, side * yy, zz), skin)
         _slab(f"HStab{side}", [(-48, side * 1.2, zc + 1.8), (-54, side * 1.2, zc + 1.8), (-58, side * 11, zc + 2.6),
                                (-55.5, side * 11, zc + 2.6)], 0.35, skin)
     _slab("Fin", [(-46, 0, zc + 2.6), (-54.5, 0, zc + 2.6), (-58.5, 0, zc + 12.5), (-55, 0, zc + 12.5)], 0.45, skin)
@@ -333,12 +446,11 @@ def cargo(sc, rnd):
     lamp = M.emission("HoldLamp", (0.86, 0.92, 1.0), 10.0)
     for k in range(7):
         _box(f"HoldLamp{k}", (-1.5 - 5.0 * k, 0, 7.3), (3.0, 0.3, 0.05), lamp, role="emitter")
-    ply = M.pbr("Crate", "brushed_concrete", scale=0.5, tint=(1.5, 1.15, 0.75), rough_mul=0.5, rough_add=0.4,
-                normal=0.3, fallback=(0.62, 0.5, 0.34))
+    ply, batten = crate_mats()
     for k in range(8):
         for side in (-1, 1):
             h = rnd.uniform(1.8, 2.5)
-            _box(f"Crate{k}{side}", (-2.0 - 4.2 * k, side * 1.35, 1.75 + h / 2), (3.5, 2.3, h), ply, bevel=0.04)
+            _crate(f"Crate{k}{side}", (3.5, 2.3, h), ply, batten).location = (-2.0 - 4.2 * k, side * 1.35, 1.75 + h / 2)
     _box("HoldFloor", (-18.0, 0, 1.65), (38.0, 5.6, 0.12), M.dark_anodized("HoldFloor"))
     bpy.ops.object.light_add(type="AREA", location=(-8, 0, 7.0))
     il = bpy.context.object
@@ -362,7 +474,13 @@ def cargo(sc, rnd):
         l.rotation_euler = (Vector((-18, 0, 2)) - Vector((x, y, 26))).to_track_quat("-Z", "Y").to_euler()
         styles.tag(l, "rig")
     win = M.emission("TerminalWin", (1.0, 0.82, 0.55), 6.0)
-    _box("Terminal", (-60, 110, 9), (180, 20, 18), M.principled("TermWall", (0.03, 0.03, 0.035), roughness=0.8))
+    _box("Terminal", (-60, 110, 9), (180, 20, 18), M.principled("TermWall", (0.09, 0.095, 0.105), roughness=0.7))
+    _box("TermRoof", (-60, 99.8, 18.2), (180, 0.3, 0.25), M.emission("TermRoofLine", (0.7, 0.8, 1.0), 3.0), role="emitter")
+    bpy.ops.object.light_add(type="AREA", location=(-60, 80, 4))      # apron glow washing up the facade
+    fw = bpy.context.object
+    fw.data.energy, fw.data.size, fw.data.color = 40000, 120, (1.0, 0.85, 0.65)
+    fw.rotation_euler = (math.radians(97), 0, 0)                      # faces +Y, tilted slightly up
+    styles.tag(fw, "rig")
     for k in range(40):
         _box(f"TWin{k}", (-150 + 4.5 * k, 99.9, 7 + (k % 3) * 3.5), (3.2, 0.1, 1.6), win, role="emitter")
     edge = M.emission("EdgeLight", (0.3, 0.55, 1.0), 25.0)
@@ -440,6 +558,30 @@ def _boxa(name, size, mat, bevel=0.0):
     return ob
 
 
+def crate_mats():
+    """Plywood panels (Poly Haven CC0) and darker pine battens for the shipping crates."""
+    ply = M.pbr("Plywood", "plywood", scale=0.45, tint=(1.05, 0.98, 0.9), rough_mul=0.5, rough_add=0.4, normal=0.6,
+                fallback=(0.62, 0.5, 0.34))
+    batten = M.pbr("Batten", "plywood", scale=0.9, tint=(0.62, 0.5, 0.38), rough_mul=0.5, rough_add=0.45, normal=0.8,
+                   fallback=(0.4, 0.3, 0.2))
+    return ply, batten
+
+
+def _crate(name, size, ply, batten):
+    """A shipping crate: plywood box with battens along every edge (a wireframe of a slightly larger box),
+    sizes baked into the meshes; the battens ride on the box, so keyframe the box only."""
+    box = _boxa(name, size, ply, bevel=0.02)
+    t = 0.09 * min(size)
+    fr = _boxa(name + "Frame", tuple(v + t for v in size), batten)
+    fr.modifiers.clear()
+    wf = fr.modifiers.new("Battens", "WIREFRAME")
+    wf.thickness = t
+    wf.use_even_offset = True
+    wf.use_relative_offset = False
+    fr.parent = box
+    return box
+
+
 def logistics(sc, rnd):
     """One crate -> 250+ crates -> 43 containers -> freighters -> 20 trucks (F17), as one 3D miniature:
     a dark studio table that the camera tracks along, left to right."""
@@ -447,14 +589,13 @@ def logistics(sc, rnd):
     floor = M.pbr("Table", "brushed_concrete", scale=0.05, tint=(0.07, 0.075, 0.085), rough_mul=0.3, rough_add=0.3,
                   normal=0.3, fallback=(0.03, 0.03, 0.035))
     _box("Table", (60, 0, -0.05), (1200, 1200, 0.1), floor)
-    wood = M.pbr("Plywood", "brushed_concrete", scale=0.6, tint=(1.6, 1.2, 0.78), rough_mul=0.4, rough_add=0.45,
-                 normal=0.4, fallback=(0.62, 0.5, 0.34))
+    ply, batten = crate_mats()
     # 1) one crate splits into 252 (a 21 x 12 block), f8-50
     crates = []
     for i in range(252):
         cx, cy = i % 21, i // 21
         home = Vector(((cx - 10) * 1.25, (cy - 5.5) * 1.25, 0.5))
-        c = _boxa(f"Crate{i}", (1.0, 1.0, 1.0), wood, bevel=0.06)
+        c = _crate(f"Crate{i}", (1.0, 1.0, 1.0), ply, batten)
         c.location = (0, 0, 0.5)
         big = 9.0 if i == 0 else 0.001
         _key(c, 1, location=(0, 0, 4.5) if i == 0 else (0, 0, 0.5), scale=(big, big, big))
@@ -639,7 +780,7 @@ def assemble(sc, rnd):
         home = o.location.copy()
         k = i % nt
         start = Vector((-9.0 + 3.6 * k, -7.5, -1.0))
-        f0 = 6 + 9 * i
+        f0 = 1 + 8 * i                                             # the first module is already rising at the cut
         _key(o, 1, location=start, scale=(0.3, 0.3, 0.3))
         _key(o, f0, location=start, scale=(0.3, 0.3, 0.3))
         _key(o, f0 + 14, location=Vector((home.x, home.y - 3.0, home.z + 2.2)), scale=(1, 1, 1))
@@ -652,7 +793,7 @@ def assemble(sc, rnd):
     path.data.bevel_factor_end = 1.0
     path.data.keyframe_insert("bevel_factor_end", frame=118)
     B._area("MKey", (0, -9, 8), (0.9, 0, 0), 16, 2500, (0.8, 0.85, 1.0))
-    B._camera("CamA0_05", [(1, (-2.0, -3.5, 0.0), (2.5, -14.0, 2.0), 32, 8.0),
+    B._camera("CamA0_05", [(1, (-3.0, -4.5, 0.2), (1.5, -15.5, 3.2), 32, 8.0),
                            (125, (-1.6, 0, 0.4), (3.5, -12.5, 4.5), 32, 8.0)])
 
 
@@ -693,7 +834,7 @@ def print_(sc, rnd):
 # ---- A0_08 ---------------------------------------------------------------------------------
 def chip(sc, rnd):
     C.set_world(top=(0.004, 0.004, 0.006), horizon=(0.002, 0.002, 0.003), bottom=(0.0, 0.0, 0.0))
-    sc["hdri"], sc["hdri_strength"] = "studio_small_09", 0.12        # faint room reflection; the rainbow is in the die
+    sc["hdri"], sc["hdri_strength"] = "studio_small_09", 0.05        # faint room reflection; the rainbow is in the die
     skin = M.principled("Skin", (0.22, 0.13, 0.1), roughness=0.5)
     sk = skin.node_tree.nodes["Principled BSDF"]
     sk.inputs["Subsurface Weight"].default_value = 0.5
@@ -718,11 +859,13 @@ def chip(sc, rnd):
     top.location = (0, 0, 1.05)                               # body is a unit cube scaled by its size
     top.scale = (1.98, 1.98, 1)                                     # plane is 1 wide, the cube 2: cover the top
     body.rotation_euler = (0, math.radians(-4), math.radians(12))
+    B._area("GratingLamp", GRATING_LIGHT, (Vector((-0.1, 0, 0.9)) - Vector(GRATING_LIGHT)).to_track_quat(
+        "-Z", "Y").to_euler(), 0.3, 40, (1.0, 0.96, 0.9))                 # the lamp the die diffracts (see chip_material)
     rim = B._area("BackRim", (-1.0, 4.0, 2.0), (math.radians(-60), 0, math.radians(180)), 3, 900, (1.0, 0.85, 0.7))
     rim.visible_glossy = False                                      # rim the finger only; no hot spot on the die
     fill = B._area("FingerFill", (2.5, -2.5, -0.6), (math.radians(110), 0, math.radians(45)), 2, 120, (1.0, 0.8, 0.65))
     fill.visible_glossy = False
-    for name, loc, size, st in (("ChipBoxA", (-2.4, 3.6, 2.8), 2.5, 0.18), ("ChipBoxB", (2.8, 3.0, 2.2), 2, 0.25)):
+    for name, loc, size, st in (("ChipBoxA", (-2.4, 3.6, 2.8), 4.0, 0.06), ("ChipBoxB", (2.8, 3.0, 2.2), 3.5, 0.08)):
         bpy.ops.mesh.primitive_plane_add(size=size, location=loc)
         sb = bpy.context.object
         sb.rotation_euler = (Vector((0, 0, 0.8)) - Vector(loc)).to_track_quat("Z", "Y").to_euler()
@@ -741,15 +884,27 @@ def title(sc, rnd):
     path, pmat = BM.machine(with_path=False)
     mods = BM.attach_small([o for o in bpy.data.objects if o not in before])
     centre = Vector((-1.6, 0, 0.35))
-    # VO (shot time): "外星科技" 2.66-3.36 s, "拆" 5.52 s; the shot holds ~2.4 s after the last word
+    # VO (shot time): "外星科技" 2.5-3.2 s, "拆" 4.66 s; the shot holds ~2.4 s after the last word
     for o in mods:                                                # burst into hovering modules on "拆开"
+        if o.name == "Housing":                                   # the casing swells and is gone in 6 frames
+            _key(o, 112, scale=o.scale.copy())
+            _key(o, 118, scale=o.scale * 1.18)
+            for ob in [o] + list(o.children_recursive):
+                _key(ob, 1, hide_render=False)
+                _key(ob, 118, hide_render=True)
+            continue
         home = o.location.copy()
+        if o.name == "Base":                                      # the base stays put: the others lift off it
+            out = home + Vector((0, 0, -0.25))
+            _key(o, 112, location=home)
+            _key(o, 124, location=out)
+            continue
         d = home - centre
         d = Vector((d.x, d.y - 0.4, d.z)) if d.length > 0.2 else Vector((0, -1, 0.4))
-        out = home + d.normalized() * (1.8 + 0.25 * d.length) + Vector((0, 0, 0.4))
-        _key(o, 132, location=home)
-        _key(o, 144, location=out)
-        _key(o, 215, location=out + d.normalized() * 0.35)              # keep drifting apart through the hold
+        out = home + d.normalized() * (1.5 + 0.2 * d.length) + Vector((0, 0, 0.9))
+        _key(o, 112, location=home)
+        _key(o, 124, location=out)
+        _key(o, 190, location=out + d.normalized() * 0.35)              # keep drifting apart through the hold
     chars = "一台光刻机里发生了什么"
     size = 0.9
     x0 = -1.6 - size * (len(chars) - 1) / 2
@@ -764,9 +919,9 @@ def title(sc, rnd):
     M.set_emission_strength(sub, 110, 2.0)
     # framed so the title line is always in shot: slow push-in, a kick back on the burst, then a slow drift out
     B._camera("CamA0_10", [(1, (-1.6, 0, 1.8), (-1.6, -19.8, 2.75), 40, 11.0),
-                           (130, (-1.6, 0, 1.8), (-1.6, -18.4, 2.55), 40, 11.0),
-                           (150, (-1.6, 0, 1.8), (-1.6, -20.6, 2.9), 40, 11.0),
-                           (215, (-1.6, 0, 1.8), (-1.6, -21.6, 3.0), 40, 11.0)])
+                           (110, (-1.6, 0, 1.8), (-1.6, -18.4, 2.55), 40, 11.0),
+                           (130, (-1.6, 0, 2.0), (-1.6, -21.0, 3.1), 40, 11.0),
+                           (190, (-1.6, 0, 2.0), (-1.6, -22.0, 3.2), 40, 11.0)])
 
 
 def after_style(style, shot_id):

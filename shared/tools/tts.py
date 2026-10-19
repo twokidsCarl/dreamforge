@@ -195,7 +195,41 @@ def finish_sentence(x, a, b, rate, path, ref_rate=TARGET_RATE):
     return 1.0
 
 
-def build_paragraph(voice, segments, out_dir, attempts=3):
+_ASR = []
+
+
+def intelligibility(wav, spoken):
+    """How well the recogniser hears a take, as the score of its worst sentence (0-1): a take can hit the
+    target rate and pitch and still garble two words, which a whole-paragraph average would hide.
+    The transcript is cached next to the take. Needs faster-whisper (.venv)."""
+    import difflib
+    from asr_check import load16k, norm
+    cache = wav + ".asr.txt"
+    if os.path.exists(cache):
+        heard = open(cache, encoding="utf-8").read()
+    else:
+        if not _ASR:
+            from faster_whisper import WhisperModel
+            _ASR.append(WhisperModel("large-v3-turbo", device="cpu", compute_type="int8"))
+        segs, _ = _ASR[0].transcribe(load16k(wav), language="zh", beam_size=5,
+                                     initial_prompt="以下是普通话科普旁白，使用简体中文。")
+        heard = norm("".join(x.text for x in segs))
+        open(cache, "w", encoding="utf-8").write(heard)
+    parts = [norm(sp) for sp in spoken]
+    full = "".join(parts)
+    hit = [False] * len(full)
+    for b in difflib.SequenceMatcher(None, full, heard, autojunk=False).get_matching_blocks():
+        for i in range(b.a, b.a + b.size):
+            hit[i] = True
+    worst, i = 1.0, 0
+    for p in parts:
+        if p:
+            worst = min(worst, sum(hit[i:i + len(p)]) / len(p))
+        i += len(p)
+    return worst
+
+
+def build_paragraph(voice, segments, out_dir, attempts=3, asr=None):
     import vo_split
     from lint_script import spoken_len
     cache = os.path.join(AUDIO, "vo_cache", "para")
@@ -222,9 +256,13 @@ def build_paragraph(voice, segments, out_dir, attempts=3):
             rate, f0 = take_stats(x, spans, weights)
             ref = TARGET_PITCH                        # one pitch for the whole film, not per segment
             score = abs(rate / TARGET_RATE - 1) + 2 * abs(f0 / ref - 1)
+            clear = intelligibility(wav, spoken) if asr and (asr == {"all"} or seg["id"] in asr) else 1.0
+            score += 3 * (1 - clear)                  # a garbled word costs more than a slightly off tempo
+            # (homophones the recogniser writes differently, e.g. 锡/稀, cost a little on every take alike)
+            print(f"  {seg['id']} take {k + 1}: rate {rate:.0f} pitch {f0:.0f} heard {clear:.3f}", flush=True)
             if best is None or score < best[0]:
                 best = (score, wav, spans, x, rate, f0, k)
-            if abs(rate / TARGET_RATE - 1) <= RATE_TOL and abs(f0 / ref - 1) <= PITCH_TOL:
+            if abs(rate / TARGET_RATE - 1) <= RATE_TOL and abs(f0 / ref - 1) <= PITCH_TOL and clear >= 0.97:
                 break
         score, wav, spans, x, rate, f0, k = best
         ref_pitch = ref_pitch or f0
@@ -255,6 +293,7 @@ def main():
     ap.add_argument("--voice", default="Andre")
     ap.add_argument("--mode", choices=["paragraph", "sentence"], default="paragraph")
     ap.add_argument("--attempts", type=int, default=3)
+    ap.add_argument("--asr", help="segments whose takes are also scored by intelligibility, or 'all' (needs .venv)")
     ap.add_argument("--audition", help="comma-separated voices to compare")
     ap.add_argument("--segments", help="comma-separated segment ids (default: all)")
     ap.add_argument("--lines", type=int, help="only the first N lines per segment")
@@ -268,7 +307,7 @@ def main():
     out = os.path.join(AUDIO, "auditions") if a.audition else a.out
     for v in voices:
         if a.mode == "paragraph" and not a.audition:
-            t = build_paragraph(v, segs, out, a.attempts)
+            t = build_paragraph(v, segs, out, a.attempts, asr=set(a.asr.split(",")) if a.asr else None)
             print(f"{v}: {t['total']:.1f}s total (paragraph mode)")
         else:
             t = build(v, segs, out, a.lines)

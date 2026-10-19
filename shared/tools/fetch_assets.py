@@ -17,7 +17,7 @@ OUT = os.path.join(ROOT, "shared", "assets", "polyhaven")
 HDRIS = {"studio_small_09": "2k", "hangar_interior": "2k", "rogland_moonlit_night": "2k"}
 # PBR surfaces: floors, wet asphalt, a container side, painted / plated metal
 TEXTURES = {"brushed_concrete": "1k", "asphalt_02": "1k", "container_side": "1k", "metal_plate": "1k",
-            "corrugated_iron": "1k"}
+            "corrugated_iron": "1k", "plywood": "1k"}
 MAPS = {"Diffuse": "diff", "Rough": "rough", "nor_gl": "nor_gl", "Metal": "metal"}
 # real die photographs, CC0 on Wikimedia Commons (Fritzchens Fritz): masks, chips, SEM dives
 DIES = {
@@ -46,6 +46,51 @@ def _save(url, md5, path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     open(path, "wb").write(data)
     return f"{len(data) // 1024} KB"
+
+
+def region_map(src, dst, min_frac=0.035, depth=11, seed=7):
+    """Functional blocks of a die photo as flat rectangles, each painted a random colour: the chip shader
+    hashes that colour into the block's grating pitch and line orientation. A die layout is cut by long
+    straight channels, so the photo is split recursively (guillotine cuts) at the column or row where the
+    image changes most sharply along its whole length, until blocks get small or no clear channel is left."""
+    import random
+    import numpy as np
+    from PIL import Image, ImageFilter
+    im = Image.open(src).convert("L")
+    W = 960
+    H = round(W * im.height / im.width)
+    g = np.asarray(im.resize((W, H), Image.LANCZOS).filter(ImageFilter.GaussianBlur(1.5)), dtype=np.float32)
+    gx = np.abs(np.diff(g, axis=1))
+    gy = np.abs(np.diff(g, axis=0))
+    rnd = random.Random(seed)
+    out = np.zeros((H, W, 3), dtype=np.uint8)
+    m = int(min_frac * W)
+
+    def cut(x0, y0, x1, y1, d):
+        best = None
+        if d > 0:
+            if x1 - x0 > 2 * m:                             # vertical channel: a column of strong x-gradients
+                prof = gx[y0:y1, x0 + m - 1:x1 - m - 1].mean(axis=0)
+                k = int(prof.argmax())
+                best = (prof[k] / (np.median(prof) + 1e-3), "x", x0 + m + k)
+            if y1 - y0 > 2 * m:
+                prof = gy[y0 + m - 1:y1 - m - 1, x0:x1].mean(axis=1)
+                k = int(prof.argmax())
+                cand = (prof[k] / (np.median(prof) + 1e-3), "y", y0 + m + k)
+                best = cand if best is None or cand[0] > best[0] else best
+        if best and best[0] > 1.6:
+            _, axis, c = best
+            if axis == "x":
+                cut(x0, y0, c, y1, d - 1)
+                cut(c, y0, x1, y1, d - 1)
+            else:
+                cut(x0, y0, x1, c, d - 1)
+                cut(x0, c, x1, y1, d - 1)
+            return
+        out[y0:y1, x0:x1] = (rnd.randrange(256), rnd.randrange(256), rnd.randrange(256))
+
+    cut(0, 0, W, H, depth)
+    Image.fromarray(out).save(dst)
 
 
 def main():
@@ -83,6 +128,9 @@ def main():
         if not os.path.exists(p):
             open(p, "wb").write(_get(ii.get("thumburl") or ii["url"]))
         dies[name] = {"file": os.path.relpath(p, ROOT), "license": lic, "page": ii["descriptionurl"]}
+        rp = os.path.join(ddir, name + "_regions.png")
+        if not os.path.exists(rp):
+            region_map(p, rp)
         print(name, lic)
     json.dump(dies, open(os.path.join(ddir, "manifest.json"), "w"), indent=1, ensure_ascii=False)
     print("ok", OUT)

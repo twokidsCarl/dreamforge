@@ -163,7 +163,7 @@ def accents(sc, rnd):
     mp.data.materials.append(msk)
     styles.tag(mp, "emitter")
     stg = M.emission("AccStage", CYAN, 0.0)
-    for z in (2.62, -1.35):
+    for z in (BM.RETICLE[2] + 0.27, -1.35):
         bpy.ops.mesh.primitive_torus_add(major_radius=1.3, minor_radius=0.03, location=(0.5, 0, z))
         t = bpy.context.object
         t.data.materials.append(stg)
