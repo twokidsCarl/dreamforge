@@ -1,9 +1,9 @@
 """Whole-machine layout (stylised, NOT a copy of the ASML exterior) and a generic fab hall.
 
-machine(): modules placed on the real optical train (ZEISS's published NXE layout, see PATH) — tilted
-source vessel -> intermediate focus -> four-mirror illuminator -> reticle stage on top -> six-mirror
-projection optics -> wafer stage at the bottom — inside a housing tagged `shell`, with one glowing
-light path tagged `rays`. Units are metres-ish, the whole machine ~9 m long. fab_hall(): floor, columns, ceiling light
+machine(): the High-NA EUV scanner (EXE:5000) laid out from published ASML/ZEISS drawings (see PATH): source
+unit beside the scanner -> intermediate focus -> illuminator -> reticle stage on top -> six-mirror projection
+optics with the holed M6/M5 pair -> wafer stage at the bottom — scanner inside a housing tagged `shell`, one
+glowing light path tagged `rays`. Units are metres-ish. fab_hall(): floor, columns, ceiling light
 grid, a floor trench for the drive-laser beam tube, backlit human silhouettes for scale.
 """
 import math
@@ -16,31 +16,53 @@ import styles
 
 VIOLET = (0.62, 0.45, 1.0)
 
-# The optical train follows ZEISS's published NXE layout (O. Conradi et al., "Optics for EUV Production",
-# 2011 International Symposium on EUV Lithography, slide 5 "The optical train" and slide 20; positions read
-# off that drawing in the x-z plane and scaled): plasma above a normal-incidence collector, the beam rising
-# through the intermediate focus (a focus, not a mirror) to the field facet mirror at the top; the
-# illuminator zig-zags field facet (top) -> pupil facet (bottom) -> third mirror (top) -> fourth mirror
-# (bottom) -> reticle on top, face down, hit at a 6 deg chief-ray angle (CRAO = 6 deg, slide 20); six
-# projection mirrors M1-M6 (M5 small, just beside the wafer; M6 large, above it) image 4x down to the wafer.
-CRAO = math.radians(6.0)
-PLASMA = (-3.878, 0.0, -0.608)
-IF = (-2.9, 0.0, 1.16)
-FACET1 = (-1.795, 0.0, 2.988)                      # field facet mirror
-FACET2 = (-1.667, 0.0, 0.565)                      # pupil facet mirror
-RETICLE = (0.441, 0.0, 3.438)
-ILLUM3 = (-0.35, 0.0, 2.902)
-ILLUM4 = (RETICLE[0] - math.tan(CRAO) * (RETICLE[2] - 0.735), 0.0, 0.735)
-ILLUM = [FACET1, FACET2, ILLUM3, ILLUM4]
-PO_MIRRORS = [(RETICLE[0] + math.tan(CRAO) * (RETICLE[2] - 1.117), 0.0, 1.117),   # M1
-              (1.095, 0.0, 2.945), (1.18, 0.0, 0.48), (1.945, 0.0, 0.863),          # M2, M3, M4
-              (0.88, 0.0, -0.82), (0.542, 0.0, -0.2)]                               # M5, M6
-WAFER = (0.5, 0.0, -1.05)
-_axis = [b - a for a, b in zip(PLASMA, IF)]
-SRC_AXIS = tuple(v / math.sqrt(sum(c * c for c in _axis)) for v in _axis)          # collector -> plasma -> IF
-COLLECTOR = tuple(p - 0.55 * d for p, d in zip(PLASMA, SRC_AXIS))
-PATH = [COLLECTOR, IF] + ILLUM + [RETICLE] + PO_MIRRORS + [WAFER]
-PO_X, PO_R = 1.3, 0.9                              # projection-optics barrel (axis x, radius)
+# The machine is the High-NA EUV scanner (ASML EXE:5000) that A0 follows to Intel. Every position below is
+# taken from published ASML/ZEISS material, collected with quotes in research/visual/high_na_optics.md:
+# - module arrangement, side view [ASML, van Schoot, EUVL Workshop 2022, slide 34]: mask tier on top (mask
+#   handler + mask stage), optics in the middle (projection optics "POB" on one side, illuminator on the source
+#   side), base frame and wafer stage at the bottom; the source is a separate unit standing beside the scanner,
+#   its collector facing the illuminator, with an optical platform (drive-laser beam delivery) further out.
+# - optical train [ZEISS, Kaumanns et al., EUVL Workshop 2024, slide 13 "Current 0.55 NA"]: plasma ->
+#   collector -> intermediate focus (a focus, not a mirror) -> small fold mirror -> field facet mirror (top)
+#   -> pupil facet mirror -> reticle (top, face down) -> six-mirror projection optics -> wafer.
+# - projection optics [ASML/ZEISS "design example", van Schoot, EUVL Workshop 2021, slide 35; Heil et al.,
+#   EUVL Symposium 2015, slides 9/19/20]: M1-M4 zig-zag in a narrow column under the reticle; the beam then goes
+#   down through a central hole in the large last mirror M6 to M5 just above the wafer, back up to M6, and
+#   M6 focuses it down through M5's own hole onto the wafer (central obscuration ~20% of the pupil).
+#   Positions are (x, height) read off that drawing as fractions of the reticle-to-wafer distance, mirrored
+#   so the source side is +x.
+# - chief-ray angle at the reticle 5.4 deg [ZEISS 2024 slide 9; ASML gives ~5.3 deg], so the ray from the
+#   pupil facet mirror and the ray to M1 each lean 5.4 deg from the reticle normal.
+# Not public (drawn as a plausible fit, labelled 示意 on screen): exact illuminator mirror count and spacing,
+# source axis elevation, machine dimensions.
+CRAO = math.radians(5.4)
+H_PO = 4.5                                          # reticle-to-wafer distance (scene units)
+WAFER = (0.0, 0.0, -1.05)
+
+
+def _po(xf, hf):
+    """A point of the published PO drawing: (x, height) as fractions of the reticle-wafer distance."""
+    return (-xf * H_PO, 0.0, WAFER[2] + hf * H_PO)          # mirrored: the source side is +x
+
+
+M1 = _po(-0.018, 0.625)
+PO_MIRRORS = [M1, _po(0.12, 0.866), _po(0.067, 0.40), _po(-0.0625, 0.584),   # M1, M2, M3, M4
+              _po(0.0, 0.036), _po(0.0, 0.344)]                               # M5 (holed, at the wafer), M6 (holed)
+PO_FOCUS = _po(-0.035, 0.375)                       # the intermediate image just above M6
+M6_R, M5_R = 0.195 * H_PO, 0.08 * H_PO              # radii (drawing widths 0.39 and 0.16 of the height)
+RETICLE = (M1[0] + math.tan(CRAO) * (WAFER[2] + H_PO - M1[2]), 0.0, WAFER[2] + H_PO)
+FACET2 = (RETICLE[0] + math.tan(CRAO) * 1.45, 0.0, RETICLE[2] - 1.45)          # pupil facet mirror
+FACET1 = (1.75, 0.0, 2.95)                          # field facet mirror, top
+FOLD = (2.85, 0.0, 0.55)                            # small fold mirror right after the IF
+IF = (3.6, 0.0, 0.75)
+_d = [i - f for i, f in zip(IF, FOLD)]
+SRC_AXIS = tuple(v / math.sqrt(sum(c * c for c in _d)) for v in _d)           # points from the IF to the plasma
+PLASMA = tuple(i + 2.2 * a for i, a in zip(IF, SRC_AXIS))
+COLLECTOR = tuple(p + 0.55 * a for p, a in zip(PLASMA, SRC_AXIS))             # behind the plasma, facing the IF
+ILLUM = [FOLD, FACET1, FACET2]
+M6_HIT = (M6_R * 0.62, 0.0, PO_MIRRORS[5][2])        # where the drawn ray meets M6 after M5 (off-axis, outside the hole)
+PATH = ([COLLECTOR, IF] + ILLUM + [RETICLE] + PO_MIRRORS[:4] + [PO_FOCUS, PO_MIRRORS[4], M6_HIT, WAFER])
+CENTER = (2.9, 0.0, 0.8)                            # middle of scanner + source, for cameras
 
 
 MODULE = None
@@ -156,22 +178,46 @@ def _panel_box(name, loc, size, mat, seam, role="shell", nx=4, nz=2):
     return box
 
 
+def _annulus(name, loc, r_out, r_in, thick, mat, role="structure"):
+    """A horizontal disc with a central hole (the obscured last two mirrors of the High-NA projection optics)."""
+    import bmesh
+    bm = bmesh.new()
+    n = 96
+    outer = [bm.verts.new((r_out * math.cos(2 * math.pi * k / n), r_out * math.sin(2 * math.pi * k / n), 0)) for k in range(n)]
+    inner = [bm.verts.new((r_in * math.cos(2 * math.pi * k / n), r_in * math.sin(2 * math.pi * k / n), 0)) for k in range(n)]
+    for k in range(n):
+        j = (k + 1) % n
+        bm.faces.new((outer[k], outer[j], inner[j], inner[k]))
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    ob = bpy.data.objects.new(name, me)
+    bpy.context.scene.collection.objects.link(ob)
+    ob.location = loc
+    ob.modifiers.new("Thick", "SOLIDIFY").thickness = thick
+    for pl in ob.data.polygons:
+        pl.use_smooth = True
+    ob.data.materials.append(mat)
+    styles.tag(ob, role)
+    return _tag_module(ob)
+
+
 def machine(with_path=True):
+    from mathutils import Vector
     global MODULE
-    MODULE = "source"
     steel = M.polished_steel("MachSteel", 0.3)
     dark = M.dark_anodized("MachDark")
     mount = M.principled("MirrorMount", (0.08, 0.085, 0.09), metallic=0.9, roughness=0.3)
     mirror = M.multilayer_mirror("MachMirror", r_max=0.5)
     panel = M.principled("HousingPanel", (0.78, 0.8, 0.82), metallic=0.2, roughness=0.45)
     seam = M.principled("PanelSeam", (0.05, 0.05, 0.055), roughness=0.6)
-    # ---- source vessel on its tilted axis (collector -> plasma -> IF): drum with flanges, ports, droplet
-    #      generator across the axis, a viewport; a cone with stiffening rings narrowing to the IF
-    from mathutils import Vector
-    ax = Vector(SRC_AXIS)
-    arot = ax.to_track_quat("Z", "Y").to_euler()
-    across = Vector((-ax.z, 0.0, ax.x))                      # perpendicular to the axis, in the x-z plane
-    drum = Vector(PLASMA) - ax * 0.15
+    # ---- source: a separate unit beside the scanner [ASML 2022 s.34]: vessel on a pedestal, collector
+    #      inside facing the illuminator, optical platform (drive-laser beam delivery) further out
+    MODULE = "source"
+    ax = Vector(SRC_AXIS)                                   # from the IF towards the plasma / collector
+    arot = (-ax).to_track_quat("Z", "Y").to_euler()         # local +Z looks from the collector to the IF
+    across = Vector((-ax.z, 0.0, ax.x))
+    drum = Vector(PLASMA) + ax * 0.15
     _disc("SrcDrum", tuple(drum), 1.1, 1.6, dark, rot=arot, role="shell")
     for k, off in enumerate((-0.8, 0.8)):
         c = tuple(drum + ax * off)
@@ -181,75 +227,86 @@ def machine(with_path=True):
         prot = d.to_track_quat("Z", "Y").to_euler()
         _disc(f"SrcPort{k}", tuple(drum + d * 1.2), 0.22, 0.35, steel, rot=prot)
         _disc(f"SrcPortFlange{k}", tuple(drum + d * 1.38), 0.3, 0.06, steel, rot=prot)
-    _disc("DropletGen", tuple(Vector(PLASMA) + across * 1.75), 0.14, 0.9, steel,
-          rot=across.to_track_quat("Z", "Y").to_euler())                      # fires droplets across the axis
-    _disc("Viewport", tuple(drum + Vector((0, -1.12, 0)) + ax * 0.45), 0.16, 0.04,
+    _disc("Viewport", tuple(drum + Vector((0, -1.12, 0))), 0.16, 0.04,
           M.principled("ViewGlass", (0.02, 0.03, 0.05), roughness=0.02, coat=1.0), rot=(math.pi / 2, 0, 0))
-    span = (Vector(IF) - drum).length - 0.8                 # drum face -> IF
+    span = (Vector(IF) - drum).length - 0.8                 # vessel face -> IF
     bpy.ops.mesh.primitive_cone_add(vertices=96, radius1=1.1, radius2=0.18, depth=span,
-                                    location=tuple(drum + ax * (0.8 + span / 2)), rotation=arot)
+                                    location=tuple(drum - ax * (0.8 + span / 2)), rotation=arot)
     cone = bpy.context.object
     cone.name = "SrcCone"
-    for p in cone.data.polygons:
-        p.use_smooth = True
+    for pl in cone.data.polygons:
+        pl.use_smooth = True
     cone.data.materials.append(dark)
     styles.tag(cone, "shell")
     _tag_module(cone)
     for k, u in enumerate((0.25, 0.5, 0.75)):
-        _ring(f"ConeRib{k}", tuple(drum + ax * (0.8 + span * u)), 1.1 - 0.92 * u + 0.02, 0.03, steel, rot=arot)
-    _disc("Collector", COLLECTOR, 0.9, 0.08, mirror, rot=arot)            # faces the plasma and the IF
-    _box("SrcPedestal", (drum.x - 0.2, 0, -2.25), (2.4, 2.4, 0.5), dark)   # the source stands on its own footing
+        _ring(f"ConeRib{k}", tuple(drum - ax * (0.8 + span * u)), 1.1 - 0.92 * u + 0.02, 0.03, steel, rot=arot)
+    _disc("Collector", COLLECTOR, 0.9, 0.08, mirror, rot=arot)
+    _box("SrcPedestal", (drum.x, 0, -1.05), (2.6, 2.6, 2.7), dark)          # up to the vessel's underside
+    plat = PLASMA[0] + 2.6
+    _box("OpticalPlatform", (plat, 0, 1.0), (2.2, 2.0, 0.25), steel)
+    for dx in (-0.95, 0.95):
+        for dy in (-0.85, 0.85):
+            _box(f"PlatformLeg{dx}{dy}", (plat + dx, dy, -0.7), (0.3, 0.3, 3.2), steel)
+    # ---- illuminator on the source side of the optics tier: fold mirror after the IF, field facet mirror
+    #      (top), pupil facet mirror; its housing is wider at the top and reaches over the PO's shoulder
     MODULE = "illum"
-    # ---- illuminator: panelled box around four mirrors (field facet, pupil facet, two more), as in the
-    #      ZEISS optical-train drawing; each mirror sits on its bounce point, normal bisecting the rays
-    _panel_box("Illuminator", (-0.95, 0, 1.8), (2.3, 1.3, 2.9), dark, seam, nx=3, nz=2)
+    _panel_box("Illuminator", (2.15, 0, 1.75), (2.2, 1.4, 2.9), dark, seam, nx=3, nz=2)
+    _panel_box("IllumArm", (0.7, 0, 2.55), (0.9, 1.2, 1.3), dark, seam, nx=2, nz=1)
     chain = [IF] + ILLUM + [RETICLE]
-    for i, (pt, r) in enumerate(zip(ILLUM, (0.42, 0.34, 0.3, 0.2))):
-        _mirror(f"Facet{i}" if i < 2 else f"IllumMirror{i + 1}", chain[i], pt, chain[i + 2], r, mirror, mount)
+    for i, (pt, r, nm) in enumerate(zip(ILLUM, (0.2, 0.45, 0.16), ("FoldMirror", "Facet0", "Facet1"))):
+        _mirror(nm, chain[i], pt, chain[i + 2], r, mirror, mount)
+    # ---- mask tier: mask stage on long linear-motor rails, mask handler beside it, reticle face down
     MODULE = "reticle"
-    # ---- reticle stage: platen on linear-motor rails, reticle face down
     rz = RETICLE[2]
-    _box("ReticleStage", (0.5, 0, rz + 0.27), (2.4, 1.8, 0.3), steel)
+    _box("ReticleStage", (RETICLE[0], 0, rz + 0.27), (2.4, 1.8, 0.3), steel)
     for y in (-0.95, 0.95):
-        _box(f"RetRail{y}", (0.5, y, rz + 0.07), (4.2, 0.16, 0.14), dark)
-        for k in range(12):
-            _box(f"RetMagnet{y}{k}", (-1.4 + 0.34 * k, y, rz + 0.15), (0.26, 0.17, 0.03), steel, bevel=0.005)
+        _box(f"RetRail{y}", (RETICLE[0], y, rz + 0.07), (4.6, 0.16, 0.14), dark)
+        for k in range(13):
+            _box(f"RetMagnet{y}{k}", (RETICLE[0] - 2.1 + 0.35 * k, y, rz + 0.15), (0.26, 0.17, 0.03), steel, bevel=0.005)
     _box("Reticle", (RETICLE[0], 0, RETICLE[2] + 0.05), (0.6, 0.6, 0.06), mirror, bevel=0.005)
+    _panel_box("MaskHandler", (-2.6, 0, rz + 0.3), (1.4, 1.6, 0.9), dark, seam, nx=2, nz=1)
+    # ---- projection optics: a narrow upper column for M1-M4 with a step where the illuminator reaches in,
+    #      a wide lower drum around the holed M6 / M5 pair
     MODULE = "po"
-    # ---- projection optics: a stacked barrel with flanges and struts, six mirrors with mounts
-    for k in range(7):                                      # barrel from just above the wafer to under the reticle
-        z = -0.6 + 0.55 * k
-        _disc(f"POSection{k}", (PO_X, 0, z), PO_R, 0.51, dark, role="shell")
-        _ring(f"POFlange{k}", (PO_X, 0, z + 0.27), PO_R + 0.04, 0.045, steel, rot=(0, 0, 0))
-    _box("POColumn", (PO_X, 0, 1.05), (1.8, 1.8, 3.8), dark, role="shell").hide_render = True   # kept for scripts
+    _disc("POBarrel", (0, 0, -0.1), M6_R + 0.12, 1.75, dark, role="shell")
+    _ring("POFlangeLow", (0, 0, 0.77), M6_R + 0.16, 0.05, steel, rot=(0, 0, 0))
+    _panel_box("POColumn", (-0.35, 0, 1.35), (1.25, 1.3, 1.25), dark, seam, nx=2, nz=1)
+    _panel_box("POColumnTop", (-0.48, 0, 2.55), (1.0, 1.3, 1.15), dark, seam, nx=2, nz=1)
+    seq = [RETICLE] + PO_MIRRORS[:4] + [PO_FOCUS]
+    for i, r in enumerate((0.2, 0.3, 0.4, 0.2)):
+        _mirror(f"POMirror{i}", seq[i], seq[i + 1], seq[i + 2], r, mirror, mount)
+    m5, m6 = PO_MIRRORS[4], PO_MIRRORS[5]
+    _annulus("POMirror4", m5, M5_R, M5_R * 0.22, 0.05, mirror)                   # M5: faces up, holed
+    _annulus("POMirror5", m6, M6_R, M6_R * 0.22, -0.06, mirror)                 # M6: faces down, holed
+    _annulus("POMirror5Substrate", (m6[0], 0, m6[2] + 0.1), M6_R * 0.98, M6_R * 0.24, 0.14,
+             M.principled("Substrate", (0.85, 0.86, 0.88), roughness=0.25))
+    _ring("POMirror5Mount", (m6[0], 0, m6[2] + 0.05), M6_R * 1.03, 0.04, mount, rot=(0, 0, 0))
     for k in range(6):
         th = 2 * math.pi * k / 6 + 0.3
-        _disc(f"POStrut{k}", (PO_X + 1.08 * math.cos(th), 1.08 * math.sin(th), 1.05), 0.04, 3.9, steel)
-    seq = [RETICLE] + PO_MIRRORS + [WAFER]
-    for i, (pt, r) in enumerate(zip(PO_MIRRORS, (0.22, 0.26, 0.14, 0.24, 0.12, 0.34))):   # M5 small, M6 large
-        _mirror(f"POMirror{i}", seq[i], pt, seq[i + 2], r, mirror, mount)
+        _disc(f"POStrut{k}", ((M6_R + 0.22) * math.cos(th), (M6_R + 0.22) * math.sin(th), 0.0), 0.04, 1.9, steel)
+    # ---- wafer stage on the base, wafer under the PO; wafer handler at the far side
     MODULE = "wafer"
-    # ---- wafer stage: planar-motor platen with a tile grid, wafer chuck
-    _box("WaferStage", (0.5, 0, -1.35), (2.8, 2.8, 0.35), steel)
+    _box("WaferStage", (0, 0, -1.35), (2.8, 2.8, 0.35), steel)
     tile = M.principled("MotorTile", (0.12, 0.12, 0.13), metallic=0.8, roughness=0.35)
     for i in range(6):
         for j in range(6):
-            _box(f"Tile{i}{j}", (-0.75 + 0.5 * i + 0.5 * 0.5 - 0.25, -1.25 + 0.5 * j, -1.56), (0.46, 0.46, 0.04), tile,
-                 bevel=0.01)
+            _box(f"Tile{i}{j}", (-1.25 + 0.5 * i, -1.25 + 0.5 * j, -1.56), (0.46, 0.46, 0.04), tile, bevel=0.01)
     _disc("Chuck", (WAFER[0], 0, WAFER[2] - 0.04), 0.5, 0.05, steel)
     _disc("Wafer", WAFER, 0.45, 0.02, M.multilayer_mirror("WaferFilm", r_max=0.45))
+    _panel_box("WaferHandler", (-2.7, 0, -1.4), (1.2, 1.6, 1.6), dark, seam, nx=2, nz=1)
+    # ---- base frame on vibration isolators, under the scanner (the source stands on its own)
     MODULE = "base"
-    # ---- base frame on vibration isolators
-    _box("Base", (-0.2, 0, -1.9), (5.8, 3.4, 0.6), dark)                 # under the scanner (not the source)
-    for x in (-2.6, -0.8, 1.0, 2.4):
+    _box("Base", (0.5, 0, -1.9), (6.4, 3.4, 0.6), dark)
+    for x in (-2.2, -0.4, 1.4, 3.2):
         for y in (-1.4, 1.4):
             _disc(f"Isolator{x}{y}", (x, y, -2.35), 0.22, 0.3, steel)
     for k in range(3):                                                     # cable trays along the base
-        _box(f"CableTray{k}", (-0.2, -1.75, -1.75 + 0.14 * k), (5.4, 0.12, 0.08), M.principled(
+        _box(f"CableTray{k}", (0.5, -1.75, -1.75 + 0.14 * k), (6.0, 0.12, 0.08), M.principled(
             f"Cable{k}", ((0.6, 0.08, 0.05), (0.08, 0.2, 0.55), (0.75, 0.6, 0.1))[k], roughness=0.5))
+    # ---- housing: panelled enclosure over the scanner (shell -> ghost glass in xray)
     MODULE = "housing"
-    # ---- housing: panelled enclosure (shell -> ghost glass in xray)
-    _panel_box("Housing", (-1.6, 0, 0.95), (8.4, 3.2, 6.0), panel, seam, nx=7, nz=3)
+    _panel_box("Housing", (0.3, 0, 0.95), (7.0, 3.2, 6.0), panel, seam, nx=6, nz=3)
     MODULE = None
     if with_path:
         return light_path()
@@ -292,7 +349,7 @@ def fab_hall(seed=3, people=6):
         styles.tag(head, "env")
 
 
-HOSTS = {"source": "SrcDrum", "illum": "Illuminator", "reticle": "ReticleStage", "po": "POSection2",
+HOSTS = {"source": "SrcDrum", "illum": "Illuminator", "reticle": "ReticleStage", "po": "POBarrel",
          "wafer": "WaferStage", "base": "Base", "housing": "Housing"}
 
 

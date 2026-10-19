@@ -774,12 +774,12 @@ def assemble(sc, rnd):
     glass = M.principled("TrailerPanel", (0.78, 0.8, 0.82), metallic=0.2, roughness=0.45)
     nt = 6
     for k in range(nt):                                            # the trailers they arrived in, in front
-        _box(f"Trailer{k}", (-9.0 + 3.6 * k, -7.5, -1.0), (3.2, 2.4, 2.6), glass, role="shell")
+        _box(f"Trailer{k}", (BM.CENTER[0] - 9.0 + 3.6 * k, -7.5, -1.0), (3.2, 2.4, 2.6), glass, role="shell")
     order = sorted(mods, key=lambda o: (o.location.z, o.location.x))   # base first, stages and optics after
     for i, o in enumerate(order):
         home = o.location.copy()
         k = i % nt
-        start = Vector((-9.0 + 3.6 * k, -7.5, -1.0))
+        start = Vector((BM.CENTER[0] - 9.0 + 3.6 * k, -7.5, -1.0))
         f0 = 1 + 8 * i                                             # the first module is already rising at the cut
         _key(o, 1, location=start, scale=(0.3, 0.3, 0.3))
         _key(o, f0, location=start, scale=(0.3, 0.3, 0.3))
@@ -792,9 +792,10 @@ def assemble(sc, rnd):
     path.data.keyframe_insert("bevel_factor_end", frame=88)
     path.data.bevel_factor_end = 1.0
     path.data.keyframe_insert("bevel_factor_end", frame=118)
-    B._area("MKey", (0, -9, 8), (0.9, 0, 0), 16, 2500, (0.8, 0.85, 1.0))
-    B._camera("CamA0_05", [(1, (-3.0, -4.5, 0.2), (1.5, -15.5, 3.2), 32, 8.0),
-                           (125, (-1.6, 0, 0.4), (3.5, -12.5, 4.5), 32, 8.0)])
+    B._area("MKey", (BM.CENTER[0], -9, 8), (0.9, 0, 0), 16, 2500, (0.8, 0.85, 1.0))
+    cx = BM.CENTER[0]
+    B._camera("CamA0_05", [(1, (cx - 1.0, -4.5, 0.2), (cx + 2.0, -17.5, 3.6), 32, 8.0),
+                           (125, (cx - 0.3, 0, 0.9), (cx + 3.2, -15.2, 4.4), 32, 8.0)])
 
 
 # ---- A0_07 ---------------------------------------------------------------------------------
@@ -883,9 +884,14 @@ def title(sc, rnd):
     before = set(bpy.data.objects)
     path, pmat = BM.machine(with_path=False)
     mods = BM.attach_small([o for o in bpy.data.objects if o not in before])
-    centre = Vector((-1.6, 0, 0.35))
-    # VO (shot time): "外星科技" 2.5-3.2 s, "拆" 4.66 s; the shot holds ~2.4 s after the last word
-    for o in mods:                                                # burst into hovering modules on "拆开"
+    # VO (shot time): "外星科技" 2.5-3.2 s, "拆" 4.66 s; the shot holds ~2.4 s after the last word.
+    # On "拆开" the casing goes and the machine separates into ASML's four independently testable subsystems
+    # [van Schoot, EUVL Workshop 2022, slide 34]: mask tier up, optics (illuminator + PO) stays, wafer tier
+    # (wafer stage + base frame) drops, source unit slides out sideways.
+    tier = {"reticle": Vector((0, 0, 1.0)), "illum": Vector((0, 0, 0)), "po": Vector((0, 0, 0)),
+            "wafer": Vector((0, 0, -0.9)), "base": Vector((0, 0, -0.9)), "source": Vector((2.2, 0, 0))}
+    host_module = {v: k for k, v in BM.HOSTS.items()}
+    for o in mods:
         if o.name == "Housing":                                   # the casing swells and is gone in 6 frames
             _key(o, 112, scale=o.scale.copy())
             _key(o, 118, scale=o.scale * 1.18)
@@ -893,35 +899,29 @@ def title(sc, rnd):
                 _key(ob, 1, hide_render=False)
                 _key(ob, 118, hide_render=True)
             continue
+        off = tier.get(host_module.get(o.name, o.get("module")), Vector((0, 0, 0)))
         home = o.location.copy()
-        if o.name == "Base":                                      # the base stays put: the others lift off it
-            out = home + Vector((0, 0, -0.25))
-            _key(o, 112, location=home)
-            _key(o, 124, location=out)
-            continue
-        d = home - centre
-        d = Vector((d.x, d.y - 0.4, d.z)) if d.length > 0.2 else Vector((0, -1, 0.4))
-        out = home + d.normalized() * (1.5 + 0.2 * d.length) + Vector((0, 0, 0.9))
         _key(o, 112, location=home)
-        _key(o, 124, location=out)
-        _key(o, 190, location=out + d.normalized() * 0.35)              # keep drifting apart through the hold
+        _key(o, 124, location=home + off)
+        _key(o, 190, location=home + off * 1.15)                   # keep drifting apart through the hold
     chars = "一台光刻机里发生了什么"
     size = 0.9
-    x0 = -1.6 - size * (len(chars) - 1) / 2
+    x0 = BM.CENTER[0] - size * (len(chars) - 1) / 2
     for i, ch in enumerate(chars):
         m = M.emission(f"Glyph{i}", (0.92, 0.9, 1.0), 0.0)
-        _text(ch, (x0 + i * size, -3.2, 6.0), (math.pi / 2, 0, 0), size, m)
+        _text(ch, (x0 + i * size, -3.2, 6.6), (math.pi / 2, 0, 0), size, m)
         M.set_emission_strength(m, 62 + 2 * i, 0.0)                    # lights up, glyph by glyph, on "外星科技"
         M.set_emission_strength(m, 72 + 2 * i, 5.0)
     sub = M.emission("SubGlyph", (0.6, 0.62, 0.7), 0.0)
-    _text("ASML EUV 光刻机", (-1.6, -3.2, 5.2), (math.pi / 2, 0, 0), 0.38, sub)
+    _text("ASML EUV 光刻机", (BM.CENTER[0], -3.2, 5.85), (math.pi / 2, 0, 0), 0.38, sub)
     M.set_emission_strength(sub, 96, 0.0)
     M.set_emission_strength(sub, 110, 2.0)
     # framed so the title line is always in shot: slow push-in, a kick back on the burst, then a slow drift out
-    B._camera("CamA0_10", [(1, (-1.6, 0, 2.0), (-1.6, -22.6, 3.0), 40, 11.0),
-                           (110, (-1.6, 0, 2.0), (-1.6, -21.6, 2.9), 40, 11.0),
-                           (130, (-1.6, 0, 2.1), (-1.6, -23.8, 3.3), 40, 11.0),
-                           (190, (-1.6, 0, 2.1), (-1.6, -24.8, 3.4), 40, 11.0)])
+    cx = BM.CENTER[0]
+    B._camera("CamA0_10", [(1, (cx, 0, 2.2), (cx, -23.6, 3.2), 40, 11.0),
+                           (110, (cx, 0, 2.2), (cx, -22.6, 3.1), 40, 11.0),
+                           (130, (cx, 0, 2.3), (cx, -25.2, 3.5), 40, 11.0),
+                           (190, (cx, 0, 2.3), (cx, -26.2, 3.6), 40, 11.0)])
 
 
 def after_style(style, shot_id):

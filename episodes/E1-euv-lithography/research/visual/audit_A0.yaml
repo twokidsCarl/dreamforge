@@ -41,10 +41,10 @@ A0_03:
     status: unsourced
     research: shipment_suppliers.md
 A0_05:
-  - item: machine assembled from modules; optical train with collector, IF, 4-mirror illuminator, reticle on top at 6 deg, 6-mirror PO, wafer at the bottom
-    status: wrong
-    source: ZEISS Conradi 2011 slides 5/20 describe NXE (NA 0.33); the shot is the High-NA EXE shipped to Intel (8-mirror anamorphic PO, obscured mirrors)
-    research: high_na_optics.md
+  - item: machine = High-NA EXE:5000 laid out from published drawings (module tiers, source unit beside the scanner, optical train, 6-mirror PO with holed M6/M5, 5.4 deg CRAO)
+    status: sourced
+    source: high_na_optics.md - ASML van Schoot EUVL Workshop 2022 s.34 (modules), ZEISS Kaumanns et al. 2024 s.13 (train) and s.9 (CRAO, obscuration), van Schoot 2021 s.35 / Heil 2015 s.9,19,20 (PO design example)
+    note: illuminator mirror count and spacings, source-axis elevation are not public -> plausible fit; on-screen label 示意 stays
   - item: machine size / proportions / weight >150 t (overlay)
     status: unsourced (size); sourced (weight, F16)
     research: high_na_optics.md
@@ -81,5 +81,5 @@ A0_09:
     research: chips.md
 A0_10:
   - item: the same machine model (bursts into modules)
-    status: wrong
-    note: inherits A0_05's NXE optics; must become the EXE layout
+    status: sourced
+    note: same EXE model as A0_05; the burst into the four testable subsystems matches ASML 2022 s.34 ("4 independent testable subsystems")
