@@ -28,12 +28,22 @@ def _key():
     raise SystemExit("ELEVENLABS_API_KEY missing")
 
 
+def _ssl():
+    """CA bundle: certifi if present, else the macOS system bundle (some Pythons ship without one)."""
+    import ssl
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        return ssl.create_default_context(cafile="/etc/ssl/cert.pem" if os.path.exists("/etc/ssl/cert.pem") else None)
+
+
 def _post(path, body, out, fmt="mp3_44100_192"):
     if os.path.exists(out) and os.path.getsize(out) > 1000:
         return out
     req = urllib.request.Request(f"{API}{path}?output_format={fmt}", data=json.dumps(body).encode(),
                                  headers={"xi-api-key": _key(), "Content-Type": "application/json"}, method="POST")
-    with urllib.request.urlopen(req, timeout=600) as r:
+    with urllib.request.urlopen(req, timeout=600, context=_ssl()) as r:
         data = r.read()
     os.makedirs(os.path.dirname(out), exist_ok=True)
     open(out, "wb").write(data)

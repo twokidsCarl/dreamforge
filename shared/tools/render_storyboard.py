@@ -17,6 +17,7 @@ import argparse
 import csv
 import datetime
 import importlib
+import math
 import os
 import sys
 import time
@@ -83,7 +84,7 @@ def main():
             w.writerow(["timestamp", "shot", "engine", "preset", "frame", "seconds"])
         for f in rel:
             fr = spec["start"] + (f - 1) * spec.get("step", 1)      # step: every Nth sim frame (<1 = slow motion)
-            sc.frame_set(int(fr), subframe=fr - int(fr))
+            sc.frame_set(math.floor(fr), subframe=fr - math.floor(fr))   # start may be < 1 (hold before the action)
             sc.render.filepath = os.path.join(out, f"{f:04d}.png")
             t0 = time.time()
             if f > n - spec.get("black_tail", 0):                  # hard cut to black on the last frames

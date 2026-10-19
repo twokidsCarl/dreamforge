@@ -91,7 +91,7 @@ B8_16: {scene: b8_scenes, args: {variant: dual}, camera: CamB8_16, start: 1, sty
 B9_04: {scene: b9_scenes, args: {variant: rain}, camera: CamB9_04, start: 1, style: energy, engine: eevee}
 B9_05: {scene: b9_scenes, args: {variant: rain}, camera: CamB9_05, start: 141, style: energy, engine: eevee}
 B9_06: {scene: b9_scenes, args: {variant: rain}, camera: CamB9_06, start: 261, style: energy, engine: eevee}
-A0_01: {scene: b1_source, camera: CamA0_01, start: 1, step: 0.8745, style: photoreal, engine: cycles}
+A0_01: {scene: b1_source, camera: CamA0_01, start: 1, step: 0.764, style: photoreal, engine: cycles}
 A0_02: {scene: a0_scenes, args: {variant: cargo}, camera: CamA0_02, start: 1, style: photoreal, engine: cycles}
 A0_04: {scene: a0_scenes, args: {variant: convoy}, camera: CamA0_04, start: 1, style: photoreal, engine: eevee}
 A0_05: {scene: a0_scenes, args: {variant: assemble}, camera: CamA0_05, start: 1, style: xray, engine: eevee}

@@ -10,7 +10,8 @@ Outputs: episodes/<episode>/storyboard/storyboard.timed.yaml  shots with real du
 
 Rule: a VO shot keeps the visual padding it was designed with (design duration minus the
 estimated VO time, at least LEAD + TAIL) around its real VO; visual-only shots keep their
-design duration. `hold: <s>` on a shot adds that much picture after its last word.
+design duration. `hold: <s>` on a shot adds that much picture after its last word; `lead: <s>` sets when
+its first word starts.
 """
 import argparse
 import json
@@ -98,7 +99,8 @@ def main():
             real = sum(durs) + GAP * (len(vo) - 1)
             est = sum(spoken_len(v) / CHARS_PER_MIN * 60 + EST_PAUSE for v in vo)
             pad = max(s["duration"] - est, LEAD + TAIL)
-            lead = min(max(LEAD, pad * 0.3), 1.2)
+            lead = s.get("lead") or min(max(LEAD, pad * 0.3), 1.2)       # `lead: <s>` pins the first word
+            pad = max(pad, lead + TAIL)
             s["duration_design"] = s["duration"]
             s["duration"] = round(real + pad, 2)
             c = t + lead

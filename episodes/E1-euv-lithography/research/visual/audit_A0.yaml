@@ -1,0 +1,85 @@
+# Visual fact audit, segment A0. One row per engineering / structural / optical detail the PICTURE shows
+# (narration numbers live in research/facts.yaml). status:
+#   sourced   - matches a primary source cited here
+#   wrong     - contradicts a source; must change
+#   unsourced - invented or unchecked; research pending (see research/visual/*.md)
+#   artistic  - deliberate convention, flagged on screen as 示意 where a viewer could take it literally
+A0_01:
+  - item: tin droplet ~25 um, stream from a nozzle
+    status: sourced
+    source: F3 (ASML light-and-lasers page)
+  - item: two laser pulses per droplet; pre-pulse flattens it into a disk, main pulse makes plasma
+    status: sourced
+    source: F4, F4b (ASML; ASML S2 source conditions)
+  - item: droplet direction vs laser axis vs collector; laser through the collector's central hole; pulse delay
+    status: unsourced
+    research: euv_source.md
+  - item: disk ("pancake") size, thickness, ripples, how long it expands before the main pulse
+    status: unsourced
+    research: euv_source.md
+  - item: plasma look in visible light; orange debris sparks
+    status: unsourced
+    research: euv_source.md
+  - item: slow motion (real events take microseconds)
+    status: artistic
+    note: needs no label; narration says 下一瞬间
+A0_02:
+  - item: wide-body freighter, nose door lifts, crates loaded through the nose, night apron
+    status: unsourced
+    research: shipment_suppliers.md (aircraft type, nose vs side loading, official photos)
+  - item: crate look (plywood with battens)
+    status: unsourced
+    research: shipment_suppliers.md
+A0_03:
+  - item: 250+ crates -> 43 containers -> several freighters -> 20 trucks
+    status: sourced
+    source: F17 (Intel newsroom)
+  - item: route Netherlands -> Seattle -> Oregon (overlay)
+    status: sourced
+    source: F17
+  - item: container colours, crate shape, plane model, truck model
+    status: unsourced
+    research: shipment_suppliers.md
+A0_05:
+  - item: machine assembled from modules; optical train with collector, IF, 4-mirror illuminator, reticle on top at 6 deg, 6-mirror PO, wafer at the bottom
+    status: wrong
+    source: ZEISS Conradi 2011 slides 5/20 describe NXE (NA 0.33); the shot is the High-NA EXE shipped to Intel (8-mirror anamorphic PO, obscured mirrors)
+    research: high_na_optics.md
+  - item: machine size / proportions / weight >150 t (overlay)
+    status: unsourced (size); sourced (weight, F16)
+    research: high_na_optics.md
+  - item: exterior housing look
+    status: artistic
+    note: deliberately not the ASML exterior (project rule); keep generic
+A0_06:
+  - item: 5100 suppliers (overlay)
+    status: sourced
+    source: ASML annual report (fact record)
+  - item: geographic distribution of the supplier dots
+    status: unsourced
+    note: on screen as 光点位置为示意; replace with the annual report's regional split
+    research: shipment_suppliers.md
+A0_07:
+  - item: violet beam printing a circuit onto a wafer
+    status: artistic
+    note: EUV (13.5 nm) is invisible; violet is the film's colour code for EUV; label once in the film
+A0_08:
+  - item: 184 billion components on a fingertip-sized area (overlay)
+    status: unsourced
+    note: fact F19 says ZEISS; wording and which chip need re-verification
+    research: chips.md
+  - item: die photo = Intel Skylake-SP 14 nm
+    status: wrong
+    note: 14 nm was patterned with DUV, not EUV; narration says every component is drawn by this machine's light
+    research: chips.md (EUV-made CC0 dies)
+  - item: diffraction colours by block (grating per functional block)
+    status: sourced (physics); block pitches illustrative
+    research: chips.md part C
+A0_09:
+  - item: dive into Xeon 14 nm then Zen 5 CCD (N4P)
+    status: wrong (Xeon) / unsourced (Zen 5 EUV use, to confirm)
+    research: chips.md
+A0_10:
+  - item: the same machine model (bursts into modules)
+    status: wrong
+    note: inherits A0_05's NXE optics; must become the EXE layout

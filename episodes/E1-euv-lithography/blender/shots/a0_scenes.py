@@ -910,18 +910,18 @@ def title(sc, rnd):
     x0 = -1.6 - size * (len(chars) - 1) / 2
     for i, ch in enumerate(chars):
         m = M.emission(f"Glyph{i}", (0.92, 0.9, 1.0), 0.0)
-        _text(ch, (x0 + i * size, -3.2, 4.9), (math.pi / 2, 0, 0), size, m)
+        _text(ch, (x0 + i * size, -3.2, 6.0), (math.pi / 2, 0, 0), size, m)
         M.set_emission_strength(m, 62 + 2 * i, 0.0)                    # lights up, glyph by glyph, on "外星科技"
         M.set_emission_strength(m, 72 + 2 * i, 5.0)
     sub = M.emission("SubGlyph", (0.6, 0.62, 0.7), 0.0)
-    _text("ASML EUV 光刻机", (-1.6, -3.2, 4.05), (math.pi / 2, 0, 0), 0.38, sub)
+    _text("ASML EUV 光刻机", (-1.6, -3.2, 5.2), (math.pi / 2, 0, 0), 0.38, sub)
     M.set_emission_strength(sub, 96, 0.0)
     M.set_emission_strength(sub, 110, 2.0)
     # framed so the title line is always in shot: slow push-in, a kick back on the burst, then a slow drift out
-    B._camera("CamA0_10", [(1, (-1.6, 0, 1.8), (-1.6, -19.8, 2.75), 40, 11.0),
-                           (110, (-1.6, 0, 1.8), (-1.6, -18.4, 2.55), 40, 11.0),
-                           (130, (-1.6, 0, 2.0), (-1.6, -21.0, 3.1), 40, 11.0),
-                           (190, (-1.6, 0, 2.0), (-1.6, -22.0, 3.2), 40, 11.0)])
+    B._camera("CamA0_10", [(1, (-1.6, 0, 2.0), (-1.6, -22.6, 3.0), 40, 11.0),
+                           (110, (-1.6, 0, 2.0), (-1.6, -21.6, 2.9), 40, 11.0),
+                           (130, (-1.6, 0, 2.1), (-1.6, -23.8, 3.3), 40, 11.0),
+                           (190, (-1.6, 0, 2.1), (-1.6, -24.8, 3.4), 40, 11.0)])
 
 
 def after_style(style, shot_id):
