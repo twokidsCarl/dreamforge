@@ -89,7 +89,7 @@ shots:
   - 夜风
 - id: A0_03
   segment: A0
-  duration: 8.7
+  duration: 11.2
   vo:
   - 250 多个板条箱，装满 43 个集装箱，坐了好几架货机，落地后又换上 20 辆卡车。
   facts:
@@ -97,7 +97,7 @@ shots:
   style: infographic
   style_why: 这是“有多少”的问题：数量链条用扁平信息图层层堆叠，比实拍更有压迫感。
   transition_in: match-cut
-  visual: 上一镜那只板条箱在同一屏幕位置变成扁平图标，随即复制成 250 多个的网格；网格收拢装进 43 个集装箱，集装箱飞进几架货机剪影；货机落地后变成一列 20 辆卡车，沿一条细线驶向“俄勒冈”。右下角计数器逐项滚动。
+  visual: （3D 微缩模型）上一镜那只板条箱在同一屏幕位置，随即复制成 250 多个的网格；网格收拢装进 43 个集装箱，集装箱飞进几架货机剪影；货机落地后变成一列 20 辆卡车，沿一条细线驶向“俄勒冈”。右下角计数器逐项滚动。
   camera:
     move: 2d-lateral-pan
     lens_mm: null
@@ -125,31 +125,6 @@ shots:
   - 计数器滴答
   - 集装箱落位的闷响
   - 货机掠过
-- id: A0_04
-  segment: A0
-  duration: 2.5
-  vo: []
-  facts:
-  - F17
-  style: documentary
-  style_why: 纯画面呼吸，把刚才的数字落回现实尺度。
-  transition_in: match-cut
-  visual: 航拍俯视：夜色中的高速公路上，20 辆重卡排成长龙，车灯连成一条光带穿过雾气弥漫的山谷（风格化，不指认具体路段）。
-  camera:
-    move: drone-track overhead
-    lens_mm: 24
-    fstop: 5.6
-    notes: 卡车图标与真实车头灯在同一屏幕位置交接；结尾缓缓下俯靠近车厢
-  builders:
-  - build_machine.transport_convoy
-  fx:
-  - motion_blur
-  - volumetric_haze
-  - headlight_bloom
-  overlays: []
-  engine: cycles
-  sfx:
-  - 重卡低频轰鸣由远及近
 - id: A0_05
   segment: A0
   duration: 5.6

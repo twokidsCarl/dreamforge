@@ -516,7 +516,7 @@ def logistics(sc, rnd):
         _key(tr, 1, location=(x0, y, 0), scale=(0.001, 0.001, 0.001))
         _key(tr, 136 + t_i, location=(x0, y, 0), scale=(0.001, 0.001, 0.001))
         _key(tr, 146 + t_i, location=(x0, y, 0), scale=(0.6, 0.6, 0.6))
-        _key(tr, 198, location=(x0 + 38, y, 0), scale=(0.6, 0.6, 0.6))
+        _key(tr, 246, location=(x0 + 70, y, 0), scale=(0.6, 0.6, 0.6))
     for lt in (B._area("Key", (40, -40, 50), (0.7, 0, 0.3), 60, 60000, (1.0, 0.95, 0.88)),
                B._area("Rim", (90, 60, 25), (1.2, 0, 2.6), 60, 30000, (0.55, 0.7, 1.0))):
         lt.visible_glossy = False                                   # no hard light-panel shapes on the table
@@ -524,12 +524,14 @@ def logistics(sc, rnd):
     B._camera("CamA0_03", [(1, (0, 0, 2.0), (-6, -38, 22), 35, 8.0), (44, (0, 0, 1.0), (-4, -36, 20), 35, 8.0),
                            (70, (44, 0, 1.0), (40, -40, 22), 35, 8.0), (100, (52, 0, 1.0), (48, -42, 22), 35, 8.0),
                            (130, (100, 0, 4.0), (96, -46, 26), 35, 8.0), (160, (140, 0, 1.0), (128, -42, 18), 35, 8.0),
-                           (198, (150, 0, 1.0), (138, -40, 17), 35, 8.0)])
+                           (198, (150, 0, 1.0), (138, -40, 17), 35, 8.0),
+                           (246, (175, 0, 1.0), (150, -52, 30), 32, 8.0)])          # rise: the whole convoy
 
 
 # ---- A0_04 ---------------------------------------------------------------------------------
 def convoy(sc, rnd):
-    C.set_world(top=(0.006, 0.008, 0.014), horizon=(0.01, 0.012, 0.018), bottom=(0.0, 0.0, 0.001))
+    sc["hdri_world"] = True
+    C.hdri_world("rogland_moonlit_night", strength=0.1, rotation=math.radians(200), tint=(0.7, 0.82, 1.1))
     bpy.ops.mesh.primitive_grid_add(x_subdivisions=200, y_subdivisions=200, size=600, location=(0, 0, 0))
     ter = bpy.context.object
     ter.name = "Valley"
@@ -541,7 +543,7 @@ def convoy(sc, rnd):
     ter.location.z = -26.0                                          # the road runs along the valley floor
     for p in ter.data.polygons:
         p.use_smooth = True
-    ter.data.materials.append(M.principled("Forest", (0.01, 0.014, 0.012), roughness=0.9))
+    ter.data.materials.append(M.principled("Forest", (0.02, 0.028, 0.022), roughness=0.9))
     styles.tag(ter, "structure")
     # road: a gentle S along the valley floor
     def road(u):  # noqa: E306
@@ -586,7 +588,7 @@ def convoy(sc, rnd):
             tr.keyframe_insert("location", frame=f)
             tr.keyframe_insert("rotation_euler", frame=f)
         spot = bpy.data.lights.new(f"Beam{k}", "SPOT")
-        spot.energy = 3000
+        spot.energy = 60000                                         # long cones in the valley haze
         spot.spot_size = math.radians(35)
         spot.color = (1.0, 0.95, 0.85)
         so = bpy.data.objects.new(f"Beam{k}", spot)
@@ -601,12 +603,12 @@ def convoy(sc, rnd):
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputMaterial")
     vs = nt.nodes.new("ShaderNodeVolumePrincipled")
-    vs.inputs["Density"].default_value = 0.012
+    vs.inputs["Density"].default_value = 0.02
     vs.inputs["Color"].default_value = (0.7, 0.75, 0.85, 1)
     nt.links.new(vs.outputs[0], out.inputs["Volume"])
     _box("FogVolume", (0, 0, 20), (600, 600, 40), fog, role="env")
     moon = bpy.data.lights.new("Moon", "SUN")
-    moon.energy = 0.35
+    moon.energy = 0.6
     moon.color = (0.6, 0.7, 1.0)
     mo = bpy.data.objects.new("Moon", moon)
     sc.collection.objects.link(mo)
@@ -621,8 +623,8 @@ def assemble(sc, rnd):
     C.set_world(top=(0.9, 0.91, 0.93), horizon=(0.78, 0.79, 0.82), bottom=(0.6, 0.61, 0.64))
     before = set(bpy.data.objects)
     path, pmat = BM.machine()
-    parts = [o for o in bpy.data.objects if o not in before and o.type == "MESH"
-             and styles.role_of(o) == "structure" and o.parent is None]
+    new = [o for o in bpy.data.objects if o not in before]
+    parts = [o for o in BM.attach_small(new) if styles.role_of(o) == "structure"]
     shells = [o for o in bpy.data.objects if o not in before and styles.role_of(o) == "shell"]
     glass = M.principled("TrailerPanel", (0.78, 0.8, 0.82), metallic=0.2, roughness=0.45)
     nt = 6
@@ -722,7 +724,7 @@ def title(sc, rnd):
     C.set_world(top=(0, 0, 0), horizon=(0, 0, 0), bottom=(0, 0, 0))
     before = set(bpy.data.objects)
     path, pmat = BM.machine(with_path=False)
-    mods = [o for o in bpy.data.objects if o not in before and o.type == "MESH" and o.parent is None]
+    mods = BM.attach_small([o for o in bpy.data.objects if o not in before])
     centre = Vector((-1.6, 0, 0.35))
     for o in mods:                                                # burst into hovering modules on "拆开"
         home = o.location.copy()

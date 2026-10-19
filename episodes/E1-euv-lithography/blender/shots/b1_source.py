@@ -63,7 +63,8 @@ def build(vessel=False, rays=False):
                      (343, (5.0, 0, 0), (23.0, 15.0, 6.5), 28, 6.0)])
     # A0_01 — cold open (rendered with step 2): the droplet glides in, pre-pulse, sheet, main-pulse flash
     cam("CamA0_01", B._follow_keys(hero, 4, B.T_ARRIVE, (1.9, 1.3, 0.3), (1.85, 1.15, 0.3), 85, 1.4)
-        + [(130, (0.2, 0, 0), (3.8, 4.8, 0.7), 55, 2.4), (194, (0.3, 0, 0), (4.6, 5.8, 0.9), 50, 2.8)])
+        + [(130, (0.2, 0, 0), (3.8, 4.8, 0.7), 55, 2.4), (194, (0.3, 0, 0), (4.6, 5.8, 0.9), 50, 2.8),
+           (232, (0.3, 0, 0), (6.4, 8.2, 1.4), 40, 3.2)])                # pull back as the plasma blooms
     # C_02 — long take part 1 (step ~0.73: slow): fly beside the droplet, pre-pulse, main pulse, turn to the collector
     cam("CamC_02", B._follow_keys(hero, 1, B.T_ARRIVE, (0.9, 1.2, 0.25), (1.0, 1.4, 0.3), 50, 2.0)
         + [(150, (0.2, 0, 0), (2.4, 3.6, 0.6), 40, 2.8), (192, (0.3, 0, 0), (3.6, 5.2, 0.9), 40, 3.2),
