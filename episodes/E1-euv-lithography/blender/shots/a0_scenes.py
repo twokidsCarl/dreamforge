@@ -61,9 +61,16 @@ def _cyl(name, r, depth, loc, mat, rot=(0, 0, 0), role="structure", verts=64):
     return ob
 
 
-def circuit_image():
-    img = bpy.data.images.get("circuit.png") or bpy.data.images.load(TEX)
-    return img
+REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", ".."))
+DIES = os.path.join(REPO, "shared", "assets", "dies")
+
+
+def circuit_image(die="xeon_poly"):
+    """A real die photograph (CC0, Wikimedia Commons / Fritzchens Fritz) if fetched, else the procedural layout."""
+    p = os.path.join(DIES, die + ".jpg")
+    if os.path.exists(p):
+        return bpy.data.images.load(p, check_existing=True)
+    return bpy.data.images.get("circuit.png") or bpy.data.images.load(TEX)
 
 
 def circuit_emission(name, color, strength, scale=1.0):
@@ -81,7 +88,13 @@ def circuit_emission(name, color, strength, scale=1.0):
     out = nt.nodes["Material Output"]
     nt.links.new(tc.outputs["UV"], mp.inputs["Vector"])
     nt.links.new(mp.outputs["Vector"], tex.inputs["Vector"])
-    nt.links.new(tex.outputs["Color"], mix.inputs["Fac"])
+    bw = nt.nodes.new("ShaderNodeRGBToBW")
+    ramp = nt.nodes.new("ShaderNodeValToRGB")                       # keep the bright metal, drop the background
+    ramp.color_ramp.elements[0].position = 0.3
+    ramp.color_ramp.elements[1].position = 0.62
+    nt.links.new(tex.outputs["Color"], bw.inputs["Color"])
+    nt.links.new(bw.outputs["Val"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], mix.inputs["Fac"])
     nt.links.new(tr.outputs[0], mix.inputs[1])
     nt.links.new(em.outputs[0], mix.inputs[2])
     nt.links.new(mix.outputs[0], out.inputs["Surface"])
@@ -101,12 +114,62 @@ def chip_material(name="ChipSurface"):
     tex.image = circuit_image()
     nt.links.new(tc.outputs["UV"], mp.inputs["Vector"])
     nt.links.new(mp.outputs["Vector"], tex.inputs["Vector"])
-    mix = nt.nodes.new("ShaderNodeMix")
-    mix.data_type = "RGBA"
-    mix.inputs["A"].default_value = (0.18, 0.17, 0.2, 1)
-    mix.inputs["B"].default_value = (0.75, 0.72, 0.68, 1)
-    nt.links.new(tex.outputs["Color"], mix.inputs["Factor"])
-    nt.links.new(mix.outputs["Result"], b.inputs["Base Color"])
+    dim = nt.nodes.new("ShaderNodeMix")
+    dim.data_type = "RGBA"
+    dim.blend_type = "MULTIPLY"
+    dim.inputs["Factor"].default_value = 1.0
+    dim.inputs["B"].default_value = (1.0, 1.0, 1.0, 1)
+    nt.links.new(tex.outputs["Color"], dim.inputs["A"])
+    nt.links.new(dim.outputs["Result"], b.inputs["Base Color"])        # the real die photograph
+    b.inputs["Metallic"].default_value = 0.0                          # colour comes from the photo, sheen on top
+    b.inputs["Roughness"].default_value = 0.2
+    b.inputs["Specular IOR Level"].default_value = 0.25
+    b.inputs["Coat Weight"].default_value = 0.12                     # glassy passivation layer: a clear highlight
+    b.inputs["Coat Roughness"].default_value = 0.03
+    # grating rainbow: the hue depends on the viewing direction and slides across the die as the camera moves
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    sepv = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(geo.outputs["Incoming"], sepv.inputs["Vector"])
+    sepo = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(tc.outputs["Object"], sepo.inputs["Vector"])
+    h1 = nt.nodes.new("ShaderNodeMath")
+    h1.operation = "MULTIPLY_ADD"
+    h1.inputs[1].default_value = 2.2
+    nt.links.new(sepv.outputs["X"], h1.inputs[0])
+    nt.links.new(sepo.outputs["X"], h1.inputs[2])
+    h2 = nt.nodes.new("ShaderNodeMath")
+    h2.operation = "FRACT"
+    nt.links.new(h1.outputs[0], h2.inputs[0])
+    hsv = nt.nodes.new("ShaderNodeCombineColor")
+    hsv.mode = "HSV"
+    hsv.inputs[1].default_value = 0.85
+    hsv.inputs[2].default_value = 1.0
+    nt.links.new(h2.outputs[0], hsv.inputs[0])
+    lum = nt.nodes.new("ShaderNodeRGBToBW")
+    nt.links.new(tex.outputs["Color"], lum.inputs["Color"])
+    rb = nt.nodes.new("ShaderNodeMix")
+    rb.data_type = "RGBA"
+    rb.blend_type = "MULTIPLY"
+    rb.inputs["Factor"].default_value = 1.0
+    nt.links.new(hsv.outputs["Color"], rb.inputs["A"])
+    nt.links.new(lum.outputs["Val"], rb.inputs["B"])
+    em = nt.nodes.new("ShaderNodeMix")
+    em.data_type = "RGBA"
+    em.inputs["Factor"].default_value = 0.7
+    nt.links.new(dim.outputs["Result"], em.inputs["A"])
+    nt.links.new(rb.outputs["Result"], em.inputs["B"])
+    nt.links.new(em.outputs["Result"], b.inputs["Emission Color"])
+    b.inputs["Emission Strength"].default_value = 0.6
+    # the dense metal lines act as a grating: thin-film thickness swept in fine bands -> flowing rainbow
+    wave = nt.nodes.new("ShaderNodeTexWave")
+    wave.inputs["Scale"].default_value = 3.0
+    wave.inputs["Distortion"].default_value = 1.5
+    nt.links.new(tc.outputs["Object"], wave.inputs["Vector"])
+    add = nt.nodes.new("ShaderNodeMath")
+    add.operation = "MULTIPLY_ADD"
+    add.inputs[1].default_value = 500.0
+    add.inputs[2].default_value = 0.0
+    nt.links.new(wave.outputs["Fac"], add.inputs[0])
     sep = nt.nodes.new("ShaderNodeSeparateXYZ")
     nt.links.new(tc.outputs["Object"], sep.inputs["Vector"])
     mr = nt.nodes.new("ShaderNodeMapRange")
@@ -114,7 +177,12 @@ def chip_material(name="ChipSurface"):
     mr.inputs["To Min"].default_value = 280.0
     mr.inputs["To Max"].default_value = 980.0
     nt.links.new(sep.outputs["X"], mr.inputs["Value"])
-    nt.links.new(mr.outputs["Result"], b.inputs["Thin Film Thickness"])
+    plus = nt.nodes.new("ShaderNodeMath")
+    plus.operation = "ADD"
+    nt.links.new(mr.outputs["Result"], plus.inputs[0])
+    nt.links.new(add.outputs[0], plus.inputs[1])
+    nt.links.new(plus.outputs[0], b.inputs["Thin Film Thickness"])
+    b.inputs["Thin Film IOR"].default_value = 2.8
     return m
 
 
@@ -357,21 +425,13 @@ def print_(sc, rnd):
 
 # ---- A0_08 ---------------------------------------------------------------------------------
 def chip(sc, rnd):
-    C.set_world(top=(0.008, 0.009, 0.013), horizon=(0.004, 0.004, 0.006), bottom=(0.0, 0.0, 0.001))
-    skin = M.principled("Skin", (0.55, 0.36, 0.28), roughness=0.45)
+    C.set_world(top=(0.004, 0.004, 0.006), horizon=(0.002, 0.002, 0.003), bottom=(0.0, 0.0, 0.0))
+    sc["hdri"], sc["hdri_strength"] = "studio_small_09", 0.12        # faint room reflection; the rainbow is in the die
+    skin = M.principled("Skin", (0.22, 0.13, 0.1), roughness=0.5)
     sk = skin.node_tree.nodes["Principled BSDF"]
-    sk.inputs["Subsurface Weight"].default_value = 0.6
+    sk.inputs["Subsurface Weight"].default_value = 0.5
     sk.inputs["Subsurface Radius"].default_value = (1.0, 0.35, 0.2)
-    sk.inputs["Subsurface Scale"].default_value = 0.08
-    wave = skin.node_tree.nodes.new("ShaderNodeTexWave")           # fingerprint ridges
-    wave.wave_type = "RINGS"
-    wave.inputs["Scale"].default_value = 30.0
-    wave.inputs["Distortion"].default_value = 1.5
-    bump = skin.node_tree.nodes.new("ShaderNodeBump")
-    bump.inputs["Strength"].default_value = 0.25
-    skin.node_tree.links.new(wave.outputs["Fac"], bump.inputs["Height"])
-    skin.node_tree.links.new(bump.outputs["Normal"], sk.inputs["Normal"])
-    # fingertip: a capsule pointing toward +X, pad facing up
+    sk.inputs["Subsurface Scale"].default_value = 0.05
     _cyl("Finger", 0.8, 5.0, (-2.5, 0, 0), skin, rot=(0, math.pi / 2, 0), verts=64)
     bpy.ops.mesh.primitive_uv_sphere_add(radius=0.8, segments=64, ring_count=32, location=(0, 0, 0))
     tip = bpy.context.object
@@ -380,19 +440,29 @@ def chip(sc, rnd):
         p.use_smooth = True
     tip.data.materials.append(skin)
     styles.tag(tip, "structure")
-    die = _box("Die", (-0.25, 0, 0.83), (1.1, 1.1, 0.06), chip_material(), bevel=0.004)
-    die.rotation_euler = (0, math.radians(-4), math.radians(12))
-    B._area("BackRim", (-1.0, 4.0, 2.0), (math.radians(-60), 0, math.radians(180)), 3, 900, (0.9, 0.85, 0.8))
-    B._area("ChipKey", (3.0, -3.0, 3.0), (0.8, 0, 0.8), 2, 220, (0.85, 0.9, 1.0))
-    bpy.ops.mesh.primitive_plane_add(size=6, location=(-1.8, 3.8, 2.6))
-    sb = bpy.context.object
-    sb.rotation_euler = (Vector((0, 0, 0.8)) - Vector((-1.8, 3.8, 2.6))).to_track_quat("Z", "Y").to_euler()
-    sb.data.materials.append(M.soft_emitter("ChipBox", (1, 0.98, 0.95), 4.0))
-    sb.visible_camera = False
-    styles.tag(sb, "rig")
-    B._camera("CamA0_08", [(1, (-0.7, -0.6, 0.55), (1.6, -4.6, 1.8), 85, 2.8),
-                           (60, (0.25, -0.4, 0.86), (2.0, -5.0, 2.2), 85, 2.8),
-                           (126, (-0.25, 0.0, 0.86), (2.8, -6.8, 3.0), 70, 3.2)])
+    body = _box("DieBody", (-0.1, 0, 0.86), (1.2, 0.92, 0.04), M.principled("Silicon", (0.03, 0.03, 0.035),
+                                                                             metallic=0.6, roughness=0.3))
+    bpy.ops.mesh.primitive_plane_add(size=1, location=(0, 0, 0))
+    top = bpy.context.object
+    top.name = "DieTop"
+    top.data.materials.append(chip_material())
+    styles.tag(top, "structure")
+    top.parent = body                                               # rides on the body's top face
+    top.location = (0, 0, 1.05)                               # body is a unit cube scaled by its size
+    top.scale = (1.98, 1.98, 1)                                     # plane is 1 wide, the cube 2: cover the top
+    body.rotation_euler = (0, math.radians(-4), math.radians(12))
+    rim = B._area("BackRim", (-1.0, 4.0, 2.0), (math.radians(-60), 0, math.radians(180)), 3, 900, (1.0, 0.85, 0.7))
+    rim.visible_glossy = False                                      # rim the finger only; no hot spot on the die
+    for name, loc, size, st in (("ChipBoxA", (-2.4, 3.6, 2.8), 4, 0.45), ("ChipBoxB", (2.8, 3.0, 2.2), 3, 0.6)):
+        bpy.ops.mesh.primitive_plane_add(size=size, location=loc)
+        sb = bpy.context.object
+        sb.rotation_euler = (Vector((0, 0, 0.8)) - Vector(loc)).to_track_quat("Z", "Y").to_euler()
+        sb.data.materials.append(M.soft_emitter(name, (1, 0.98, 0.95), st))
+        sb.visible_camera = False
+        styles.tag(sb, "rig")
+    # a slow arc across the die: the rainbow bands slide as the angle changes; the finger stays a soft shape
+    B._camera("CamA0_08", [(1, (-0.15, 0.0, 0.9), (2.4, -2.6, 2.1), 85, 2.4),
+                           (126, (-0.1, 0.05, 0.9), (3.2, -1.6, 1.8), 85, 2.4)])
 
 
 # ---- A0_10 ---------------------------------------------------------------------------------

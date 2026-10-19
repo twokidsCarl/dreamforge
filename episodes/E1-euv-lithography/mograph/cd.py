@@ -43,8 +43,7 @@ def inserts(t, dur, W, H):
 @shot("D_02")
 def chip_warm(t, dur, W, H):
     start = shot_frame("A0_08", 999, W, H)
-    im = a0.chip_dive(t * 1.4, dur * 1.4, W, H)                     # the A0_09 dive, faster
-    im = im.convert("RGB", (0, 0, 1, 0, 0.5, 0, 0.5, 0, 0, 1, 0, 0))  # violet strokes -> warm white
+    im = a0.chip_dive(t, dur, W, H, paint=(1.0, 0.86, 0.62))       # the A0_09 dive, lit warm white
     if start is not None:
         x = ease(seg(t, 0.0, 0.9))
         im = Image.blend(start, im, x)

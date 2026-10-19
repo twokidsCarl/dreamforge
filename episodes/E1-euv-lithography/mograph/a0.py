@@ -180,48 +180,64 @@ def suppliers(t, dur, W, H):
     return c.finish(glow_radius=6, glow_gain=1.4)
 
 
-# ---- SEM dive into the chip ----------------------------------------------------------------------
-_CIRC = None
+# ---- dive into a real chip (optical micrographs, CC0) ---------------------------------------------
+DIES = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(HERE))), "shared", "assets", "dies")
+_IMG = {}
+
+
+def _die(name):
+    if name not in _IMG:
+        p = os.path.join(DIES, name + ".jpg")
+        _IMG[name] = Image.open(p).convert("RGB") if os.path.exists(p) else Image.open(CIRCUIT).convert("RGB")
+    return _IMG[name]
+
+
+def _zoom(img, cx, cy, z, W, H):
+    """Crop a W:H window centred on (cx, cy) (fractions) at zoom z (1 = the whole width) and scale to W x H."""
+    iw, ih = img.size
+    w = iw / z
+    h = w * H / W
+    x0 = min(max(0, cx * iw - w / 2), iw - w)
+    y0 = min(max(0, cy * ih - h / 2), ih - h)
+    return img.crop((int(x0), int(y0), int(x0 + w), int(y0 + h))).resize((W, H), Image.LANCZOS)
+
+
+def chip_dive(t, dur, W, H, paint=(0.75, 0.55, 1.0)):
+    """A0_09 / D_02: push into a real die (Intel Xeon, then a Zen 5 core macro with its own diffraction
+    colours); the transistor rows are lit up stroke by stroke."""
+    c = Canvas(W, H)
+    a = fade(t, 0.0, dur, dur, 0.3)
+    z1 = ease(seg(t, 0.0, dur * 0.62))
+    far = _zoom(_die("xeon_poly"), 0.62, 0.48, 1.05 * (5.0 ** z1), W, H)
+    mix = ease(seg(t, dur * 0.48, dur * 0.66))
+    if mix > 0:
+        z2 = ease(seg(t, dur * 0.48, dur))
+        near = _zoom(_die("zen5_ccd"), 0.27, 0.66, 1.6 * (2.2 ** z2), W, H)     # the regular cell array
+        img = Image.blend(far, near, mix)
+    else:
+        img = far
+    p = ease(seg(t, dur - 1.8, dur - 0.2))
+    if p > 0:                                                      # strokes of light, row by row
+        m = Image.new("L", (W, H), 0)
+        md = ImageDraw.Draw(m)
+        rows = 8
+        for r in range(rows):
+            q = max(0.0, min(1.0, p * rows * 0.55 - r * 0.4))
+            md.rectangle((0, int(H * r / rows), int(W * q), int(H * (r + 1) / rows)), fill=255)
+        m = m.filter(ImageFilter.GaussianBlur(H / 40))                  # feathered stroke edges
+        lum = img.convert("L").point(lambda v: max(0, v - 150) * 2)  # only the brightest metal lights up
+        lit = Image.merge("RGB", tuple(lum.point(lambda v, k=k: int(v * k)) for k in paint))
+        lit = Image.composite(lit, Image.new("RGB", (W, H)), m)
+        dim = Image.composite(img.point(lambda v: int(v * 0.55)), img, m)  # the lit rows darken a little first
+        img = ImageChops.screen(dim, lit)
+        c.glow.paste(lit.point(lambda v: int(v * 0.5)))
+    c.img = Image.blend(Image.new("RGB", (W, H)), img, a)
+    c.d = ImageDraw.Draw(c.img, "RGBA")
+    c.g = ImageDraw.Draw(c.glow)
+    c.text((1880, 1050), "芯片显微照片：Fritzchens Fritz（CC0）", 16, INK2, a, anchor="rm")
+    return c.finish(glow_radius=8, glow_gain=0.9, vignette=True)
 
 
 @shot("A0_09")
-def chip_dive(t, dur, W, H):
-    global _CIRC
-    if _CIRC is None:
-        _CIRC = Image.open(CIRCUIT).convert("L")
-    c = Canvas(W, H)
-    a = fade(t, 0.0, dur, dur, 0.3)
-    S = _CIRC.size[0]
-    z = ease(seg(t, 0.0, dur - 1.2))
-    span = S * (0.9 * (0.06 / 0.9) ** z)                          # crop window shrinks ~15x
-    cx, cy = S * 0.42, S * 0.37
-    box = (cx - span / 2, cy - span * 9 / 32, cx + span / 2, cy + span * 9 / 32)
-    crop = _CIRC.crop(tuple(int(v) for v in box)).resize((W, H), Image.BICUBIC)
-    sem = ImageOps.autocontrast(crop.filter(ImageFilter.GaussianBlur(max(0.6, 2.4 * (1 - z)) * c.k)))
-    sem = Image.eval(sem, lambda v: 52 + int(v * 0.68))
-    sem = Image.blend(sem, Image.effect_noise((W, H), 30), 0.18)
-    rgb = Image.merge("RGB", (sem, sem, sem))
-    # violet "pen strokes" light the transistor rows block by block in the final third
-    paint = ease(seg(t, dur - 2.0, dur - 0.3))
-    if paint > 0:
-        m = Image.new("L", (W, H), 0)
-        md = ImageDraw.Draw(m)
-        rows = 9
-        for r in range(rows):
-            p = max(0.0, min(1.0, paint * rows * 0.6 - r * 0.45))
-            md.rectangle((0, int(H * r / rows), int(W * p), int(H * (r + 1) / rows)), fill=255)
-        m = Image.composite(crop, Image.new("L", (W, H), 0), m)
-        vio = Image.merge("RGB", (m.point(lambda v: int(v * 0.7)), m.point(lambda v: int(v * 0.5)), m))
-        rgb = ImageChops.add(rgb, vio)
-        c.glow.paste(vio.point(lambda v: int(v * 0.6)))
-    c.img = rgb
-    c.d = ImageDraw.Draw(c.img, "RGBA")
-    c.g = ImageDraw.Draw(c.glow)
-    jumps = (0.33, 0.66)                                          # scan-line redraw at each scale jump
-    for j in jumps:
-        sl = seg(z, j - 0.06, j + 0.06)
-        if 0 < sl < 1:
-            c.line((0, 1080 * sl), (1920, 1080 * sl), INK, 2, a)
-    c.rect((80, 990, 280, 998), fill=INK, a=a)
-    c.text((1880, 60), "SEM 风格示意", 22, INK, a, anchor="ra")
-    return c.finish(glow_radius=6, glow_gain=1.0)
+def a0_chip_dive(t, dur, W, H):
+    return chip_dive(t, dur, W, H)
