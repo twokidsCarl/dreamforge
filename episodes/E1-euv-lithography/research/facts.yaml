@@ -241,11 +241,16 @@ F19:
   segments: [A0, D]
 
 F20:
-  claim: ASML 在 17 年里投入超过 60 亿欧元；首台 High-NA 于 2023 年 12 月交付
+  claim: ASML 在 17 年里投入超过 60 亿欧元；首台 High-NA（EXE:5000）的首批模块于 2023 年 12 月发往英特尔，2024 年 1 月运抵俄勒冈，2024 年 4 月完成安装、开始校准
   status: verified
   grade: A
   sources:
     - https://www.asml.com/en/products/euv-lithography-systems
+    - https://www.asml.com/en/news/stories/2024/5-things-high-na-euv
+    - https://x.com/ASMLcompany/status/1737854448876257672
+    - https://x.com/intelnews/status/1743046633506427165
+    - https://www.intel.com/content/www/us/en/newsroom/news/intel-foundry-opens-new-frontier-chipmaking.html
+  notes: 2023 年 12 月是“发货”（ASML“shipped the first modules … before the end of the year”），不是“交付”；运抵是 2024 年 1 月。详见 research/visual/shipment_suppliers.md A1。
   segments: [A3, B7, D]
 
 # ---- new: light source -------------------------------------------------------------------

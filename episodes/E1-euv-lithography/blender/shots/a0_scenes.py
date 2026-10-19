@@ -65,7 +65,7 @@ REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 DIES = os.path.join(REPO, "shared", "assets", "dies")
 
 
-def circuit_image(die="xeon_poly"):
+def circuit_image(die="zen5_ccd_full"):
     """A real die photograph (CC0, Wikimedia Commons / Fritzchens Fritz) if fetched, else the procedural layout."""
     p = os.path.join(DIES, die + ".jpg")
     if os.path.exists(p):
@@ -106,12 +106,14 @@ GRATING_LIGHT = (-0.25, 0.6, 2.45)        # the lamp whose diffraction the die s
                                           # its direction changes across the die and colour bands sweep through blocks
 
 
-def chip_material(name="ChipSurface", die="xeon_poly", light=GRATING_LIGHT, strength=4.0):
+def chip_material(name="ChipSurface", die="zen5_ccd_full", light=GRATING_LIGHT, strength=4.0):
     """Bare die under a lamp. Its colours are diffraction, not a coating: each functional block is a grating
     (regular metal lines of one pitch, horizontal or vertical as in a layout), so a block lights up only
     when lamp and eye satisfy the grating equation, and then in one pure hue that sweeps as the eye moves.
     Per block (hashed from a region map of the real photo, see fetch_assets.region_map):
-        pitch d in 0.8-1.8 um, line direction t (x or y);
+        pitch d in 0.8-1.8 um, line direction t (x or y) - the coarse periodic structures (array super-periods,
+        upper metal) that do diffract visible light; the EUV-printed critical layers (23-50 nm pitch) are far
+        too fine to show colour (research/visual/chips.md, C);
         wavelength of order m:  lambda = d * |V.t + L.t| / m      (V to the eye, L to the lamp)
         brightness ~ exp(-((V.b + L.b) / 0.45)^2), b along the lines (light spreads little along them).
     The rest of the die is a dark, faintly glossy metal surface showing the photographed layout."""
@@ -440,17 +442,39 @@ def cargo(sc, rnd):
     belly = M.principled("BellyPaint", (0.42, 0.45, 0.5), roughness=0.35, coat=0.3)
     hinge = freighter(skin, belly, rnd)
     _key(hinge, 1, rotation_euler=(0, 0, 0))
-    _key(hinge, 24, rotation_euler=(0, 0, 0))
-    _key(hinge, 140, rotation_euler=(0, math.radians(-58), 0))
-    # the hold: cold strip lights, a roller floor and rows of plywood crates
+    _key(hinge, 16, rotation_euler=(0, 0, 0))
+    _key(hinge, 88, rotation_euler=(0, math.radians(-58), 0))          # the shot is 129 frames
+    # the hold: cold strip lights, a roller floor, white shipment boxes already loaded; one more box rides
+    # a scissor highloader at the raised nose and slides in (as in Intel's footage of the High-NA shipment)
     lamp = M.emission("HoldLamp", (0.86, 0.92, 1.0), 10.0)
     for k in range(7):
         _box(f"HoldLamp{k}", (-1.5 - 5.0 * k, 0, 7.3), (3.0, 0.3, 0.05), lamp, role="emitter")
-    ply, batten = crate_mats()
-    for k in range(8):
-        for side in (-1, 1):
-            h = rnd.uniform(1.8, 2.5)
-            _crate(f"Crate{k}{side}", (3.5, 2.3, h), ply, batten).location = (-2.0 - 4.2 * k, side * 1.35, 1.75 + h / 2)
+    mats = shipping_mats()
+    for k in range(4):
+        e = _enclosure(f"HoldBox{k}", (2.6, 6.4, 3.0), mats)
+        e.rotation_euler = (0, 0, math.pi / 2)
+        e.location = (-5.5 - 7.2 * k, 0, 1.71)
+    lift = M.principled("Highloader", (0.85, 0.7, 0.1), metallic=0.3, roughness=0.5)
+
+    def loader():
+        _box("LoaderDeck", (0, 0, 1.55), (7.0, 3.4, 0.25), mats["pallet"])
+        for sgn in (-1, 1):
+            for k in range(3):                                      # scissor arms
+                arm = _box(f"LoaderArm{sgn}{k}", (0, sgn * 1.5, 0.75), (5.2, 0.12, 0.14), lift)
+                arm.rotation_euler = (0, math.radians(17 if k % 2 else -17), 0)
+        _box("LoaderBase", (0, 0, 0.25), (7.4, 3.0, 0.5), lift)
+        e = _enclosure("LoaderBox", (2.6, 6.4, 3.0), mats)
+        e.rotation_euler = (0, 0, math.pi / 2)
+        e.location = (0, 0, 1.68)
+    rig = _group(loader)
+    rider = bpy.data.objects["LoaderBox"]
+    # parked clear of the nose while the door lifts, rolls up to the sill, then the box slides into the hold
+    _key(rig, 1, location=(17.0, 0, 0))
+    _key(rig, 50, location=(17.0, 0, 0))
+    _key(rig, 92, location=(6.2, 0, 0))
+    _key(rider, 1, location=(0, 0, 1.68))
+    _key(rider, 98, location=(0, 0, 1.68))
+    _key(rider, 129, location=(-3.6, 0, 1.71))
     _box("HoldFloor", (-18.0, 0, 1.65), (38.0, 5.6, 0.12), M.dark_anodized("HoldFloor"))
     bpy.ops.object.light_add(type="AREA", location=(-8, 0, 7.0))
     il = bpy.context.object
@@ -530,24 +554,6 @@ def _truck(name, mat_cab, mat_box, tyre):
     return _group(build)
 
 
-def _corrugated(name, color):
-    """Painted shipping-container steel: vertical corrugations as a bump, a little wear in the roughness."""
-    m = M.principled(name, color, metallic=0.35, roughness=0.45)
-    nt = m.node_tree
-    b = nt.nodes["Principled BSDF"]
-    tc = nt.nodes.new("ShaderNodeTexCoord")
-    wave = nt.nodes.new("ShaderNodeTexWave")
-    wave.bands_direction = "Y"                                      # ribs along the long side
-    wave.inputs["Scale"].default_value = 2.2
-    wave.inputs["Distortion"].default_value = 0.0
-    bump = nt.nodes.new("ShaderNodeBump")
-    bump.inputs["Strength"].default_value = 1.0
-    nt.links.new(tc.outputs["Object"], wave.inputs["Vector"])
-    nt.links.new(wave.outputs["Fac"], bump.inputs["Height"])
-    nt.links.new(bump.outputs["Normal"], b.inputs["Normal"])
-    return m
-
-
 def _boxa(name, size, mat, bevel=0.0):
     """A box with its size baked into the mesh, so scale keyframes animate from 1."""
     ob = _box(name, (0, 0, 0), size, mat, bevel=bevel)
@@ -558,28 +564,90 @@ def _boxa(name, size, mat, bevel=0.0):
     return ob
 
 
-def crate_mats():
-    """Plywood panels (Poly Haven CC0) and darker pine battens for the shipping crates."""
-    ply = M.pbr("Plywood", "plywood", scale=0.45, tint=(1.05, 0.98, 0.9), rough_mul=0.5, rough_add=0.4, normal=0.6,
-                fallback=(0.62, 0.5, 0.34))
-    batten = M.pbr("Batten", "plywood", scale=0.9, tint=(0.62, 0.5, 0.38), rough_mul=0.5, rough_add=0.45, normal=0.8,
-                   fallback=(0.4, 0.3, 0.2))
-    return ply, batten
+# What the shipment really looked like, from Intel's own footage of the first High-NA delivery (see
+# research/visual/shipment_suppliers.md, section A3): the "crates" are boxes on flat air-cargo pallets,
+# film-wrapped under a dark cargo net; the large modules travel in white aluminium-framed shipment boxes with
+# chamfered roof edges, ribbed sides and end doors (Intel's video captions "250 crates" over the netted pallets
+# and "43 containers" over the white boxes); trucks are tractors pulling flatbeds with one box each; 747
+# freighters are loaded through the raised nose from a scissor highloader. No logos or liveries are copied.
+def shipping_mats():
+    return {"alu": M.principled("ShipBoxWhite", (0.86, 0.87, 0.88), metallic=0.35, roughness=0.32),
+            "rib": M.principled("ShipBoxRib", (0.72, 0.73, 0.75), metallic=0.6, roughness=0.3),
+            "carton": M.pbr("Carton", "plywood", scale=0.45, tint=(1.05, 0.95, 0.8), rough_mul=0.4, rough_add=0.5,
+                            normal=0.3, fallback=(0.62, 0.5, 0.34)),
+            "film": M.principled("WrapFilm", (0.85, 0.86, 0.88), roughness=0.15, coat=0.6),
+            "net": M.principled("CargoNet", (0.02, 0.02, 0.025), roughness=0.7),
+            "pallet": M.principled("AirPallet", (0.55, 0.56, 0.58), metallic=0.8, roughness=0.35)}
 
 
-def _crate(name, size, ply, batten):
-    """A shipping crate: plywood box with battens along every edge (a wireframe of a slightly larger box),
-    sizes baked into the meshes; the battens ride on the box, so keyframe the box only."""
-    box = _boxa(name, size, ply, bevel=0.02)
-    t = 0.09 * min(size)
-    fr = _boxa(name + "Frame", tuple(v + t for v in size), batten)
-    fr.modifiers.clear()
-    wf = fr.modifiers.new("Battens", "WIREFRAME")
-    wf.thickness = t
+def _enclosure(name, size, mats):
+    """White shipment box (width x, length y, height z): chamfered roof edges, ribs on the sides, origin at the
+    centre of its base; ribs ride on the body."""
+    import bmesh
+    w, l, h = size
+    c = 0.16 * w
+    prof = [(-w / 2, 0), (w / 2, 0), (w / 2, h - c), (w / 2 - c, h), (-w / 2 + c, h), (-w / 2, h - c)]
+    bm = bmesh.new()
+    front = [bm.verts.new((x, -l / 2, z)) for x, z in prof]
+    back = [bm.verts.new((x, l / 2, z)) for x, z in prof]
+    bm.faces.new(front[::-1])
+    bm.faces.new(back)
+    for i in range(len(prof)):
+        j = (i + 1) % len(prof)
+        bm.faces.new((front[i], front[j], back[j], back[i]))
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    body = bpy.data.objects.new(name, me)
+    bpy.context.scene.collection.objects.link(body)
+    bev = body.modifiers.new("Bevel", "BEVEL")
+    bev.width = 0.02 * w
+    bev.segments = 2
+    body.data.materials.append(mats["alu"])
+    styles.tag(body, "structure")
+    n = max(3, int(l / (0.9 * w)))
+    for k in range(n + 1):
+        y = -l / 2 + l * k / n
+        for side in (-1, 1):
+            r = _box(f"{name}Rib{k}{side}", (side * (w / 2 + 0.01), y, (h - c) / 2), (0.04 * w, 0.05 * w, h - c), mats["rib"])
+            r.parent = body
+    return body
+
+
+def _pallet_crate(name, size, mats):
+    """Box on a flat air-cargo pallet, wrapped in film under a dark net; origin at the box centre."""
+    box = _boxa(name, size, mats["carton"], bevel=0.02)
+    w, l, h = size
+    pal = _boxa(name + "Pallet", (w * 1.12, l * 1.12, 0.05 * h), mats["pallet"])
+    pal.location = (0, 0, -h / 2 - 0.025 * h)
+    pal.parent = box
+    net = _boxa(name + "Net", (w * 1.02, l * 1.02, h * 1.02), mats["net"])
+    net.modifiers.clear()
+    sub = net.modifiers.new("Grid", "SUBSURF")
+    sub.subdivision_type = "SIMPLE"
+    sub.levels = sub.render_levels = 2
+    wf = net.modifiers.new("Net", "WIREFRAME")
+    wf.thickness = 0.012 * min(size)
     wf.use_even_offset = True
-    wf.use_relative_offset = False
-    fr.parent = box
+    net.parent = box
     return box
+
+
+def _flatbed_truck(name, mats, cab_mat, tyre, box_size=(2.44, 6.06, 2.59)):
+    """Tractor + low flatbed carrying one white shipment box; origin at ground level, driving +x."""
+    def build():
+        _box(name + "Cab", (box_size[1] / 2 + 1.9, 0, 1.75), (2.2, 2.45, 2.3), cab_mat, bevel=0.25)
+        _box(name + "Deck", (0, 0, 1.0), (box_size[1] + 0.6, 2.5, 0.18), mats["pallet"], bevel=0.02)
+        for x in (box_size[1] / 2 + 2.3, box_size[1] / 2 + 0.9, -box_size[1] / 2 + 0.4, -box_size[1] / 2 + 1.5):
+            for y in (-1.15, 1.15):
+                _cyl(name + f"W{x:.1f}{y}", 0.5, 0.35, (x, y, 0.5), tyre, rot=(math.pi / 2, 0, 0), verts=24)
+        e = _enclosure(name + "Box", box_size, mats)
+        e.rotation_euler = (0, 0, math.pi / 2)                     # long side along the trailer
+        e.location = (0, 0, 1.09)
+        light = M.emission(name + "Head", (1.0, 0.95, 0.85), 30.0)
+        for y in (-0.9, 0.9):
+            _box(name + f"HL{y}", (box_size[1] / 2 + 3.01, y, 1.0), (0.04, 0.35, 0.2), light, role="emitter")
+    return _group(build)
 
 
 def logistics(sc, rnd):
@@ -589,13 +657,13 @@ def logistics(sc, rnd):
     floor = M.pbr("Table", "brushed_concrete", scale=0.05, tint=(0.07, 0.075, 0.085), rough_mul=0.3, rough_add=0.3,
                   normal=0.3, fallback=(0.03, 0.03, 0.035))
     _box("Table", (60, 0, -0.05), (1200, 1200, 0.1), floor)
-    ply, batten = crate_mats()
+    mats = shipping_mats()
     # 1) one crate splits into 252 (a 21 x 12 block), f8-50
     crates = []
     for i in range(252):
         cx, cy = i % 21, i // 21
         home = Vector(((cx - 10) * 1.25, (cy - 5.5) * 1.25, 0.5))
-        c = _crate(f"Crate{i}", (1.0, 1.0, 1.0), ply, batten)
+        c = _pallet_crate(f"Crate{i}", (1.0, 1.0, 0.9), mats)
         c.location = (0, 0, 0.5)
         big = 9.0 if i == 0 else 0.001
         _key(c, 1, location=(0, 0, 4.5) if i == 0 else (0, 0, 0.5), scale=(big, big, big))
@@ -603,13 +671,11 @@ def logistics(sc, rnd):
         _key(c, 26 + int(i / 252 * 14), location=home, scale=(1, 1, 1))
         crates.append((c, home))
     # 2) crates pour into 43 containers (a 9 x 5 yard, minus two), f52-86
-    steels = [_corrugated(f"ContainerSteel{n}", col)
-              for n, col in enumerate(((0.03, 0.08, 0.18), (0.22, 0.035, 0.025), (0.25, 0.26, 0.27), (0.38, 0.17, 0.03)))]
     conts = []
     for j in range(43):
         gx, gy = j % 9, j // 9
-        pos = Vector((40 + gx * 3.0, (gy - 2) * 6.6, 1.3))
-        k = _boxa(f"Container{j}", (2.44, 6.06, 2.59), steels[rnd.randrange(4)], bevel=0.03)
+        pos = Vector((40 + gx * 3.0, (gy - 2) * 6.6, 0.0))
+        k = _enclosure(f"Container{j}", (2.44, 6.06, 2.59), mats)
         _key(k, 1, location=pos, scale=(0.001, 0.001, 0.001))
         _key(k, 56 + j // 2, location=pos, scale=(0.001, 0.001, 0.001))
         _key(k, 72 + j // 2, location=pos, scale=(1, 1, 1))
@@ -652,10 +718,9 @@ def logistics(sc, rnd):
     for k_ in range(30):
         _box(f"Lane{k_}", (125 + 5.2 * k_, 0, 0.03), (2.2, 0.15, 0.01), lane, role="emitter")
     cab = M.principled("TruckCab", (0.8, 0.8, 0.82), roughness=0.3, coat=0.4)
-    box = M.principled("TruckBox", (0.3, 0.33, 0.38), roughness=0.45)
     tyre = M.principled("TruckTyre", (0.02, 0.02, 0.02), roughness=0.7)
     for t_i in range(20):
-        tr = _truck(f"Truck{t_i}", cab, box, tyre)
+        tr = _flatbed_truck(f"Truck{t_i}", mats, cab, tyre)
         y = -2.2 if t_i % 2 == 0 else 2.2
         x0 = 128 - 12 * (t_i // 2)
         _key(tr, 1, location=(x0, y, 0), scale=(0.001, 0.001, 0.001))

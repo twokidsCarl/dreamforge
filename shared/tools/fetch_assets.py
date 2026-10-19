@@ -19,8 +19,14 @@ HDRIS = {"studio_small_09": "2k", "hangar_interior": "2k", "rogland_moonlit_nigh
 TEXTURES = {"brushed_concrete": "1k", "asphalt_02": "1k", "container_side": "1k", "metal_plate": "1k",
             "corrugated_iron": "1k", "plywood": "1k"}
 MAPS = {"Diffuse": "diff", "Rough": "rough", "nor_gl": "nor_gl", "Metal": "metal"}
-# real die photographs, CC0 on Wikimedia Commons (Fritzchens Fritz): masks, chips, SEM dives
+# real die photographs, CC0 on Wikimedia Commons (Fritzchens Fritz): masks, chips, SEM dives.
+# Only dies made with EUV may illustrate "drawn by this machine's light" (research/visual/chips.md, B):
+# lunar_lake (TSMC N3B + N6), zen5_ccd_full (TSMC 4 nm), zen4_ccd_full (TSMC 5 nm) are EUV; the Skylake (14 nm)
+# and launch PS5 (N7) photos are DUV-era and their colours are DIC lambda-plate false colour, not diffraction.
 DIES = {
+    "lunar_lake": "File:Intel@TSMC N3 N6@LunarLake@LNL(4P+4LPE)@CoreUltra200Series@DSCx01 poly@5xExt.jpg",
+    "zen5_ccd_full": "File:AMD@4nmCCD(6nmIOD)@Zen5@Granite Ridge@Ryzen 5 9600X@100-000001405 BY 2429SUY 9AEQ579S40073 DSCx14 CCD poly@5xExt.jpg",
+    "zen4_ccd_full": "File:AMD@5nmCCD(6nmIOD)@Zen4@Raphael@Ryzen 5 7600@100-000001015 BQ 2246SUY 9LS4795W20142 DSCx13 CCD poly@5xExt.jpg",
     "ps5_apu_a": "File:AMD@7nm@Zen2 RDNA APU@Oberon@PlayStation5@100-000000189 9JF8970V00437 S DSC09299 - DSC09299 (50943150382).jpg",
     "ps5_apu_b": "File:AMD@7nm@Zen2 RDNA APU@Oberon@PlayStation5@100-000000189 9JF8970V00437 S DSC09310 - DSC09310 (50943149857).jpg",
     "ps5_apu_stack": "File:AMD@7nm@Zen2 RDNA APU@Oberon@PlayStation5@100-000000189 9JF8970V00437 S DSC09328-DSC09454 - ZS-retouched-3 (50943043431).jpg",
@@ -130,7 +136,10 @@ def main():
         dies[name] = {"file": os.path.relpath(p, ROOT), "license": lic, "page": ii["descriptionurl"]}
         rp = os.path.join(ddir, name + "_regions.png")
         if not os.path.exists(rp):
-            region_map(p, rp)
+            try:
+                region_map(p, rp)
+            except ImportError:                         # this Python has no Pillow: python3 can do it later
+                print("  (region map skipped: no Pillow)")
         print(name, lic)
     json.dump(dies, open(os.path.join(ddir, "manifest.json"), "w"), indent=1, ensure_ascii=False)
     print("ok", OUT)

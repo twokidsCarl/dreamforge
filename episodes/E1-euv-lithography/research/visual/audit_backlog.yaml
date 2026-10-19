@@ -1,0 +1,15 @@
+# Issues found while auditing A0 that belong to later segments. Each must be fixed (or sourced) in that
+# segment's pass, then moved into its audit_<SEG>.yaml.
+B1:
+  - b1_source sim: after the pre-pulse the disk drifts along the laser axis (x); really it keeps flying along the droplet path (~160 um in 2 us at 80 m/s) and the main pulse focus sits downstream (euv_source.md s.2-3).
+  - collector is drawn small at the droplet's scale; real collector 650 mm diameter, >5 sr (euv_source.md s.5) - show the scale jump honestly or label.
+  - script line 82: plasma "约 50 万开尔文" is a disputed figure (F5, media quote of ASML staff); find a primary source or drop it.
+  - droplet speed: ASML website 70 m/s vs ASML/Cymer decks ~80 m/s; pick one and cite it.
+B9:
+  - B9_09 light ledger graphic still has an "电力" first cell (unsourced MW figure, F48 removed from the storyboard); remove it from the manim/mograph code.
+D:
+  - D_04 graphic (EnergyPerWafer) still draws a power meter for the unsourced MW figure; storyboard now asks for the two energy-per-wafer bars only.
+ALL:
+  - every scene that uses build_machine (B1_28, B2, B5, B6, B8, C, A3) must be re-framed for the High-NA layout (machine centre BM.CENTER, source unit on +x).
+  - B7 must show NXE (Conradi 2011 s.5/20) vs EXE (van Schoot 2021 s.35) projection optics from the published design examples; do not state an EXE mirror count in narration (not public in text).
+  - run the same visual audit (audit_<SEG>.yaml) for every segment before its render.

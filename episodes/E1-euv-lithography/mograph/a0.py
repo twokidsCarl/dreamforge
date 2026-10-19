@@ -120,24 +120,45 @@ def _inside(lon, lat, poly):
     return ins
 
 
-def _supplier_points(n=5100):
-    """Illustrative positions: land points, denser in Europe, North America and East Asia."""
+# ASML Annual Report 2025, p.239 (research/visual/shipment_suppliers.md, B1): suppliers by region. ASML
+# publishes nothing finer, so within a region the dots are spread over that region's industrial areas
+# (illustrative; the screen says so).
+REGIONS = [  # (name, suppliers, [(lon, lat, spread_deg, weight), ...], (lon0, lon1, lat0, lat1))
+    ("Netherlands", 1600, [(5.4, 51.9, 0.7, 1.0)], (3.3, 7.3, 50.7, 53.6)),
+    ("Rest of EMEA", 700, [(9.5, 49.5, 2.5, 1.0), (2.5, 47.0, 3.0, 0.5), (14.0, 47.5, 3.0, 0.4), (-2.0, 52.5, 1.8, 0.3),
+                          (35.0, 32.0, 1.0, 0.15)], (-11.0, 40.0, 29.0, 60.0)),
+    ("North America", 1350, [(-118.0, 34.5, 3.0, 0.5), (-122.2, 37.6, 1.2, 0.5), (-73.5, 41.5, 2.5, 0.6),
+                             (-97.0, 32.5, 3.5, 0.4), (-87.5, 42.0, 3.0, 0.4), (-112.0, 33.5, 2.0, 0.25)],
+     (-125.0, -66.0, 25.0, 50.0)),
+    ("Asia", 1450, [(121.0, 24.0, 0.8, 0.6), (127.3, 36.5, 1.2, 0.5), (138.0, 36.0, 2.5, 0.6), (114.0, 23.5, 2.5, 0.5),
+                    (120.5, 31.0, 2.0, 0.5), (103.8, 1.4, 0.4, 0.25), (101.0, 3.5, 1.5, 0.2)],
+     (95.0, 146.0, -2.0, 45.0)),
+]
+
+
+def _supplier_points():
+    """Dots per region exactly as ASML reports them (5,100 in all); positions inside a region illustrative."""
     global _PTS
     if _PTS is None:
         rnd = random.Random(50)
-        hubs = [(8, 50, 9, 2.4), (-95, 38, 20, 1.0), (125, 32, 14, 1.2), (5, 52, 3, 1.6)]
         polys = _world()
         bbox = [(min(p[0] for p in pl), max(p[0] for p in pl), min(p[1] for p in pl), max(p[1] for p in pl))
                 for pl in polys]
-        pts = []
-        while len(pts) < n:
-            hx, hy, sd, wgt = rnd.choices(hubs, weights=[h[3] for h in hubs])[0]
-            lon, lat = rnd.gauss(hx, sd), rnd.gauss(hy, sd * 0.6)
-            for pl, (x0, x1, y0, y1) in zip(polys, bbox):
-                if x0 <= lon <= x1 and y0 <= lat <= y1 and _inside(lon, lat, pl):
-                    pts.append((lon, lat))
-                    break
-        _PTS = pts
+        per_region = []
+        for _, n, hubs, (lo0, lo1, la0, la1) in REGIONS:
+            got = []
+            while len(got) < n:
+                hx, hy, sd, _w = rnd.choices(hubs, weights=[h[3] for h in hubs])[0]
+                lon, lat = rnd.gauss(hx, sd), rnd.gauss(hy, sd * 0.7)
+                if not (lo0 <= lon <= lo1 and la0 <= lat <= la1):
+                    continue
+                for pl, (x0, x1, y0, y1) in zip(polys, bbox):
+                    if x0 <= lon <= x1 and y0 <= lat <= y1 and _inside(lon, lat, pl):
+                        got.append((lon, lat))
+                        break
+            per_region.append(got)
+        _PTS = [p for grp in zip(*[g + [None] * (max(map(len, per_region)) - len(g)) for g in per_region])
+                for p in grp if p]                                      # interleaved, so all regions light up together
     return _PTS
 
 
@@ -145,7 +166,7 @@ def _supplier_points(n=5100):
 def suppliers(t, dur, W, H):
     c = Canvas(W, H, bg=(6, 8, 14))
     a = fade(t, 0.0, dur, dur, 0.3)
-    z = 1 + 1.6 * ease(seg(t, 0.4, dur - 0.3))                   # slow push toward Europe
+    z = 1 + 1.6 * ease(seg(t, 2.2, dur - 0.3))                   # whole world while counting, then push to Veldhoven
     home = (5.4, 51.4)                                             # Veldhoven (illustrative point)
     def P(lon, lat):  # noqa: E306
         x = 960 + (lon - home[0] * (z - 1) / z) * 5.0 * z
@@ -175,7 +196,7 @@ def suppliers(t, dur, W, H):
     c.circle((hx, hy), 6 + 30 * flash, fill=VIOLET, a=a * (0.6 + 0.4 * flash), glow=True)
     c.text((960, 110), f"{min(5100, int(5100 * ease(seg(t, 0.2, 2.2)))):,} 家供应商", 48, INK, a, anchor="mm",
            weight_glow=True)
-    c.text((1880, 1030), "光点位置为示意 · F50", 18, INK2, a, anchor="rm")
+    c.text((1880, 1030), "各地区数量据 ASML 2025 年报；地区内位置为示意", 18, INK2, a, anchor="rm")
     return c.finish(glow_radius=6, glow_gain=1.4)
 
 
@@ -202,12 +223,13 @@ def _zoom(img, cx, cy, z, W, H):
 
 
 def chip_dive(t, dur, W, H, paint=(0.75, 0.55, 1.0)):
-    """A0_09 / D_02: push into a real die (Intel Xeon, then a Zen 5 core macro with its own diffraction
-    colours); the transistor rows are lit up stroke by stroke."""
+    """A0_09 / D_02: push into a real EUV-made die: the whole AMD Zen 5 CCD (TSMC 4 nm, 5x), into its L3 cache
+    columns, then the same chip at 50x; the cell rows are lit up stroke by stroke. Only EUV-made dies may sit
+    under "drawn by this machine's light" (research/visual/chips.md, B)."""
     c = Canvas(W, H)
     a = fade(t, 0.0, dur, dur, 0.3)
     z1 = ease(seg(t, 0.0, dur * 0.62))
-    far = _zoom(_die("xeon_poly"), 0.62, 0.48, 1.05 * (5.0 ** z1), W, H)
+    far = _zoom(_die("zen5_ccd_full"), 0.5, 0.42, 1.05 * (5.0 ** z1), W, H)
     mix = ease(seg(t, dur * 0.48, dur * 0.66))
     if mix > 0:
         z2 = ease(seg(t, dur * 0.48, dur))
@@ -233,7 +255,8 @@ def chip_dive(t, dur, W, H, paint=(0.75, 0.55, 1.0)):
     c.img = Image.blend(Image.new("RGB", (W, H)), img, a)
     c.d = ImageDraw.Draw(c.img, "RGBA")
     c.g = ImageDraw.Draw(c.glow)
-    c.text((1880, 1050), "芯片显微照片：Fritzchens Fritz（CC0）", 16, INK2, a, anchor="rm")
+    c.text((1880, 1050), "AMD Zen 5 CCD（台积电 4 nm，EUV 工艺）· 显微照片：Fritzchens Fritz（CC0）", 16, INK2, a,
+           anchor="rm")
     return c.finish(glow_radius=8, glow_gain=0.9, vignette=True)
 
 

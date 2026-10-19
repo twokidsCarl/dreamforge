@@ -223,11 +223,16 @@ def machine(with_path=True):
         c = tuple(drum + ax * off)
         _ring(f"SrcFlange{k}", c, 1.13, 0.06, steel, rot=arot)
         _bolt_circle(f"SrcBolt{k}", c, 1.13, 32, steel, axis=tuple(ax))
-    for k, d in enumerate((across, -across, Vector((0, 1, 0)), Vector((0, -1, 0)))):
+    for k, d in enumerate((across, -across)):
         prot = d.to_track_quat("Z", "Y").to_euler()
         _disc(f"SrcPort{k}", tuple(drum + d * 1.2), 0.22, 0.35, steel, rot=prot)
         _disc(f"SrcPortFlange{k}", tuple(drum + d * 1.38), 0.3, 0.06, steel, rot=prot)
-    _disc("Viewport", tuple(drum + Vector((0, -1.12, 0))), 0.16, 0.04,
+    # droplet generator and catcher on opposite flanks, on one horizontal line through the plasma, at right angles
+    # to the collector axis [research/visual/euv_source.md, section 1]
+    yrot = (math.pi / 2, 0, 0)
+    _disc("DropletGen", tuple(Vector(PLASMA) + Vector((0, 1.75, 0))), 0.14, 0.9, steel, rot=yrot)
+    _disc("DropletCatcher", tuple(Vector(PLASMA) + Vector((0, -1.6, 0))), 0.2, 0.6, steel, rot=yrot)
+    _disc("Viewport", tuple(drum + Vector((0, -1.12, 0)) + ax * 0.45), 0.16, 0.04,
           M.principled("ViewGlass", (0.02, 0.03, 0.05), roughness=0.02, coat=1.0), rot=(math.pi / 2, 0, 0))
     span = (Vector(IF) - drum).length - 0.8                 # vessel face -> IF
     bpy.ops.mesh.primitive_cone_add(vertices=96, radius1=1.1, radius2=0.18, depth=span,

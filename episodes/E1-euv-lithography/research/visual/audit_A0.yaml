@@ -2,84 +2,89 @@
 # (narration numbers live in research/facts.yaml). status:
 #   sourced   - matches a primary source cited here
 #   wrong     - contradicts a source; must change
-#   unsourced - invented or unchecked; research pending (see research/visual/*.md)
+#   unsourced - invented or unchecked
 #   artistic  - deliberate convention, flagged on screen as 示意 where a viewer could take it literally
+# Research files: research/visual/{high_na_optics,euv_source,shipment_suppliers,chips}.md
 A0_01:
-  - item: tin droplet ~25 um, stream from a nozzle
+  - item: tin droplet 25-27 um in a horizontal stream; generator and catcher on opposite sides
     status: sourced
-    source: F3 (ASML light-and-lasers page)
-  - item: two laser pulses per droplet; pre-pulse flattens it into a disk, main pulse makes plasma
+    source: F3; euv_source.md s.1 (ASML/Cymer decks 2018-2020)
+  - item: two CO2 laser pulses through the collector's central hole; pre-pulse flattens the droplet into a disk facing the laser, main pulse makes plasma
     status: sourced
-    source: F4, F4b (ASML; ASML S2 source conditions)
-  - item: droplet direction vs laser axis vs collector; laser through the collector's central hole; pulse delay
-    status: unsourced
-    research: euv_source.md
-  - item: disk ("pancake") size, thickness, ripples, how long it expands before the main pulse
-    status: unsourced
-    research: euv_source.md
+    source: F4, F4b; euv_source.md s.2-3 (Fomenkov 2017; Kurilovich 2016)
+  - item: disk diameter 300 um (12x the droplet)
+    status: sourced
+    source: F4b; euv_source.md s.3 (300-400 um)
+  - item: disk drifts along the laser axis before the main pulse
+    status: simplified
+    note: really it keeps flying along the droplet path (~160 um in 2 us) and the main pulse hits it downstream; barely visible here; fix in the B1 pass (audit_backlog.yaml)
   - item: plasma look in visible light; orange debris sparks
-    status: unsourced
-    research: euv_source.md
+    status: artistic
+    note: no calibrated visible colour is public (euv_source.md, not public); EUV itself is invisible
   - item: slow motion (real events take microseconds)
     status: artistic
-    note: needs no label; narration says 下一瞬间
+    note: narration says 下一瞬间
 A0_02:
-  - item: wide-body freighter, nose door lifts, crates loaded through the nose, night apron
-    status: unsourced
-    research: shipment_suppliers.md (aircraft type, nose vs side loading, official photos)
-  - item: crate look (plywood with battens)
-    status: unsourced
-    research: shipment_suppliers.md
+  - item: Boeing 747 freighter, nose door raised, shipment box rolled in from a scissor highloader, night apron
+    status: sourced
+    source: shipment_suppliers.md A2 (Intel videos WHmRj2mZ-dk, 3PCtf1ONYMU: Cargolux 747-8F/-400F, nose loading)
+    note: generic white plane, no airline livery copied (project rule)
+  - item: white aluminium shipment boxes with chamfered roof and ribbed sides in the hold
+    status: sourced
+    source: shipment_suppliers.md A3 (Intel footage); no ASML logo copied
 A0_03:
-  - item: 250+ crates -> 43 containers -> several freighters -> 20 trucks
+  - item: 250+ crates -> 43 containers -> several freighters -> Seattle -> 20 trucks
     status: sourced
-    source: F17 (Intel newsroom)
-  - item: route Netherlands -> Seattle -> Oregon (overlay)
+    source: F17 (Intel newsroom and video narration)
+  - item: crates = boxes on air-cargo pallets under a dark net; containers = white shipment boxes; trucks = tractor + flatbed with one box
     status: sourced
-    source: F17
-  - item: container colours, crate shape, plane model, truck model
-    status: unsourced
-    research: shipment_suppliers.md
+    source: shipment_suppliers.md A3 (Intel video captions "250 | crates" over netted pallets, "43 | containers" over the white boxes)
+  - item: number of planes (four drawn)
+    status: artistic
+    note: Intel says only "multiple cargo planes"; the count is not public
 A0_05:
   - item: machine = High-NA EXE:5000 laid out from published drawings (module tiers, source unit beside the scanner, optical train, 6-mirror PO with holed M6/M5, 5.4 deg CRAO)
     status: sourced
     source: high_na_optics.md - ASML van Schoot EUVL Workshop 2022 s.34 (modules), ZEISS Kaumanns et al. 2024 s.13 (train) and s.9 (CRAO, obscuration), van Schoot 2021 s.35 / Heil 2015 s.9,19,20 (PO design example)
     note: illuminator mirror count and spacings, source-axis elevation are not public -> plausible fit; on-screen label 示意 stays
-  - item: machine size / proportions / weight >150 t (overlay)
-    status: unsourced (size); sourced (weight, F16)
-    research: high_na_optics.md
+  - item: source vessel with droplet generator / catcher across the collector axis
+    status: sourced
+    source: euv_source.md s.1, s.5
+  - item: machine size / proportions; weight >150 t (overlay)
+    status: unsourced (size, not public); sourced (weight, F16)
   - item: exterior housing look
     status: artistic
-    note: deliberately not the ASML exterior (project rule); keep generic
+    note: deliberately not the ASML exterior (project rule)
 A0_06:
-  - item: 5100 suppliers (overlay)
+  - item: 5100 suppliers; dots per region 1600 NL / 700 rest of EMEA / 1350 North America / 1450 Asia
     status: sourced
-    source: ASML annual report (fact record)
-  - item: geographic distribution of the supplier dots
-    status: unsourced
-    note: on screen as 光点位置为示意; replace with the annual report's regional split
-    research: shipment_suppliers.md
+    source: ASML Annual Report 2025 p.239 (shipment_suppliers.md B1)
+  - item: dot positions inside each region
+    status: artistic
+    note: ASML publishes nothing finer; on screen 各地区数量据 ASML 2025 年报；地区内位置为示意
 A0_07:
   - item: violet beam printing a circuit onto a wafer
     status: artistic
     note: EUV (13.5 nm) is invisible; violet is the film's colour code for EUV; label once in the film
 A0_08:
-  - item: 184 billion components on a fingertip-sized area (overlay)
-    status: unsourced
-    note: fact F19 says ZEISS; wording and which chip need re-verification
-    research: chips.md
-  - item: die photo = Intel Skylake-SP 14 nm
-    status: wrong
-    note: 14 nm was patterned with DUV, not EUV; narration says every component is drawn by this machine's light
-    research: chips.md (EUV-made CC0 dies)
-  - item: diffraction colours by block (grating per functional block)
-    status: sourced (physics); block pitches illustrative
-    research: chips.md part C
-A0_09:
-  - item: dive into Xeon 14 nm then Zen 5 CCD (N4P)
-    status: wrong (Xeon) / unsourced (Zen 5 EUV use, to confirm)
-    research: chips.md
-A0_10:
-  - item: the same machine model (bursts into modules)
+  - item: "184 billion components on an area slightly larger than a fingertip"
     status: sourced
-    note: same EXE model as A0_05; the burst into the four testable subsystems matches ASML 2022 s.34 ("4 independent testable subsystems")
+    source: F19 (ZEISS EUV page, exact wording; components, no specific chip)
+    note: narration now says 比指尖略大的一块面积上 (ZEISS's claim) instead of 一块芯片里, so the shown die is not presented as the 184-billion chip
+  - item: die = AMD Zen 5 CCD, TSMC 4 nm (EUV node), whole-die CC0 photo
+    status: sourced
+    source: chips.md B1/B2 (AMD spec page "TSMC 4nm FinFET"; Commons CC0)
+  - item: diffraction colours by block (grating per functional block, 0.8-1.8 um pitches)
+    status: sourced (physics)
+    source: chips.md C (visible diffraction comes from coarse periodic structures ~0.3-2 um, not the EUV critical layers)
+A0_09:
+  - item: dive into the same Zen 5 CCD (5x whole die -> 50x)
+    status: sourced
+    source: chips.md B
+  - item: narration "其中最精细的那几层，要靠这台机器里的光"
+    status: sourced
+    source: chips.md B0 (only critical layers use EUV even on EUV nodes; the old line "每一个" overstated it)
+A0_10:
+  - item: the same machine model; on 拆开 it separates into four subsystems (mask, optics, wafer, source)
+    status: sourced
+    source: ASML 2022 s.34 ("4 independent testable subsystems")

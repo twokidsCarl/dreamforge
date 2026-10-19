@@ -77,7 +77,7 @@ shots:
   - wet_ground_reflection
   - film_grain
   overlays:
-  - text: 2023 年 12 月 · 首台 High-NA EUV 交付
+  - text: 2023 年 12 月 · 首台 High-NA EUV 发货
     facts:
     - F20
   - text: 荷兰 → 西雅图 → 美国俄勒冈
@@ -223,9 +223,9 @@ shots:
   - 一声清脆的定影音
 - id: A0_08
   segment: A0
-  duration: 5.6
+  duration: 6.4
   vo:
-  - 一块比指尖略大的芯片里，装着 1840 亿个元件；
+  - 如今，比指尖略大的一块面积上，能放下 1840 亿个元件；
   facts:
   - F19
   style: photoreal
@@ -253,9 +253,9 @@ shots:
   - 一声细微的高音
 - id: A0_09
   segment: A0
-  duration: 5.4
+  duration: 6.6
   vo:
-  - 每一个，都要靠这台机器里的光，一笔一笔画出来。
+  - 其中最精细的那几层，要靠这台机器里的光，一笔一笔画出来。
   facts: []
   style: sem
   style_why: 纳米尺度长什么样：显微成像的灰阶与噪点让观众相信这是“看”到的结构。
