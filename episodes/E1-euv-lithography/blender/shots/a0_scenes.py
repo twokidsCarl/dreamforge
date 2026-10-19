@@ -206,73 +206,325 @@ def _text(body, loc, rot, size, mat, align="CENTER"):
 
 
 # ---- A0_02 ---------------------------------------------------------------------------------
-def cargo(sc, rnd):
-    C.set_world(top=(0.004, 0.006, 0.012), horizon=(0.003, 0.004, 0.008), bottom=(0.0, 0.0, 0.001))
-    wet = M.pbr("Apron", "asphalt_02", scale=0.08, tint=(0.1, 0.105, 0.12), rough_mul=0.22, rough_add=0.01, normal=0.6,
-                fallback=(0.02, 0.022, 0.026))                                  # wet apron (CC0)
-    _box("Apron", (0, 0, -0.05), (200, 200, 0.1), wet)
-    skin = M.principled("Fuselage", (0.55, 0.57, 0.6), metallic=0.3, roughness=0.5)
-    body = _cyl("Fuselage", 3.0, 36.0, (-18.0, 0, 4.2), skin, rot=(0, math.pi / 2, 0), verts=96)
-    # nose section on a hinge at its top edge: lifts like a visor
-    bpy.ops.object.empty_add(location=(0.0, 0, 7.2))
+def _loft(name, sections, segs=64, cap=True, cap_start=None, cap_end=None):
+    """Fuselage-like loft along X. sections: (x, ry, rz, zc) ellipses, ordered by x."""
+    import bmesh
+    bm = bmesh.new()
+    rings = []
+    for x, ry, rz, zc in sections:
+        rings.append([bm.verts.new((x, ry * math.cos(2 * math.pi * j / segs), zc + rz * math.sin(2 * math.pi * j / segs)))
+                      for j in range(segs)])
+    for r0, r1 in zip(rings, rings[1:]):
+        for j in range(segs):
+            k = (j + 1) % segs
+            bm.faces.new((r0[j], r0[k], r1[k], r1[j]))
+    if cap_start if cap_start is not None else cap:
+        bm.faces.new(rings[0])
+    if cap_end if cap_end is not None else cap:
+        bm.faces.new(rings[-1])
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    ob = bpy.data.objects.new(name, me)
+    bpy.context.scene.collection.objects.link(ob)
+    for p in ob.data.polygons:
+        p.use_smooth = True
+    return ob
+
+
+def _slab(name, pts, thick, mat):
+    """A flat swept surface (wing, fin) from a 4-point outline with a thickness; pts in world space."""
+    import bmesh
+    bm = bmesh.new()
+    n = Vector(pts[1]) - Vector(pts[0])
+    m = Vector(pts[3]) - Vector(pts[0])
+    up = n.cross(m).normalized() * (thick / 2)
+    top = [bm.verts.new(Vector(p) + up) for p in pts]
+    bot = [bm.verts.new(Vector(p) - up) for p in pts]
+    bm.faces.new(top)
+    bm.faces.new(list(reversed(bot)))
+    for i in range(4):
+        j = (i + 1) % 4
+        bm.faces.new((top[i], bot[i], bot[j], top[j]))
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    ob = bpy.data.objects.new(name, me)
+    bpy.context.scene.collection.objects.link(ob)
+    bev = ob.modifiers.new("Bevel", "BEVEL")
+    bev.width = min(0.15, thick * 0.45)
+    bev.segments = 3
+    ob.data.materials.append(mat)
+    styles.tag(ob, "structure")
+    return ob
+
+
+def freighter(skin, belly, rnd, visor_open=None):
+    """Generic wide-body freighter with a lifting nose visor (no airline, no type marks). Nose points +X."""
+    zc = 4.6
+    body = _loft("Fuselage", cap_start=False, cap_end=True, sections=[(0.0, 3.1, 3.2, zc), (-38, 3.1, 3.2, zc), (-44, 2.7, 2.8, zc + 0.5),
+                              (-50, 1.8, 1.9, zc + 1.4), (-55, 0.7, 0.8, zc + 2.2), (-56.2, 0.15, 0.2, zc + 2.4)])
+    body.data.materials.append(skin)
+    body.modifiers.new("Skin", "SOLIDIFY").thickness = 0.12           # open front: a real hull edge
+    styles.tag(body, "structure")
+    bpy.ops.object.empty_add(location=(0.0, 0, zc + 3.1))
     hinge = bpy.context.object
     hinge.name = "NoseHinge"
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=3.0, segments=64, ring_count=32, location=(0, 0, 4.2))
-    nose = bpy.context.object
-    nose.name = "Nose"
-    nose.scale = (1.9, 1.0, 1.0)
-    for p in nose.data.polygons:
-        p.use_smooth = True
-    bis = nose.modifiers.new("Half", "BOOLEAN")
-    bpy.ops.mesh.primitive_cube_add(location=(-6.0, 0, 4.2))
-    cutter = bpy.context.object
-    cutter.scale = (6.0, 6.0, 6.0)
-    cutter.hide_render = cutter.hide_viewport = True
-    bis.object = cutter
-    bis.operation = "DIFFERENCE"
-    nose.data.materials.append(skin)
-    styles.tag(nose, "structure")
-    nose.parent = hinge
-    nose.matrix_parent_inverse = hinge.matrix_world.inverted()
+    visor = _loft("Visor", cap_start=False, cap_end=True,
+                  sections=[(0.0, 3.1, 3.2, zc), (2.5, 3.05, 3.12, zc), (5.0, 2.8, 2.85, zc - 0.05),
+                            (7.0, 2.3, 2.3, zc - 0.2), (8.6, 1.6, 1.55, zc - 0.45), (9.7, 0.85, 0.8, zc - 0.7),
+                            (10.3, 0.2, 0.2, zc - 0.85)])
+    visor.modifiers.new("Skin", "SOLIDIFY").thickness = 0.12
+    visor.data.materials.append(skin)
+    styles.tag(visor, "structure")
+    visor.parent = hinge
+    visor.matrix_parent_inverse = hinge.matrix_world.inverted()
+    glass = M.principled("CockpitGlass", (0.01, 0.012, 0.015), roughness=0.05, coat=1.0)
+    for side in (-1, 1):                                           # cockpit windows, part of the visor
+        for k in range(3):
+            w = _box(f"Win{side}{k}", (7.0 + 0.6 * k, side * (1.55 - 0.25 * k), zc + 1.45 - 0.22 * k),
+                     (0.5, 0.1, 0.4), glass)
+            w.rotation_euler = (side * 0.75, 0, 0)
+            w.parent = visor
+            w.matrix_parent_inverse = visor.matrix_world.inverted()
+    # belly fairing stripe
+    bel = _loft("Belly", [(-1.0, 3.12, 1.4, zc - 1.9), (-37, 3.12, 1.4, zc - 1.9)], cap=False)
+    bel.data.materials.append(belly)
+    styles.tag(bel, "structure")
+    bel.scale = (1.0, 1.0, 1.0)
+    # wings (swept, slight dihedral), engines, tail
+    for side in (-1, 1):
+        y0, y1 = side * 3.0, side * 31.0
+        _slab(f"Wing{side}", [(-16, y0, zc - 1.6), (-30, y0, zc - 1.6), (-36, y1, zc + 0.9), (-32, y1, zc + 0.9)], 0.7, skin)
+        for k, yy in enumerate((10.0, 19.0)):
+            t = (yy - 3) / 28
+            xl = -16 - 16 * t                                       # leading edge at this span
+            zz = zc - 1.6 + 2.5 * t - 1.3
+            nac = _cyl(f"Nacelle{side}{k}", 1.25, 5.2, (xl + 1.2, side * yy, zz), skin, rot=(0, math.pi / 2, 0), verts=48)
+            _cyl(f"Inlet{side}{k}", 1.05, 0.1, (xl + 3.82, side * yy, zz), M.dark_anodized("Inlet"), rot=(0, math.pi / 2, 0),
+                 verts=48)
+            _cyl(f"Pylon{side}{k}", 0.25, 1.6, (xl + 0.3, side * yy, zz + 1.1), skin, verts=12)
+        _slab(f"HStab{side}", [(-48, side * 1.2, zc + 1.8), (-54, side * 1.2, zc + 1.8), (-58, side * 11, zc + 2.6),
+                               (-55.5, side * 11, zc + 2.6)], 0.35, skin)
+    _slab("Fin", [(-46, 0, zc + 2.6), (-54.5, 0, zc + 2.6), (-58.5, 0, zc + 12.5), (-55, 0, zc + 12.5)], 0.45, skin)
+    tyre = M.principled("Tyre", (0.02, 0.02, 0.02), roughness=0.7)
+    steel = M.polished_steel("GearSteel", 0.25)
+    for x, ys in ((1.5, (0.0,)), (-22.0, (-2.4, 2.4)), (-25.0, (-2.4, 2.4))):
+        for y in ys:
+            _cyl(f"Strut{x}{y}", 0.14, zc - 2.6, (x, y, (zc - 2.6) / 2 + 0.6), steel, verts=12)
+            for dy in (-0.45, 0.45):
+                _cyl(f"Tyre{x}{y}{dy}", 0.62, 0.42, (x, y + dy, 0.62), tyre, rot=(math.pi / 2, 0, 0), verts=32)
+    return hinge
+
+
+def cargo(sc, rnd):
+    sc["hdri_world"] = True
+    C.hdri_world("rogland_moonlit_night", strength=0.07, rotation=math.radians(110), tint=(0.7, 0.82, 1.1))
+    wet = M.pbr("Apron", "asphalt_02", scale=0.08, tint=(0.08, 0.085, 0.1), rough_mul=0.2, rough_add=0.01, normal=0.6,
+                fallback=(0.02, 0.022, 0.026))                                  # wet apron (CC0)
+    _box("Apron", (0, 0, -0.05), (400, 400, 0.1), wet)
+    skin = M.principled("Paint", (0.78, 0.8, 0.82), roughness=0.28, coat=0.4)
+    belly = M.principled("BellyPaint", (0.42, 0.45, 0.5), roughness=0.35, coat=0.3)
+    hinge = freighter(skin, belly, rnd)
     _key(hinge, 1, rotation_euler=(0, 0, 0))
-    _key(hinge, 20, rotation_euler=(0, 0, 0))
-    _key(hinge, 130, rotation_euler=(0, math.radians(-62), 0))
-    for side in (-1, 1):                                           # swept wings, engines, tail
-        w = _box(f"Wing{side}", (-20.0, side * 11.0, 3.2), (7.0, 18.0, 0.5), skin, bevel=0.1)
-        w.rotation_euler = (0, 0, math.radians(-22 * side))
-        _cyl(f"Engine{side}", 1.2, 4.0, (-16.5, side * 8.0, 1.8), M.dark_anodized(f"Eng{side}"),
-             rot=(0, math.pi / 2, 0))
-    _box("Fin", (-34.0, 0, 9.0), (6.0, 0.5, 9.0), skin, bevel=0.1).rotation_euler = (0, math.radians(-20), 0)
-    for x in (-4.0, -20.0):
-        for y in ((0.0,) if x > -10 else (-2.5, 2.5)):
-            _cyl(f"Gear{x}{y}", 0.6, 0.5, (x, y, 0.6), M.dark_anodized("Tyre"), rot=(math.pi / 2, 0, 0))
-            _cyl(f"Strut{x}{y}", 0.12, 1.4, (x, y, 1.5), M.polished_steel("GearSteel"))
-    # interior: cold strip lights and rows of plywood crates
-    lamp = M.emission("HoldLamp", (0.86, 0.92, 1.0), 8.0)
-    for k in range(6):
-        _box(f"HoldLamp{k}", (-3.0 - 5.0 * k, 0, 6.9), (3.0, 0.25, 0.05), lamp, role="emitter")
-    ply = M.principled("Crate", (0.62, 0.5, 0.34), roughness=0.8)
+    _key(hinge, 24, rotation_euler=(0, 0, 0))
+    _key(hinge, 140, rotation_euler=(0, math.radians(-58), 0))
+    # the hold: cold strip lights, a roller floor and rows of plywood crates
+    lamp = M.emission("HoldLamp", (0.86, 0.92, 1.0), 10.0)
     for k in range(7):
+        _box(f"HoldLamp{k}", (-1.5 - 5.0 * k, 0, 7.3), (3.0, 0.3, 0.05), lamp, role="emitter")
+    ply = M.pbr("Crate", "brushed_concrete", scale=0.5, tint=(1.5, 1.15, 0.75), rough_mul=0.5, rough_add=0.4,
+                normal=0.3, fallback=(0.62, 0.5, 0.34))
+    for k in range(8):
         for side in (-1, 1):
-            h = rnd.uniform(1.6, 2.4)
-            _box(f"Crate{k}{side}", (-2.5 - 4.2 * k, side * 1.25, 1.3 + h / 2), (3.4, 2.1, h), ply, bevel=0.03)
-    _box("HoldFloor", (-18.0, 0, 1.25), (36.0, 5.2, 0.1), M.dark_anodized("HoldFloor"))
-    for x in (-40, -20, 10, 30):                                   # apron flood lights
-        bpy.ops.object.light_add(type="SPOT", location=(x, -30, 18))
-        l = bpy.context.object
-        l.data.energy = 25000
-        l.data.spot_size = math.radians(40)
-        l.data.color = (0.82, 0.9, 1.0)
-        l.rotation_euler = (Vector((0, 0, 3)) - Vector((x, -30, 18))).to_track_quat("-Z", "Y").to_euler()
-        styles.tag(l, "rig")
-    bpy.ops.object.light_add(type="AREA", location=(-10, 0, 6.8))
+            h = rnd.uniform(1.8, 2.5)
+            _box(f"Crate{k}{side}", (-2.0 - 4.2 * k, side * 1.35, 1.75 + h / 2), (3.5, 2.3, h), ply, bevel=0.04)
+    _box("HoldFloor", (-18.0, 0, 1.65), (38.0, 5.6, 0.12), M.dark_anodized("HoldFloor"))
+    bpy.ops.object.light_add(type="AREA", location=(-8, 0, 7.0))
     il = bpy.context.object
-    il.data.energy = 3000
-    il.data.size = 20
-    il.data.size_y = 3
+    il.data.energy = 6000
+    il.data.size = 26
+    il.data.size_y = 3.5
     il.data.color = (0.86, 0.92, 1.0)
     styles.tag(il, "rig")
-    B._camera("CamA0_02", [(1, (-6, 0, 4.0), (20.0, -9.0, 0.7), 28, 5.6), (148, (-4.0, 0, 3.2), (13.0, -4.5, 0.9), 28, 5.6)])
+    # apron: light masts (visible bulbs), a lit terminal far behind, edge lights, a tug
+    bulb = M.emission("MastBulb", (1.0, 0.86, 0.62), 40.0)
+    mast = M.principled("Mast", (0.05, 0.05, 0.06), roughness=0.6)
+    for x, y in ((40, -45), (-30, -60), (-70, 40), (70, 35)):
+        _cyl(f"Mast{x}", 0.3, 26, (x, y, 13), mast, verts=12)
+        _box(f"MastHead{x}", (x, y, 26.5), (2.4, 0.8, 0.8), bulb, role="emitter")
+        bpy.ops.object.light_add(type="SPOT", location=(x, y, 26))
+        l = bpy.context.object
+        l.data.energy = 120000
+        l.data.spot_size = math.radians(55)
+        l.data.spot_blend = 0.6
+        l.data.color = (1.0, 0.88, 0.7)
+        l.rotation_euler = (Vector((-18, 0, 2)) - Vector((x, y, 26))).to_track_quat("-Z", "Y").to_euler()
+        styles.tag(l, "rig")
+    win = M.emission("TerminalWin", (1.0, 0.82, 0.55), 6.0)
+    _box("Terminal", (-60, 110, 9), (180, 20, 18), M.principled("TermWall", (0.03, 0.03, 0.035), roughness=0.8))
+    for k in range(40):
+        _box(f"TWin{k}", (-150 + 4.5 * k, 99.9, 7 + (k % 3) * 3.5), (3.2, 0.1, 1.6), win, role="emitter")
+    edge = M.emission("EdgeLight", (0.3, 0.55, 1.0), 25.0)
+    for k in range(30):
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=0.18, location=(-120 + 9 * k, 70 + rnd.uniform(-1, 1), 0.3))
+        e = bpy.context.object
+        e.data.materials.append(edge)
+        styles.tag(e, "emitter")
+    # low haze so the masts throw beams
+    fog = bpy.data.materials.new("ApronHaze")
+    fog.use_nodes = True
+    nt = fog.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    vs = nt.nodes.new("ShaderNodeVolumePrincipled")
+    vs.inputs["Density"].default_value = 0.0015
+    vs.inputs["Color"].default_value = (0.8, 0.85, 0.95, 1)
+    nt.links.new(vs.outputs[0], out.inputs["Volume"])
+    _box("Haze", (0, 0, 15), (260, 260, 30), fog, role="env")
+    B._camera("CamA0_02", [(1, (-2.0, 0, 5.4), (30.0, -18.0, 1.0), 32, 4.0),
+                           (156, (-4.0, 0, 5.6), (24.0, -13.5, 1.2), 32, 4.0)])
+
+
+# ---- A0_03 ---------------------------------------------------------------------------------
+def _group(fn):
+    """Run a builder, parent everything it made to one empty, return the empty."""
+    before = set(bpy.data.objects)
+    fn()
+    new = [o for o in bpy.data.objects if o not in before and o.parent is None]
+    bpy.ops.object.empty_add(location=(0, 0, 0))
+    root = bpy.context.object
+    for o in new:
+        o.parent = root
+    return root
+
+
+def _truck(name, mat_cab, mat_box, tyre):
+    def build():
+        _box(name + "Box", (-4.2, 0, 2.1), (9.0, 2.5, 2.8), mat_box, bevel=0.05)
+        _box(name + "Cab", (1.6, 0, 1.75), (2.4, 2.45, 2.3), mat_cab, bevel=0.25)
+        for x in (-7.5, -6.4, 1.6):
+            for y in (-1.15, 1.15):
+                _cyl(name + f"W{x}{y}", 0.5, 0.35, (x, y, 0.5), tyre, rot=(math.pi / 2, 0, 0), verts=24)
+        light = M.emission(name + "Head", (1.0, 0.95, 0.85), 30.0)
+        for y in (-0.9, 0.9):
+            _box(name + f"HL{y}", (2.81, y, 1.0), (0.04, 0.35, 0.2), light, role="emitter")
+    return _group(build)
+
+
+def _corrugated(name, color):
+    """Painted shipping-container steel: vertical corrugations as a bump, a little wear in the roughness."""
+    m = M.principled(name, color, metallic=0.35, roughness=0.45)
+    nt = m.node_tree
+    b = nt.nodes["Principled BSDF"]
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    wave = nt.nodes.new("ShaderNodeTexWave")
+    wave.bands_direction = "Y"                                      # ribs along the long side
+    wave.inputs["Scale"].default_value = 2.2
+    wave.inputs["Distortion"].default_value = 0.0
+    bump = nt.nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = 1.0
+    nt.links.new(tc.outputs["Object"], wave.inputs["Vector"])
+    nt.links.new(wave.outputs["Fac"], bump.inputs["Height"])
+    nt.links.new(bump.outputs["Normal"], b.inputs["Normal"])
+    return m
+
+
+def _boxa(name, size, mat, bevel=0.0):
+    """A box with its size baked into the mesh, so scale keyframes animate from 1."""
+    ob = _box(name, (0, 0, 0), size, mat, bevel=bevel)
+    bpy.ops.object.select_all(action="DESELECT")
+    ob.select_set(True)
+    bpy.context.view_layer.objects.active = ob
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+    return ob
+
+
+def logistics(sc, rnd):
+    """One crate -> 250+ crates -> 43 containers -> freighters -> 20 trucks (F17), as one 3D miniature:
+    a dark studio table that the camera tracks along, left to right."""
+    C.set_world(top=(0.02, 0.026, 0.04), horizon=(0.01, 0.012, 0.018), bottom=(0.002, 0.002, 0.003))
+    floor = M.pbr("Table", "brushed_concrete", scale=0.05, tint=(0.07, 0.075, 0.085), rough_mul=0.3, rough_add=0.3,
+                  normal=0.3, fallback=(0.03, 0.03, 0.035))
+    _box("Table", (60, 0, -0.05), (1200, 1200, 0.1), floor)
+    wood = M.pbr("Plywood", "brushed_concrete", scale=0.6, tint=(1.6, 1.2, 0.78), rough_mul=0.4, rough_add=0.45,
+                 normal=0.4, fallback=(0.62, 0.5, 0.34))
+    # 1) one crate splits into 252 (a 21 x 12 block), f8-50
+    crates = []
+    for i in range(252):
+        cx, cy = i % 21, i // 21
+        home = Vector(((cx - 10) * 1.25, (cy - 5.5) * 1.25, 0.5))
+        c = _boxa(f"Crate{i}", (1.0, 1.0, 1.0), wood, bevel=0.06)
+        c.location = (0, 0, 0.5)
+        big = 9.0 if i == 0 else 0.001
+        _key(c, 1, location=(0, 0, 4.5) if i == 0 else (0, 0, 0.5), scale=(big, big, big))
+        _key(c, 8, location=(0, 0, 4.5) if i == 0 else (0, 0, 0.5), scale=(big, big, big))
+        _key(c, 26 + int(i / 252 * 14), location=home, scale=(1, 1, 1))
+        crates.append((c, home))
+    # 2) crates pour into 43 containers (a 9 x 5 yard, minus two), f52-86
+    steels = [_corrugated(f"ContainerSteel{n}", col)
+              for n, col in enumerate(((0.03, 0.08, 0.18), (0.22, 0.035, 0.025), (0.25, 0.26, 0.27), (0.38, 0.17, 0.03)))]
+    conts = []
+    for j in range(43):
+        gx, gy = j % 9, j // 9
+        pos = Vector((40 + gx * 3.0, (gy - 2) * 6.6, 1.3))
+        k = _boxa(f"Container{j}", (2.44, 6.06, 2.59), steels[rnd.randrange(4)], bevel=0.03)
+        _key(k, 1, location=pos, scale=(0.001, 0.001, 0.001))
+        _key(k, 56 + j // 2, location=pos, scale=(0.001, 0.001, 0.001))
+        _key(k, 72 + j // 2, location=pos, scale=(1, 1, 1))
+        conts.append((k, pos))
+    for i, (c, home) in enumerate(crates):
+        k, pos = conts[i % 43]
+        f0 = 48 + (i % 43) // 2
+        _key(c, f0, location=home, scale=(1, 1, 1))
+        _key(c, f0 + 18, location=pos + Vector((0, 0, 1.0)), scale=(0.2, 0.2, 0.2))
+        _key(c, f0 + 19, scale=(0.001, 0.001, 0.001))
+    # 3) containers rise into four freighters that take off to the right, f88-140
+    skin = M.principled("PlanePaint", (0.78, 0.8, 0.82), roughness=0.3, coat=0.3)
+    belly = M.principled("PlaneBelly", (0.42, 0.45, 0.5), roughness=0.35)
+    planes = []
+    for p_i in range(4):
+        root = _group(lambda: freighter(skin, belly, rnd))
+        root.name = f"Plane{p_i}"
+        start = Vector((80 + p_i * 4, (p_i - 1.5) * 15, 0.0))
+        s0 = 0.22
+        _key(root, 1, location=start, scale=(0.001, 0.001, 0.001))
+        _key(root, 84, location=start, scale=(0.001, 0.001, 0.001))
+        _key(root, 96, location=start, scale=(s0, s0, s0))
+        _key(root, 118 + 4 * p_i, location=start, scale=(s0, s0, s0))
+        _key(root, 150 + 4 * p_i, location=start + Vector((60, 0, 22)), scale=(s0, s0, s0), rotation_euler=(0, math.radians(-12), 0))
+        planes.append((root, start))
+    for j, (k, pos) in enumerate(conts):
+        root, start = planes[j % 4]
+        f0 = 96 + (j % 11)
+        _key(k, f0, location=pos, scale=(1, 1, 1))
+        _key(k, f0 + 16, location=start + Vector((-3, 0, 1.0)), scale=(0.12, 0.12, 0.12))
+        _key(k, f0 + 17, scale=(0.001, 0.001, 0.001))
+    # 4) twenty trucks roll out along a road to the right, f140-198
+    road = M.principled("Road", (0.02, 0.022, 0.025), roughness=0.25)
+    _box("Road", (300, 0, 0.01), (360, 9, 0.02), road)
+    lane = M.emission("Lane", (0.9, 0.85, 0.6), 1.5)
+    for k_ in range(30):
+        _box(f"Lane{k_}", (125 + 5.2 * k_, 0, 0.03), (2.2, 0.15, 0.01), lane, role="emitter")
+    cab = M.principled("TruckCab", (0.8, 0.8, 0.82), roughness=0.3, coat=0.4)
+    box = M.principled("TruckBox", (0.3, 0.33, 0.38), roughness=0.45)
+    tyre = M.principled("TruckTyre", (0.02, 0.02, 0.02), roughness=0.7)
+    for t_i in range(20):
+        tr = _truck(f"Truck{t_i}", cab, box, tyre)
+        y = -2.2 if t_i % 2 == 0 else 2.2
+        x0 = 128 - 12 * (t_i // 2)
+        _key(tr, 1, location=(x0, y, 0), scale=(0.001, 0.001, 0.001))
+        _key(tr, 136 + t_i, location=(x0, y, 0), scale=(0.001, 0.001, 0.001))
+        _key(tr, 146 + t_i, location=(x0, y, 0), scale=(0.6, 0.6, 0.6))
+        _key(tr, 198, location=(x0 + 38, y, 0), scale=(0.6, 0.6, 0.6))
+    for lt in (B._area("Key", (40, -40, 50), (0.7, 0, 0.3), 60, 60000, (1.0, 0.95, 0.88)),
+               B._area("Rim", (90, 60, 25), (1.2, 0, 2.6), 60, 30000, (0.55, 0.7, 1.0))):
+        lt.visible_glossy = False                                   # no hard light-panel shapes on the table
+    # track left -> right with the goods, a short pause at each conversion
+    B._camera("CamA0_03", [(1, (0, 0, 2.0), (-6, -38, 22), 35, 8.0), (44, (0, 0, 1.0), (-4, -36, 20), 35, 8.0),
+                           (70, (44, 0, 1.0), (40, -40, 22), 35, 8.0), (100, (52, 0, 1.0), (48, -42, 22), 35, 8.0),
+                           (130, (100, 0, 4.0), (96, -46, 26), 35, 8.0), (160, (140, 0, 1.0), (128, -42, 18), 35, 8.0),
+                           (198, (150, 0, 1.0), (138, -40, 17), 35, 8.0)])
 
 
 # ---- A0_04 ---------------------------------------------------------------------------------
@@ -513,6 +765,6 @@ def build(variant="cargo", seed=11):
     C.set_world(top=(0.03, 0.035, 0.05), horizon=(0.012, 0.014, 0.02), bottom=(0.003, 0.004, 0.006))
     C.set_color_management(exposure=0.4)
     rnd = random.Random(seed)
-    {"cargo": cargo, "convoy": convoy, "assemble": assemble, "print": print_, "chip": chip,
+    {"cargo": cargo, "logistics": logistics, "convoy": convoy, "assemble": assemble, "print": print_, "chip": chip,
      "title": title}[variant](sc, rnd)
     return sc

@@ -122,3 +122,4 @@ D_09: {scene: b1_source, camera: CamD_09, start: 42, black_tail: 2, style: photo
 D_01: {scene: d_scenes, args: {variant: foup}, camera: CamD_01, start: 1, style: photoreal, engine: cycles}
 D_06: {scene: d_scenes, args: {variant: monolith}, camera: CamD_06, start: 1, style: photoreal, engine: eevee}
 D_07: {scene: d_scenes, args: {variant: crowd}, camera: CamD_07, start: 1, style: photoreal, engine: eevee}
+A0_03: {scene: a0_scenes, args: {variant: logistics}, camera: CamA0_03, start: 1, style: photoreal, engine: cycles}

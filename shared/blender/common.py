@@ -202,3 +202,34 @@ def reflection_env(name="studio_small_09", strength=0.5, rotation=0.0):
     nt.links.new(env.outputs["Color"], add.inputs["B"])
     nt.links.new(add.outputs["Result"], bg.inputs["Color"])
     return True
+
+
+def hdri_world(name, strength=0.3, rotation=0.0, tint=(1.0, 1.0, 1.0)):
+    """World = a Poly Haven HDRI (CC0), visible to the camera. Falls back to the gradient if missing."""
+    import glob
+    hits = glob.glob(os.path.join(ASSETS, "hdri", f"{name}_*.hdr"))
+    if not hits:
+        set_world()
+        return False
+    sc = bpy.context.scene
+    w = bpy.data.worlds.new("HDRIWorld")
+    sc.world = w
+    w.use_nodes = True
+    nt = w.node_tree
+    bg = nt.nodes["Background"]
+    bg.inputs["Strength"].default_value = strength
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    mp = nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Rotation"].default_value = (0, 0, rotation)
+    env = nt.nodes.new("ShaderNodeTexEnvironment")
+    env.image = bpy.data.images.load(hits[0], check_existing=True)
+    mul = nt.nodes.new("ShaderNodeMix")
+    mul.data_type = "RGBA"
+    mul.blend_type = "MULTIPLY"
+    mul.inputs["Factor"].default_value = 1.0
+    mul.inputs["B"].default_value = (*tint, 1)
+    nt.links.new(tc.outputs["Generated"], mp.inputs["Vector"])
+    nt.links.new(mp.outputs["Vector"], env.inputs["Vector"])
+    nt.links.new(env.outputs["Color"], mul.inputs["A"])
+    nt.links.new(mul.outputs["Result"], bg.inputs["Color"])
+    return True

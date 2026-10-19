@@ -43,8 +43,7 @@ def truck(c, x, y, s, a):
     c.circle((x + 2.45 * s, y + 0.3 * s), 0.18 * s, fill=(255, 240, 200), a=a, glow=True)
 
 
-@shot("A0_03")
-def logistics(t, dur, W, H):
+def logistics_2d(t, dur, W, H):
     c = Canvas(W, H)
     a = fade(t, 0.0, dur, dur, 0.3)
     # 1) one crate -> 250+ crates (25 x 10 grid)

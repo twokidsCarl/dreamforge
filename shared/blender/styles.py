@@ -218,7 +218,7 @@ def apply_style(style, line_px=1.3):
 
     if style == "photoreal":
         _photoreal_world(sc, objs, roles)
-        if sc.render.engine == "CYCLES":                          # real reflections for metal and glass
+        if sc.render.engine == "CYCLES" and not sc.get("hdri_world"):   # real reflections for metal and glass
             C.reflection_env(sc.get("hdri", "studio_small_09"), sc.get("hdri_strength", 0.35))
         return
     _non_photoreal(style, sc, objs, roles, line_px)
@@ -227,7 +227,7 @@ def apply_style(style, line_px=1.3):
 def _photoreal_world(sc, objs, roles):
     """Exterior shots of the source scene drop the chamber walls for a dark studio backdrop."""
     cam = sc.camera
-    if cam is not None:
+    if cam is not None and bpy.data.objects.get("ChamberWall") is not None:   # source-chamber scenes only
         import build_vacuum as V
         sc.frame_set(sc.frame_current)
         p = cam.matrix_world.translation
