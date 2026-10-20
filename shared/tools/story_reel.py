@@ -4,9 +4,10 @@
 
 Uses storyboard.timed.yaml (tools/retime.py) and the VO track. Boards are drawn with Pillow:
 style swatch and name, shot id, timecode, the visual description, planned on-screen text and the
-current subtitle. Where a rendered frame exists for a shot (shots that reuse the B1 sample
-cameras), the board shows it instead of text. As grey-box renders arrive, put them under
-renders/reel/<shot_id>.png (or .mp4) and they replace the board automatically.
+current subtitle. Where a rendered frame exists for a shot, the board shows it
+instead of text. A frame taken from the lithography sample_b1 cameras is marked
+「B1 样片画面」; the episode's own reel still is not. As grey-box renders arrive,
+put them under renders/reel/<shot_id>.png (or .mp4) and they replace the board.
 Output: renders/reel/story_reel.mp4
 """
 import argparse
@@ -76,13 +77,16 @@ def board(s, W, H, seg_title):
     k = H / 720
     ref = s.get("ref", "")
     still = None
+    from_sample = False
     if ref.startswith("sample_b1:"):
         p = sample_frame(ref.split(":")[1])
         if p:
             still = Image.open(p).convert("RGB").resize((W, H), Image.LANCZOS)
+            from_sample = True
     own = os.path.join(RENDERS, "reel", f"{s['id']}.png")
     if os.path.exists(own):
         still = Image.open(own).convert("RGB").resize((W, H), Image.LANCZOS)
+        from_sample = False
     img = still if still else Image.new("RGB", (W, H), bg)
     d = ImageDraw.Draw(img, "RGBA")
     m = int(48 * k)
@@ -90,7 +94,8 @@ def board(s, W, H, seg_title):
     if still:
         d.rectangle([0, 0, W, int(110 * k)], fill=(0, 0, 0, 120))
         ink, ink2 = (240, 242, 248), (210, 214, 226)
-        head += "  （B1 样片画面）"
+        if from_sample:
+            head += "  （B1 样片画面）"
     # header: style swatch + name, shot id, segment title, transition
     d.rectangle([m, m, m + int(14 * k), m + int(14 * k)], fill=acc)
     d.text((m + int(24 * k), m - int(5 * k)), name, font=font(int(20 * k)), fill=ink)
