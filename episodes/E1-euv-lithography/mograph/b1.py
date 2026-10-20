@@ -56,7 +56,7 @@ def chapter_b1(t, dur, W, H):
     c.text((160, 520), "光源", 120, INK, a, weight_glow=True)
     c.text((164, 680), "Light Source", 34, VIOLET, a)
     c.line((164, 650), (164 + 420 * ease_out(seg(t, 0.3, 1.4)), 650), VIOLET, 3, a, glow=True)
-    draw_ledger(c, [(1e6, "电", "兆瓦量级 · 据行业估算", CYAN)], reveal=ease(seg(t, 0.8, 2.0)), a=0.9)
+    draw_ledger(c, [(1e6, "电", "约 1.26 MW · ASML 2025 年报", CYAN)], reveal=ease(seg(t, 0.8, 2.0)), a=0.9)
     return c.finish()
 
 
@@ -167,7 +167,7 @@ def tin_spectrum(t, dur, W, H):
 def ledger_b1(t, dur, W, H):
     c = Canvas(W, H)
     a = fade(t, 0.0, dur, dur, 0.3)
-    entries = [(1e6, "电", "兆瓦量级 · 据行业估算", CYAN),
+    entries = [(1e6, "电", "约 1.26 MW · ASML 2025 年报", CYAN),
                (4e4, "激光", "几十 kW", ORANGE),
                (600, "EUV", "量产最高约 600 W", VIOLET)]
     reveal = 1 + 2 * ease(seg(t, 0.8, 5.5))

@@ -83,7 +83,7 @@ def one_two_ten(t, dur, W, H):
 def energy(t, dur, W, H):
     c = Canvas(W, H)
     a = fade(t, 0.0, dur, dur, 0.3)
-    # left: a power dial with no precise scale, needle swinging into the "megawatt class" band
+    # left: a power dial, needle swinging into the megawatt band: NXE:3800E 1.26 MW (ASML Annual Report 2025, F48)
     cx, cy, R = 520, 560, 280
     l = ease(seg(t, 0.2, 1.0))
     c.circle((cx, cy), R, outline=INK2, width=3, a=a * l)
@@ -97,8 +97,8 @@ def energy(t, dur, W, H):
     v = 0.79 * ease_out(seg(t, 0.8, 2.4)) + 0.01 * math.sin(t * 7) * (t > 2.4)
     th = a0_ + (a1_ - a0_) * v
     c.line((cx, cy), (cx + 0.82 * R * math.cos(th), cy - 0.82 * R * math.sin(th)), INK, 6, a * l, glow=True)
-    c.text((cx, cy + 120), "兆瓦量级", 44, ORANGE, a * ease(seg(t, 2.0, 2.6)), anchor="mm", weight_glow=True)
-    c.text((cx, cy + 180), "行业估算（F48）", 22, INK2, a * ease(seg(t, 2.0, 2.6)), anchor="mm")
+    c.text((cx, cy + 120), "约 1.26 MW", 44, ORANGE, a * ease(seg(t, 2.0, 2.6)), anchor="mm", weight_glow=True)
+    c.text((cx, cy + 180), "NXE:3800E · ASML 2025 年报", 22, INK2, a * ease(seg(t, 2.0, 2.6)), anchor="mm")
     # right: energy per wafer, two data points only
     r = ease(seg(t, 5.2, 6.4))
     base, hmax = 860, 520

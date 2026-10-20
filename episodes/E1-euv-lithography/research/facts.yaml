@@ -523,18 +523,19 @@ F47:
   segments: [B9]
 
 F48:
-  claim: 每台 EUV 光刻机耗电约 1 MW 量级（TechInsights 估算每年最高约 10.2 GWh）
-  status: reported
-  grade: C
-  narration: 据行业估算，一台机器的耗电量在兆瓦量级
+  claim: 最新一代 NXE（TWINSCAN NXE:3800E）一台的总耗电约 1.26 MW（2025 年实测；2018 年基准 1.44 MW）
+  values: {power_mw: 1.26, baseline_2018_mw: 1.44}
+  status: verified
+  grade: A
+  quote: "For the TWINSCAN NXE:3800E, the total power consumption decreased 0.06 MW to 1.26 MW compared to 2024. Compared to the 2018 baseline figure of 1.44 MW, this is a reduction of 13%."
   sources:
-    - https://www.techinsights.com/ja/node/58697
-    - https://semiengineering.com/keeping-euv-cool/
-  segments: [D]
+    - https://www.sec.gov/Archives/edgar/data/937966/000162828026011377/asml-2025xannualxreportx.htm
+  notes: ASML 年报原文称 equivalent / total power consumption。只对 NXE:3800E 成立；EXE 的整机耗电未公布（EXE:5000A 只有一次 53 片/小时测试下的 25.2 kWh/片）。旧版 C 级媒体估算（TechInsights 等）作废。
+  segments: [B1, B9, D]
 
 F49:
-  claim: 每片晶圆的能耗自 2018 年以来下降了 57%；光源是 EUV 系统中最大的能耗部分
-  values: {reduction_pct: 57}
+  claim: NXE 每片晶圆（每次曝光过片）的能耗自 2018 年以来下降了 57%（12.8 → 5.5 kWh，NXE:3800E 2025 年实测）；光源是 EUV 系统中最大的能耗部分
+  values: {reduction_pct: 57, kwh_2018: 12.8, kwh_2025: 5.5}
   status: verified
   grade: A
   sources:
