@@ -86,6 +86,22 @@ def set_color_management(look="Base Contrast", exposure=0.0):
             pass
 
 
+def _cycles_device(sc):
+    """mac 用 Metal；其他平台默认 CPU。DREAMFORGE_CYCLES_DEVICE=CUDA|OPTIX|HIP|ONEAPI|METAL|CPU 可强制指定
+    （GPU 机器上渲 final 时用）。"""
+    import sys
+    kind = os.environ.get("DREAMFORGE_CYCLES_DEVICE", "METAL" if sys.platform == "darwin" else "CPU").upper()
+    if kind == "CPU":
+        sc.cycles.device = "CPU"
+        return
+    prefs = bpy.context.preferences.addons["cycles"].preferences
+    prefs.compute_device_type = kind
+    prefs.get_devices()
+    for d in prefs.devices:
+        d.use = d.type == kind or (kind == "OPTIX" and d.type == "CUDA")
+    sc.cycles.device = "GPU"
+
+
 def setup_render(engine, preset, motion_blur=True):
     sc = bpy.context.scene
     rx, ry, taa, spp = PRESETS[preset]
@@ -104,12 +120,7 @@ def setup_render(engine, preset, motion_blur=True):
         ee.use_volumetric_shadows = True
     elif engine == "cycles":
         sc.render.engine = "CYCLES"
-        prefs = bpy.context.preferences.addons["cycles"].preferences
-        prefs.compute_device_type = "METAL"
-        prefs.get_devices()
-        for d in prefs.devices:
-            d.use = d.type == "METAL"
-        sc.cycles.device = "GPU"
+        _cycles_device(sc)
         sc.cycles.samples = spp
         sc.cycles.use_denoising = True
         sc.cycles.denoiser = "OPENIMAGEDENOISE"
@@ -119,8 +130,13 @@ def setup_render(engine, preset, motion_blur=True):
 
 
 def setup_compositor(glare_strength=0.6, glare_size=7, dispersion=0.012):
-    """Bloom + subtle chromatic dispersion. Blender 5.x uses a scene-level node group."""
+    """Bloom + subtle chromatic dispersion. Blender 5.x uses a scene-level node group.
+    可选的场景自定义属性（默认都不开，E1 行为不变）：
+      sc["dispersion"]  覆盖色散量（0 = 关）；
+      sc["film_grain"]  细颗粒强度（柔光叠加的噪声，逐帧变化，约 0.1–0.5）；
+      sc["vignette"]    暗角强度 0–1。"""
     sc = bpy.context.scene
+    dispersion = sc.get("dispersion", dispersion)
     ng = bpy.data.node_groups.new("Compositing", "CompositorNodeTree")
     ng.interface.new_socket("Image", in_out="OUTPUT", socket_type="NodeSocketColor")
     n = ng.nodes
@@ -135,7 +151,39 @@ def setup_compositor(glare_strength=0.6, glare_size=7, dispersion=0.012):
     out = n.new("NodeGroupOutput")
     ng.links.new(rl.outputs["Image"], glare.inputs["Image"])
     ng.links.new(glare.outputs["Image"], lens.inputs["Image"])
-    ng.links.new(lens.outputs["Image"], out.inputs[0])
+    last = lens.outputs["Image"]
+    if sc.get("vignette"):
+        em = n.new("CompositorNodeEllipseMask")
+        em.inputs["Size"].default_value = (0.92, 0.92)
+        em.inputs["Position"].default_value = (0.5, 0.5)
+        bl = n.new("CompositorNodeBlur")
+        bl.inputs["Size"].default_value = (0.35 * sc.render.resolution_x, 0.35 * sc.render.resolution_x)
+        mix = n.new("ShaderNodeMix")
+        mix.data_type = "RGBA"
+        mix.blend_type = "MULTIPLY"
+        mix.inputs["Factor"].default_value = float(sc["vignette"])
+        floor = n.new("ShaderNodeMath")
+        floor.operation = "MAXIMUM"
+        floor.inputs[1].default_value = 0.0
+        ng.links.new(em.outputs["Mask"], bl.inputs["Image"])
+        ng.links.new(last, mix.inputs["A"])
+        ng.links.new(bl.outputs["Image"], mix.inputs["B"])
+        last = mix.outputs["Result"]
+    if sc.get("film_grain"):
+        nz = n.new("ShaderNodeTexNoise")
+        nz.noise_dimensions = "4D"
+        nz.inputs["Scale"].default_value = 0.9 * sc.render.resolution_x
+        nz.inputs["Detail"].default_value = 0.0
+        drv = nz.inputs["W"].driver_add("default_value").driver
+        drv.expression = "frame * 1.7"
+        gm = n.new("ShaderNodeMix")
+        gm.data_type = "RGBA"
+        gm.blend_type = "SOFT_LIGHT"
+        gm.inputs["Factor"].default_value = float(sc["film_grain"])
+        ng.links.new(last, gm.inputs["A"])
+        ng.links.new(nz.outputs["Fac"], gm.inputs["B"])
+        last = gm.outputs["Result"]
+    ng.links.new(last, out.inputs[0])
     sc.compositing_node_group = ng
 
 

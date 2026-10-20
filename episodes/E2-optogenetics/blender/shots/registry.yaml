@@ -1,0 +1,11 @@
+# 分镜 id -> 怎么渲（shared/tools/render_storyboard.py）
+#   scene: 本目录下的模块，提供 build(**args)；camera: 场景里的相机；start: 起始模拟帧；style: 画面语言；engine: eevee | cycles
+#   raw: true 时帧写到 shots/<id>/<quality>_raw/，再由 mograph/a0.py 里同 id 的后处理叠字，写到 <quality>/。
+# 镜头长度来自 storyboard.timed.yaml（没有时回退 storyboard.yaml 的 duration）。
+# documentary 不是 styles.py 里的风格：场景自带灯光和世界，不再套风格。
+
+A0_01a: {scene: a0_scenes, args: {variant: paper}, camera: CamA0_01a, start: 1, style: documentary, engine: cycles}
+A0_02b: {scene: a0_scenes, args: {variant: paper}, camera: CamA0_02b, start: 201, style: documentary, engine: cycles}
+A0_03b: {scene: a0_scenes, args: {variant: neurons}, camera: CamA0_03b, start: 1, style: clay, engine: eevee}
+A0_04a: {scene: a0_scenes, args: {variant: laureates}, camera: CamA0_04a, start: 1, style: energy, engine: eevee, raw: true}
+A0_91: {scene: a0_scenes, args: {variant: membrane}, camera: CamA0_91, start: 1, style: sem, engine: cycles}
