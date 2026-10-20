@@ -69,7 +69,8 @@ def request(spoken, voice, wav):
                                 "-H", "Content-Type: application/json", "--data-binary", "@-"],
                                input=body, capture_output=True, check=True)
             d = json.loads(r.stdout)
-            audio_url = d["output"]["audio"]["url"]
+            # the result URL comes back as plain http; some networks block port 80, so fetch it over https
+            audio_url = d["output"]["audio"]["url"].replace("http://", "https://", 1)
             raw = wav + ".dl"
             subprocess.run(["curl", "-s", "-m", "90", "-o", raw, audio_url], check=True)
             # normalise to mono 24 kHz 16-bit PCM so segments concatenate cleanly
@@ -210,7 +211,7 @@ def intelligibility(wav, spoken):
     else:
         if not _ASR:
             from faster_whisper import WhisperModel
-            _ASR.append(WhisperModel("large-v3-turbo", device="cpu", compute_type="int8"))
+            _ASR.append(WhisperModel("large-v3-turbo", device="cpu", compute_type=os.environ.get("DREAMFORGE_ASR_COMPUTE", "int8")))
         segs, _ = _ASR[0].transcribe(load16k(wav), language="zh", beam_size=5,
                                      initial_prompt="以下是普通话科普旁白，使用简体中文。")
         heard = norm("".join(x.text for x in segs))

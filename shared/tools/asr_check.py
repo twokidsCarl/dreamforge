@@ -71,7 +71,7 @@ def main():
     ap.add_argument("--threshold", type=float, default=0.9)
     a = ap.parse_args()
     from faster_whisper import WhisperModel
-    model = WhisperModel(a.model, device="cpu", compute_type="int8")
+    model = WhisperModel(a.model, device="cpu", compute_type=os.environ.get("DREAMFORGE_ASR_COMPUTE", "int8"))
     try:
         from opencc import OpenCC
         t2s = OpenCC("t2s").convert
