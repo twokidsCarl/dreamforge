@@ -14,4 +14,4 @@ P1 的视觉报告（`research/visual/<主题>.md`，带原文引语、URL、页
 - 人物：只有逆光剪影或抽象
 - 动物：风格化，不血腥
 
-素材规矩与 E1 相同：参数化 Blender + Pillow；不用 Meshy / Tripo；Poly Haven CC0，以及逐张核实过的 Wikimedia CC0。
+素材规矩见 WORKFLOW §1.5 和 §6.4。衣藻通道、神经元膜、离子流、视网膜剖面这些核心结构用参数化 Blender Python。实验小鼠、光纤植入器件、护目镜、实验台这类周边道具，才可以在配好 key 之后用 Tripo 或 Meshy（哪一个为主还没定）。免费贴图仍是 Poly Haven CC0，以及逐张核实过的 Wikimedia CC0。Pillow 仍负责二维信息图。

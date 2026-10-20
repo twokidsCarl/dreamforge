@@ -31,10 +31,11 @@
 - 关键词必须听得清，用语音识别逐句验证（见 4.4、5.3）。
 
 ### 1.5 工程纪律
-- **每完成一个阶段就 git commit，不 push**。提交信息写清楚改了什么，结尾加 `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`。
-- **API key 只放在仓库根目录的 `.env`**（权限 600，已加入 gitignore），回复里不要复述 key。目前有 `DASHSCOPE_API_KEY`（Qwen TTS）、`ELEVENLABS_API_KEY`（配乐和音效）。
+- **每完成一个阶段，在功能分支上 git commit，然后 push，向 `main` 开拉取请求**。GitHub Actions 的 `review` 检查必须通过（`shared/tools/review_pr.py`，说明见 [REVIEW.md](REVIEW.md)）。仓库已打开 squash 自动合并；`main` 受保护，必需检查就是 `review`，自动合并会等它通过。不要直接 push 到 `main`，不要用 `--admin` 绕过保护。提交信息写清楚改了什么，结尾加 `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`。
+- **API key 只放在仓库根目录的 `.env`**（权限 600，已加入 gitignore），回复里不要复述 key。目前有 `DASHSCOPE_API_KEY`（Qwen TTS）、`ELEVENLABS_API_KEY`（配乐和音效）。Tripo 或 Meshy 的 key 也只放这里；`.env` 里没有该服务的 key，就不能调用。
 - **网络请求里不放用户的邮箱或任何个人信息**。有些网站要求请求头里带联系方式（例如 SEC EDGAR），一律用占位地址。给调研子任务写提示词时要明确写上这一条。
-- 付费工具只用已开通的：Qwen TTS（DashScope 国际版）、ElevenLabs Creator 档。Meshy、Tripo 等 3D 生成服务不用。免费素材只用 Poly Haven（CC0），以及逐张核实为 CC0 的 Wikimedia Commons 图片。
+- 付费工具只用已开通的：Qwen TTS（DashScope 国际版）、ElevenLabs Creator 档。免费图片和 HDRI 只用 Poly Haven（CC0），以及逐张核实为 CC0 的 Wikimedia Commons 图片。三维资产的分工见下一条，也见第 6.4 节。
+- **三维资产**：核心科学结构必须用参数化 Blender Python 建模。包括蛋白和通道（如 ChR2）、神经元、膜、离子流、视网膜剖面，以及任何结构必须准确、或要做精确动画的对象。周边写实道具可以用 AI 三维生成（Tripo 或 Meshy），例如实验小鼠、光纤植入器件、护目镜、实验台和日常物件。调用前要同时满足：`.env` 里已经配好该服务的 key；在该期 `research/visual/assets.yaml` 记下工具、prompt 和日期；核对产出的许可和商用条款；在 Blender 里对齐全片风格并清掉多余几何。仍然不做写实真人面孔。Tripo 和 Meshy 哪一个为主还没定，对比做完之前不要写死。
 
 ---
 
@@ -87,7 +88,7 @@
 
 ---
 
-## 3. 制作流程（按阶段，每个阶段完成后 commit）
+## 3. 制作流程（按阶段；每阶段在功能分支上提交并开 PR，见 1.5）
 
 | 阶段 | 产出 | 工具 / 命令 | 进入下一阶段的条件 |
 |---|---|---|---|
@@ -97,7 +98,7 @@
 | P4 配音 | `audio/vo/<音色>/` | 见 4.4 节 | 语音识别逐句核对通过 |
 | P5 定时 | `storyboard.timed.yaml`、`subs/zh.srt` | `python3 shared/tools/retime.py` | 全片时长在目标 ±1.5 分钟内 |
 | P6 画面核查 | `research/visual/audit_<段>.yaml` | 人工对照调研报告 | 没有 `wrong` 和 `unsourced` 的项 |
-| P7 建模与镜头 | `blender/scripts/`、`blender/shots/`、`mograph/` | 见第 8 节 | 单帧试渲通过 |
+| P7 建模与镜头 | `blender/scripts/`、`blender/shots/`、`mograph/` | 见第 6.4、8 节 | 单帧试渲通过 |
 | P8 渲染 | `renders/shots/<镜头>/<质量>/` | `shared/tools/render_batch.sh`、`mograph.py` | 帧数齐全，日志里没有报错 |
 | P9 声音设计 | `sound/<段>.yaml`（配乐和音效） | `shared/tools/eleven.py` | 关键音效对准词的时间戳 |
 | P10 剪辑 | `renders/edit/<段>_vN.mp4` | `python3 shared/tools/edit_film.py` | 第 5 节自审清单全部通过 |
@@ -175,6 +176,13 @@
 - 重要的冲击（爆闪、炸开）放在旁白的空档里，不要压在词上。
 - 片名镜头的片名要一直在画面内，后面留足停顿。
 
+### 6.4 建模：什么必须手写，什么可以用生成
+- **核心科学结构用参数化 Blender Python**，不用 Tripo 或 Meshy 的网格代替。范围：蛋白和通道（如 ChR2）、神经元、膜、离子流、视网膜剖面，以及任何结构必须准确、或要做精确动画的对象。
+- **周边写实道具可以用 Tripo 或 Meshy**：实验小鼠、光纤植入器件、护目镜、实验台、日常物件。哪一个为主还没定，对比做完之前不要写死。
+- 调用生成服务前，`.env` 里要有该服务的 key。没有 key 就不生成。
+- 每件生成资产写入该期 `research/visual/assets.yaml`：工具、prompt、日期。核对许可和商用条款；进镜头前在 Blender 里对齐风格并清理几何。
+- 人物仍只做逆光剪影。不用生成模型做写实人脸，也不做真人肖像。
+
 ---
 
 ## 7. 声音规范
@@ -190,6 +198,7 @@
 ## 8. 技术规范
 
 ### 8.1 渲染
+- 建模分工见 6.4 节：核心科学结构只写 Blender Python；Tripo / Meshy 只用于周边道具。
 - Blender 5.2：EEVEE 用于风格化镜头，Cycles 用于真实渲染。Metal 显存不够时会自动改用 CPU 重试。
 - 质量预设：preview 640×360，sample 960×540，final 1920×1080；24 fps。
 - 镜头登记在 `episodes/<期>/blender/shots/registry.yaml`。常用字段：
@@ -241,7 +250,7 @@ dreamforge/
 │   ├── blender/                  common（场景、HDRI）、materials（含 Poly Haven PBR）、styles（画面语言）
 │   └── assets/                   下载的 CC0 素材（不入库）
 └── episodes/E<n>-<短名>/
-    ├── research/                 facts.yaml；visual/（调研报告、audit_<段>.yaml、audit_backlog.yaml）
+    ├── research/                 facts.yaml；visual/（调研报告、audit_<段>.yaml、audit_backlog.yaml、assets.yaml）
     ├── script/                   script_zh.md、pronunciation.yaml
     ├── storyboard/               parts/*.yaml → storyboard.yaml → storyboard.timed.yaml
     ├── sound/                    <段>.yaml（配乐和音效）
@@ -261,4 +270,4 @@ E2《光遗传学》在 `episodes/E2-optogenetics/`，目前是 P1/P2 骨架，�
 
 ## 12. 拉取请求审查
 
-检查哪些项目、怎样打开自动合并、为什么有时开不了，见 [REVIEW.md](REVIEW.md)。通过之后用的是 `gh pr merge --auto --squash`，不强制合并，也不绕过分支保护。
+`main` 受保护，必需检查是 `review`。仓库已打开 squash 自动合并，会等 `review` 通过。检查项见 [REVIEW.md](REVIEW.md)。用 `gh pr merge --auto --squash`，不要加 `--admin`，不要直接 push 到 `main`。

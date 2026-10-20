@@ -37,10 +37,8 @@ GitHub Actions 工作流 `.github/workflows/review.yml` 在 PR 打开或更新�
 
 退出码：自检或上述检查失败为 1。检查通过为 0，即使仓库设置拒绝了自动合并。
 
-## 自动合并需要 Carl 打开的设置
+## 自动合并
 
-审查脚本改不了仓库设置。`gh pr merge --auto` 要先在 GitHub 上打开 **Settings → General → Pull Requests → Allow auto-merge**。
+仓库已打开 **Allow auto-merge**（squash）。`main` 受保护，必需检查是本工作流的 **review**。`gh pr merge --auto --squash` 会等这个检查通过再合并。
 
-建议再给 `main` 加分支保护，把本工作流的检查 **review** 设为必需。这样自动合并会等这次审查跑完；没有必需检查时，一次新的推送可能在新审查结束前就被合并。
-
-如果保护规则还要求人工批准，脚本不会自己提交 approving review，自动合并会继续等。
+不要直接 push 到 `main`，不要加 `--admin`。保护规则没满足时，自动合并会一直等着。如果规则还要求人工批准，脚本不会自己提交 approving review。
