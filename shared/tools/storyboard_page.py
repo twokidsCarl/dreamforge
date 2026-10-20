@@ -2,8 +2,11 @@
 
   python3 tools/storyboard_page.py OUT.html
 
-Reads episodes/<episode>/storyboard/storyboard.yaml, the script titles and a few reference
-frames (style board + B1 sample); images are embedded as JPEG data URIs.
+Reads episodes/<episode>/storyboard/storyboard.yaml, the script titles, and
+storyboard/page.yaml. Legend questions, sample frames, and the ref note default
+to the lithography wording; an episode overrides them with style_questions
+(no trailing question mark), sample_frames, and ref_note. Images are embedded
+as JPEG data URIs.
 """
 import base64
 import html
@@ -61,6 +64,42 @@ def page_meta():
     if missing:
         raise SystemExit(f"{path} 缺少 {', '.join(missing)}")
     return data
+
+
+def style_questions(meta):
+    """Legend prompts. Omit style_questions to keep the original wording."""
+    override = meta.get("style_questions") or {}
+    if not isinstance(override, dict):
+        raise SystemExit("storyboard/page.yaml 的 style_questions 必须是映射")
+    unknown = [key for key in override if key not in STYLE_Q]
+    if unknown:
+        raise SystemExit(f"style_questions 有未知画面语言：{', '.join(unknown)}")
+    merged = dict(STYLE_Q)
+    for key, value in override.items():
+        if not isinstance(value, str) or not value.strip():
+            raise SystemExit(f"style_questions.{key} 必须是非空字符串")
+        if value.endswith("？") or value.endswith("?"):
+            raise SystemExit(f"style_questions.{key} 不要自带问号，页面会加上")
+        merged[key] = value
+    return merged
+
+
+def sample_frames(meta):
+    """Omit sample_frames to keep the built-in style-board list."""
+    if "sample_frames" not in meta:
+        return list(FRAMES)
+    raw = meta.get("sample_frames") or []
+    if not isinstance(raw, list):
+        raise SystemExit("sample_frames 必须是列表")
+    frames = []
+    for item in raw:
+        if not isinstance(item, dict):
+            raise SystemExit("sample_frames 的每一项必须是映射（path、label、caption）")
+        path, label, caption = item.get("path"), item.get("label"), item.get("caption")
+        if not all(isinstance(x, str) and x.strip() for x in (path, label, caption)):
+            raise SystemExit("sample_frames 的 path、label、caption 都必须是非空字符串")
+        frames.append((path, label, caption))
+    return frames
 
 
 def rules_html(items):
@@ -122,11 +161,12 @@ def main():
         f'<button class="chip st-{k}" type="button" data-style="{k}" aria-pressed="false" id="f-{k}">'
         f'<span class="dot"></span>{STYLE_ZH[k]}<span class="n">{counts.get(k, 0)}</span></button>'
         for k in STYLE_ZH)
-    qrows = "".join(f'<li><span class="sw st-{k}"></span><b>{STYLE_ZH[k]}</b>{STYLE_Q[k]}？</li>'
+    questions = style_questions(meta)
+    qrows = "".join(f'<li><span class="sw st-{k}"></span><b>{STYLE_ZH[k]}</b>{questions[k]}？</li>'
                     for k in STYLE_ZH)
 
     frames = []
-    for rel, label, cap in FRAMES:
+    for rel, label, cap in sample_frames(meta):
         p = os.path.join(RENDERS, rel)
         if os.path.exists(p):
             frames.append(f'<figure><img src="{jpeg_uri(p)}" alt="{esc(label)}：{esc(cap)}" loading="lazy">'
@@ -155,7 +195,8 @@ def main():
                 ("特效", "、".join(fx_zh(f) for f in s.get("fx") or [])),
                 ("声音", "、".join(s.get("sfx") or [])),
                 ("渲染", ENGINES.get(s.get("engine", ""), s.get("engine", ""))),
-                ("复用", ("沿用 B1 样片机位 " + s["ref"].split(":")[-1]) if s.get("ref") else ""),
+                ("复用", (meta.get("ref_note") or "沿用 B1 样片机位 ") + s["ref"].split(":")[-1]
+                 if s.get("ref") else ""),
             ] if v)
             body.append(
                 f'<article class="shot" id="{esc(s["id"])}" data-style="{s["style"]}">'

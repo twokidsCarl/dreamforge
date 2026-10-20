@@ -11,7 +11,14 @@ shots:
   style: documentary
   style_why: 冷开场先给一句不解释的话，用纪实纸页，不先上机制。
   transition_in: fade
-  visual: 暗室里一页泛黄纸，只有一行字被侧光照亮：理想的信号也许是光。没有人脸，只有纸和灰尘。
+  visual: 暗室里一页泛黄纸，侧光只照亮其中一行；纸上是不可读的抽象行，不冒充原稿。没有人脸，只有纸和灰尘。
+  overlays:
+  - text: Francis Crick · 1999
+    facts:
+    - F3
+  - text: 诺奖科学背景引用
+    facts:
+    - F3
   camera:
     move: slow dolly-in
     lens_mm: 50
@@ -70,7 +77,7 @@ shots:
   style: documentary
   style_why: 停顿要落回纸页，而不是继续打字。
   transition_in: cut
-  visual: 写字的手并不出现，只有纸页上的墨水还没干。
+  visual: 同一页纸的近景，被照亮的那一行慢慢暗下。写字的手不出现。
   camera:
     move: locked-off
     lens_mm: 35
@@ -2331,7 +2338,7 @@ shots:
   style: hud
   style_why: 把即将到来的年份先藏在一只未点亮的计时器里。
   transition_in: cut
-  visual: HUD 计时器停在暗处，不出现未核实的 1979。
+  visual: HUD 计数从 1999 走到 2026 后停在暗处。不出现未核实的 1979，不写相差年数。
   camera:
     move: locked-off
     lens_mm: 50

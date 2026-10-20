@@ -20,6 +20,21 @@ accents:
   - {id: channel, light: "#2f6fe0", dark: "#8eafff"}
   - {id: amber, light: "#d99a1a", dark: "#ffc14d"}
   - {id: membrane, light: "#1c8f7a", dark: "#5ddec4"}
+# 画面语言图例。问号由页面补上。没写的键沿用生成器里的原文。
+style_questions:
+  photoreal: 衣藻、光纤或护目镜长什么样
+  xray: 细胞膜/视网膜里面怎么排布
+  blueprint: 泵和通道为什么要分成两种设计
+  energy: 离子和电压怎么流动
+  infographic: 名单、分数和年份怎么对照
+  clay: 蛋白和细胞怎么组装、怎么运动
+  sem: 通道和紫膜在这个尺度长什么样
+  hud: 脉冲频率和试验读数是多少
+  type: 哪一句必须单独停住
+  documentary: 实验或公告发生在什么场合
+# 不沿用上一期的风格样张。以后有本片画面再往这里加。
+sample_frames: []
+ref_note: "沿用已有机位 "
 exclusive_terms:
   - 光遗传学
   - 通道视紫红质
