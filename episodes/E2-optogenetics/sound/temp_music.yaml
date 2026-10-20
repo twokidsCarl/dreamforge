@@ -1,31 +1,34 @@
-# 检查点② 动态分镜用的临时配乐（temp，不是成片声音设计）。ElevenLabs Music，2026-10-21 生成，
-# 提示词见 /workspace/e2work/c2/gen_temp_music.py；VAD 语音识别检查无人声。at 是段内秒数；增益让各段 RMS 约 -34 dBFS。
-# 某段有了 sound/<段>.yaml 的正式配乐后，animatic.py 优先用正式配乐。
+# 检查点② 动态分镜用的临时配乐（temp，不是成片声音设计）。ElevenLabs Music，2026-10-21 生成。
+# 提示词：A/B1/C1/D 见 /workspace/e2work/c2/gen_temp_music.py；B2/C2（v2 换掉）见 /workspace/e2work/v2/gen_music_v2.py，
+# 用 composition plan 明确排除人声、合唱、哼唱、鼓和重低音。
+# 人声检查：每条都过 demucs 分离（人声轨比其余低 54 dB 以上，无 1 秒窗口超阈值）和 Whisper 单听音乐（无可识别词）。
+# at 是段内秒数。增益按 120 Hz 高通后的响度定：整段约 -34 LUFS（比旁白低约 10 LU），短时最大不超过 -26 LUFS；
+# 旁白下面再由 animatic.py 的侧链压缩压低。某段有了 sound/<段>.yaml 的正式配乐后，animatic.py 优先用正式配乐。
 A:
 - at: 0.0
   file: music/6c7ed7397074c6d3.mp3
-  gain: -11
+  gain: -13
   fade_out: 3.0
 B:
 - at: 0.0
   file: music/8ccbb77afb32b8c2.mp3
-  gain: -15
+  gain: -18
   fade_out: 3.0
 - at: 172.0
-  file: music/69ec2eec68055180.mp3
-  gain: -9
+  file: music/4752649dd4551025.mp3     # v2：替换 69ec2eec68055180（审片听到疑似 "Thank you"）
+  gain: -18
   fade_out: 3.0
 C:
 - at: 0.0
   file: music/3df66c240ef37997.mp3
-  gain: -15
+  gain: -17
   fade_out: 3.0
 - at: 162.0
-  file: music/689da5af400d854a.mp3
-  gain: -15
+  file: music/dd2c164f824cc48d.mp3     # v2：替换 689da5af400d854a（太响、低频重、压旁白；疑似唱出 "You"）
+  gain: -20
   fade_out: 3.0
 D:
 - at: 0.0
   file: music/4aaf78f841ce46f9.mp3
-  gain: -15
+  gain: -18
   fade_out: 3.0

@@ -95,3 +95,16 @@ DREAMFORGE_EPISODE=E2-optogenetics python3 shared/tools/storyboard_check.py
 ```
 
 lint 打出来的分钟数是大纲句子的估算，不是成片目标时长。
+
+## 旁白选条（P4）
+
+段落模式每段 7 条，选用：A0 第 1 条、A 第 5 条、B 第 4 条、C 第 7 条、D 第 3 条（timing.json 里的 take 从 0 数，所以 B 是 `take: 3`）。
+
+B 第 12 句（2006 年那句，六个作者名）在选用条里读坏了（「Mueske, Mueske」），这一句单独取 B 的第 1 条（`take: 0`），
+其余句子不动。`audio/` 不入库，所以在这里记下：重建时在 `audio/vo/Andre/timing.json` 的 B 段加
+
+```json
+"line_takes": {"12": 0}
+```
+
+再跑 `vo_align.py`（加 `--reuse` 就不重跑语音识别）和 `retime.py`。这一句比原来长 0.59 秒，B 段随之后移。
