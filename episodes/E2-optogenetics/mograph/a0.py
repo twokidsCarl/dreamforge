@@ -152,13 +152,13 @@ def _draw_neuron(c, i, col, a, widen=1.0, glow=False):
 
 @shot("A0_03a")
 def a0_03a(t, dur, W, H):
-    s = _warp(t, dur, 8.8)
+    s = t   # 真实秒；按 review_words 对齐旁白：「打开」3.80 s、「关掉」4.82 s、「旁边的细胞大体不动」6.22 s
     c = _canvas(W, H, (8, 10, 16))
     for i in range(E.NEURON_COUNT):
         circled = i in E.NEURON_CIRCLED
         a_in = ease(seg(s, 0.05 + 0.05 * i, 0.75 + 0.05 * i))
-        k_open = ease(seg(s, 3.0, 3.5)) if circled else 0.0           # 灰 -> 通道蓝
-        k_off = ease(seg(s, 5.5, 6.3)) if circled else 0.0            # 蓝 -> 琥珀并压暗
+        k_open = ease(seg(s, 3.6, 4.0)) if circled else 0.0           # 灰 -> 通道蓝
+        k_off = ease(seg(s, 4.85, 5.5)) if circled else 0.0            # 蓝 -> 琥珀并压暗
         col = _mix(_mix(E.GREY, E.CHANNEL, k_open), E.AMBER, k_off)
         bright = 1.0 - 0.38 * k_off
         _draw_neuron(c, i, _scale(col, bright), a_in, widen=1.0 + 0.25 * k_open * (1 - k_off),
@@ -170,19 +170,19 @@ def a0_03a(t, dur, W, H):
                 ox, oy, rr = c.px(_row_x(i)), c.px(ROW_Y), c.px(64)
                 c.d.arc([ox - rr, oy - rr, ox + rr, oy + rr], -90, -90 + 360 * g, fill=(*E.LINE, 235),
                         width=max(2, int(c.px(2.2))))
-            if 3.2 < s < 4.8:                                              # 沿轴突走一道脉冲
+            if 3.75 < s < 4.95:                                              # 沿轴突走一道脉冲
                 path = BN.axon_path(_MORPH[i])
-                u = ease(seg(s, 3.2, 4.7))
+                u = ease(seg(s, 3.75, 4.85))
                 for k in range(10):                                        # 拖尾
                     uu = max(0.0, u - 0.025 * k)
                     p, _ = BN.path_at(path, uu)
                     c.circle((_row_x(i) + p[0] * ROW_SCALE, ROW_Y - p[2] * ROW_SCALE), 9 - 0.7 * k,
                              fill=E.CHANNEL, a=(1 - k / 10) * 0.9, glow=True)
-    lab_open = ease(seg(s, 3.0, 3.4)) * (1 - ease(seg(s, 5.3, 5.6)))
-    lab_off = ease(seg(s, 5.6, 6.0))
+    lab_open = ease(seg(s, 3.7, 4.0)) * (1 - ease(seg(s, 4.75, 4.95)))
+    lab_off = ease(seg(s, 4.95, 5.25))
     c.text((960, 120), "打开", 58, E.CHANNEL, lab_open, anchor="mm", weight_glow=True)
     c.text((960, 120), "关掉", 58, E.AMBER, lab_off, anchor="mm", weight_glow=True)
-    c.text((960, 770), "其余不动", 38, E.GREY, ease(seg(s, 3.4, 4.0)), anchor="mm")
+    c.text((960, 770), "其余不动", 38, E.GREY, ease(seg(s, 6.1, 6.6)), anchor="mm")
     return _done(c, W, H, glow_radius=12, glow_gain=0.5)
 
 
