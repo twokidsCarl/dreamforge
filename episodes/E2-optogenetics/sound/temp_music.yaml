@@ -1,0 +1,31 @@
+# 检查点② 动态分镜用的临时配乐（temp，不是成片声音设计）。ElevenLabs Music，2026-10-21 生成，
+# 提示词见 /workspace/e2work/c2/gen_temp_music.py；VAD 语音识别检查无人声。at 是段内秒数；增益让各段 RMS 约 -34 dBFS。
+# 某段有了 sound/<段>.yaml 的正式配乐后，animatic.py 优先用正式配乐。
+A:
+- at: 0.0
+  file: music/6c7ed7397074c6d3.mp3
+  gain: -11
+  fade_out: 3.0
+B:
+- at: 0.0
+  file: music/8ccbb77afb32b8c2.mp3
+  gain: -15
+  fade_out: 3.0
+- at: 172.0
+  file: music/69ec2eec68055180.mp3
+  gain: -9
+  fade_out: 3.0
+C:
+- at: 0.0
+  file: music/3df66c240ef37997.mp3
+  gain: -15
+  fade_out: 3.0
+- at: 162.0
+  file: music/689da5af400d854a.mp3
+  gain: -15
+  fade_out: 3.0
+D:
+- at: 0.0
+  file: music/4aaf78f841ce46f9.mp3
+  gain: -15
+  fade_out: 3.0
