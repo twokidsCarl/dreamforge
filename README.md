@@ -5,7 +5,7 @@
 | 期 | 文件夹 | 状态 |
 |---|---|---|
 | E1《一台光刻机里发生了什么》（约 20 分钟） | `episodes/E1-euv-lithography/` | 制作中 |
-| E2《光遗传学》（目标 12–15 分钟） | `episodes/E2-optogenetics/` | P1 已核实；剧本仍是大纲，分镜未做 |
+| E2《光遗传学》（目标 12–15 分钟） | `episodes/E2-optogenetics/` | 剧本已定稿，分镜未做 |
 
 - 所有期共用的工具与 Blender 模块：`shared/`
 - 制作流程与目录约定：[docs/WORKFLOW.md](docs/WORKFLOW.md)
