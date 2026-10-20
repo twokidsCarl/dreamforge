@@ -763,8 +763,11 @@ shots:
   - text: 这种问法后来做成过一次干净的实验
     start: 0.3
     end: 3.397
-  - text: 小鼠下丘脑外侧有一群分泌食欲素的神经元
+  - text: 小鼠下丘脑外侧有一群
     start: 3.397
+    end: 5.333
+  - text: 分泌食欲素的神经元
+    start: 5.333
     end: 7.075
   - text: 人们早就知道它们和清醒有关
     start: 7.075
@@ -831,11 +834,11 @@ shots:
   - text: 用光纤把光送进去。光一开
     start: 6.74
     end: 9.026
-  - text: 动物从慢波睡眠或快速眼动
+  - text: 动物从慢波睡眠或
     start: 9.026
-    end: 11.519
-  - text: 睡眠转入清醒的概率升高
-    start: 11.519
+    end: 10.688
+  - text: 快速眼动睡眠转入清醒的概率升高
+    start: 10.688
     end: 13.804
   - text: 每秒五到三十次的脉冲能缩短这段等待
     start: 13.804
@@ -984,8 +987,11 @@ shots:
   - text: 1971 年
     start: 0.3
     end: 1.293
-  - text: Oesterhelt 和 Stoeckenius
+  - text: Oesterhelt 和
     start: 1.293
+    end: 3.477
+  - text: Stoeckenius
+    start: 3.477
     end: 5.661
   - text: 从一种嗜盐古菌里分离出紫膜
     start: 5.661
@@ -1255,8 +1261,11 @@ shots:
   - text: 膜上出现了一道电流，而且主要让质子通过
     start: 16.165
     end: 19.691
-  - text: 他们把加上视黄醛之后的蛋白称为通道视紫红质一
+  - text: 他们把加上视黄醛之后的
     start: 19.691
+    end: 21.845
+  - text: 蛋白称为通道视紫红质一
+    start: 21.845
     end: 24.0
 - id: B_06b
   segment: B
@@ -1439,8 +1448,11 @@ shots:
   - text: 持续照着的时候
     start: 0.3
     end: 1.742
-  - text: 这道电流会从一开始的高峰落到一个较低的平台
+  - text: 这道电流会从一开始的
     start: 1.742
+    end: 3.802
+  - text: 高峰落到一个较低的平台
+    start: 3.802
     end: 6.068
   - text: 通道会脱敏。所以它不是一盏永远开着的灯
     start: 6.068
@@ -1507,14 +1519,23 @@ shots:
   - text: Ernst Bamberg
     start: 8.071
     end: 10.291
-  - text: Georg Nagel 和 Karl Deisseroth
+  - text: Georg Nagel 和
     start: 10.291
+    end: 12.326
+  - text: Karl Deisseroth
+    start: 12.326
     end: 14.916
-  - text: 把通道视紫红质二送进培养的哺乳动物神经元
+  - text: 把通道视紫红质二送进
     start: 14.916
+    end: 16.766
+  - text: 培养的哺乳动物神经元
+    start: 16.766
     end: 18.617
-  - text: 短脉冲的蓝光可以在毫秒尺度上可靠地驱动锋电位
+  - text: 短脉冲的蓝光可以在
     start: 18.617
+    end: 20.282
+  - text: 毫秒尺度上可靠地驱动锋电位
+    start: 20.282
     end: 22.687
   - text: 也可以控制突触传递
     start: 22.687
@@ -1573,11 +1594,11 @@ shots:
   - text: 通讯作者是 Deisseroth
     start: 2.803
     end: 5.484
-  - text: 诺奖新闻稿把 2005 年这次发表
+  - text: 诺奖新闻稿把 2005 年这次发表记在
     start: 5.484
-    end: 8.165
-  - text: 记在 Deisseroth 名下
-    start: 8.165
+    end: 8.522
+  - text: Deisseroth 名下
+    start: 8.522
     end: 10.667
   - text: 两句话都对：论文署名和后来的授奖名单
     start: 10.667
@@ -1632,11 +1653,11 @@ shots:
     end: 9.144
   start: 362.41
   subs:
-  - text: 2026 年的生理学或医学奖
+  - text: 2026 年的生理学或医学奖得主是
     start: 0.3
-    end: 2.469
-  - text: 得主是 Deisseroth
-    start: 2.469
+    end: 2.97
+  - text: Deisseroth
+    start: 2.97
     end: 4.639
   - text: Hegemann 和 Nagel
     start: 4.639
@@ -1703,11 +1724,14 @@ shots:
   - text: Miesenböck
     start: 5.12
     end: 6.906
-  - text: Ting 和 Schnitzer 在《神经科
+  - text: Ting 和 Schnitzer
     start: 6.906
-    end: 10.119
-  - text: 学杂志》上用 optogenetic 这个词
-    start: 10.119
+    end: 9.405
+  - text: 在《神经科学杂志》上用
+    start: 9.405
+    end: 11.012
+  - text: optogenetic 这个词
+    start: 11.012
     end: 13.511
   - text: 称呼把光学和遗传靶向合在一起的做法
     start: 13.511
@@ -1783,8 +1807,11 @@ shots:
   - text: 把蓝光送进啮齿动物的运动皮层
     start: 7.189
     end: 10.404
-  - text: 只驱动表达通道视紫红质二的兴奋性神经元
+  - text: 只驱动表达通道视紫红质二的
     start: 10.404
+    end: 13.389
+  - text: 兴奋性神经元
+    start: 13.389
     end: 14.767
   - text: 不另外添加视黄醛
     start: 14.767
@@ -1843,11 +1870,11 @@ shots:
   - text: 新闻稿说
     start: 0.3
     end: 1.117
-  - text: Deisseroth 在
+  - text: Deisseroth
     start: 1.117
-    end: 3.362
-  - text: 那次神经元实验大约两年后
-    start: 3.362
+    end: 3.158
+  - text: 在那次神经元实验大约两年后
+    start: 3.158
     end: 5.812
   - text: 让这枚开关在活体小鼠的脑里工作
     start: 5.812
@@ -2086,11 +2113,11 @@ shots:
   - text: 荣誉也有两份名单。2013 年
     start: 0.3
     end: 2.174
-  - text: 隆德贝克基金会的 Brain
+  - text: 隆德贝克基金会的
     start: 2.174
-    end: 4.048
-  - text: Prize 授给六个人：
-    start: 4.048
+    end: 3.327
+  - text: Brain Prize 授给六个人：
+    start: 3.327
     end: 5.489
   - text: Ernst Bamberg
     start: 5.489
@@ -2330,8 +2357,11 @@ shots:
   - text: 海马齿状回里有一批神经元会活动
     start: 6.76
     end: 10.102
-  - text: 他们给这批当时活跃的细胞装上通道视紫红质二
+  - text: 他们给这批当时活跃的
     start: 10.102
+    end: 12.33
+  - text: 细胞装上通道视紫红质二
+    start: 12.33
     end: 14.78
 - id: C_02b
   segment: C
@@ -2449,8 +2479,11 @@ shots:
   - text: 实验组却在甲里冻结。作者的结论是：
     start: 4.159
     end: 7.563
-  - text: 他们在小鼠海马里制造出了一段虚假的恐惧记忆
+  - text: 他们在小鼠海马里制造出了
     start: 7.563
+    end: 10.287
+  - text: 一段虚假的恐惧记忆
+    start: 10.287
     end: 12.33
 - id: C_04b
   segment: C
@@ -2561,8 +2594,11 @@ shots:
   - text: 这是实验动物里的因果演示
     start: 0.3
     end: 2.884
-  - text: 它说明选定细胞的活动足以支撑一种恐惧行为
+  - text: 它说明选定细胞的
     start: 2.884
+    end: 4.606
+  - text: 活动足以支撑一种恐惧行为
+    start: 4.606
     end: 7.19
   - text: 它没有说明，同样的操作已经用在人身上
     start: 7.19
@@ -2679,11 +2715,11 @@ shots:
   - text: 2021 年
     start: 0.3
     end: 1.309
-  - text: Sahel 等人在《自然·医
+  - text: Sahel 等人在《自然·医学》
     start: 1.309
-    end: 3.53
-  - text: 学》报告一名已经失明的患者
-    start: 3.53
+    end: 3.731
+  - text: 报告一名已经失明的患者
+    start: 3.731
     end: 5.952
   - text: 他们向一只眼睛的玻璃体注射腺相关病毒
     start: 5.952
@@ -2821,11 +2857,11 @@ shots:
   - text: 论文称之为部分功能恢复
     start: 0.3
     end: 2.687
-  - text: 也是神经退行性疾病里光遗
+  - text: 也是神经退行性疾病里
     start: 2.687
-    end: 5.291
-  - text: 传治疗后第一次这样的报告
-    start: 5.291
+    end: 4.857
+  - text: 光遗传治疗后第一次这样的报告
+    start: 4.857
     end: 7.895
   - text: 看见的是护目镜翻译出来的高对比轮廓
     start: 7.895
@@ -2889,11 +2925,11 @@ shots:
   - text: Nanoscope 公告：
     start: 2.002
     end: 4.083
-  - text: 美国食品药品监督管理局已经受理并立案
+  - text: 美国食品药品监督管理局已经受理并
     start: 4.083
-    end: 7.487
-  - text: MOGENRY 的生物制品许可申请
-    start: 7.487
+    end: 7.109
+  - text: 立案 MOGENRY 的生物制品许可申请
+    start: 7.109
     end: 10.514
   - text: 研究代号是 MCO-010
     start: 10.514
@@ -2960,11 +2996,14 @@ shots:
   - text: 同一篇公告写
     start: 0.3
     end: 1.506
-  - text: RESTORE 试验在第五十二周和第七十
+  - text: RESTORE 试验在第五十二周和
     start: 1.506
-    end: 5.323
-  - text: 六周达到了视力的主要终点和关键次要终点
-    start: 5.323
+    end: 4.72
+  - text: 第七十六周达到了视力的
+    start: 4.72
+    end: 6.93
+  - text: 主要终点和关键次要终点
+    start: 6.93
     end: 9.141
   - text: 并且没有治疗相关的严重不良事件
     start: 9.141
@@ -3023,11 +3062,17 @@ shots:
   - text: 2026 年 10 月 8 日
     start: 0.3
     end: 2.172
-  - text: GenSight 与巴黎十五-二十国家医院公告：
+  - text: GenSight
     start: 2.172
+    end: 3.669
+  - text: 与巴黎十五-二十国家医院公告：
+    start: 3.669
     end: 6.103
-  - text: GS030 的一期二期试验 PIONEER
+  - text: GS030 的一期二期
     start: 6.103
+    end: 7.975
+  - text: 试验 PIONEER
+    start: 7.975
     end: 9.659
   - text: 发表在当天的《新英格兰医学杂志》
     start: 9.659
@@ -3163,8 +3208,11 @@ shots:
   - text: 戴着光刺激护目镜时，在察觉、定位
     start: 18.023
     end: 21.331
-  - text: 触碰物体或判断条纹方向的部分任务上有正向变化
+  - text: 触碰物体或判断条纹方向的
     start: 21.331
+    end: 24.167
+  - text: 部分任务上有正向变化
+    start: 24.167
     end: 26.53
 - id: C_15b
   segment: C
@@ -3216,8 +3264,11 @@ shots:
   - text: 公告脚注写明：
     start: 0.3
     end: 1.618
-  - text: GS030 在任何司法辖区都没有上市许可
+  - text: GS030
     start: 1.618
+    end: 2.716
+  - text: 在任何司法辖区都没有上市许可
+    start: 2.716
     end: 5.79
 - id: C_16b
   segment: C
@@ -3600,8 +3651,11 @@ shots:
   - text: 说成已经改写了某一个人的人生
     start: 3.784
     end: 6.832
-  - text: 也做不到把一次离不开装置的部分视觉报告
+  - text: 也做不到把一次离不开
     start: 6.832
+    end: 9.009
+  - text: 装置的部分视觉报告
+    start: 9.009
     end: 10.968
   - text: 说成失明已经结束
     start: 10.968
