@@ -266,7 +266,7 @@ dreamforge/
 2. 设置 `DREAMFORGE_EPISODE=E<n>-<短名>`。
 3. 从 P1 调研开始，按第 3 节逐个阶段推进，第 1、2 节的规则同样适用。
 
-E2《光遗传学》在 `episodes/E2-optogenetics/`。事实已核实，剧本已定稿；分镜还没有，未到检查点①。
+E2《光遗传学》在 `episodes/E2-optogenetics/`。事实、定稿剧本和分镜总览已齐，停在检查点①等审；还没有配音和渲染。
 
 ## 12. 拉取请求审查
 
