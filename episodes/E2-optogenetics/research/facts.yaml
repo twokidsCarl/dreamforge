@@ -1,148 +1,181 @@
-# E2《光遗传学》事实种子。编号对齐制作计划（2026-10）claim #1–#15。
+# E2《光遗传学》事实表。2026-10-20 对照一手材料改写。
 #
-# 这里只有计划表里的 claim、建议等级、来源类型。
-# 没有 URL、DOI、页码，也没有计划表以外的数字。不要把本文件当成已核实。
-#
-# status: needs_verification  来源类型已登记，一手材料还没核对
-#         verified / disputed / reported / derived / rejected  见 E1 facts.yaml，本片种完之前不用
-# grade:  A  诺奖官方新闻稿、摘要、科学背景；监管或公司正式公告
-#         B  同行评审论文、专利、学会材料
-#         B/A  计划表把一条拆成论文（B）和公告（A），两半都还没核
-# verification: pending  与 needs_verification 成对出现
-#
-# Seeded 2026-10-20. Not primary-source checked.
+# grade:  A  诺奖官方新闻稿 / 科学背景；监管或公司正式公告
+#         B  同行评审论文
+# status: verified 可按 claim 使用；needs_verification 不得进定稿旁白
+# 不在本文件里的数字，不要写进旁白或屏幕。
+# 核实范围和降级说明见 research/verification.md。
 
 F1:
-  claim: 2026 诺奖授 Deisseroth / Hegemann / Nagel（光控离子通道与光遗传学）
+  claim: 2026-10-05 诺贝尔生理学或医学奖联合授予 Karl Deisseroth、Peter Hegemann、Georg Nagel，理由是光控离子通道与光遗传学。新闻稿没有把 Edward Boyden 列为得主。新闻稿还写：Hegemann 想弄清衣藻如何朝光游；他与 Nagel 在 21 世纪初发现 channelrhodopsin，蓝光打开蛋白上的通道，离子流入并产生电脉冲；Deisseroth 把这种蛋白做成神经元的光控开关，2005 年发表这一突破，约两年后在活体小鼠脑中做成。
   grade: A
-  status: needs_verification
-  verification: pending
-  source_type: 诺奖新闻稿
-  notes: 来源类型来自制作计划。未记录 URL 或公告原文。一手核对前不得当 verified。
-  segments: [A0, B7]
+  status: verified
+  sources:
+    - https://www.nobelprize.org/prizes/medicine/2026/press-release/
+  notes: 奖金 1200 万瑞典克朗均分，旁白不必报。新闻稿把 2005 年的发表记在 Deisseroth 名下；论文署名见 F6，第一作者是 Boyden。新闻稿说临床是在尝试恢复视力，不要说成已经治好。
+  segments: [A0, B4, B7]
 
 F2:
-  claim: 诺奖科学背景：从「读」到「写」、相关→因果
+  claim: 2026 诺奖科学背景写明，这一方法让神经科学从被动记录脑活动，转到主动控制它，从而建立因果。新闻稿写明，20 世纪的方法证明不了因果关系。
   grade: A
-  status: needs_verification
-  verification: pending
-  source_type: 诺奖科学背景 PDF
-  notes: 来源类型来自制作计划。未记录 PDF 的 URL 或页码。
-  segments: [A3]
+  status: verified
+  sources:
+    - https://www.nobelprize.org/uploads/2026/10/advanced-medicineprize2026.pdf
+    - https://www.nobelprize.org/prizes/medicine/2026/press-release/
+  notes: 「从读到写」是对 recording → controlling 的转述，不是 PDF 里的原词。本轮没有给 PDF 编页码。
+  segments: [A]
 
 F3:
-  claim: Crick 1979/1999 预言理想信号是光、自认牵强
-  grade: B
-  status: needs_verification
-  verification: pending
-  source_type: Sci Am / Phil Trans；诺奖背景引用
-  notes: 计划同时写了 1979 与 1999。哪一句出自哪一年，要对照原文，不要在本文件里猜。
+  claim: 2026 诺奖科学背景把下面这段设想归于 Crick 1999：理想的信号是光；他当时认为这相当牵强（rather far-fetched）；可用的方法应能只打开或关掉某一类神经元，其余大体不动。
+  grade: A
+  status: verified
+  sources:
+    - https://www.nobelprize.org/uploads/2026/10/advanced-medicineprize2026.pdf
+  notes: PDF 引文括注是 Crick, 1999，参考文献写 Phil Trans R Soc Lond B。本轮 Phil Trans 全文 PDF 返回 403，没有从 1999 年期刊页面再抄一遍原句。1979 年是否有同一句见 F3b，未核实。不要叙述「47 年」。
   segments: [A0, D]
 
-F4:
-  claim: 1971 细菌视紫红质（紫膜）
+F3b:
+  claim: 1979 年《科学美国人》Thinking about the Brain 是否写了「理想信号是光」
   grade: B
   status: needs_verification
   verification: pending
-  source_type: Oesterhelt & Stoeckenius
-  notes: 作者拼写按计划表照录，未对照论文原文，未记录 DOI。
-  segments: [B1]
-
-F5:
-  claim: 2002 ChR1、2003 ChR2 为直接光门控通道
-  grade: B
-  status: needs_verification
-  verification: pending
-  source_type: Nagel et al. Science / PNAS
-  notes: 未记录 DOI、卷期或页码。哪一条发表在哪一本，核对前不要写死。
-  segments: [B3]
-
-F6:
-  claim: 2005 神经元毫秒级 ChR2 驱动（Boyden 等为第一作者论文，但非诺奖得主）
-  grade: B
-  status: needs_verification
-  verification: pending
-  source_type: 同行评审；荣誉归属用 A 核对
-  notes: 实验本身按 B。诺奖名单以 F1 的 A 级公告核对。旁白可以提第一作者，不得把他说成诺奖得主。
-  segments: [B4, B7]
-
-F7:
-  claim: 「optogenetics」一词出自 2006 J Neurosci 综述
-  grade: B
-  status: needs_verification
-  verification: pending
-  source_type: 论文 / 调研红线
-  notes: 未记录 DOI。计划把「词源」标成红线相关，核对综述原文前不要把命名年份说死。
-  segments: [B5]
-
-F8:
-  claim: 光纤活体控制（约 2007）与 NpHR 光抑制
-  grade: B
-  status: needs_verification
-  verification: pending
-  source_type: 论文
-  notes: 「约 2007」是计划表的原话，不是新测量。未记录是哪一篇论文。
-  segments: [B6]
-
-F9:
-  claim: 假记忆：Ramirez et al. 2013 植入恐惧记忆
-  grade: B
-  status: needs_verification
-  verification: pending
-  source_type: Science
-  notes: 第三幕深讲用这一条。未记录 DOI 或页码。不要写成「改写人类记忆」。
-  segments: [C1]
-
-F10:
-  claim: 觉醒：光激活食欲素神经元促发觉醒（Adamantidis 2007）
-  grade: B
-  status: needs_verification
-  verification: pending
-  source_type: 论文；诺奖背景引用
-  notes: 计划的事实表有这一条。本片大纲没有单独的 beat。若旁白用到，先核一手再指定段落。
+  source_type: 诺奖科学背景参考文献单列 Crick FH (1979) Sci Am 241:219-232；本轮没有从该文页面读到这一句
+  notes: 不进旁白，不上屏。制作计划把钩子锁在 1979，一手核对后这一半仍空着。
   segments: []
 
-F11:
-  claim: 2021 首例人体部分复明（ChrimsonR + 护目镜）
+F4:
+  claim: 1971 年 Oesterhelt 与 Stoeckenius 报告：盐杆菌 Halobacterium halobium 的紫膜呈深紫色，紫色来自视黄醛结合在一种视紫红质样蛋白上，该片段里只有这一种蛋白。
   grade: B
-  status: needs_verification
-  verification: pending
-  source_type: Sahel et al. Nat Med
-  notes: 只可说部分恢复、高对比轮廓。未记录 DOI。不得写成治愈失明。
-  segments: [C3, C4]
+  status: verified
+  sources:
+    - https://doi.org/10.1038/newbio233149a0
+  notes: 论文题目是 rhodopsin-like protein，不是后来的 bacteriorhodopsin。质子泵和这个名字见 F4b，年份是 1973，不要并进 1971。
+  segments: [B]
+
+F4b:
+  claim: 1973 年 Oesterhelt 与 Stoeckenius 把紫膜里的那种蛋白称为 bacteriorhodopsin。闪光使吸收峰从 560 nm 短暂移到 415 nm，并伴随质子释放和摄取；他们提出，光照下这种蛋白在膜上定向搬运质子。
+  grade: B
+  status: verified
+  sources:
+    - https://doi.org/10.1073/pnas.70.10.2853
+  notes: 这是光驱动的质子泵，不是后来的通道视紫红质。旁白要把泵和通道分开。
+  segments: [B]
+
+F5:
+  claim: Nagel、Hegemann、Bamberg 等 2002 年在 Science 报告 channelrhodopsin-1：把衣藻 Chlamydomonas reinhardtii 的 Channelopsin-1 表达在爪蟾卵母细胞里，得到对质子有选择性的光门控电导。2003 年他们在 PNAS 报告 channelrhodopsin-2：在卵母细胞和哺乳动物细胞里，ChR2 是直接由光打开的阳离子通道，光照即可使细胞去极化。诺奖科学背景写明，保留通道部分就仍有光控电导，蛋白本身就足以作为通道。
+  grade: B
+  status: verified
+  sources:
+    - https://doi.org/10.1126/science.1072068
+    - https://doi.org/10.1073/pnas.1936192100
+    - https://www.nobelprize.org/uploads/2026/10/advanced-medicineprize2026.pdf
+  notes: ChR1 是质子通道；ChR2 是非选择性阳离子通道，持续光照下会脱敏到较小的稳态电导。不要把两种通道说成同一种离子选择性。
+  segments: [A, B]
+
+F6:
+  claim: Boyden、Zhang、Bamberg、Nagel、Deisseroth 2005 年在 Nature Neuroscience 报告：用慢病毒把 ChR2 送进培养的哺乳动物神经元，蓝光可以在毫秒尺度上可靠地驱动锋电位，并控制兴奋性和抑制性突触传递。署名顺序上 Boyden 是第一作者，Deisseroth 是通讯作者。
+  grade: B
+  status: verified
+  sources:
+    - https://doi.org/10.1038/nn1525
+    - https://www.nature.com/articles/nn1525
+  notes: 实验按本条。诺奖名单以 F1 为准，Boyden 不是 2026 年生理学或医学奖得主。新闻稿把 2005 年的发表记在 Deisseroth 名下，与第一作者署名同时成立，旁白要分清。
+  segments: [B]
+
+F7:
+  claim: Deisseroth、Feng、Majewska、Miesenböck、Ting、Schnitzer 2006 年在 Journal of Neuroscience 使用 optogenetic 一词，讨论把光学和遗传靶向合在一起的方法。2026 诺奖科学背景写明，这一组作者正式提出 optogenetics 这个词。
+  grade: B
+  status: verified
+  sources:
+    - https://doi.org/10.1523/jneurosci.3863-06.2006
+    - https://www.jneurosci.org/content/26/41/10380
+    - https://www.nobelprize.org/uploads/2026/10/advanced-medicineprize2026.pdf
+  notes: 「正式提出」这句来自诺奖科学背景。本轮读到的论文摘要和正文使用了这个词，没有另从论文里抄出 coined 的原句。
+  segments: [B]
+
+F8:
+  claim: Aravanis 等 2007 年用光纤把 473 nm 的光送进啮齿动物运动皮层，在不另加视黄醛的情况下，驱动表达 ChR2 的兴奋性神经元并产生行为输出。Zhang 等 2007 年在 Nature 报告古菌氯离子泵 NpHR：黄光下把氯离子泵入细胞、抑制锋电位，作用光谱与蓝光激活的 ChR2 分开，因此可以在同一回路里做双向光控。
+  grade: B
+  status: verified
+  sources:
+    - https://doi.org/10.1088/1741-2560/4/3/s02
+    - https://doi.org/10.1038/nature05744
+  notes: 诺奖科学背景还提到 Han 与 Boyden 2007 的另一项 NpHR 工作。本轮没有打开那篇论文，旁白不单独报它的刊名或 DOI。光纤直径、功率等数字只在需要上屏时再用本条来源里的原值，本片定稿不报。
+  segments: [B]
+
+F9:
+  claim: Ramirez 等 2013 年在 Science 报告：在小鼠海马齿状回，把某一环境里活跃过的神经元标上 ChR2；之后在另一个环境里做恐惧条件化时，用光重新激活这些细胞。实验组后来会在最初那个从未给予足底电击的环境里冻结。作者把这称为在小鼠里制造出一段虚假的恐惧记忆。
+  grade: B
+  status: verified
+  sources:
+    - https://doi.org/10.1126/science.1239073
+    - https://www.science.org/doi/10.1126/science.1239073
+  notes: 对象是小鼠，不是人。不要写成改写人类记忆、操控思想或洗脑。诺奖科学背景描述了利根川实验室用 ChR2 标记齿状回细胞并做光学再激活，本轮 PDF 摘录没有出现 Ramirez 这个名字；论文归属以 Science 页面为准。
+  segments: [C]
+
+F10:
+  claim: Adamantidis、Zhang、Aravanis、Deisseroth、de Lecea 2007 年在 Nature 报告：把 ChR2 表达在小鼠下丘脑外侧的 hypocretin（食欲素）神经元上，经光纤光刺激会提高从慢波睡眠或快速眼动睡眠转入清醒的概率。5–30 Hz 的脉冲缩短转入清醒的潜伏期，1 Hz 则没有。论文要回答的是：这些神经元的放电足以驱动觉醒，还是仅仅与觉醒相关。
+  grade: B
+  status: verified
+  sources:
+    - https://doi.org/10.1038/nature06310
+  notes: 大纲原先没有单独的 beat。定稿若用，只说明因果实验，不展开睡眠疾病。
+  segments: [A]
+
+F11:
+  claim: Sahel 等 2021 年在 Nature Medicine 报告一名视网膜色素变性、已盲的患者：玻璃体内注射编码 ChrimsonR 的腺相关病毒，再用护目镜把外界光变化投射成视网膜上的光脉冲，激活转导后的视网膜神经节细胞。患者只用接受治疗的那只眼、并且戴着护目镜时，能够知觉、定位、计数并触碰物体。注射前无论戴不戴护目镜，以及注射后不戴护目镜，都不能看见这些物体。论文称之为神经退行性疾病中光遗传治疗后的首次部分功能恢复。
+  grade: B
+  status: verified
+  sources:
+    - https://doi.org/10.1038/s41591-021-01351-4
+    - https://www.nature.com/articles/s41591-021-01351-4
+  notes: 只说部分恢复，而且离不开护目镜。不要说治愈失明或治好盲人。不报视力表数字，本轮摘要没有给出可单独引用的视力分数。
+  segments: [C]
 
 F12:
-  claim: MCO-010 BLA 于 2026-09 获 FDA 受理；PDUFA 约 2027 上半年；尚未获批
+  claim: Nanoscope 于 2026-09-09 公告：FDA 已受理并立案 MOGENRY（sonpiretigene isteparvovec，MCO-010）的生物制品许可申请，适应证是伴有严重视力丧失的视网膜色素变性。公告反复写 If approved，因此当时尚未获批。公告称 RESTORE 试验在第 52 周和第 76 周达到视力的主要终点和关键次要终点，并且没有治疗相关的严重不良事件。
   grade: A
-  status: needs_verification
-  verification: pending
-  source_type: Nanoscope / FDA 相关正式公告
-  notes: 日期和 PDUFA 窗口都是计划表原文，未打开公告核对。不得说 MCO-010 已上市。
-  segments: [C5]
+  status: verified
+  sources:
+    - https://nanostherapeutics.com/2026/09/09/nanoscope-therapeutics-announces-u-s-food-and-drug-administration-acceptance-of-biologics-license-application-for-mogenry-for-the-treatment-of-retinitis-pigmentosa-with-severe-vision-loss/
+  notes: 公司公告正文没有 PDUFA 日期。计划表里的「约 2027 上半年」本轮不采用，不进旁白。不要说 MCO-010 已上市。公司文案里的 vision restoration、standard of care 是申请方的期待，旁白只复述受理事实和公告里的终点，不跟着说成已经治愈。
+  segments: [C]
 
 F13:
-  claim: GS030 1/2 期 NEJM 2026-10：探索性改善，无上市许可
-  grade: B/A
-  status: needs_verification
-  verification: pending
-  source_type: NEJM + 公司公告
-  notes: 计划把论文标成 B、公司公告标成 A。两半都未核，不拆开，也不把其中一半改成 verified。
-  segments: [C5]
+  claim: GenSight 与巴黎十五-二十国家医院于 2026-10-08 公告：GS030 的 PIONEER 1/2 期结果发表在当天的《新英格兰医学杂志》。研究以安全性为主，不是为了确证疗效而设计。探索性结果：10 名参与者中有 6 人在全视野刺激阈值上出现有临床意义的光敏感改善；完成行为测试的 8 人中有 4 人，在戴光刺激护目镜时，于察觉、定位、触碰物体或判断条纹方向等部分任务上有正向变化。脚注写明 GS030 在任何司法辖区都没有上市许可。Sahel 在公告中的原话把这些结果称为仍属探索性，需要进一步确认。
+  grade: A
+  status: verified
+  sources:
+    - https://www.gensight-biologics.com/2026/10/08/gensight-biologics-and-the-15-20-national-hospital-announce-nejm-publication-on-gs030-phase-1-2-trial-results-in-late-stage-retinitis-pigmentosa/
+  notes: 本轮没有打开 NEJM 全文，不写 DOI、卷号或页码。杂志标题按公司公告为 Optogenetic Therapy for Restoring Aspects of Visual Function，旁白不要把标题说成已经恢复视力。不要采用媒体里的「7/10」。
+  segments: [C]
 
 F14:
-  claim: Brain Prize 2013 六人 ≠ 诺奖三人（含 Boyden / Bamberg / Miesenböck）
+  claim: 2013 年 Brain Prize（隆德贝克基金会）授予六人：Ernst Bamberg、Edward Boyden、Karl Deisseroth、Peter Hegemann、Gero Miesenböck、Georg Nagel。这六人名单不等于 F1 的诺奖三人。
   grade: A
-  status: needs_verification
-  verification: pending
-  source_type: Brain Prize / 诺奖名单对照
-  notes: 六人名单以奖项官方页核对，三人名单以 F1 核对。未记录 URL。
-  segments: [B7]
+  status: verified
+  sources:
+    - https://brainprize.org/winners/optogenetics-2013
+  notes: Boyden、Bamberg、Miesenböck 在这份六人名单上，不在 2026 年诺奖新闻稿的得主名单上。
+  segments: [B]
 
 F15:
-  claim: 光学人工耳蜗仍临床前（未进人体疗效试验）
+  claim: 2023 年 iScience 综述写明，光学人工耳蜗仍处临床前，因此还不能在人体患者中测试声音编码策略。2022 年 EMBO Molecular Medicine 把光遗传听力恢复的首次人体应用写成当时的计划，并写明可行性、安全性和听力改善仍待证明。ClinicalTrials.gov 的 NCT05110183 是一项 2025-04-20 启动、邀请入组的人体可行性研究，终点是术中光递送和听神经复合动作电位，不是已完成的光遗传听力疗效试验。
   grade: B
-  status: needs_verification
-  verification: pending
-  source_type: 调研红线；进片前再核一手
-  notes: 计划写明进片前再核一手。C5b 只保留一句。核实前不要加试验编号或年份。
-  segments: [C5]
+  status: verified
+  sources:
+    - https://doi.org/10.1016/j.isci.2023.107725
+    - https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10502376/
+    - https://doi.org/10.15252/emmm.202215798
+    - https://clinicaltrials.gov/study/NCT05110183
+  notes: C5b 只留一句，不要展开试验编号。不要说「世界上不存在任何人体试验」：NCT05110183 是光刺激可行性研究，EMBO 论文把它和红外神经刺激联系在一起，不是光遗传基因治疗的疗效结果。也不要说疗效已经建立。
+  segments: [C]
+
+F16:
+  claim: 2026 诺奖科学背景写明，在微生物通道视紫红质被用于哺乳动物神经元之前，早期的光控尝试（包括需要多步信号的遗传方案，以及外加化学光开关的通道）达不到毫秒级神经编码所需的时间分辨率。
+  grade: A
+  status: verified
+  sources:
+    - https://www.nobelprize.org/uploads/2026/10/advanced-medicineprize2026.pdf
+  notes: 本轮不点名 chARGe。具体系统的原始论文没有逐篇打开，旁白停在科学背景这一层。
+  segments: [A]
