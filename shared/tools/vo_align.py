@@ -6,6 +6,10 @@ Pause-only splitting (vo_split.split) can land on a comma inside a sentence. Her
 segment take (audio/vo/<voice>/timing.json) is transcribed with word timestamps, the recognised
 characters are aligned to the script's spoken text, and each sentence boundary is snapped to the
 nearest pause. Sentence wavs, sentences.json and timing.json are rewritten.
+
+A single line can be taken from another cached take of the same segment, e.g. when the chosen
+take garbles one sentence: put "line_takes": {"12": 0} on the segment in timing.json (line index
+-> take). That take is aligned the same way and only that line is cut from it.
 """
 import argparse
 import difflib
@@ -101,13 +105,28 @@ def main():
             asr_text, asr_times = char_times(model, wav)
             spans = align_spans(spoken, asr_text, asr_times, vo_split.pauses(x, min_len=0.08))
         seg["spans"] = [list(v) for v in spans]
+        src = {}                                   # line index -> (samples, span) from another take
+        for li, take in (seg.get("line_takes") or {}).items():
+            li = int(li)
+            k2 = hashlib.sha1(f"{tts.MODEL}|{a.voice}|para|{take}|{text}".encode()).hexdigest()[:16]
+            w2 = os.path.join(AUDIO, "vo_cache", "para", f"{seg['id']}_{k2}.wav")
+            x2 = vo_split.load(w2)
+            stored = (seg.get("line_spans") or {}).get(str(li))
+            if a.reuse and stored:
+                sp2 = tuple(stored)
+            else:
+                t2, tt2 = char_times(model, w2)
+                sp2 = align_spans(spoken, t2, tt2, vo_split.pauses(x2, min_len=0.08))[li]
+            seg.setdefault("line_spans", {})[str(li)] = list(sp2)
+            src[li] = (x2, sp2)
+            spans[li] = sp2
         rates_all = [spoken_len(sp) / max(s1 - s0, 0.2) * 60 for sp, (s0, s1) in zip(spoken, spans)]
         ref = float(np.median(rates_all))
         rows, t = [], 0.0
         for i, (L, sp, (s0, s1)) in enumerate(zip(lines, spoken, spans)):
             path = os.path.join(vdir, "sentences", f"{seg['id']}_{i:02d}.wav")
             rate = rates_all[i]
-            tempo = tts.finish_sentence(x, s0, s1, rate, path, ref_rate=ref)
+            tempo = tts.finish_sentence(src[i][0] if i in src else x, s0, s1, rate, path, ref_rate=ref)
             d = tts.duration(path)
             manifest[L["text"]] = path
             rows.append({"text": L["text"], "start": round(t, 3), "end": round(t + d, 3),

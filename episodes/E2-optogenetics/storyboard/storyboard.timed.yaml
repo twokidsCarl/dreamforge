@@ -1686,7 +1686,7 @@ shots:
   start: 371.95
 - id: B_13a
   segment: B
-  duration: 25.87
+  duration: 26.47
   vo:
   - 2006 年，Deisseroth、Feng、Majewska、Miesenböck、Ting 和 Schnitzer 在《神经科学杂志》上用 optogenetic 这个词，称呼把光学和遗传靶向合在一起的做法。诺奖科学背景写明，是这一组作者正式提出了
     optogenetics。名字来自这篇论文，不是来自后来的授奖公告。
@@ -1712,45 +1712,45 @@ shots:
   - text: 2006 年，Deisseroth、Feng、Majewska、Miesenböck、Ting 和 Schnitzer 在《神经科学杂志》上用 optogenetic 这个词，称呼把光学和遗传靶向合在一起的做法。诺奖科学背景写明，是这一组作者正式提出了
       optogenetics。名字来自这篇论文，不是来自后来的授奖公告。
     start: 0.3
-    end: 25.473
+    end: 26.066
   start: 373.3
   subs:
   - text: 2006 年，Deisseroth
     start: 0.3
-    end: 2.978
+    end: 3.041
   - text: Feng、Majewska
-    start: 2.978
-    end: 5.12
+    start: 3.041
+    end: 5.234
   - text: Miesenböck
-    start: 5.12
-    end: 6.906
+    start: 5.234
+    end: 7.061
   - text: Ting 和 Schnitzer
-    start: 6.906
-    end: 9.405
+    start: 7.061
+    end: 9.62
   - text: 在《神经科学杂志》上用
-    start: 9.405
-    end: 11.012
+    start: 9.62
+    end: 11.264
   - text: optogenetic 这个词
-    start: 11.012
-    end: 13.511
+    start: 11.264
+    end: 13.823
   - text: 称呼把光学和遗传靶向合在一起的做法
-    start: 13.511
-    end: 16.546
+    start: 13.823
+    end: 16.929
   - text: 诺奖科学背景写明
-    start: 16.546
-    end: 17.975
+    start: 16.929
+    end: 18.391
   - text: 是这一组作者正式提出了
-    start: 17.975
-    end: 19.939
+    start: 18.391
+    end: 20.401
   - text: optogenetics
-    start: 19.939
-    end: 22.081
+    start: 20.401
+    end: 22.594
   - text: 名字来自这篇论文
-    start: 22.081
-    end: 23.509
+    start: 22.594
+    end: 24.056
   - text: 不是来自后来的授奖公告
-    start: 23.509
-    end: 25.473
+    start: 24.056
+    end: 26.066
 - id: B_13b
   segment: B
   duration: 1.35
@@ -1769,7 +1769,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 399.17
+  start: 399.77
 - id: B_14a
   segment: B
   duration: 19.53
@@ -1796,7 +1796,7 @@ shots:
   - text: 培养皿里的光还不是活的脑。2007 年，Aravanis 等人用光纤把蓝光送进啮齿动物的运动皮层，只驱动表达通道视紫红质二的兴奋性神经元。不另外添加视黄醛，光也足够让动物做出行为。
     start: 0.3
     end: 19.13
-  start: 400.52
+  start: 401.12
   subs:
   - text: 培养皿里的光还不是活的脑。2007 年
     start: 0.3
@@ -1837,7 +1837,7 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 420.05
+  start: 420.65
 - id: B_15a
   segment: B
   duration: 12.95
@@ -1865,7 +1865,7 @@ shots:
   - text: 新闻稿说，Deisseroth 在那次神经元实验大约两年后，让这枚开关在活体小鼠的脑里工作。光纤论文把这次活体行为放在 2007 年。
     start: 0.3
     end: 12.55
-  start: 421.4
+  start: 422.0
   subs:
   - text: 新闻稿说
     start: 0.3
@@ -1900,7 +1900,7 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 434.35
+  start: 434.95
 - id: B_16a
   segment: B
   duration: 14.9
@@ -1928,7 +1928,7 @@ shots:
   - text: 只有开还不够。同一年，张锋等人在《自然》报告另一种古菌蛋白，NpHR。它是氯离子泵。黄光照上去，氯离子被泵进细胞，膜电位往相反方向走，锋电位被按住。
     start: 0.3
     end: 14.496
-  start: 435.7
+  start: 436.3
   subs:
   - text: 只有开还不够。同一年
     start: 0.3
@@ -1963,7 +1963,7 @@ shots:
   fx: []
   engine: manim
   sfx: []
-  start: 450.6
+  start: 451.2
 - id: B_17a
   segment: B
   duration: 8.51
@@ -1990,7 +1990,7 @@ shots:
   - text: 黄光和蓝光的光谱分开。同一套细胞里可以放两种蛋白：蓝光负责打开，黄光负责关掉。
     start: 0.3
     end: 8.11
-  start: 451.95
+  start: 452.55
   subs:
   - text: 黄光和蓝光的光谱分开
     start: 0.3
@@ -2019,7 +2019,7 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 460.46
+  start: 461.06
 - id: B_18a
   segment: B
   duration: 12.08
@@ -2047,7 +2047,7 @@ shots:
   - text: 后来的工具把敏感的颜色往更长的波长推。2021 年用在人眼上的 ChrimsonR 就是其中一种，不是 2005 年那个蓝光通道的改名。
     start: 0.3
     end: 11.678
-  start: 461.81
+  start: 462.41
   subs:
   - text: 后来的工具把敏感的颜色往更长的波长推
     start: 0.3
@@ -2079,7 +2079,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 473.89
+  start: 474.49
 - id: B_19a
   segment: B
   duration: 16.84
@@ -2108,7 +2108,7 @@ shots:
       和 Georg Nagel。
     start: 0.3
     end: 16.445
-  start: 475.24
+  start: 475.84
   subs:
   - text: 荣誉也有两份名单。2013 年
     start: 0.3
@@ -2155,7 +2155,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 492.08
+  start: 492.68
 - id: B_20a
   segment: B
   duration: 12.92
@@ -2183,7 +2183,7 @@ shots:
   - text: 六个人里有 Boyden，有 Bamberg，也有 Miesenböck。2026 年的诺奖是三个人。前一份奖不是诺贝尔奖，两份名单也不能并成一份。
     start: 0.3
     end: 12.522
-  start: 493.43
+  start: 494.03
   subs:
   - text: 六个人里有 Boyden
     start: 0.3
@@ -2221,7 +2221,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 506.35
+  start: 506.95
 - id: B_91
   segment: B
   duration: 1.5
@@ -2240,7 +2240,7 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 507.7
+  start: 508.3
 - id: B_92
   segment: B
   duration: 1.5
@@ -2259,7 +2259,7 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 509.2
+  start: 509.8
 - id: C_01a
   segment: C
   duration: 9.92
@@ -2287,7 +2287,7 @@ shots:
   - text: 开关一旦能在活体里只拨某一类细胞，就可以拿来问记忆存在哪里。这里只深讲一件事，而且只讲小鼠。
     start: 0.3
     end: 9.52
-  start: 510.7
+  start: 511.3
   subs:
   - text: 开关一旦能在活体里只拨某一类细胞
     start: 0.3
@@ -2316,7 +2316,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 520.62
+  start: 521.22
 - id: C_02a
   segment: C
   duration: 15.18
@@ -2343,7 +2343,7 @@ shots:
   - text: 2013 年，Ramirez 等人在《科学》报告：小鼠待在环境甲的时候，海马齿状回里有一批神经元会活动。他们给这批当时活跃的细胞装上通道视紫红质二。
     start: 0.3
     end: 14.78
-  start: 521.97
+  start: 522.57
   subs:
   - text: 2013 年
     start: 0.3
@@ -2381,7 +2381,7 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 537.15
+  start: 537.75
 - id: C_03a
   segment: C
   duration: 17.0
@@ -2408,7 +2408,7 @@ shots:
   - text: 之后把小鼠放到环境乙。在乙里做恐惧条件化、给予足底电击的同时，用光重新打开那些在甲里活跃过的细胞。电击发生在乙，光却把甲的那批细胞叫了回来。
     start: 0.3
     end: 16.6
-  start: 538.5
+  start: 539.1
   subs:
   - text: 之后把小鼠放到环境乙
     start: 0.3
@@ -2443,7 +2443,7 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 555.5
+  start: 556.1
 - id: C_04a
   segment: C
   duration: 12.73
@@ -2471,7 +2471,7 @@ shots:
   - text: 再把小鼠放回环境甲。甲里从来没有电击。实验组却在甲里冻结。作者的结论是：他们在小鼠海马里制造出了一段虚假的恐惧记忆。
     start: 0.3
     end: 12.33
-  start: 556.85
+  start: 557.45
   subs:
   - text: 再把小鼠放回环境甲。甲里从来没有电击
     start: 0.3
@@ -2503,7 +2503,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 569.58
+  start: 570.18
 - id: C_05a
   segment: C
   duration: 11.76
@@ -2530,7 +2530,7 @@ shots:
   - text: 写进去的不是一句话，也不是一段人生。写进去的是一批选定细胞的活动。光再打开这批细胞时，动物把电击和环境甲绑在了一起。
     start: 0.3
     end: 11.36
-  start: 570.93
+  start: 571.53
   subs:
   - text: 写进去的不是一句话，也不是一段人生
     start: 0.3
@@ -2562,7 +2562,7 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 582.69
+  start: 583.29
 - id: C_06a
   segment: C
   duration: 11.25
@@ -2589,7 +2589,7 @@ shots:
   - text: 这是实验动物里的因果演示。它说明选定细胞的活动足以支撑一种恐惧行为。它没有说明，同样的操作已经用在人身上。
     start: 0.3
     end: 10.85
-  start: 584.04
+  start: 584.64
   subs:
   - text: 这是实验动物里的因果演示
     start: 0.3
@@ -2621,7 +2621,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 595.29
+  start: 595.89
 - id: C_07a
   segment: C
   duration: 16.79
@@ -2648,7 +2648,7 @@ shots:
   - text: 眼睛走的是另一条路。视网膜色素变性里，感光细胞会逐渐死去，后面的视网膜神经节细胞还可以留着。若能让这些幸存的细胞自己感光，后面的视觉通路也许还能被点着。
     start: 0.3
     end: 16.39
-  start: 596.64
+  start: 597.24
   subs:
   - text: 眼睛走的是另一条路。视网膜色素变性里
     start: 0.3
@@ -2683,7 +2683,7 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 613.43
+  start: 614.03
 - id: C_08a
   segment: C
   duration: 21.49
@@ -2710,7 +2710,7 @@ shots:
   - text: 2021 年，Sahel 等人在《自然·医学》报告一名已经失明的患者。他们向一只眼睛的玻璃体注射腺相关病毒，病毒携带 ChrimsonR，主要转导视网膜神经节细胞。护目镜侦测外界亮度的变化，把光脉冲打到视网膜上，去打开这些新装的通道。
     start: 0.3
     end: 21.09
-  start: 614.78
+  start: 615.38
   subs:
   - text: 2021 年
     start: 0.3
@@ -2757,7 +2757,7 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 636.27
+  start: 636.87
 - id: C_09a
   segment: C
   duration: 16.64
@@ -2785,7 +2785,7 @@ shots:
   - text: 这名患者只用接受治疗的那只眼，而且必须戴着护目镜，才能知觉物体、指出位置、数出个数，并伸手触到。注射前无论戴不戴护目镜，注射后只要摘掉护目镜，他都看不见这些物体。
     start: 0.3
     end: 16.24
-  start: 637.62
+  start: 638.22
   subs:
   - text: 这名患者只用接受治疗的那只眼
     start: 0.3
@@ -2823,7 +2823,7 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 654.26
+  start: 654.86
 - id: C_10a
   segment: C
   duration: 18.06
@@ -2852,7 +2852,7 @@ shots:
   - text: 论文称之为部分功能恢复，也是神经退行性疾病里光遗传治疗后第一次这样的报告。看见的是护目镜翻译出来的高对比轮廓，不是不依赖设备的日常视觉。诺奖新闻稿的措辞停在尝试恢复视力。
     start: 0.3
     end: 17.66
-  start: 655.61
+  start: 656.21
   subs:
   - text: 论文称之为部分功能恢复
     start: 0.3
@@ -2890,7 +2890,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 673.67
+  start: 674.27
 - id: C_11a
   segment: C
   duration: 24.91
@@ -2917,7 +2917,7 @@ shots:
   - text: 2026 年 9 月 9 日，Nanoscope 公告：美国食品药品监督管理局已经受理并立案 MOGENRY 的生物制品许可申请。研究代号是 MCO-010，通用名 sonpiretigene isteparvovec，针对伴有严重视力丧失的视网膜色素变性。公告写的是如果获批，所以当时尚未获批。
     start: 0.3
     end: 24.51
-  start: 675.02
+  start: 675.62
   subs:
   - text: 2026 年 9 月 9 日
     start: 0.3
@@ -2964,7 +2964,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 699.93
+  start: 700.53
 - id: C_12a
   segment: C
   duration: 15.97
@@ -2991,7 +2991,7 @@ shots:
   - text: 同一篇公告写，RESTORE 试验在第五十二周和第七十六周达到了视力的主要终点和关键次要终点，并且没有治疗相关的严重不良事件。这是申请方的公告，不是已经生效的许可。
     start: 0.3
     end: 15.57
-  start: 701.28
+  start: 701.88
   subs:
   - text: 同一篇公告写
     start: 0.3
@@ -3029,7 +3029,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 717.25
+  start: 717.85
 - id: C_13a
   segment: C
   duration: 12.68
@@ -3057,7 +3057,7 @@ shots:
   - text: 2026 年 10 月 8 日，GenSight 与巴黎十五-二十国家医院公告：GS030 的一期二期试验 PIONEER，发表在当天的《新英格兰医学杂志》。
     start: 0.3
     end: 12.28
-  start: 718.6
+  start: 719.2
   subs:
   - text: 2026 年 10 月 8 日
     start: 0.3
@@ -3095,7 +3095,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 731.28
+  start: 731.88
 - id: C_14a
   segment: C
   duration: 10.82
@@ -3122,7 +3122,7 @@ shots:
   - text: 这项研究以安全性为主要目的，不是为了确证疗效而设计。公告引用 Sahel 的话：结果仍是探索性的，还需要进一步确认。
     start: 0.3
     end: 10.42
-  start: 732.63
+  start: 733.23
   subs:
   - text: 这项研究以安全性为主要目的
     start: 0.3
@@ -3154,7 +3154,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 743.45
+  start: 744.05
 - id: C_15a
   segment: C
   duration: 26.93
@@ -3185,7 +3185,7 @@ shots:
   - text: 数字要连同分母一起说，而且下面的数字出自公司公告。十名参与者里有六人，在全视野光敏感测试上出现了该公司所称有临床意义的改善。公告还写，完成行为测试的八人里有四人，戴着光刺激护目镜时，在察觉、定位、触碰物体或判断条纹方向的部分任务上有正向变化。
     start: 0.3
     end: 26.53
-  start: 744.8
+  start: 745.4
   subs:
   - text: 数字要连同分母一起说
     start: 0.3
@@ -3232,7 +3232,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 771.73
+  start: 772.33
 - id: C_16a
   segment: C
   duration: 6.19
@@ -3259,7 +3259,7 @@ shots:
   - text: 公告脚注写明：GS030 在任何司法辖区都没有上市许可。
     start: 0.3
     end: 5.79
-  start: 773.08
+  start: 773.68
   subs:
   - text: 公告脚注写明：
     start: 0.3
@@ -3288,7 +3288,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 779.27
+  start: 779.87
 - id: C_17a
   segment: C
   duration: 13.07
@@ -3315,7 +3315,7 @@ shots:
   - text: 光学人工耳蜗，按 2023 年的综述，仍是临床前。
     start: 1.2
     end: 6.06
-  start: 780.62
+  start: 781.22
   subs:
   - text: 光学人工耳蜗，按 2023 年的综述
     start: 1.2
@@ -3341,7 +3341,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 793.69
+  start: 794.29
 - id: C_18a
   segment: C
   duration: 9.59
@@ -3369,7 +3369,7 @@ shots:
   - text: 边界停在已发表的事实上。通道视紫红质二在持续光照下会脱敏，不能当成一扇永不疲劳的门。
     start: 0.3
     end: 9.19
-  start: 795.04
+  start: 795.64
   subs:
   - text: 边界停在已发表的事实上
     start: 0.3
@@ -3398,7 +3398,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 804.63
+  start: 805.23
 - id: C_19a
   segment: C
   duration: 9.24
@@ -3426,7 +3426,7 @@ shots:
   - text: 光得送到细胞旁边。脑里 2007 年的做法是光纤。那名患者的眼睛里，没有护目镜，就没有那些物体。
     start: 0.3
     end: 8.84
-  start: 805.98
+  start: 806.58
   subs:
   - text: 光得送到细胞旁边
     start: 0.3
@@ -3458,7 +3458,7 @@ shots:
   fx: []
   engine: manim
   sfx: []
-  start: 815.22
+  start: 815.82
 - id: C_20a
   segment: C
   duration: 12.87
@@ -3487,7 +3487,7 @@ shots:
   - text: 人体视觉上已经发表的，是部分功能，而且绑在装置上。一条申请尚未获批，另一条没有上市许可，并且自己写明那项研究不是为了确证疗效。
     start: 0.3
     end: 12.47
-  start: 816.57
+  start: 817.17
   subs:
   - text: 人体视觉上已经发表的，是部分功能
     start: 0.3
@@ -3519,7 +3519,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 829.44
+  start: 830.04
 - id: C_91
   segment: C
   duration: 1.5
@@ -3538,7 +3538,7 @@ shots:
   fx: []
   engine: manim
   sfx: []
-  start: 830.79
+  start: 831.39
 - id: C_92
   segment: C
   duration: 1.5
@@ -3557,7 +3557,7 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 832.29
+  start: 832.89
 - id: D_01a
   segment: D
   duration: 7.93
@@ -3586,7 +3586,7 @@ shots:
   - text: 这枚开关做得到的，是在实验里打开或关掉选定的细胞，把同时发生推进成是它造成的。
     start: 0.3
     end: 7.53
-  start: 833.79
+  start: 834.39
   subs:
   - text: 这枚开关做得到的
     start: 0.3
@@ -3615,7 +3615,7 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 841.72
+  start: 842.32
 - id: D_02a
   segment: D
   duration: 13.11
@@ -3643,7 +3643,7 @@ shots:
   - text: 做不到的，是把小鼠海马里的一段恐惧，说成已经改写了某一个人的人生；也做不到把一次离不开装置的部分视觉报告，说成失明已经结束。
     start: 0.3
     end: 12.71
-  start: 843.07
+  start: 843.67
   subs:
   - text: 做不到的，是把小鼠海马里的一段恐惧
     start: 0.3
@@ -3678,7 +3678,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 856.18
+  start: 856.78
 - id: D_03a
   segment: D
   duration: 6.33
@@ -3706,7 +3706,7 @@ shots:
   - text: 回到开场。有人曾经觉得，用光去拨动某一类神经元，相当牵强。
     start: 0.3
     end: 5.93
-  start: 857.53
+  start: 858.13
   subs:
   - text: 回到开场。有人曾经觉得
     start: 0.3
@@ -3732,7 +3732,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 863.86
+  start: 864.46
 - id: D_04a
   segment: D
   duration: 11.17
@@ -3761,7 +3761,7 @@ shots:
   - text: 牵强的是当年的工程。今天它是一套实验方法，也是几条仍在审查中的临床尝试。这一期在这里结束。
     start: 0.405
     end: 8.925
-  start: 865.21
+  start: 865.81
   subs:
   - text: 牵强的是当年的工程
     start: 0.405
@@ -3793,7 +3793,7 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 876.38
+  start: 876.98
 - id: D_91
   segment: D
   duration: 1.5
@@ -3812,7 +3812,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 877.73
+  start: 878.33
 - id: D_92
   segment: D
   duration: 4.0
@@ -3831,8 +3831,8 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 879.23
+  start: 879.83
 timing:
   voice: Andre
-  total: 883.23
+  total: 883.83
   design_total: 981.78

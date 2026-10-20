@@ -55,6 +55,8 @@ def music_entries(seg, seg_start):
 def mix_part(t0, t1, segs, voice, out_wav, end_fade=0.0):
     """VO from t0 to t1 on the film timeline, plus music for the segments in that span, -16 LUFS."""
     dur = t1 - t0
+    # the end fade comes after loudnorm: loudnorm's dynamic gain would otherwise lift a fading tail back up
+    ef = f",afade=t=out:st={dur - end_fade:.3f}:d={end_fade:.3f}" if end_fade else ""
     vo = os.path.join(AUDIO, "vo", voice, "vo_track.wav")
     inputs = ["-ss", f"{t0:.3f}", "-t", f"{dur:.3f}", "-i", vo]
     f = [f"[0:a]aresample=48000,pan=stereo|c0=c0|c1=c0,apad=whole_dur={dur:.3f},asplit=2[vo][key]"]
@@ -63,18 +65,19 @@ def mix_part(t0, t1, segs, voice, out_wav, end_fade=0.0):
         for file, at, gain, fo, _ in music_entries(seg, s0):
             inputs += ["-i", os.path.join(AUDIO, "eleven", file)]
             d = max(0, int((at - t0) * 1000))
-            f.append(f"[{n}:a]aresample=48000,volume={gain}dB,afade=t=in:d=2.0,areverse,afade=t=in:d={fo},areverse,"
+            # temp music sits under the voice: no low end, a small dip where speech intelligibility lives
+            f.append(f"[{n}:a]aresample=48000,highpass=f=120,equalizer=f=2800:t=q:w=1.2:g=-4,volume={gain}dB,"
+                     f"afade=t=in:d=2.0,areverse,afade=t=in:d={fo},areverse,"
                      f"adelay={d}|{d}[m{n}]")
             parts.append(f"[m{n}]")
             n += 1
     if parts:
         f.append("".join(parts) + f"amix=inputs={len(parts)}:normalize=0[mus]")
-        f.append("[mus][key]sidechaincompress=threshold=0.03:ratio=6:attack=40:release=500[musd]")
-        ef = f"afade=t=out:st={dur - end_fade:.3f}:d={end_fade:.3f}," if end_fade else ""
-        f.append(f"[vo][musd]amix=inputs=2:normalize=0,atrim=0:{dur:.3f},{ef}loudnorm=I=-16:TP=-1.5:LRA=11[out]")
+        f.append("[mus][key]sidechaincompress=threshold=0.02:ratio=8:attack=20:release=600[musd]")
+        f.append(f"[vo][musd]amix=inputs=2:normalize=0,atrim=0:{dur:.3f},loudnorm=I=-16:TP=-1.5:LRA=11{ef}[out]")
     else:
         f.append("[key]anullsink")
-        f.append(f"[vo]atrim=0:{dur:.3f},loudnorm=I=-16:TP=-1.5:LRA=11[out]")
+        f.append(f"[vo]atrim=0:{dur:.3f},loudnorm=I=-16:TP=-1.5:LRA=11{ef}[out]")
     run(["ffmpeg", "-y", "-loglevel", "error", *inputs, "-filter_complex", ";".join(f), "-map", "[out]",
          "-ar", "48000", out_wav])
 
@@ -84,6 +87,8 @@ def main():
     ap.add_argument("--sample", action="append", default=[], help="SEG=path/to/finished_sample.mp4")
     ap.add_argument("--size", default="640x360")
     ap.add_argument("--voice", default="Andre")
+    ap.add_argument("--tail", type=float, default=4.0,
+                    help="seconds after the last shot: the last frame fades to black while the music rings out")
     a = ap.parse_args()
     W, H = (int(x) for x in a.size.split("x"))
     samples = dict(x.split("=", 1) for x in a.sample)
@@ -122,6 +127,16 @@ def main():
             clips.append(fixed)
             n_board += not SR.rendered_frames(s["id"])[1]
         print(f"{g}: {sum(1 for x in sb['shots'] if x['segment'] == g)} shots", flush=True)
+    n_tail = round(a.tail * FPS)
+    if n_tail:
+        last_png = os.path.join(out, "tail_last.png")
+        run(["ffmpeg", "-y", "-loglevel", "error", "-sseof", "-0.2", "-i", clips[-1], "-update", "1", last_png])
+        tail_clip = os.path.join(cdir, "_tail.mp4")
+        fd = max(0.5, a.tail - 0.25)                      # reach black a quarter second before the end
+        enc(["-loop", "1", "-framerate", str(FPS), "-i", last_png], f"scale={W}:{H},fade=t=out:st=0:d={fd:.3f}",
+            tail_clip, frames=n_tail)
+        clips.append(tail_clip)
+    end = round(total * FPS) / FPS + n_tail / FPS        # picture length, frame-exact
     lst = os.path.join(out, "clips.txt")
     with open(lst, "w") as fh:
         fh.writelines(f"file '{c}'\n" for c in clips)
@@ -134,7 +149,9 @@ def main():
         nonlocal t, run_segs
         if run_segs and t_end > t:
             w = os.path.join(out, f"mix_{len(pieces):02d}.wav")
-            mix_part(t, t_end, run_segs, a.voice, w, end_fade=2.5 if t_end >= total else 0.0)   # the film's last card
+            last = t_end >= total
+            mix_part(t, end if last else t_end, run_segs, a.voice, w,
+                     end_fade=(a.tail + 2.0) if last and a.tail else (2.5 if last else 0.0))   # music rings out over the tail
             pieces.append(w)
         run_segs = []
 
@@ -158,9 +175,10 @@ def main():
     wav = os.path.join(out, "mix.wav")
     run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", alst, "-c", "copy", wav])
     mp4 = os.path.join(out, f"animatic_{W}x{H}.mp4")
-    run(["ffmpeg", "-y", "-loglevel", "error", "-i", video, "-i", wav, "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
-         "-shortest", "-movflags", "+faststart", mp4])
-    print(mp4, f"{len(clips)} clips, {n_board} boards, {total / 60:.2f} min")
+    # audio padded to the picture and cut at the picture's length: no frame is dropped at the end
+    run(["ffmpeg", "-y", "-loglevel", "error", "-i", video, "-i", wav, "-c:v", "copy", "-af", "apad", "-t", f"{end:.4f}",
+         "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", mp4])
+    print(mp4, f"{len(clips)} clips, {n_board} boards, {end:.2f} s ({end / 60:.2f} min) incl. {a.tail:.1f} s tail")
 
 
 if __name__ == "__main__":
