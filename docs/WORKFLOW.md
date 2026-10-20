@@ -212,6 +212,7 @@
 
 ### 8.2 环境坑
 - 系统 python3 有 Pillow，但缺 SSL 证书；`.venv` 有 certifi、faster-whisper、PyMuPDF，但没有 Pillow。需要联网下载的用 `.venv/bin/python`，或依赖 `eleven.py` / `fetch_assets.py` 里已加的 CA 处理。
+- 语音识别的计算精度由环境变量 `DREAMFORGE_ASR_COMPUTE` 决定（默认 `int8`；box 上用 `float32`，见第 9 节）。
 - `.venv` 没有 pip，装包用 `uv pip install --python .venv/bin/python <包名>`。
 - 素材下载：`shared/tools/fetch_assets.py`。会校验 Poly Haven 文件的 md5，Wikimedia 图片的授权必须是 CC0，否则报错。下载目录 `shared/assets/` 不入库。
 - 后台长任务用工具自带的后台运行方式，不要用 `&` 自己挂起，否则完成时收不到通知。
@@ -235,6 +236,7 @@
 | 配音把“这是一滴锡”念含糊 | 选版只看语速和音高 | 选版时用语音识别打分，取最难听清那句的分数 |
 | 混音成片没有生成 | 新音效请求遇到 SSL 证书错误 | 已在 eleven.py 里修复；剪辑后要确认 mp4 确实生成了 |
 | 两个同名 `after_style`，后一个覆盖前一个 | 复制粘贴 | 一个模块只写一个 after_style，内部再按镜头分支 |
+| 语音识别整段输出乱码（「点击点击」、夹英文碎词），所有版本得分 0 | 部分 x86 CPU 上 faster-whisper 的 int8 计算出错（2026-10-21 在 box 的 Xeon 上复现；float32 正常） | 在 Linux box 上设 `DREAMFORGE_ASR_COMPUTE=float32`；识别缓存 `*.asr.txt` 若是乱码要删掉重识别 |
 
 ---
 

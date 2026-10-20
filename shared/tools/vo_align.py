@@ -83,7 +83,7 @@ def main():
     model = None
     if not a.reuse:
         from faster_whisper import WhisperModel
-        model = WhisperModel(a.model, device="cpu", compute_type="int8")
+        model = WhisperModel(a.model, device="cpu", compute_type=os.environ.get("DREAMFORGE_ASR_COMPUTE", "int8"))
     vdir = os.path.join(AUDIO, "vo", a.voice)
     timing = json.load(open(os.path.join(vdir, "timing.json"), encoding="utf-8"))
     script = {s["id"]: s for s in parse(os.path.join(EP, "script/script_zh.md"))}

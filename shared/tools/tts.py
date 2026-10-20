@@ -211,7 +211,7 @@ def intelligibility(wav, spoken):
     else:
         if not _ASR:
             from faster_whisper import WhisperModel
-            _ASR.append(WhisperModel("large-v3-turbo", device="cpu", compute_type="int8"))
+            _ASR.append(WhisperModel("large-v3-turbo", device="cpu", compute_type=os.environ.get("DREAMFORGE_ASR_COMPUTE", "int8")))
         segs, _ = _ASR[0].transcribe(load16k(wav), language="zh", beam_size=5,
                                      initial_prompt="以下是普通话科普旁白，使用简体中文。")
         heard = norm("".join(x.text for x in segs))
