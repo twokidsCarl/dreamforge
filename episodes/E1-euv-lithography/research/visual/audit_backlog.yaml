@@ -3,8 +3,8 @@
 B1:
   - b1_source sim: after the pre-pulse the disk drifts along the laser axis (x); really it keeps flying along the droplet path (~160 um in 2 us at 80 m/s) and the main pulse focus sits downstream (euv_source.md s.2-3).
   - collector is drawn small at the droplet's scale; real collector 650 mm diameter, >5 sr (euv_source.md s.5) - show the scale jump honestly or label.
-  - script line 82: plasma "约 50 万开尔文" is a disputed figure (F5, media quote of ASML staff); find a primary source or drop it.
-  - droplet speed: ASML website 70 m/s vs ASML/Cymer decks ~80 m/s; pick one and cite it.
+  - (resolved) plasma 约 50 万开尔文: now grade A from ASML's "hot machines" page (F5); ZEISS's 22 万 ℃ conflict noted in F5.
+  - (resolved) droplet speed: use ASML's website figure 70 m/s (F3; same page); decks' ~80 m/s are operating conditions, not used.
 D:
   - D_04 narration: restore the power line with the sourced figure once the voice job is idle (F48 now grade A: NXE:3800E 1.26 MW, ASML AR2025), e.g. "ASML 测得，最新一代 NXE 一台耗电约 1.26 兆瓦；" + "自 2018 年以来，每片晶圆的能耗下降了 57%。" Graphics (b1.py, b9.py, cd.py) and overlays already updated.
 ALL:

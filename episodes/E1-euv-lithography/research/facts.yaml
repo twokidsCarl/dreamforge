@@ -68,14 +68,14 @@ F4c:
   segments: [B1, D]
 
 F5:
-  claim: 锡等离子体温度
-  status: disputed
-  grade: C
-  narration: 约 50 万开尔文（ASML 相关人员对媒体的表述）
+  claim: 锡等离子体温度约 50 万开尔文
+  values: {temperature_k: 500000}
+  status: verified
+  grade: A
+  quote: "A more powerful laser pulse – hotter than the surface of the sun at a temperature of about 500,000 K – vaporizes the tin pancakes."
   sources:
-    - https://www.technologyreview.com/2021/10/27/1037118/moores-law-computer-chips/
-    - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
-  notes: ZEISS 写“将近 22 万 ℃，约太阳表面 40 倍”；论文测得电子温度 30–40 eV。用户已拍板用 50 万 K。
+    - https://www.asml.com/en/discover/hot-machines
+  notes: ASML 官网原文如上（措辞把温度挂在激光脉冲上，旁白说成等离子体的温度）。ZEISS 官网另写“将近 22 万 ℃、约太阳表面 40 倍”，两家一手资料不一致；论文测得电子温度约 30–40 eV（≈35–46 万 K），与 ASML 的量级相符，故用 ASML 的 50 万 K，用户已拍板。不要同时说两个数字。
   segments: [B1, C]
 
 F6:
