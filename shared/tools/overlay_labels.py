@@ -14,14 +14,39 @@ import subprocess
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from paths import AUDIO, EP, REPO, RENDERS, SHARED  # noqa: E402,F401
-FONT = "/System/Library/Fonts/STHeiti Medium.ttc"
-FONT_INDEX = 1  # Heiti SC
+MAC_FONT = "/System/Library/Fonts/STHeiti Medium.ttc"
+NOTO_DIR = "/usr/share/fonts/opentype/noto"
+# 优先 macOS 的 Heiti（保持 mac 上的原有表现）；没有时退回 Noto Sans CJK SC。
+# .ttc 里各语言字面的顺序是 JP, KR, SC, TC, HK，所以 SC 的 index 是 2（用 PIL 比对过字形）。
+if os.path.exists(MAC_FONT):
+    FONT, FONT_INDEX = MAC_FONT, 1  # Heiti SC
+else:
+    FONT = next((os.path.join(NOTO_DIR, n) for n in
+                 ("NotoSansCJK-Medium.ttc", "NotoSansCJK-Regular.ttc", "NotoSansCJK-Bold.ttc")
+                 if os.path.exists(os.path.join(NOTO_DIR, n))), MAC_FONT)
+    FONT_INDEX = 2  # Noto Sans CJK SC
+SERIF = os.path.join(NOTO_DIR, "NotoSerifCJK-Regular.ttc")   # 宋体感；没有时 serif_font() 退回黑体
+MONO = next((p for p in ("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+                         "/System/Library/Fonts/Menlo.ttc", "/System/Library/Fonts/Monaco.ttf")
+             if os.path.exists(p)), None)
 FADE = 8        # frames
 ACCENT = (150, 120, 255)
 
 
 def font(px):
     return ImageFont.truetype(FONT, px, index=FONT_INDEX)
+
+
+def serif_font(px):
+    """排版镜头用的衬线体（Noto Serif CJK SC）；mac 上没有就退回黑体。"""
+    if os.path.exists(SERIF):
+        return ImageFont.truetype(SERIF, px, index=2)
+    return font(px)
+
+
+def mono_font(px):
+    """等宽数字（HUD 计数器）；找不到系统等宽字体就退回黑体。"""
+    return ImageFont.truetype(MONO, px) if MONO else font(px)
 
 
 def alpha_at(f, start, end):

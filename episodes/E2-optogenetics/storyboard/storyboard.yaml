@@ -189,7 +189,7 @@ shots:
   builders:
   - schematic
   fx: []
-  engine: manim
+  engine: pillow
   sfx:
   - 低噪室温
 - id: A0_05b
@@ -208,7 +208,7 @@ shots:
   builders:
   - schematic
   fx: []
-  engine: eevee
+  engine: pillow
   sfx: []
 - id: A0_06a
   segment: A0
@@ -248,7 +248,7 @@ shots:
   builders:
   - schematic
   fx: []
-  engine: eevee
+  engine: pillow
   sfx: []
 - id: A0_91
   segment: A0

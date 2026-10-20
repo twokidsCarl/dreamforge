@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from overlay_labels import draw_label, font  # noqa: E402
 import story_reel as SR  # noqa: E402
 
-from paths import AUDIO, EP, RENDERS  # noqa: E402
+from paths import AUDIO, EP, RENDERS, timed_shots  # noqa: E402
 
 FPS = 24
 DISSOLVE = 8
@@ -122,6 +122,12 @@ def sound(shots, seg_files, dur, voice, out_wav):
     start_of = {s["id"]: s["start"] - t0 for s in shots}
     inputs, filters, mixes = [], [], []
     vo = os.path.join(AUDIO, "vo", voice, "vo_track.wav")
+    silent = not os.path.exists(vo)
+    if silent:                             # 配音还没出：整段静音，画面预览照常（不混配乐和音效）
+        print(f"[edit_film] 警告：{vo} 不存在，输出静音轨", file=sys.stderr)
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "lavfi", "-t", f"{dur:.3f}", "-i",
+                        "anullsrc=r=48000:cl=stereo", out_wav], check=True)
+        return
     inputs += ["-ss", f"{t0:.3f}", "-t", f"{dur:.3f}", "-i", vo]
     filters.append("[0:a]aresample=48000,pan=stereo|c0=c0|c1=c0,asplit=3[vo][vokey][vokey2]")
     n = 1
@@ -172,8 +178,7 @@ def main():
     a = ap.parse_args()
     segs = a.segments.split(",")
     W, H = (int(v) for v in a.size.split("x"))
-    shots = [s for s in yaml.safe_load(open(os.path.join(EP, "storyboard/storyboard.timed.yaml"),
-                                            encoding="utf-8"))["shots"] if s["segment"] in segs]
+    shots = timed_shots(segs)
     out_dir = os.path.join(RENDERS, "edit")
     tmp = os.path.join(out_dir, "tmp_" + "_".join(segs))
     shutil.rmtree(tmp, ignore_errors=True)
