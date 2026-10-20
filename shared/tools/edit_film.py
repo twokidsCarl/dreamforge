@@ -70,7 +70,7 @@ def label_for(s, mg):
             "pos": "upper_right"}
 
 
-def picture(shots, W, H, order, tmp):
+def picture(shots, W, H, order, tmp, tail=0.0):
     mg = SR.mograph_ids()
     t_film0 = shots[0]["start"]
     n_total = round((shots[-1]["start"] + shots[-1]["duration"] - t_film0) * FPS)
@@ -114,10 +114,18 @@ def picture(shots, W, H, order, tmp):
             ca = min(1.0, (t - cue["start"]) * 8, (cue["end"] - t) * 8)
             img = subtitle(img, cue["text"], W, H, ca)
         img.convert("RGB").save(os.path.join(tmp, f"{f:05d}.png"))
+    # optional tail for a stand-alone cut: hold the last frame and fade it to black
+    n_tail = round(tail * FPS)
+    if n_tail:
+        last = Image.open(os.path.join(tmp, f"{n_total - 1:05d}.png")).convert("RGB")
+        black = Image.new("RGB", (W, H), (0, 0, 0))
+        for i in range(n_tail):
+            k = min(1.0, (i + 1) / max(1, n_tail - 6))           # reach black a quarter second before the end
+            Image.blend(last, black, k).save(os.path.join(tmp, f"{n_total + i:05d}.png"))
     return n_total / FPS
 
 
-def sound(shots, seg_files, dur, voice, out_wav):
+def sound(shots, seg_files, dur, voice, out_wav, tail=0.0):
     t0 = shots[0]["start"]
     start_of = {s["id"]: s["start"] - t0 for s in shots}
     inputs, filters, mixes = [], [], []
@@ -129,7 +137,9 @@ def sound(shots, seg_files, dur, voice, out_wav):
                         "anullsrc=r=48000:cl=stereo", out_wav], check=True)
         return
     inputs += ["-ss", f"{t0:.3f}", "-t", f"{dur:.3f}", "-i", vo]
-    filters.append("[0:a]aresample=48000,pan=stereo|c0=c0|c1=c0,asplit=3[vo][vokey][vokey2]")
+    total = dur + tail                                        # the narration stops at dur; music and effects ring on
+    filters.append(f"[0:a]aresample=48000,pan=stereo|c0=c0|c1=c0,apad=whole_dur={total:.3f},"
+                   "asplit=3[vo][vokey][vokey2]")
     n = 1
     music_parts, sfx_parts = [], []
     for sf in seg_files:
@@ -139,7 +149,7 @@ def sound(shots, seg_files, dur, voice, out_wav):
             d = int(m.get("at", 0) * 1000)
             fo = m.get("fade_out", 2.0)
             filters.append(f"[{n}:a]aresample=48000,volume={m.get('gain', -6)}dB,adelay={d}|{d},"
-                           f"afade=t=out:st={max(0, dur - fo):.2f}:d={fo}[m{n}]")
+                           f"afade=t=out:st={max(0, total - fo):.2f}:d={fo}[m{n}]")
             music_parts.append(f"[m{n}]")
             n += 1
         import eleven
@@ -161,8 +171,9 @@ def sound(shots, seg_files, dur, voice, out_wav):
         # effects step back a little under the words (gentler than the music), so no word is masked
         filters.append("[fx][vokey2]sidechaincompress=threshold=0.04:ratio=3:attack=20:release=350[fxd]")
         mixes.append("[fxd]")
+    end_fade = f"afade=t=out:st={dur:.3f}:d={tail:.3f}," if tail else ""
     filters.append("[vo]" + "".join(mixes) + f"amix=inputs={1 + len(mixes)}:normalize=0,"
-                   f"atrim=0:{dur:.3f},loudnorm=I=-16:TP=-1.5:LRA=11[out]")
+                   f"atrim=0:{total:.3f},{end_fade}loudnorm=I=-16:TP=-1.5:LRA=11[out]")
     cmd = ["ffmpeg", "-loglevel", "error", "-y", *inputs, "-filter_complex", ";".join(filters), "-map", "[out]",
            "-ar", "48000", out_wav]
     subprocess.run(cmd, check=True)
@@ -175,6 +186,8 @@ def main():
     ap.add_argument("--size", default="1920x1080")
     ap.add_argument("--voice", default="Andre")
     ap.add_argument("--out")
+    ap.add_argument("--tail", type=float, default=0.0,
+                    help="seconds after the last shot: picture fades to black, music and effects decay (stand-alone cuts)")
     a = ap.parse_args()
     segs = a.segments.split(",")
     W, H = (int(v) for v in a.size.split("x"))
@@ -183,17 +196,17 @@ def main():
     tmp = os.path.join(out_dir, "tmp_" + "_".join(segs))
     shutil.rmtree(tmp, ignore_errors=True)
     os.makedirs(tmp)
-    dur = picture(shots, W, H, a.quality.split(","), tmp)
+    dur = picture(shots, W, H, a.quality.split(","), tmp, a.tail)
     wav = os.path.join(tmp, "mix.wav")
     seg_files = [os.path.join(EP, "sound", f"{s.lower()}.yaml") for s in segs]
-    sound(shots, [p for p in seg_files if os.path.exists(p)], dur, a.voice, wav)
+    sound(shots, [p for p in seg_files if os.path.exists(p)], dur, a.voice, wav, a.tail)
     name = a.out or "_".join(segs)
     mp4 = os.path.join(out_dir, f"{name}.mp4")
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-framerate", str(FPS), "-i", os.path.join(tmp, "%05d.png"),
                     "-i", wav, "-c:v", "libx264", "-crf", "16", "-preset", "slow", "-pix_fmt", "yuv420p",
                     "-c:a", "aac", "-b:a", "256k", "-shortest", "-movflags", "+faststart", mp4], check=True)
     shutil.rmtree(tmp)
-    print(mp4, f"{dur:.1f}s")
+    print(mp4, f"{dur + a.tail:.1f}s")
 
 
 if __name__ == "__main__":

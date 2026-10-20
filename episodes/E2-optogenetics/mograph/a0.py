@@ -152,7 +152,7 @@ def _draw_neuron(c, i, col, a, widen=1.0, glow=False):
 
 @shot("A0_03a")
 def a0_03a(t, dur, W, H):
-    s = t   # 真实秒；按 review_words 对齐旁白：「打开」3.80 s、「关掉」4.82 s、「旁边的细胞大体不动」6.22 s
+    s = t   # 真实秒；按 review_words 对齐旁白：「打开」3.80 s、「关掉」4.82 s、「旁边的细胞大体不动」6.22 s（屏幕字跟旁白用同一说法）
     c = _canvas(W, H, (8, 10, 16))
     for i in range(E.NEURON_COUNT):
         circled = i in E.NEURON_CIRCLED
@@ -182,7 +182,7 @@ def a0_03a(t, dur, W, H):
     lab_off = ease(seg(s, 4.95, 5.25))
     c.text((960, 120), "打开", 58, E.CHANNEL, lab_open, anchor="mm", weight_glow=True)
     c.text((960, 120), "关掉", 58, E.AMBER, lab_off, anchor="mm", weight_glow=True)
-    c.text((960, 770), "其余不动", 38, E.GREY, ease(seg(s, 6.1, 6.6)), anchor="mm")
+    c.text((960, 770), "旁边大体不动", 38, E.GREY, ease(seg(s, 6.1, 6.6)), anchor="mm")
     return _done(c, W, H, glow_radius=12, glow_gain=0.5)
 
 
@@ -217,7 +217,7 @@ def a0_04a(t, dur, W, H):
     a = ease(seg(t, E.A04_DATE_AT, E.A04_DATE_AT + 0.8))
     if a > 0:
         fd = font(int(42 * k))
-        pos = (W / 2, 0.745 * H)
+        pos = (W / 2, 0.14 * H)          # 放在光点上方：0.745H 会压在 Hegemann 到 Nagel 的光丝上（v1 审片）
         d.text(pos, E.DATE_LINE, font=fd, fill=(*E.LINE, int(255 * a)), anchor="mm")
         g.text(pos, E.DATE_LINE, font=fd, fill=_scale(E.LINE, a * 0.4), anchor="mm")
     glow = glow.filter(ImageFilter.GaussianBlur(10 * k))
@@ -375,9 +375,11 @@ def a0_06b(t, dur, W, H):
 def a0_92(t, dur, W, H):
     s = _warp(t, dur, 1.5)
     c = _canvas(W, H, (5, 8, 9))
-    prog = ease(seg(s, 0.12, 1.1))                                # 1999 -> 2026，走完后停住
-    year = 1999 + int(round(27 * prog))
-    settled = ease(seg(s, 1.1, 1.3))
+    # 只出现有事实依据的两个年份（F3 的 1999、F1 的 2026）：1999 停一拍，翻牌换成 2026 后停住。
+    # 不逐年滚动——中间的 2011、2021 之类会被当成年份读出来（v1 审片）。
+    prog = ease(seg(s, 0.45, 0.85))
+    year = 1999 if prog < 0.5 else 2026
+    settled = ease(seg(s, 0.85, 1.05))
     hud = _mix(E.MEMBRANE, (5, 8, 9), 0.45)
     # 四角取景框
     x0, y0, x1, y1, L = 470, 300, 1450, 640, 46
@@ -388,14 +390,17 @@ def a0_92(t, dur, W, H):
     f = mono_font(int(c.px(230)))
     col = _mix(_mix(E.LINE, E.MEMBRANE, 0.25), (255, 255, 255), 0.0)
     br = 0.72 + 0.28 * settled
-    c.d.text((c.px(960), c.px(470)), f"{year}", font=f, fill=(*_scale(col, br), 255), anchor="mm")
-    c.g.text((c.px(960), c.px(470)), f"{year}", font=f, fill=_scale(E.MEMBRANE, 0.3 * br), anchor="mm")
+    flip = 1.0 - abs(prog - 0.5) * 2                                # 0 静止，1 翻到一半：数字纵向压扁、变暗
+    yy = 470 + (-36 if prog < 0.5 else 36) * flip
+    dim = 1.0 - 0.85 * flip                                        # RGB 画布上 alpha 不生效，用亮度压暗
+    c.d.text((c.px(960), c.px(yy)), f"{year}", font=f, fill=(*_scale(col, br * dim), 255), anchor="mm")
+    c.g.text((c.px(960), c.px(yy)), f"{year}", font=f, fill=_scale(E.MEMBRANE, 0.3 * br * (1 - flip)), anchor="mm")
     # 刻度尺：28 格，游标随计数移动（只有刻度，不写数字）
     rx0, rx1, ry = 560, 1360, 590
     for k in range(28):
         x = rx0 + (rx1 - rx0) * k / 27
         major = k in (0, 27)
         c.line((x, ry), (x, ry + (22 if major else 12)), hud, 2, a=0.8 if major else 0.5)
-    mx = rx0 + (rx1 - rx0) * (year - 1999) / 27
+    mx = rx0 + (rx1 - rx0) * prog                                  # 游标平滑走过刻度，不对应中间年份
     c.line((mx, ry - 14), (mx, ry - 2), E.MEMBRANE, 3, a=0.9, glow=True)
     return _done(c, W, H, glow_radius=12, glow_gain=0.9)

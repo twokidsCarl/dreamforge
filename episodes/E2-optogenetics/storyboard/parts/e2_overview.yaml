@@ -2338,7 +2338,7 @@ shots:
   style: hud
   style_why: 把即将到来的年份先藏在一只未点亮的计时器里。
   transition_in: cut
-  visual: HUD 计数从 1999 走到 2026 后停在暗处。不出现未核实的 1979，不写相差年数。
+  visual: HUD 计数器先停在 1999，翻牌换成 2026 后停在暗处。只出现这两个年份（不逐年滚动），不出现未核实的 1979，不写相差年数。
   camera:
     move: locked-off
     lens_mm: 50

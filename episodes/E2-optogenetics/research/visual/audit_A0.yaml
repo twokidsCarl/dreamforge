@@ -60,9 +60,9 @@ A0_91:
   - item: 紫膜的二维晶格：细菌视紫红质三聚体排成六方晶格，三聚体之间是脂质；灰度电镜风格，带紫色调；不标年份
     status: simplified
     source: Henderson & Unwin 1975 Nature 257:28；Krebs & Isenbarger 2000 BBA 1460:15（P3，晶胞约 62 Å）；F4
-    note: 真实的电镜结果是投影密度图，这里做成带光影的表面；只闪 1.5 秒，第二幕再讲紫膜
+    note: 真实的电镜结果是投影密度图，这里做成带光影的表面；只闪 1.5 秒，第二幕再讲紫膜。v2：螺旋半径 4.5 → 4.0 Å、倾角 ≤ 2°，相邻螺旋至少留 1.3 Å 空隙（build_purple_membrane.assert_clear），避免镜头移动时互相穿插
 A0_92:
-  - item: HUD 计数 1999 → 2026 后停住
+  - item: HUD 计数 1999 翻牌到 2026 后停住（只出现这两个年份，不逐年滚动）
     status: sourced
     source: F3（1999）、F1（2026）
     note: 不出现 1979，也不在屏幕上写相差年数
