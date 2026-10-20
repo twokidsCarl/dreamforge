@@ -48,8 +48,10 @@ NEURON_SEEDS = tuple(101 + 7 * i for i in range(NEURON_COUNT))   # 每个神经�
 LIGHT_NAMES = ("Karl Deisseroth", "Peter Hegemann", "Georg Nagel")   # 顺序按诺奖新闻稿（F1）
 DATE_LINE = "2026-10-05 · 诺贝尔生理学或医学奖"
 # 三个光点依次亮起的时刻（镜头内秒）和日期行出现的时刻。配音定时后（retime）按旁白对齐再改这里。
-A04_LIGHT_AT = (3.2, 6.4, 9.0)
-A04_DATE_AT = 13.0
+# 2026-10-21 按定时后的旁白对齐（review_words：Deisseroth 4.88 s、Hegemann 6.02 s、Nagel 7.78 s，「理由」9.06 s）
+A04_LIGHT_AT = (4.9, 6.0, 7.8)
+A04_DATE_AT = 9.1
+A04_DUR = 15.61                  # storyboard.timed.yaml 里 A0_04a 的时长
 A04_FOCAL_MM = 50.0
 A04_SENSOR_MM = 36.0
 
@@ -63,14 +65,14 @@ def a04_orb(i, t):
             base[2] + 0.16 * math.sin(0.41 * t + 0.5 * ph))
 
 
-def a04_camera(t, dur=21.04):
+def a04_camera(t, dur=A04_DUR):
     """镜头位置和注视点：缓慢推进（沿 +Y 靠近，约 2.6 BU，从 12.6 BU 远推到 10 BU），注视点随之轻微右移。返回 (loc, aim)。"""
     u = min(1.0, max(0.0, t / dur))
     u = u * u * (3 - 2 * u) * 0.35 + u * 0.65          # 起止柔和，中段近似匀速
     return (0.0 + 0.25 * u, -12.6 + 2.6 * u, 0.0), (0.05 + 0.1 * u, 0.0, 0.0)
 
 
-def a04_project(i_or_pos, t, W, H, dur=21.04):
+def a04_project(i_or_pos, t, W, H, dur=A04_DUR):
     """把世界点投影到画面像素（与 Blender 的 TRACK_TO 相机一致：50 mm、36 mm 传感器、水平适配）。"""
     p = a04_orb(i_or_pos, t) if isinstance(i_or_pos, int) else i_or_pos
     loc, aim = a04_camera(t, dur)

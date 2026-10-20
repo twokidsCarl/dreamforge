@@ -576,7 +576,7 @@ def _cyl_y(name, r, mat):
 def laureates(sc, rnd):
     sc["variant"] = "laureates"
     sc.frame_end = FRAMES
-    dur = 21.04
+    dur = E.A04_DUR
     n_f = int(dur * FPS) + 1
     glow = _lin(E.CHANNEL)
     white = (0.78, 0.88, 1.0)
