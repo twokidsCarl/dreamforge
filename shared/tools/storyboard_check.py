@@ -37,7 +37,18 @@ def merge():
     for p in sorted(glob.glob(os.path.join(SB, "parts", "*.yaml"))):
         shots += yaml.safe_load(open(p, encoding="utf-8"))["shots"]
     order = list(TARGET_S)
-    shots.sort(key=lambda s: (order.index(s["segment"]), s["id"]))
+    script_order = [s["id"] for s in parse(os.path.join(EP, "script/script_zh.md"))]
+
+    def sort_key(s):
+        seg = s["segment"]
+        # 以剧本里的段序为准。E1 的段序和 TARGET_S 一致；其他期不必硬套 E1 的表。
+        if seg in script_order:
+            return (0, script_order.index(seg), s["id"])
+        if seg in order:
+            return (1, order.index(seg), s["id"])
+        return (2, seg, s["id"])
+
+    shots.sort(key=sort_key)
     with open(os.path.join(SB, "storyboard.yaml"), "w", encoding="utf-8") as fh:
         fh.write("# Merged by tools/storyboard_check.py from storyboard/parts/*.yaml — edit the parts.\n")
         yaml.safe_dump({"shots": shots}, fh, allow_unicode=True, sort_keys=False, width=120)
@@ -92,10 +103,13 @@ def main():
             elif facts[f]["status"] == "rejected":
                 errors.append(f"{s['id']} rejected fact {f}")
 
+    # E1 的目标时长、以及 C 段允许长跑同一画面语言，只在段号都落在 E1 那张表里时生效。
+    apply_targets = all(s["segment"] in TARGET_S for s in shots)
     # style rhythm
     run, prev = 0, None
     for s in shots:
-        run = run + 1 if (s["style"] == prev and s["segment"] != "C") else 1
+        exempt = apply_targets and s["segment"] == "C"
+        run = run + 1 if (s["style"] == prev and not exempt) else 1
         prev = s["style"]
         if run == 4:
             warns.append(f"{s['id']}: 4+ consecutive '{s['style']}' shots")
@@ -106,10 +120,11 @@ def main():
     for seg, ss in by_seg.items():
         d = sum(x["duration"] for x in ss)
         st = collections.Counter(x["style"] for x in ss)
-        print(f"{seg:<4}{len(ss):>6}{d:>7.0f}s{TARGET_S.get(seg, 0):>7}s  {dict(st)}")
+        tgt = f"{TARGET_S[seg]:>6}s" if apply_targets and seg in TARGET_S else "     —"
+        print(f"{seg:<4}{len(ss):>6}{d:>7.0f}s{tgt}  {dict(st)}")
         if len(st) < 3:
             warns.append(f"{seg}: only {len(st)} styles")
-        if seg in TARGET_S and abs(d - TARGET_S[seg]) > 0.15 * TARGET_S[seg]:
+        if apply_targets and seg in TARGET_S and abs(d - TARGET_S[seg]) > 0.15 * TARGET_S[seg]:
             warns.append(f"{seg}: {d:.0f}s vs target {TARGET_S[seg]}s")
     total = sum(s["duration"] for s in shots)
     allst = collections.Counter(s["style"] for s in shots)

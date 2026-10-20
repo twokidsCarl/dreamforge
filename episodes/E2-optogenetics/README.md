@@ -1,6 +1,6 @@
 # E2《光遗传学》
 
-状态：**剧本已定稿，分镜未做**（2026-10-20）。检查点①还差分镜总览。
+状态：**检查点①，等审**（2026-10-20）。剧本已定稿，分镜总览已写。未配音，未渲染。
 
 目录名沿用 E1：`episodes/E<n>-<短名>/`。E1 是 `episodes/E1-euv-lithography/`，这一期是 `episodes/E2-optogenetics/`。
 
@@ -50,20 +50,23 @@ C 级（媒体二手）不进旁白，也不进屏幕标注。下面这些说法
 
 F10（觉醒）已核实，定稿放在第一幕，当作「相关变成因果」的一个例子，不单开一条临床线。
 
-## 画面语言（尚未分镜）
+## 分镜总览
 
-对齐 WORKFLOW §6.1 七种核心：真实渲染 / xray / blueprint / energy / infographic / clay / sem。计划里还用了 HUD、type、documentary，标成「WORKFLOW 表外扩展」。同一种语言连续不超过 3 镜；每段至少 3 种；真做分镜时每镜写 `style_why`。
+`storyboard/parts/e2_overview.yaml` 合并为 `storyboard/storyboard.yaml`，总览页是 `storyboard/overview.html`。126 镜，板面时长约 16.3 分钟（口播约 14.3 分钟，其余是纯画面）。每镜有 `style` 和 `style_why`。同一种画面语言没有连续四镜。每段至少三种。
+
+通道、膜、神经元、离子流、视网膜和耳蜗剖面标成参数化 Blender Python。小鼠、光纤、护目镜只作示意，这一步不调用 Tripo 或 Meshy，也不渲染。
 
 ## 本目录
 
 ```
 episodes/E2-optogenetics/
 ├── README.md                  本简报
-├── research/facts.yaml        P1 事实种子（全部待一手核实）
+├── research/facts.yaml        已核实的事实（F3b 除外）
+├── research/verification.md   核实和降级说明
 ├── research/visual/TOPICS.md  视觉调研题目，报告还没写
-├── script/script_zh.md        P2 定稿旁白
+├── script/script_zh.md        定稿旁白
 ├── script/pronunciation.yaml  空词表，读音未猜
-├── storyboard/parts/          空（P3）
+├── storyboard/                分镜总览（未渲染）
 ├── sound/                     空（P9）
 ├── subs/                      空（P5）
 ├── blender/scripts/           空（P7）
@@ -73,10 +76,11 @@ episodes/E2-optogenetics/
 
 `audio/` 和 `renders/` 按仓库惯例不入库，也还没有产出。
 
-校验大纲：
+校验：
 
 ```bash
 DREAMFORGE_EPISODE=E2-optogenetics python3 shared/tools/lint_script.py
+DREAMFORGE_EPISODE=E2-optogenetics python3 shared/tools/storyboard_check.py
 ```
 
 lint 打出来的分钟数是大纲句子的估算，不是成片目标时长。
