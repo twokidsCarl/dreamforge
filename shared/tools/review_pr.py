@@ -622,14 +622,15 @@ def post_comment(repo, number, body):
 
 def pr_info(number):
     _, out, _ = run(["gh", "pr", "view", str(number), "--json",
-                     "number,url,state,headRefOid,baseRefOid,headRepository,baseRepository"])
+                     "number,url,state,headRefOid,baseRefOid,isCrossRepository,headRepository"])
     return json.loads(out)
 
 
 def same_repo(info):
+    if "isCrossRepository" in info:
+        return not info["isCrossRepository"]
     head = (info.get("headRepository") or {}).get("nameWithOwner")
-    base = (info.get("baseRepository") or {}).get("nameWithOwner")
-    return bool(head and base and head == base)
+    return bool(head)
 
 
 def enable_auto_merge(number, sha):
