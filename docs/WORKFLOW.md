@@ -256,3 +256,9 @@ dreamforge/
 1. 复制 `episodes/E1-*/` 的目录骨架，不复制 audio 和 renders。
 2. 设置 `DREAMFORGE_EPISODE=E<n>-<短名>`。
 3. 从 P1 调研开始，按第 3 节逐个阶段推进，第 1、2 节的规则同样适用。
+
+E2《光遗传学》在 `episodes/E2-optogenetics/`，目前是 P1/P2 骨架，事实还没有一手核实。
+
+## 12. 拉取请求审查
+
+检查哪些项目、怎样打开自动合并、为什么有时开不了，见 [REVIEW.md](REVIEW.md)。通过之后用的是 `gh pr merge --auto --squash`，不强制合并，也不绕过分支保护。

@@ -1,0 +1,148 @@
+# E2《光遗传学》事实种子。编号对齐制作计划（2026-10）claim #1–#15。
+#
+# 这里只有计划表里的 claim、建议等级、来源类型。
+# 没有 URL、DOI、页码，也没有计划表以外的数字。不要把本文件当成已核实。
+#
+# status: needs_verification  来源类型已登记，一手材料还没核对
+#         verified / disputed / reported / derived / rejected  见 E1 facts.yaml，本片种完之前不用
+# grade:  A  诺奖官方新闻稿、摘要、科学背景；监管或公司正式公告
+#         B  同行评审论文、专利、学会材料
+#         B/A  计划表把一条拆成论文（B）和公告（A），两半都还没核
+# verification: pending  与 needs_verification 成对出现
+#
+# Seeded 2026-10-20. Not primary-source checked.
+
+F1:
+  claim: 2026 诺奖授 Deisseroth / Hegemann / Nagel（光控离子通道与光遗传学）
+  grade: A
+  status: needs_verification
+  verification: pending
+  source_type: 诺奖新闻稿
+  notes: 来源类型来自制作计划。未记录 URL 或公告原文。一手核对前不得当 verified。
+  segments: [A0, B7]
+
+F2:
+  claim: 诺奖科学背景：从「读」到「写」、相关→因果
+  grade: A
+  status: needs_verification
+  verification: pending
+  source_type: 诺奖科学背景 PDF
+  notes: 来源类型来自制作计划。未记录 PDF 的 URL 或页码。
+  segments: [A3]
+
+F3:
+  claim: Crick 1979/1999 预言理想信号是光、自认牵强
+  grade: B
+  status: needs_verification
+  verification: pending
+  source_type: Sci Am / Phil Trans；诺奖背景引用
+  notes: 计划同时写了 1979 与 1999。哪一句出自哪一年，要对照原文，不要在本文件里猜。
+  segments: [A0, D]
+
+F4:
+  claim: 1971 细菌视紫红质（紫膜）
+  grade: B
+  status: needs_verification
+  verification: pending
+  source_type: Oesterhelt & Stoeckenius
+  notes: 作者拼写按计划表照录，未对照论文原文，未记录 DOI。
+  segments: [B1]
+
+F5:
+  claim: 2002 ChR1、2003 ChR2 为直接光门控通道
+  grade: B
+  status: needs_verification
+  verification: pending
+  source_type: Nagel et al. Science / PNAS
+  notes: 未记录 DOI、卷期或页码。哪一条发表在哪一本，核对前不要写死。
+  segments: [B3]
+
+F6:
+  claim: 2005 神经元毫秒级 ChR2 驱动（Boyden 等为第一作者论文，但非诺奖得主）
+  grade: B
+  status: needs_verification
+  verification: pending
+  source_type: 同行评审；荣誉归属用 A 核对
+  notes: 实验本身按 B。诺奖名单以 F1 的 A 级公告核对。旁白可以提第一作者，不得把他说成诺奖得主。
+  segments: [B4, B7]
+
+F7:
+  claim: 「optogenetics」一词出自 2006 J Neurosci 综述
+  grade: B
+  status: needs_verification
+  verification: pending
+  source_type: 论文 / 调研红线
+  notes: 未记录 DOI。计划把「词源」标成红线相关，核对综述原文前不要把命名年份说死。
+  segments: [B5]
+
+F8:
+  claim: 光纤活体控制（约 2007）与 NpHR 光抑制
+  grade: B
+  status: needs_verification
+  verification: pending
+  source_type: 论文
+  notes: 「约 2007」是计划表的原话，不是新测量。未记录是哪一篇论文。
+  segments: [B6]
+
+F9:
+  claim: 假记忆：Ramirez et al. 2013 植入恐惧记忆
+  grade: B
+  status: needs_verification
+  verification: pending
+  source_type: Science
+  notes: 第三幕深讲用这一条。未记录 DOI 或页码。不要写成「改写人类记忆」。
+  segments: [C1]
+
+F10:
+  claim: 觉醒：光激活食欲素神经元促发觉醒（Adamantidis 2007）
+  grade: B
+  status: needs_verification
+  verification: pending
+  source_type: 论文；诺奖背景引用
+  notes: 计划的事实表有这一条。本片大纲没有单独的 beat。若旁白用到，先核一手再指定段落。
+  segments: []
+
+F11:
+  claim: 2021 首例人体部分复明（ChrimsonR + 护目镜）
+  grade: B
+  status: needs_verification
+  verification: pending
+  source_type: Sahel et al. Nat Med
+  notes: 只可说部分恢复、高对比轮廓。未记录 DOI。不得写成治愈失明。
+  segments: [C3, C4]
+
+F12:
+  claim: MCO-010 BLA 于 2026-09 获 FDA 受理；PDUFA 约 2027 上半年；尚未获批
+  grade: A
+  status: needs_verification
+  verification: pending
+  source_type: Nanoscope / FDA 相关正式公告
+  notes: 日期和 PDUFA 窗口都是计划表原文，未打开公告核对。不得说 MCO-010 已上市。
+  segments: [C5]
+
+F13:
+  claim: GS030 1/2 期 NEJM 2026-10：探索性改善，无上市许可
+  grade: B/A
+  status: needs_verification
+  verification: pending
+  source_type: NEJM + 公司公告
+  notes: 计划把论文标成 B、公司公告标成 A。两半都未核，不拆开，也不把其中一半改成 verified。
+  segments: [C5]
+
+F14:
+  claim: Brain Prize 2013 六人 ≠ 诺奖三人（含 Boyden / Bamberg / Miesenböck）
+  grade: A
+  status: needs_verification
+  verification: pending
+  source_type: Brain Prize / 诺奖名单对照
+  notes: 六人名单以奖项官方页核对，三人名单以 F1 核对。未记录 URL。
+  segments: [B7]
+
+F15:
+  claim: 光学人工耳蜗仍临床前（未进人体疗效试验）
+  grade: B
+  status: needs_verification
+  verification: pending
+  source_type: 调研红线；进片前再核一手
+  notes: 计划写明进片前再核一手。C5b 只保留一句。核实前不要加试验编号或年份。
+  segments: [C5]
