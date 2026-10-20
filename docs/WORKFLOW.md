@@ -1,8 +1,31 @@
-# Dreamforge 视频制作规范（所有 agent 必读）
+# EigenLens（主观知识）视频制作规范（所有 agent 必读）
 
 > 适用：本仓库所有期的科普视频（当前 E1《一台光刻机里发生了什么》，约 20 分钟中文科普片）。
 > 本文是唯一权威的流程与规范，取代 2026-10-15 的初版方案（见 git 历史）。
 > 动手之前先读完第 1、2 节：这两节是制片人（用户）的硬性要求，违反任何一条都算返工。
+
+## 品牌（2026-10-21 锁定）
+
+公开品牌由 Carl 于 2026-10-21 锁定。GitHub 仓库和项目文件夹都是 `eigenlens`（原名 dreamforge）。正文里的英文名写 **EigenLens**。
+
+| 项 | 锁定 |
+|---|---|
+| 中文主名 | 主观知识 |
+| 英文主名 | EigenLens（正文用驼峰；仓库 slug 是 `eigenlens`） |
+| 片头与片尾 | 每集片头 2–4 秒 sting，片尾 end card。不用 MetaHuman，也不用数字人主持人 |
+| 标语含义 | 选主轴，看结构。主观是编辑上的选择；「主」取主轴，对应 eigen |
+| 画面 | 暗色 HUD，冷青 / 冷紫，与 E2 A0 一致 |
+
+标志还没有定稿。Rena 的 v1 方向是草稿，等 Carl 选定。仓库里没有 `brand/eigenlens_logo_v1/`，最终标志文件等选定后再放进去。
+
+**环境变量仍用旧前缀 `DREAMFORGE_`。** 这些名字由 `shared/tools/paths.py` 和调用它的脚本读取，这次只记录，不改代码。后续可以再迁前缀。仍在使用的名字：
+
+- `DREAMFORGE_EPISODE`：当前期，默认 E1
+- `DREAMFORGE_RENDER_DIR`：渲染根目录
+- `DREAMFORGE_CYCLES_DEVICE`：Cycles 设备
+- `DREAMFORGE_ASR_COMPUTE`：语音识别计算精度
+
+分镜总览的 `kicker`（`episodes/*/storyboard/page.yaml`）、审查评论标记 `dreamforge-review`、素材请求的 User-Agent 仍是旧名，和上面的环境变量一起留到后续迁移。
 
 ---
 
@@ -242,7 +265,7 @@
 
 ## 10. 目录结构
 ```
-dreamforge/
+eigenlens/
 ├── README.md
 ├── docs/WORKFLOW.md              本文件
 ├── shared/
@@ -262,6 +285,8 @@ dreamforge/
     ├── audio/                    配音和音效缓存（不入库）
     └── renders/                  shots/、edit/、review/（审片和参考资料，不入库）
 ```
+
+根目录名是 `eigenlens`。树里的 `DREAMFORGE_EPISODE` 是仍在使用的旧环境变量，见文首「品牌」。
 
 ## 11. 新开一期
 1. 复制 `episodes/E1-*/` 的目录骨架，不复制 audio 和 renders。
