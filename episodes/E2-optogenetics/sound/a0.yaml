@@ -1,0 +1,18 @@
+# A0 冷开场的声音设计。每条音效：镜头、镜头内第几秒（at）、音效提示词、长度、增益（dB）。
+# 用 ElevenLabs 音效生成（shared/tools/eleven.py），由 shared/tools/edit_film.py 混音（旁白侧链压缩）。
+# 时间点按定时后的旁白对齐（shared/tools/review_words.py，2026-10-21）。冲击都放在旁白的空档里。
+# 配乐：eleven.music(prompt=…, ms=62000)，2026-10-21 生成，无人声（语音识别 VAD 检不到语音）。
+music:
+  - {at: 0.0, file: music/4859ee869d27e6f2.mp3, gain: 0, fade_out: 3.0}
+cues:
+  - {shot: A0_01a, at: 0.0, len: 4.0, gain: -20, text: "quiet dark room tone, faint dust drifting in still air, very soft low hum, clean"}
+  - {shot: A0_02a, at: 2.9, len: 1.2, gain: -22, text: "four slow soft muffled typewriter key strikes, quiet room"}
+  - {shot: A0_03a, at: 3.75, len: 1.2, gain: -22, text: "soft gentle electric blip rising, subtle bioelectric zap, clean"}
+  - {shot: A0_03a, at: 4.85, len: 1.0, gain: -24, text: "soft muted low click as power switches off, quiet"}
+  - {shot: A0_04a, at: 4.9, len: 1.6, gain: -22, text: "single soft glassy chime with airy shimmer, delicate, clean"}
+  - {shot: A0_04a, at: 6.0, len: 1.6, gain: -22, text: "single soft glassy chime with airy shimmer, delicate, clean"}
+  - {shot: A0_04a, at: 7.8, len: 1.6, gain: -22, text: "single soft glassy chime with airy shimmer, delicate, clean"}
+  - {shot: A0_05b, at: 0.0, len: 1.35, gain: -18, text: "thin electric light beam sweeping, faint hum that cuts off abruptly halfway"}
+  - {shot: A0_06b, at: 0.0, len: 1.4, gain: -16, text: "soft airy light whoosh passing left to right with a subtle shimmer tail"}
+  - {shot: A0_91, at: 0.0, len: 1.5, gain: -24, text: "faint electron microscope ambience, very soft electronic hum"}
+  - {shot: A0_92, at: 0.0, len: 1.5, gain: -20, text: "fast soft digital counter ticking then a single soft stop click"}
