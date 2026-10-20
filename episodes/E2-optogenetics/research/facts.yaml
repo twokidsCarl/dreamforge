@@ -31,16 +31,31 @@ F3:
   status: verified
   sources:
     - https://www.nobelprize.org/uploads/2026/10/advanced-medicineprize2026.pdf
-  notes: PDF 引文括注是 Crick, 1999，参考文献写 Phil Trans R Soc Lond B。本轮 Phil Trans 全文 PDF 返回 403，没有从 1999 年期刊页面再抄一遍原句。1979 年是否有同一句见 F3b，未核实。不要叙述「47 年」。
+  notes: PDF 引文括注是 Crick, 1999，参考文献写 Phil Trans R Soc Lond B。Boyden 等转述的 1999 原话与诺奖科学背景一致（ideal signal would be light；rather far-fetched）。1979 没有同一句，见已核实的 F3b。不要叙述「47 年」。
   segments: [A0, D]
 
 F3b:
-  claim: 1979 年《科学美国人》Thinking about the Brain 是否写了「理想信号是光」
-  grade: B
-  status: needs_verification
-  verification: pending
-  source_type: 诺奖科学背景参考文献单列 Crick FH (1979) Sci Am 241:219-232；本轮没有从该文页面读到这一句
-  notes: 不进旁白，不上屏。制作计划把钩子锁在 1979，一手核对后这一半仍空着。
+  claim: 1979 年 Crick《科学美国人》Thinking about the Brain（Sci Am 241:219–232）提出需要能「只灭活某一类神经元、其余大体不动」的方法，但没有写「理想信号是光」或「相当牵强」；后两句属于 Crick 1999（Phil Trans R Soc Lond B 354:2021–2025）。
+  grade: A
+  status: verified
+  sources:
+    - https://www.nobelprize.org/uploads/2026/10/advanced-medicineprize2026.pdf
+    - https://www.scientificamerican.com/article/controlling-the-brain-with-light/
+    - https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.0020419
+    - https://pharmrev.aspetjournals.org/article/S0031-6997(24)00796-8/fulltext
+    - https://doi.org/10.1017/S0033583523000033
+    - https://synthneuro.org/wp-content/uploads/2021/08/19-12-boyden.pdf
+    - https://doi.org/10.1038/scientificamerican0979-219
+    - https://doi.org/10.1098/rstb.1999.0541
+  notes: |
+    Sci Am 1979 全文仍付费墙，本轮没有逐页 OCR；结论依据：
+    （1）诺奖科学背景把「理想信号是光 / rather far-fetched」括注为 Crick, 1999，1979 只与 1999 并列作为「早先展望」；
+    （2）Deisseroth 2010 写明 1979 是「控制一类细胞」的需求，光控是他后来在讲座里的推测；
+    （3）Siegel & Callaway 2004（与 Crick 共事者）列举 1979 文中三种所需方法，不含光；
+    （4）Pharmacol Rev、QRB 等谨慎综述均把灭活需求归 1979、把光归后续/1999；
+    （5）Boyden 文直接引用 1999 的 light / far-fetched 原句。
+    部分二手文章会把光误记到 1979，不可采。
+    仍不进旁白、不上屏；开场钩子维持检查点①的 1999。若日后打开 1979 全文，只需复核「灭活」原句页码，不必改结论方向。
   segments: []
 
 F4:
