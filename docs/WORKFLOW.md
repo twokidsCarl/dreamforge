@@ -1,206 +1,258 @@
-# Dreamforge 制作方案：《一台光刻机里发生了什么》
-> 正片约 5 分钟｜Blender 3D｜中文旁白｜中英双语字幕｜外加一条幕后花絮：AI 如何用 Blender 做出这部片
-> 编写日期：2026-10-15。标「✅」的链接或编号已经检索确认；标「⚠️待核」的写进脚本前必须再查原始出处。**不得编造数字。**
+# Dreamforge 视频制作规范（所有 agent 必读）
+
+> 适用：本仓库所有期的科普视频（当前 E1《一台光刻机里发生了什么》，约 20 分钟中文科普片）。
+> 本文是唯一权威的流程与规范，取代 2026-10-15 的初版方案（见 git 历史）。
+> 动手之前先读完第 1、2 节：这两节是制片人（用户）的硬性要求，违反任何一条都算返工。
 
 ---
-## 0. 总原则
-1. **结构准确交给代码，画面质感交给人和 AI 打磨**：光刻机的关键结构（光源、收集镜、照明系统、掩模台、投影物镜、晶圆台）全部用 Blender Python 参数化建模，可以复现、可以修改；外壳、线缆、管路这类装饰件才用 AI 生成 3D。
-2. **每个事实都要有出处**：脚本里每一句涉及事实的话，都在 `research/facts.yaml` 里有对应条目（来源、链接、原文摘录）。
-3. **全程留痕**：所有 AI 对话、提示词、渲染日志、录屏都留下来，同时作为第二支片的素材。
+
+## 1. 制片人的偏好（硬规则）
+
+### 1.1 沟通与交付
+- **一律用中文回复**，包括进度汇报。汇报要简短：做完了什么、发现了什么问题、下一步做什么。
+- **自主迭代，只在检查点交付**：审美细节由 agent 自己看、自己改、自己剪，不要把小问题抛给用户一项项确认。用户问“进度”时如实说明，没完成就说没完成。
+- **交付前必须按真实时长完整看一遍**（见第 5 节）。只抽几帧就交付不行，“预览”也必须按成片标准审。
+- **用户能轻易挑出的错，就是 agent 的失职**。工程、结构、光学细节，用户都会逐项检验。
+- **如实报告**：没验证过的不说“已解决”；子任务犯的错（例如泄露了用户信息）要主动告诉用户。
+
+### 1.2 内容与真实性（详见第 2 节）
+- 画面和旁白里的每个工程、结构、光学细节，都必须出自一手资料：ASML、ZEISS、TRUMPF、Intel 等厂商的官方资料，SPIE / EUVL Symposium / EUVL Workshop 的论文和报告，同行评审论文，专利。**不准凭印象或“看起来合理”来画。**
+- **不说“据报道”“据估算”**：这是科普片，讲的是道理。资料不够硬的内容（C 级、只有媒体来源）直接删掉，不要靠加限定词保留。
+- 公开资料里没有的细节（例如精确尺寸），画面标“示意”，在核查表里写明依据。
+- 不暗示不实的对应关系。例如 ZEISS 说的“比指尖略大的面积上有 1840 亿个元件”是泛指，不能配一颗具体芯片说“这颗芯片里有 1840 亿个”。
+
+### 1.3 画面红线
+- **人物只用逆光剪影**，不做写实人脸。
+- **不仿制 ASML 整机外观**，不复制 ASML、航空公司、工厂的标志和涂装。机器内部结构照公开资料画，外壳保持通用造型。
+- 审美标准从严：构图、光比、节奏、字幕可读性都按院线科普纪录片的标准看。
+
+### 1.4 声音
+- 全片旁白情绪统一，同一个音色（目前是 Qwen TTS 的 Andre），解说语气平稳，不夸张。
+- 关键词必须听得清，用语音识别逐句验证（见 4.4、5.3）。
+
+### 1.5 工程纪律
+- **每完成一个阶段就 git commit，不 push**。提交信息写清楚改了什么，结尾加 `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`。
+- **API key 只放在仓库根目录的 `.env`**（权限 600，已加入 gitignore），回复里不要复述 key。目前有 `DASHSCOPE_API_KEY`（Qwen TTS）、`ELEVENLABS_API_KEY`（配乐和音效）。
+- **网络请求里不放用户的邮箱或任何个人信息**。有些网站要求请求头里带联系方式（例如 SEC EDGAR），一律用占位地址。给调研子任务写提示词时要明确写上这一条。
+- 付费工具只用已开通的：Qwen TTS（DashScope 国际版）、ElevenLabs Creator 档。Meshy、Tripo 等 3D 生成服务不用。免费素材只用 Poly Haven（CC0），以及逐张核实为 CC0 的 Wikimedia Commons 图片。
 
 ---
-## 1. 资料来源
 
-### 1.1 专利（用于结构细节，叙述时用“示意”的说法）
-| 编号 | 标题 | 权利人 | 状态 |
-|---|---|---|---|
-| US 9,715,174 | Droplet generator, EUV radiation source, lithographic apparatus… | ASML Netherlands B.V. | ✅ 2017-07-25 授权 |
-| US 10,750,604 B2 / WO2017102261A1 | Droplet generator for lithographic apparatus, EUV source… | ASML | ✅ [Google Patents](https://patents.google.com/patent/WO2017102261A1/en) |
-| US 12,324,084 | Apparatus for and method of controlling droplet generator performance | ASML | ✅ 2025-06-03 授权 |
-| US 9,392,678 | Target material supply apparatus for an EUV light source | ASML（原 Cymer 一系） | ✅（锡液滴、毛细管喷嘴、高压供料） |
+## 2. 真实性规范
 
-还要继续检索的方向（用 CPC 分类号 G03F7/70 和 H05G2/00 检索）：
-- 收集镜去污染与碎屑抑制（氢气流）
-- 多层 Mo/Si 反射镜（Zeiss）
-- 预脉冲加主脉冲的打靶方式
-- 磁悬浮双工件台
-
-检索平台：
-- [Google Patents](https://patents.google.com)
-- [Espacenet](https://worldwide.espacenet.com)
-- [CNIPA 专利检索](https://pss-system.cponline.cnipa.gov.cn)，用来查中国相关专利，例如上海微电子和国内高校的申请
-
-### 1.2 论文与综述
-- ✅ Versolato, *Physics of laser-driven tin plasma sources of EUV radiation for nanolithography*, Plasma Sources Sci. Technol. 28 (2019), [DOI 10.1088/1361-6595/ab3302](https://ui.adsabs.harvard.edu/abs/2019PSST...28h3001V/abstract)：光源物理方面的核心综述。
-- ✅ ARCNL, *Microdroplet-tin plasma sources of EUV radiation driven by solid-state lasers* (Topical Review), J. Opt., [DOI 10.1088/2040-8986/ac5a7e](https://doi.org/10.1088/2040-8986/ac5a7e)，[开放 PDF](https://ir.arcnl.nl/pub/257/00205publishedVersion.pdf)。
-- ✅ Bakshi, *Photon Source Technology for Lithography and Metrology: An Overview*, SPIE eBook (2023), [DOI 10.1117/3.2638242.ch1](https://doi.org/10.1117/3.2638242.ch1)。
-- ✅ arXiv 2602.03583, *Multi-Diagnostic Characterization of Laser-Produced Tin Plasmas for EUV Lithography*, [链接](https://arxiv.org/html/2602.03583v1)。
-- 还要补的方向：
-  - 高数值孔径 EUV（High-NA，0.55 NA）的变形投影光学：SPIE Advanced Lithography 会议论文集
-  - 多层膜反射镜：Mo/Si 膜系
-  - 光刻胶随机效应（stochastics）
-  - 工件台控制：机电一体化和磁悬浮相关论文
-- 检索入口：
-  - [SPIE Digital Library](https://www.spiedigitallibrary.org)
-  - [arXiv](https://arxiv.org)
-  - [Google Scholar](https://scholar.google.com)
-  - [Semantic Scholar](https://www.semanticscholar.org)
-
-### 1.3 官方资料（画面参考和公开数据的首选）
-- ASML 官网的 EUV 技术页面、产品页（NXE / EXE 系列）、年报，以及 YouTube 官方动画：[asml.com](https://www.asml.com)。
-- ZEISS SMT 的 EUV 光学页面：[zeiss.com/semiconductor-manufacturing-technology](https://www.zeiss.com/semiconductor-manufacturing-technology)。
-- TRUMPF 的 EUV 驱动 CO₂ 激光放大器页面：[trumpf.com](https://www.trumpf.com)。
-- 常被引用的公开数字，⚠️写进脚本前要逐条到 ASML 原文核对：
-  - 13.5 nm 波长
-  - 每秒约 5 万个锡滴
-  - 每个锡滴被打两次（预脉冲加主脉冲）
-  - 等离子体温度
-  - 反射镜数量
-  - 整机重量和运输方式
-
-### 1.4 参考图
-- ASML 新闻图库（press images）、公开技术讲座截图、SPIE 论文里的示意图。只作内部参考，**不直接出现在成片里**，以免版权问题。
-- 整理进 `research/refs/`，每张图附 `source.txt`，写明来源链接。
-
----
-## 2. 脚本与分镜工具
-| 用途 | 工具 | 说明 |
+### 2.1 两张表
+| 表 | 位置 | 管什么 |
 |---|---|---|
-| 资料汇总与事实表 | Claude Code（Opus）加网页检索 | 输出 `research/facts.yaml`，每条事实附来源 |
-| 脚本 | Claude（Opus），人工审稿 | 中文口语化，按 5 分钟、约 1200 到 1300 字估算 |
-| 分镜表 | Claude 输出 `storyboard.yaml` | 每个镜头写明：时长、画面、镜头运动、旁白段号、所需资产 |
-| 动态分镜 | Blender 灰模加 EEVEE 快速出片 | 先锁节奏，再做精模 |
+| 事实库 | `episodes/<期>/research/facts.yaml` | 旁白和屏幕标注里的数字与论断。每条写明 claim、等级、来源 URL、注意事项 |
+| 画面事实核查表 | `episodes/<期>/research/visual/audit_<段>.yaml` | 画面里出现的每个工程、结构、光学细节，每行一项 |
 
-脚本结构（约 300 秒）：
-1. **0:00–0:20 开场**：一颗锡滴被激光击中，爆成一团比太阳表面还热的等离子体（温度数字待核）。抛出问题：芯片上的电路是怎么“印”上去的？
-2. **0:20–0:50 为什么需要 EUV**：用“越细的笔写越小的字”打比方，引出 13.5 nm 波长。
-3. **0:50–1:50 光源**：锡液滴发生器、预脉冲把锡滴压扁、主脉冲把它打成等离子体、收集镜收光。这一段是全片的视觉高潮，用体积光来表现。
-4. **1:50–2:50 光路**：EUV 会被空气吸收，所以整条光路都在真空里，而且只能用反射镜；讲多层 Mo/Si 反射镜和镜面精度（比喻要找到出处）。
-5. **2:50–3:50 掩模与投影**：反射式掩模，投影物镜把图形缩小 4 倍（High-NA 是变形缩放）。
-6. **3:50–4:30 工件台**：晶圆台高速运动，对准精度做到纳米级；用“两架飞机并排飞行、对准一根针”这类比喻（要核实或改写）。
-7. **4:30–5:00 收尾**：一块晶圆、数十亿个晶体管，再回到那颗锡滴。
+### 2.2 事实等级
+- **A**：厂商官方（ASML / ZEISS / TRUMPF / Intel）。
+- **B**：论文、专利、客户一手资料。
+- **C**：媒体报道。**C 级不进旁白，也不进屏幕标注。**
 
----
-## 3. 图像生成（概念图、风格帧、四视图）
-| 工具 | 用途 |
+### 2.3 画面核查表的状态
+| 状态 | 含义 |
 |---|---|
-| Midjourney | 风格帧和整体氛围 |
-| Nano Banana（Gemini 图像） | 局部修改，统一配色 |
-| ComfyUI 加 Flux（本地、可控） | 四视图参考图（正、背、左、右）；用 ControlNet 锁定构图 |
-| 即梦（中文提示友好） | 备用 |
+| `sourced` | 与引用的一手资料一致 |
+| `wrong` | 与资料矛盾，必须改 |
+| `unsourced` | 自己设定的或尚未查证，不得进入最终渲染 |
+| `simplified` | 有意简化，写明与真实情况的差别，以及在哪一段修正 |
+| `artistic` | 刻意的表现手法（慢动作、EUV 用紫色表示等），观众可能当真的地方要标“示意” |
 
-产出：`art/styleframes/` 放 5 到 8 张关键帧；`art/refs4view/` 放每个 AI 生成资产对应的四视图。
+**规则：一段的核查表里还有 `wrong` 或 `unsourced`，这段就不能出成片。** A0 以外发现的问题先记进 `research/visual/audit_backlog.yaml`，到对应段落再处理。
 
----
-## 4. 3D 资产：AI 生成和代码建模怎么分工
-| 类型 | 方法 | 理由 |
-|---|---|---|
-| 光源腔、收集镜、反射镜组、掩模台、晶圆台、晶圆、光路 | **Blender Python 参数化建模**（Claude Code 写脚本，通过 [Blender MCP](https://github.com/ahujasid/mcp-for-blender) 实时调用） | 形状、比例、光路几何必须准确，可以复现、可以修改 |
-| 外壳、管线、机柜、真空泵、线缆、洁净室环境 | AI 生成 3D：[Hunyuan3D-2.1](https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1)（开源，带 PBR 材质）、Tripo、Hyper3D Rodin、Meshy | 只起装饰作用，追求速度 |
-| 通用资产（HDRI、材质贴图） | Poly Haven（Blender MCP 内置） | 免费，CC0 授权 |
+### 2.4 调研方法
+1. 每个主题单独写一份调研报告，放在 `research/visual/<主题>.md`，每条都要附原文引语、URL、页码或幻灯片号和可信度，最后列出“未公开”的项目。
+2. PDF 用 curl 下到 `renders/review/refs/`（不入库），用 `.venv/bin/python -I` 加 PyMuPDF 渲染成图片，**亲眼看图**后再建模，不只读文字。
+3. 示意图上的几何关系要量出来写进代码注释，注明出自哪份资料、第几页。可参考 `build_machine.py` 文件头部的写法。
+4. 互相矛盾的说法（例如“13 个”和“43 个集装箱”）都记下来，只用最权威的一种，并注明原因。
+5. 调研可以拆成几路并行交给子任务（每路一个主题）。子任务的结论，主 agent 要亲自看原图核对后才能用。
 
-AI 生成资产的流程（借鉴 X 上已经验证有效的做法）：
-1. 先出四视图参考图。
-2. 交给 Tripo 或 Hunyuan3D 生成模型。
-3. 让 Claude 检查拓扑、比例和朝向，并重新拓扑或简化。
-4. 换成我们自己的材质。
-
-**原则：不让大模型从零自由造型。**
-
----
-## 5. Blender 精修
-- **渲染器**：
-  - 灰模和动态分镜用 EEVEE（Next）。
-  - 成片用 Cycles（GPU、OptiX 加速，配合 OpenImageDenoise 降噪）。
-- **材质（Principled BSDF）**：
-  - 抛光金属：金属度 1，粗糙度 0.05 到 0.2。
-  - 多层膜反射镜：用薄膜干涉（Thin Film）参数做出彩色光泽。
-  - 晶圆表面：各向异性加衍射光泽。
-- **体积效果**：
-  - EUV 光束：Volume Scatter 配合低密度的“可视化光束”。注意 EUV 本身不可见，要在字幕里说明“示意”。
-  - 等离子体：Emission 加 Volume，叠加 Geometry Nodes 生成的粒子。
-- **Geometry Nodes**：锡液滴流、掩模上的电路图形、晶圆上的芯片阵列、真空腔里的氢气流线。
-- **灯光**：三点布光加工业风 HDRI；暗场里用轮廓光勾出结构；以冷色为主，等离子体用暖色做对比。
-- **镜头**：
-  - 景深：近景 f/2.8 的效果。
-  - 运动模糊：开启，用于锡滴和工件台的高速运动。
-  - 镜头语言：缓推，加上“剖切显示内部结构”的转场。
-- **合成**：Blender Compositor 处理辉光、光晕、镜头畸变和颗粒；渲染输出 OpenEXR 多通道。
-- **渲染农场**：
-  - 本机 GPU。
-  - 云端 RTX 实例。
-  - 农场服务：SheepIt（免费社区农场）、RebusFarm、GarageFarm。
-  - 估算方法：先测单帧耗时，再乘以 9000 帧（5 分钟、30fps），最后决定用哪种。
-- **后期**：DaVinci Resolve 负责剪辑、调色（ACES 或 AgX 色彩管理）和字幕压制。
+### 2.5 已核实的关键结论（E1）
+- **整机按 High-NA EXE:5000 画**，因为 A0 讲的就是它。
+  - 模块分层：掩模层在顶，光学层居中（投影物镜和照明系统），晶圆层在底；光源是独立单元，放在扫描机旁边。出处：ASML van Schoot 2022 年报告第 34 页。
+  - 光路：等离子体 → 收集镜 → 中间焦点 → 折转镜 → 场复眼镜 → 光瞳复眼镜 → 掩模。出处：ZEISS 2024 年报告第 13 页。
+  - 投影物镜：按 6 面镜的设计示例画，M6 和 M5 中心开孔（中心遮拦约 20%）。出处：van Schoot 2021 年报告第 35 页，Heil 2015 年报告。
+  - 掩模处主光线角 5.4°，变形缩放 4×/8×（8× 在扫描方向）。
+  - **旁白里不说 EXE 的镜片总数**：公开文字资料没有给出。
+- NXE 的光路（对照用）：出处是 ZEISS Conradi 2011 年报告第 5、20 页，主光线角 6°，投影物镜 6 面镜。
+- 首台 High-NA 的时间线：2023 年 12 月首批模块**发货**，2024 年 1 月运抵俄勒冈，4 月完成安装。不能说“12 月交付”。
+- 运输画面以英特尔官方视频为准：
+  - 747 货机抬起机头，用剪叉式升降平台车装货；
+  - “43 个集装箱”是带倒角顶的白色铝框运输箱；
+  - “250 个板条箱”是航空货盘上罩着货网的箱子；
+  - 卡车是平板挂车。
+- 芯片照片只能用确实采用 EUV 工艺的芯片，目前用 AMD Zen 5 CCD（台积电 4 nm）。旁白要说“最精细的那几层”靠 EUV，不能说“每一个元件”都靠 EUV。
 
 ---
-## 6. 音频与字幕
-| 环节 | 工具 |
-|---|---|
-| 中文旁白 | CosyVoice（阿里开源，可本地部署）、MiniMax 语音、ElevenLabs（多语种）；如果条件允许，用真人录音效果最好 |
-| 配乐 | Suno（注意确认商用授权条款） |
-| 音效 | Freesound（看清每条的授权）、ElevenLabs 音效生成 |
-| 字幕 | 中文字幕以脚本原文为准，用 Whisper 或 faster-whisper 做时间轴对齐；英文由 Claude 翻译后人工校对，输出 SRT 或 ASS，在 Resolve 里双语压制 |
 
----
-## 7. 幕后花絮拍摄计划（第二支片）
-- **录屏**：用 OBS 全程录制 Claude Code 终端和 Blender 窗口。
-- **延时**：每个镜头自动渲染关键帧截图，脚本用 `bpy.ops.render.opengl` 保存，按时间戳命名，最后拼成延时。
-- **日志**：
-  - 保存 Claude Code 的会话记录。
-  - 用 git commit 历史画出“模型演化”。
-  - 记录渲染耗时 CSV。
-- **对比素材**：同一个镜头的四个阶段，灰模、材质、光照、成片，做“前后对比”。
-- **叙事**：一句话提示，到 AI 写的建模脚本，再到报错修正，最后到成片。要如实展示人工介入的部分，这样更可信。
+## 3. 制作流程（按阶段，每个阶段完成后 commit）
 
----
-## 8. 分阶段流程（输入 → 输出）
-| 阶段 | 输入 | 输出 | 用时（估计） |
+| 阶段 | 产出 | 工具 / 命令 | 进入下一阶段的条件 |
 |---|---|---|---|
-| S1 调研 | 选题 | `research/facts.yaml`、`refs/`、`sources.md` | 3 天 |
-| S2 脚本 | facts | `script/script_zh.md` 与审校版 | 2 天 |
-| S3 分镜与风格 | script | `storyboard.yaml`、`art/styleframes/` | 2 天 |
-| S4 灰模动态分镜 | storyboard | `blender/animatic.blend`、`renders/animatic.mp4`（含临时 TTS） | 3 天 |
-| S5 建模 | refs、四视图 | `blender/scripts/*.py`、`assets/` | 5 到 7 天 |
-| S6 材质、灯光、动画 | 模型 | `blender/shots/shotXX.blend` | 5 天 |
-| S7 渲染 | shots | `renders/shotXX/*.exr` | 2 到 4 天 |
-| S8 音频与字幕 | 定稿脚本 | `audio/vo_zh.wav`、`music/`、`subs/zh.srt`、`subs/en.srt` | 2 天 |
-| S9 后期调色 | 渲染、音频 | `final/dreamforge_euv_v1.mp4` | 2 天 |
-| S10 幕后花絮 | 录屏、日志 | `bts/bts_v1.mp4` | 3 天 |
+| P1 调研 | `research/facts.yaml`、`research/visual/*.md` | WebSearch、curl 加 PyMuPDF、调研子任务 | 每个论断都有 A/B 级来源 |
+| P2 剧本 | `script/script_zh.md`（每句标事实编号〔F..〕）、`pronunciation.yaml` | `python3 shared/tools/lint_script.py` | lint 没有 ERROR；没有“据报道”之类的限定词；没有夸大 |
+| P3 分镜 | `storyboard/parts/*.yaml` 合并成 `storyboard.yaml` | `python3 shared/tools/storyboard_check.py` | 每个镜头写明 style 和 style_why；时长不短于配音 |
+| P4 配音 | `audio/vo/<音色>/` | 见 4.4 节 | 语音识别逐句核对通过 |
+| P5 定时 | `storyboard.timed.yaml`、`subs/zh.srt` | `python3 shared/tools/retime.py` | 全片时长在目标 ±1.5 分钟内 |
+| P6 画面核查 | `research/visual/audit_<段>.yaml` | 人工对照调研报告 | 没有 `wrong` 和 `unsourced` 的项 |
+| P7 建模与镜头 | `blender/scripts/`、`blender/shots/`、`mograph/` | 见第 8 节 | 单帧试渲通过 |
+| P8 渲染 | `renders/shots/<镜头>/<质量>/` | `shared/tools/render_batch.sh`、`mograph.py` | 帧数齐全，日志里没有报错 |
+| P9 声音设计 | `sound/<段>.yaml`（配乐和音效） | `shared/tools/eleven.py` | 关键音效对准词的时间戳 |
+| P10 剪辑 | `renders/edit/<段>_vN.mp4` | `python3 shared/tools/edit_film.py` | 第 5 节自审清单全部通过 |
 
-**总计约 4 到 5 周**（单人加 AI，按全职估算）。
+**改剧本的顺序**：`script_zh.md` 和 `storyboard/parts/*.yaml` 里的旁白文字必须完全一致，两处都要改。改完依次跑：配音（tts）→ 对齐（vo_align）→ 定时（retime）→ 语音识别核对（asr_check）。配音任务在后台运行时**不要改剧本**：对齐脚本按文字哈希找配音缓存，文字一变就找不到对应的配音。
 
 ---
-## 9. 仓库目录结构（多期视频）
-每一期一个文件夹 `episodes/E<序号>-<英文短名>/`，所有期共用的代码放在 `shared/`。
 
+## 4. 检查点与交付
+
+### 4.1 三个检查点（只在这里向用户交付）
+1. **剧本定稿和分镜总览页**
+2. **全片动态分镜**
+3. **成片 v1**
+
+### 4.2 样片标准段
+铺开全片之前，先把一段（E1 用的是 A0，开头约 55 秒）按成片标准做完：1080p，带配乐、音效，画面事实全部核查通过。之后各段都按这个标准做。
+
+### 4.3 交付物格式
+- 视频：H.264，1080p，24 fps，-16 LUFS。
+- 字幕：中文 SRT；英文字幕后续再做。
+- 附一段简短说明：这一版改了什么、自审发现并解决了什么、还剩哪些问题。
+
+### 4.4 配音规范
+- 模型 `qwen3-tts-flash`，音色 Andre，**整段合成**（paragraph 模式，一段一个请求，保证语气统一）。
+- 每段合成 7 版：`python3 shared/tools/tts.py --voice Andre --attempts 7 --asr all`。
+- 选版规则：
+  - 语速、音高接近目标（全片统一 107 Hz）；
+  - **同时看每一版中最难听清的那一句**：用语音识别逐句打分，取最低分。例如“极紫外”“这是一滴锡”被念含糊，就靠这一步淘汰。
+  - 识别结果按文件缓存，重跑不会重复识别。
+- 然后依次运行：`.venv/bin/python shared/tools/vo_align.py`（按识别结果切句）→ `retime.py` → `.venv/bin/python shared/tools/asr_check.py`。
+- 分镜字段：`hold: 秒` 表示最后一个字说完后还留多少秒纯画面（例如片名停顿、爆闪后的停顿）；`lead: 秒` 表示镜头开始后第一个字从第几秒说起（冷开场先留一拍安静）。
+
+---
+
+## 5. 每轮自审清单（交付前必须全部做完）
+
+1. **抽帧拼图**：每 0.5 秒抽一帧拼成接触表，逐张看。可疑的地方再抽原尺寸帧细看。
+   - 命令示例：`ffmpeg -i X.mp4 -vf "fps=2,scale=480:-1,tile=4x4" sheet_%02d.png`
+2. **按真实时长完整看一遍**，重点看节奏、转场、字幕和画面是否同步。
+3. **用语音识别核对混音**：转写成片音轨，逐句对照剧本，任何一个词被配乐或音效盖住都要改。例如“等离子体”曾被爆炸音效盖住，后来改成旁白说完再炸开。
+   - 工具：`.venv/bin/python shared/tools/review_asr.py <成片>`（faster-whisper large-v3-turbo）。
+4. **响度**：`ffmpeg -af ebur128`，整体 -16 LUFS，真峰值不超过 -1.5 dBTP，冲击音要有动态起伏。
+5. **字幕和标签可读**：浅色背景上也要看清（字幕带深色描边）；标签最多显示 5 秒；标签的来源行写机构名，不写事实编号。
+6. **关键事件对准关键词**：用词级时间戳（`.venv/bin/python shared/tools/review_words.py <音频> <起点秒> <时长秒>`）确认标题、爆炸、转场落在对应的词上。
+7. **画面事实核查表**：这一段所有项都是 `sourced`、`simplified` 或 `artistic`。
+8. 发现的问题记下来，改完再出下一版（v2、v3……），直到自己满意为止。
+
+---
+
+## 6. 设计系统
+
+### 6.1 画面语言（每个镜头先问“它在回答什么问题”，再选语言）
+| 回答的问题 | 语言 | 实现 |
+|---|---|---|
+| 它真实存在、长什么样 | 真实渲染 | Cycles，Poly Haven 的 HDRI 和 PBR 材质 |
+| 内部怎么排布 | 透明剖视（xray） | `styles.apply_style("xray")` |
+| 为什么这样设计 | 蓝图 | `blueprint` |
+| 看不见的物理 | 能量图 | `energy` |
+| 多大、多少、比什么强 | 平面信息图 | `mograph`（Pillow） |
+| 零件怎么组装、怎么运动 | 白模 | `clay` |
+| 纳米尺度长什么样 | 显微风格 | `sem` |
+
+- 同一种语言最多连续用 3 个镜头（连续长镜头除外），每段至少用 3 种语言，风格切换要有理由。
+- 强调色：EUV 紫、激光橙、计量青、线稿白。EUV 本身看不见，紫色是全片约定的表示方式，片中要说明一次。
+- 建模时给物体标 role（structure / shell / emitter / env / rig / rays），由风格系统统一换材质。
+
+### 6.2 字幕与标签
+- 字幕：黑体，白字加深色描边，底部居中，字高约画面高度的 4.3%，每条不超过 18 个字。
+- 标签：右上角，最多 3 行（主文字、副文字、来源机构），只在 3D 镜头上用，最多显示 5 秒。2D 信息图自己带文字，不另加标签。
+- 2D 图要给底部字幕留出安全区。
+
+### 6.3 镜头与节奏
+- 冷开场先给一个不解释的“真东西”，并留一拍安静再开口。
+- 重要的冲击（爆闪、炸开）放在旁白的空档里，不要压在词上。
+- 片名镜头的片名要一直在画面内，后面留足停顿。
+
+---
+
+## 7. 声音规范
+- **配乐**：ElevenLabs Music（`eleven.music`，用 composition_plan 按段落写结构）。写进 `sound/<段>.yaml`，生成后要确认没有人声。
+- **音效**：ElevenLabs Sound Effects（`eleven.sfx`），每条写明在哪个镜头、第几秒、多长、增益多少。结果按请求哈希缓存在 `audio/eleven/`。
+- **混音**（`edit_film.py` 已实现）：
+  - 配乐用旁白做侧链压缩（阈值 0.03，比例 6）；
+  - 音效也用旁白做侧链，但更轻（阈值 0.04，比例 3）；
+  - 最后 loudnorm 到 I=-16、TP=-1.5。
+
+---
+
+## 8. 技术规范
+
+### 8.1 渲染
+- Blender 5.2：EEVEE 用于风格化镜头，Cycles 用于真实渲染。Metal 显存不够时会自动改用 CPU 重试。
+- 质量预设：preview 640×360，sample 960×540，final 1920×1080；24 fps。
+- 镜头登记在 `episodes/<期>/blender/shots/registry.yaml`。常用字段：
+  - `scene`、`args`、`camera`、`style`、`engine`；
+  - `start`：从模拟的第几帧开始，可以是小数，也可以小于 1；
+  - `step`：每帧前进几个模拟帧，小于 1 就是慢动作；
+  - `black_tail`：结尾留几帧黑场。
+- **单帧试渲**：`DREAMFORGE_RENDER_DIR=<临时目录> blender -b --factory-startup -P shared/tools/render_storyboard.py -- --shot X --quality preview --frames 1,60`。改动后先试渲几帧，确认无误再整段渲染。
+- 渲染时会在开头读取场景脚本；**渲染进行中改脚本，可能导致同一批镜头用的不是同一版代码**。改完要确认哪些镜头需要重渲。
+- 共用中心点和位置用常量（例如 `BM.CENTER`、`BM.RETICLE`），不要在各个镜头里硬写坐标。
+
+### 8.2 环境坑
+- 系统 python3 有 Pillow，但缺 SSL 证书；`.venv` 有 certifi、faster-whisper、PyMuPDF，但没有 Pillow。需要联网下载的用 `.venv/bin/python`，或依赖 `eleven.py` / `fetch_assets.py` 里已加的 CA 处理。
+- `.venv` 没有 pip，装包用 `uv pip install --python .venv/bin/python <包名>`。
+- 素材下载：`shared/tools/fetch_assets.py`。会校验 Poly Haven 文件的 md5，Wikimedia 图片的授权必须是 CC0，否则报错。下载目录 `shared/assets/` 不入库。
+- 后台长任务用工具自带的后台运行方式，不要用 `&` 自己挂起，否则完成时收不到通知。
+
+---
+
+## 9. 踩过的坑（新 agent 务必看）
+| 现象 | 原因 | 做法 |
+|---|---|---|
+| 光路在中间焦点处拐弯 | 自己排的光路；中间焦点只是会聚点，不是镜子 | 照一手资料的光路图画，每个转折点都必须是镜子 |
+| 说 High-NA 有 8 面镜 | 来自注明“仅作示意”的旧路线图和二手文章 | 只用设计示例图上的结构；没有原文的数字不进旁白 |
+| 芯片照片用了 14 nm、7 nm 的芯片 | 没核实制造工艺 | 只用确实采用 EUV 的芯片，标注型号和工艺 |
+| 芯片表面整片是平滑的彩虹渐变 | 不懂衍射的物理 | 按区块做光栅：每块有自己的周期和朝向，用衍射方程算颜色 |
+| “12 月交付” | 把发货当成交付 | 区分发货、运抵、安装完成 |
+| 彩色海运集装箱、胶合板箱 | 凭想象画 | 照官方视频画白色运输箱、货网托盘、平板挂车 |
+| 锡滴旁边多了个“月牙” | 镜面锡滴映出了背后虚焦的收集镜 | 冷开场用纯黑背景，去掉干扰物 |
+| 薄盘表面一团团斑驳 | 镜面材质映出环境 | 提高粗糙度，减弱褶皱 |
+| 片名被画面上沿裁掉 | 镜头没考虑片名位置 | 片名全程在画面内，机器变高时同步调整片名 |
+| 浅色画面上字幕看不清 | 字幕只有阴影 | 字幕加深色描边 |
+| 关键词被音效盖住 | 音效压在词上 | 音效侧链压缩，冲击挪到旁白空档 |
+| 配音把“这是一滴锡”念含糊 | 选版只看语速和音高 | 选版时用语音识别打分，取最难听清那句的分数 |
+| 混音成片没有生成 | 新音效请求遇到 SSL 证书错误 | 已在 eleven.py 里修复；剪辑后要确认 mp4 确实生成了 |
+| 两个同名 `after_style`，后一个覆盖前一个 | 复制粘贴 | 一个模块只写一个 after_style，内部再按镜头分支 |
+
+---
+
+## 10. 目录结构
 ```
 dreamforge/
 ├── README.md
-├── docs/WORKFLOW.md                本文件：通用制作流程
-├── shared/                         所有期共用
-│   ├── tools/                      配音、读音、对齐、分镜、渲染、剪辑、二维动画、校验等工具
-│   │   └── paths.py                当前是哪一期、渲染和音频放哪（默认 E1，可用 DREAMFORGE_EPISODE 切换）
-│   └── blender/                    场景设置、材质库、画面语言风格系统
-└── episodes/
-    └── E1-euv-lithography/         第一期《一台光刻机里发生了什么》
-        ├── research/  facts.yaml
-        ├── script/    script_zh.md  pronunciation.yaml
-        ├── storyboard/ parts/  storyboard.yaml  storyboard.timed.yaml  REVIEW.md
-        ├── subs/      zh.srt
-        ├── blender/   scripts/（本期建模）  shots/（本期镜头与 registry.yaml）
-        ├── mograph/   本期二维动画镜头
-        ├── docs/      早期调研文档与第三稿剧本（历史）
-        ├── experiments/  冒烟测试
-        ├── audio/     配音缓存与成品（不入库）
-        └── renders/   渲染输出（不入库）
+├── docs/WORKFLOW.md              本文件
+├── shared/
+│   ├── tools/                    tts / vo_align / retime / asr_check / lint_script / storyboard_check /
+│   │                             render_storyboard / render_batch.sh / mograph / edit_film / eleven /
+│   │                             fetch_assets / paths（当前期由 DREAMFORGE_EPISODE 切换，默认 E1）
+│   ├── blender/                  common（场景、HDRI）、materials（含 Poly Haven PBR）、styles（画面语言）
+│   └── assets/                   下载的 CC0 素材（不入库）
+└── episodes/E<n>-<短名>/
+    ├── research/                 facts.yaml；visual/（调研报告、audit_<段>.yaml、audit_backlog.yaml）
+    ├── script/                   script_zh.md、pronunciation.yaml
+    ├── storyboard/               parts/*.yaml → storyboard.yaml → storyboard.timed.yaml
+    ├── sound/                    <段>.yaml（配乐和音效）
+    ├── subs/                     zh.srt
+    ├── blender/                  scripts/（建模）、shots/（镜头和 registry.yaml）
+    ├── mograph/                  二维镜头
+    ├── audio/                    配音和音效缓存（不入库）
+    └── renders/                  shots/、edit/、review/（审片和参考资料，不入库）
 ```
-新开一期：复制 `episodes/E1-*/` 的目录骨架（不复制 audio、renders），设置 `DREAMFORGE_EPISODE=E2-xxx` 后运行同一套工具。
 
-## 10. 可复用的工作流
-`shared/` 下的工具和 Blender 模块对每一期都通用；每期只写自己的事实库、剧本、分镜、建模和镜头。每个新项目照着 S1 到 S10 的检查清单走一遍。
-
-
-## 时长与结构变更（2026-10-15）
-- 成片从约 5 分钟改为约 **10 分钟**。
-- 结构：先按子系统分讲（光源/锡滴与双脉冲、收集镜、真空光路、Mo/Si 多层膜、反射掩模与 pellicle、投影物镜含 High-NA、工件台），再组合成从锡滴到晶圆的完整流程。
+## 11. 新开一期
+1. 复制 `episodes/E1-*/` 的目录骨架，不复制 audio 和 renders。
+2. 设置 `DREAMFORGE_EPISODE=E<n>-<短名>`。
+3. 从 P1 调研开始，按第 3 节逐个阶段推进，第 1、2 节的规则同样适用。
