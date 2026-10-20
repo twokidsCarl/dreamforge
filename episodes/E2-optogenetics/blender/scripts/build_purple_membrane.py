@@ -6,8 +6,8 @@
     hexagonal lattice (space group P3 with a unit cell dimension of ~62 Å)… Lipid molecules are located between
     trimers and in the space enclosed by each trimer"。
   - 每个单体 7 段大致垂直于膜面的跨膜 α 螺旋（A–G）：Henderson & Unwin 1975, Nature 257:28–32（电镜三维重构）。
-  - 螺旋直径约 9 Å（α 螺旋含侧链的典型值），跨膜部分约 35 Å，膜面外只露出几 Å；这里取半径 4.5 Å、长 38 Å、
-    露出脂质面 3–7 Å，倾角 ≤ 6°（「大致垂直」）。
+  - 螺旋直径约 9 Å（α 螺旋含侧链的典型值），跨膜部分约 35 Å，膜面外只露出几 Å；这里取半径 4.0 Å（略细于含侧链的值，
+    让相邻螺旋之间看得出缝）、长 38 Å、露出脂质面 3–7 Å，倾角 ≤ 2°（「大致垂直」）。
 示意（核查表 A0_91 记为 simplified）：晶格常数、三聚体、7 螺旋/单体的数目都按资料；单体内 7 根螺旋的相对位置是
 我们的示意排布（两排弧形：外排 4 根、内排 3 根，沿三聚体三重轴的切向排开，三个单体各转 120°），不是 Henderson
 1990 密度图的坐标。排好后用 `check_geometry()` 检查：螺旋互不重叠，三聚体不越出晶胞。
@@ -17,7 +17,7 @@ import math
 import random
 
 A = 62.0                    # 晶胞边长，Å
-HELIX_R = 4.5               # 螺旋半径，Å
+HELIX_R = 4.0               # 螺旋半径，Å（v2：4.5 → 4.0，相邻螺旋留出 ≥ 1.3 Å 空隙，避免镜头移动时互相穿插、闪烁）
 HELIX_LEN = 38.0            # 跨膜长度，Å
 LIPID_T = 38.0              # 脂质双层厚度，Å（脂质面在 z=0，向下 38 Å）
 R0 = 18.0                   # 单体中心离三重轴的距离，Å
@@ -75,6 +75,14 @@ def check_geometry():
     return dmin, rmax, dn
 
 
+def assert_clear(min_gap=1.0):
+    """螺旋之间（同一三聚体、相邻三聚体）至少留 min_gap Å 的空隙，否则报错。"""
+    dmin, _, dn = check_geometry()
+    gap = min(dmin, dn) - 2 * HELIX_R
+    assert gap >= min_gap, f"helix gap {gap:.2f} Å < {min_gap} Å"
+    return gap
+
+
 def _helix_into(bm, base, tilt, az, length, rad, dome=3.0, seg=14, rings=4):
     """在 bmesh 里加一根带圆顶的圆柱（轴向由 tilt/az 决定，base 为底面中心）。"""
     ax = (math.sin(tilt) * math.cos(az), math.sin(tilt) * math.sin(az), math.cos(tilt))
@@ -111,12 +119,13 @@ def build_membrane(half_w=190.0, half_h=110.0, seed=5):
     """建出脂质面（"Lipid"）和所有螺旋（"Helices"，一个网格），返回两个对象。尺寸为 Å，内部换成 BU。"""
     import bmesh
     import bpy
+    assert_clear()
     rnd = random.Random(seed)
     bm = bmesh.new()
     th = trimer_helices()
     for cx, cy in lattice_points(half_w, half_h):
         for hx, hy in th:
-            tilt = math.radians(rnd.uniform(0.5, 6.0))
+            tilt = math.radians(rnd.uniform(0.3, 2.0))
             az = rnd.uniform(0, 2 * math.pi)
             top = rnd.uniform(3.0, 7.0)                              # 露出脂质面的高度
             ax = (math.sin(tilt) * math.cos(az), math.sin(tilt) * math.sin(az), math.cos(tilt))
