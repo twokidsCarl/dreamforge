@@ -2,7 +2,7 @@
 
 状态：**检查点①，等审**（2026-10-20）。剧本已定稿，分镜总览已写。未配音，未渲染。
 
-目录名沿用 E1：`episodes/E<n>-<短名>/`。E1 是 `episodes/E1-euv-lithography/`，这一期是 `episodes/E2-optogenetics/`。
+目录名是 `episodes/E<n>-<短名>/`。这一期是 `episodes/E2-optogenetics/`。
 
 ## 定位
 
