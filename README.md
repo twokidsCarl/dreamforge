@@ -1,6 +1,22 @@
-# dreamforge
+# EigenLens
 
-用 AI 控制 Blender 做 3D 建模与科普解说视频。一个系列，多期视频。
+用 AI 控制 Blender 做 3D 建模与科普解说视频。一个系列，多期视频。中文名是**主观知识**。
+
+## 品牌
+
+公开品牌于 2026-10-21 由 Carl 锁定。GitHub 仓库和项目文件夹都是 `eigenlens`（原名 dreamforge）。正文里的英文名写 **EigenLens**。
+
+| 项 | 锁定 |
+|---|---|
+| 中文主名 | 主观知识 |
+| 英文主名 | EigenLens（正文用驼峰；仓库 slug 是 `eigenlens`） |
+| 片头与片尾 | 每集片头 2–4 秒 sting，片尾 end card。不用 MetaHuman，也不用数字人主持人 |
+| 标语含义 | 选主轴，看结构。主观是编辑上的选择；「主」取主轴，对应 eigen |
+| 画面 | 暗色 HUD，冷青 / 冷紫，与 E2 A0 一致 |
+
+标志还没有定稿。Rena 的 v1 方向是草稿，等 Carl 选定。仓库里没有 `brand/eigenlens_logo_v1/`。
+
+工具仍读旧环境变量，前缀是 `DREAMFORGE_`（例如 `DREAMFORGE_EPISODE`）。这次只记录品牌，不改这些名字。说明见 [docs/WORKFLOW.md](docs/WORKFLOW.md)。
 
 | 期 | 文件夹 | 状态 |
 |---|---|---|
