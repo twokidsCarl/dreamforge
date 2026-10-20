@@ -69,7 +69,8 @@ def request(spoken, voice, wav):
                                 "-H", "Content-Type: application/json", "--data-binary", "@-"],
                                input=body, capture_output=True, check=True)
             d = json.loads(r.stdout)
-            audio_url = d["output"]["audio"]["url"]
+            # the result URL comes back as plain http; some networks block port 80, so fetch it over https
+            audio_url = d["output"]["audio"]["url"].replace("http://", "https://", 1)
             raw = wav + ".dl"
             subprocess.run(["curl", "-s", "-m", "90", "-o", raw, audio_url], check=True)
             # normalise to mono 24 kHz 16-bit PCM so segments concatenate cleanly
