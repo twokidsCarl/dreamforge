@@ -28,7 +28,6 @@ STYLE_Q = {"photoreal": "它真实存在、长什么样", "xray": "机器里面�
            "energy": "看不见的物理怎么流动", "infographic": "多大、多少、比什么强", "clay": "怎么组装、怎么运动",
            "sem": "纳米尺度长什么样", "hud": "控制与测量怎么实时发生", "type": "章节与情绪节点",
            "documentary": "它在真实世界的哪里"}
-ACT = {"A0": "序", "A1": "第一幕 · 为什么需要 EUV", "B1": "第二幕 · 机器内部", "C": "第三幕 · 总装", "D": "尾声"}
 
 FRAMES = [
     ("style_test/cycles/CamStyle_photoreal/0230.png", "真实渲染", "同一场景 · 第 230 帧"),
@@ -40,6 +39,34 @@ FRAMES = [
     ("sample_b1/edit/0226.png", "B1 样片", "主脉冲闪白"),
     ("sample_b1/edit/0250.png", "B1 样片", "等离子体与发光碎屑"),
 ]
+
+
+def page_meta():
+    """Page chrome (title, lede, accent colors) lives in the episode, not in this tool.
+
+    The tool used to bake the EUV lithography title and palette into every episode.
+    Missing metadata is an error: never fall back to another episode's chrome.
+    """
+    path = os.path.join(EP, "storyboard", "page.yaml")
+    if not os.path.isfile(path):
+        raise SystemExit(
+            f"缺少 {path}。分镜总览的标题、简介和强调色必须写在当期 storyboard/page.yaml，"
+            "不能套用其他期的页面外壳。"
+        )
+    data = yaml.safe_load(open(path, encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise SystemExit(f"{path} 必须是映射")
+    required = ("document_title", "kicker", "title", "lede", "frames_label", "rules", "accents")
+    missing = [key for key in required if not data.get(key)]
+    if missing:
+        raise SystemExit(f"{path} 缺少 {', '.join(missing)}")
+    return data
+
+
+def rules_html(items):
+    if not isinstance(items, list) or not all(isinstance(item, str) and item.strip() for item in items):
+        raise SystemExit("storyboard/page.yaml 的 rules 必须是非空字符串列表")
+    return "\n".join(f"        <li>{esc(item)}</li>" for item in items)
 
 
 def esc(x):
@@ -60,6 +87,10 @@ def jpeg_uri(path, width=720):
 
 def main():
     out = sys.argv[1]
+    meta = page_meta()
+    acts = meta.get("acts") or {}
+    if not isinstance(acts, dict):
+        raise SystemExit("storyboard/page.yaml 的 acts 必须是映射")
     shots = yaml.safe_load(open(os.path.join(EP, "storyboard/storyboard.yaml"),
                                 encoding="utf-8"))["shots"]
     titles = {s["id"]: s["title"] for s in parse(os.path.join(EP, "script/script_zh.md"))}
@@ -105,7 +136,7 @@ def main():
     for seg in order:
         ss = [x for x in shots if x["segment"] == seg]
         d = sum(x["duration"] for x in ss)
-        act = f'<p class="act">{esc(ACT[seg])}</p>' if seg in ACT else ""
+        act = f'<p class="act">{esc(acts[seg])}</p>' if seg in acts else ""
         body.append(f'<section class="seg" id="seg-{seg}">{act}<header class="seghead">'
                     f'<h2><span class="segid">{seg}</span>{esc(titles.get(seg, ""))}</h2>'
                     f'<p class="segmeta">{len(ss)} 个镜头 · {d:.0f} 秒 · 起于 {tc(ss[0]["_t0"])}</p></header>')
@@ -139,15 +170,28 @@ def main():
                 + f'<details><summary>制作细节</summary><dl>{extra}</dl></details></div></article>')
         body.append("</section>")
 
+    accents = meta["accents"]
+    if len(accents) != 3:
+        raise SystemExit("storyboard/page.yaml 的 accents 必须是 3 个强调色")
     page = TEMPLATE.format(
         n=len(shots), mins=f"{total / 60:.1f}", strip="".join(strip), segmarks="".join(seg_marks),
         legend=legend, qrows=qrows, frames="".join(frames), body="".join(body),
-        nseg=len(order))
+        nseg=len(order),
+        document_title=meta["document_title"],
+        kicker=meta["kicker"],
+        h1=meta["title"],
+        lede=meta["lede"],
+        frames_label=meta["frames_label"],
+        rules=rules_html(meta["rules"]),
+        a=accents[0]["id"], b=accents[1]["id"], c=accents[2]["id"],
+        a_light=accents[0]["light"], b_light=accents[1]["light"], c_light=accents[2]["light"],
+        a_dark=accents[0]["dark"], b_dark=accents[1]["dark"], c_dark=accents[2]["dark"],
+    )
     open(out, "w", encoding="utf-8").write(page)
     print(out, f"{os.path.getsize(out) / 1e6:.2f} MB")
 
 
-TEMPLATE = """<title>光刻机分镜总览</title>
+TEMPLATE = """<title>{document_title}</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap">
@@ -155,7 +199,7 @@ TEMPLATE = """<title>光刻机分镜总览</title>
 /* Layout: a film reel read top to bottom — one timeline strip of the whole cut, then shots as numbered frames per segment. */
 :root {{
   --ground: #f3f4f7; --panel: #ffffff; --ink: #141826; --ink-2: #4b5268; --rule: #dde0e8;
-  --euv: #6b4fd8; --laser: #d9661a; --metro: #0f8ea3;
+  --{a}: {a_light}; --{b}: {b_light}; --{c}: {c_light};
   --st-photoreal: #5d6b80; --st-xray: #aab3c2; --st-blueprint: #1f5fbf; --st-energy: #7b52e6;
   --st-infographic: #0f9bb0; --st-clay: #c9bfae; --st-sem: #7a7a7a; --st-hud: #12a37f;
   --st-type: #22273a; --st-documentary: #c98a1e;
@@ -165,11 +209,11 @@ TEMPLATE = """<title>光刻机分镜总览</title>
 }}
 @media (prefers-color-scheme: dark) {{ :root:not([data-theme="light"]) {{
   --ground: #0b0e17; --panel: #131828; --ink: #e8ebf3; --ink-2: #a1a8bd; --rule: #262c40;
-  --euv: #a48cff; --laser: #ff8a3d; --metro: #3cc8dc; --st-type: #e8ebf3; --st-xray: #c7cedb;
+  --{a}: {a_dark}; --{b}: {b_dark}; --{c}: {c_dark}; --st-type: #e8ebf3; --st-xray: #c7cedb;
   color-scheme: dark; }} }}
 :root[data-theme="dark"] {{
   --ground: #0b0e17; --panel: #131828; --ink: #e8ebf3; --ink-2: #a1a8bd; --rule: #262c40;
-  --euv: #a48cff; --laser: #ff8a3d; --metro: #3cc8dc; --st-type: #e8ebf3; --st-xray: #c7cedb;
+  --{a}: {a_dark}; --{b}: {b_dark}; --{c}: {c_dark}; --st-type: #e8ebf3; --st-xray: #c7cedb;
   color-scheme: dark; }}
 * {{ box-sizing: border-box; }}
 body {{ background: var(--ground); color: var(--ink); font: 15px/1.7 var(--f-body);
@@ -195,9 +239,9 @@ h1 {{ font-size: clamp(30px, 5vw, 46px); line-height: 1.15; letter-spacing: .01e
 .chip .dot {{ width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }}
 .chip .n {{ font-family: var(--f-mono); color: var(--ink-2); font-size: 12px; }}
 .chip[aria-pressed="true"] {{ border-color: var(--c); box-shadow: inset 0 0 0 1px var(--c); }}
-.chip:focus-visible {{ outline: 2px solid var(--euv); outline-offset: 2px; }}
+.chip:focus-visible {{ outline: 2px solid var(--{a}); outline-offset: 2px; }}
 .chip.sm {{ cursor: default; padding: 2px 9px; font-size: 12px; }}
-.clear {{ font: 500 13px var(--f-body); background: none; border: 0; color: var(--euv); cursor: pointer; padding: 5px 6px; }}
+.clear {{ font: 500 13px var(--f-body); background: none; border: 0; color: var(--{a}); cursor: pointer; padding: 5px 6px; }}
 .st-photoreal {{ --c: var(--st-photoreal); }} .st-xray {{ --c: var(--st-xray); }} .st-blueprint {{ --c: var(--st-blueprint); }}
 .st-energy {{ --c: var(--st-energy); }} .st-infographic {{ --c: var(--st-infographic); }} .st-clay {{ --c: var(--st-clay); }}
 .st-sem {{ --c: var(--st-sem); }} .st-hud {{ --c: var(--st-hud); }} .st-type {{ --c: var(--st-type); }} .st-documentary {{ --c: var(--st-documentary); }}
@@ -212,28 +256,28 @@ figure img {{ display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cov
 figcaption {{ font-size: 12px; color: var(--ink-2); margin-top: 5px; }}
 figcaption b {{ color: var(--ink); font-weight: 500; margin-right: 6px; }}
 .seg {{ display: grid; gap: 10px; scroll-margin-top: 16px; }}
-.act {{ font-family: var(--f-mono); font-size: 12px; letter-spacing: .1em; color: var(--euv); margin: 18px 0 0; }}
+.act {{ font-family: var(--f-mono); font-size: 12px; letter-spacing: .1em; color: var(--{a}); margin: 18px 0 0; }}
 .seghead {{ display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; border-bottom: 1px solid var(--ink); padding-bottom: 8px; }}
 .seghead h2 {{ font-size: 24px; font-weight: 600; }}
 .segid {{ font-family: var(--f-mono); font-size: 15px; color: var(--ink-2); margin-right: 12px; font-weight: 500; }}
 .segmeta {{ margin: 0; font-family: var(--f-mono); font-size: 12px; color: var(--ink-2); }}
 .shot {{ display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 18px; padding: 14px 0; border-bottom: 1px solid var(--rule); scroll-margin-top: 16px; }}
-.shot:target {{ background: color-mix(in srgb, var(--euv) 8%, transparent); }}
+.shot:target {{ background: color-mix(in srgb, var(--{a}) 8%, transparent); }}
 .meta {{ display: flex; flex-direction: column; align-items: flex-start; gap: 4px; font-family: var(--f-mono); font-size: 12px; color: var(--ink-2); }}
 .sid {{ font-size: 15px; color: var(--ink); font-weight: 500; }}
 .tc, .dur {{ font-variant-numeric: tabular-nums; }}
 .main {{ display: grid; gap: 8px; min-width: 0; }}
 .visual {{ margin: 0; }}
-.vo {{ border-left: 2px solid var(--euv); padding-left: 12px; color: var(--ink); font-size: 14.5px; }}
+.vo {{ border-left: 2px solid var(--{a}); padding-left: 12px; color: var(--ink); font-size: 14.5px; }}
 .vo p {{ margin: 0; }}
 .vo .mute {{ color: var(--ink-2); }}
 .why {{ margin: 0; font-size: 13px; color: var(--ink-2); }}
 .ovs {{ margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }}
 .ovs li {{ font-size: 12.5px; border: 1px solid var(--rule); border-radius: 3px; padding: 2px 8px; background: var(--panel); }}
-.fid {{ font-family: var(--f-mono); color: var(--metro); margin-left: 6px; font-size: 11.5px; }}
+.fid {{ font-family: var(--f-mono); color: var(--{c}); margin-left: 6px; font-size: 11.5px; }}
 details {{ font-size: 13px; color: var(--ink-2); }}
 summary {{ cursor: pointer; width: max-content; }}
-summary:focus-visible {{ outline: 2px solid var(--euv); outline-offset: 2px; }}
+summary:focus-visible {{ outline: 2px solid var(--{a}); outline-offset: 2px; }}
 dl {{ display: grid; grid-template-columns: 5em minmax(0, 1fr); gap: 2px 10px; margin: 8px 0 0; }}
 dt {{ color: var(--ink); }} dd {{ margin: 0; overflow-wrap: anywhere; }}
 .filtering .shot:not(.on) {{ display: none; }}
@@ -248,9 +292,9 @@ dt {{ color: var(--ink); }} dd {{ margin: 0; overflow-wrap: anywhere; }}
 </style>
 <div class="wrap">
   <header>
-    <p class="label">Dreamforge · 极紫外光刻机 · 分镜第一版</p>
-    <h1>一台光刻机里发生了什么</h1>
-    <p class="lede">约 20 分钟单集。先讲为什么需要 EUV，再沿着光的路线拆开机器里的每个子系统，最后用一条长镜头总装。每个镜头按“它在回答什么问题”选择画面语言；所有上屏数字都能追溯到事实库编号。</p>
+    <p class="label">{kicker}</p>
+    <h1>{h1}</h1>
+    <p class="lede">{lede}</p>
     <div class="stats"><span><b>{n}</b>个镜头</span><span><b>{mins}</b>分钟（按旁白字数估算）</span><span><b>{nseg}</b>个段落</span><span><b>10</b>种画面语言</span></div>
   </header>
 
@@ -269,17 +313,13 @@ dt {{ color: var(--ink); }} dd {{ margin: 0; overflow-wrap: anywhere; }}
     <div>
       <p class="label">混搭规则</p>
       <ol class="rules">
-        <li>同一种画面语言连续不超过 3 个镜头（C 段长镜头除外）。</li>
-        <li>每段至少用 3 种语言；切换要有动机：线稿实体化、扫描光带、结构淡出只剩能量、显微拉近。</li>
-        <li>全片共用四个强调色：EUV 紫、激光橙、计量青、线稿白；同一物体跨风格保持同一构图。</li>
-        <li>三条主线反复出现：光的账本、硅原子标尺、暴力与温柔。</li>
-        <li>上屏数字必须带事实编号；媒体来源一律标“据报道”。</li>
+{rules}
       </ol>
     </div>
   </section>
 
   <section>
-    <p class="label">已渲染的画面 · 同一场景的四种语言，以及 B1 样片</p>
+    <p class="label">{frames_label}</p>
     <div class="frames">{frames}</div>
   </section>
 

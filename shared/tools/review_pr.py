@@ -4,8 +4,8 @@
   python3 shared/tools/review_pr.py --pr 12
   python3 shared/tools/review_pr.py --self-test
 
-Checks YAML, facts.yaml, script lint, narration red lines, large binaries and
-secrets. On success, and only then:
+Checks YAML, facts.yaml, script lint, narration red lines, cross-episode
+vocabulary, large binaries and secrets. On success, and only then:
 
   gh pr merge <pr> --auto --squash --match-head-commit <reviewed sha>
 
@@ -278,6 +278,52 @@ def have_commit(sha):
     return code == 0
 
 
+TEXT_EXT = {".md", ".yaml", ".yml", ".html", ".htm", ".py", ".txt", ".csv", ".json"}
+
+
+def foreign_term_hits(text, terms):
+    folded = text.casefold()
+    return [term for term in terms if term.casefold() in folded]
+
+
+def exclusive_terms_by_episode():
+    found = {}
+    for name in episodes_on_disk():
+        path = os.path.join(REPO, "episodes", name, "storyboard", "page.yaml")
+        if not os.path.isfile(path):
+            continue
+        data = yaml.safe_load(open(path, encoding="utf-8")) or {}
+        raw = data.get("exclusive_terms") or []
+        words = [term.strip() for term in raw if isinstance(term, str) and term.strip()]
+        if words:
+            found[name] = words
+    return found
+
+
+def cross_episode_terms(report):
+    """Flag another episode's title or exclusive words inside this episode's files."""
+    owned = exclusive_terms_by_episode()
+    for name in episodes_on_disk():
+        banned = [term for other, words in owned.items() if other != name for term in words]
+        if not banned:
+            continue
+        root = os.path.join(REPO, "episodes", name)
+        for dirpath, dirnames, filenames in os.walk(root):
+            dirnames[:] = [d for d in dirnames if d not in {"renders", "audio", "__pycache__"}]
+            for filename in filenames:
+                if os.path.splitext(filename)[1].lower() not in TEXT_EXT:
+                    continue
+                path = os.path.join(dirpath, filename)
+                try:
+                    text = open(path, encoding="utf-8").read()
+                except (UnicodeDecodeError, OSError):
+                    continue
+                hits = foreign_term_hits(text, banned)
+                if hits:
+                    rel = os.path.relpath(path, REPO)
+                    report.errors.append(f"{rel}: 含有其他期的专属词 {', '.join(hits)}")
+
+
 def episodes_on_disk():
     root = os.path.join(REPO, "episodes")
     names = []
@@ -357,6 +403,12 @@ def self_test():
     check(outline_mode("状态：大纲\n") is True, "outline")
     check(outline_mode("状态：大纲\n状态：定稿\n") is False, "final overrides")
     check(outline_mode("定稿旁白") is False, "no marker")
+    check(foreign_term_hits("这里写了 EUV 光刻机", ["光刻机", "EUV"]) == ["光刻机", "EUV"], "foreign terms")
+    check(foreign_term_hits("通道是 euv 的误植", ["EUV"]) == ["EUV"], "casefold foreign term")
+    check(foreign_term_hits("光遗传学的开关", ["光刻机", "EUV", "ASML"]) == [], "own episode")
+    vocab = Report()
+    cross_episode_terms(vocab)
+    check(vocab.errors == [], "episode trees mix foreign terms: " + " | ".join(vocab.errors[:4]))
     check(check_pronunciation({"lexicon": {}, "units_after_number": {}}, "p") == [], "empty lexicon")
 
     for rel in (
@@ -663,8 +715,9 @@ def review(base, head):
     loaded = load_yaml_files(report)
     lint_episodes(report)
     narration_red_lines(report, loaded, added)
+    cross_episode_terms(report)
     if not report.errors:
-        report.notes.append("旁白红线、大文件、秘密：通过")
+        report.notes.append("旁白红线、大文件、秘密、跨期用词：通过")
     return report
 
 
