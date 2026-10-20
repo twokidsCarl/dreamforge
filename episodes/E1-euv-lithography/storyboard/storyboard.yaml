@@ -5263,13 +5263,14 @@ shots:
   vo:
   - 从吞下巨量电力的激光，到每平方纳米 20 个光子——这本账，算到了最后一位。
   facts:
+  - F48
   - F6
   - F33
   - F47
   style: infographic
   style_why: 光的账本的总结算：一条从左到右的损耗链，是全片主线一的收尾
   transition_in: dissolve
-  visual: 账本摊开成横向的一整页：驱动激光 → EUV → 到达晶圆 1% → 每 nm² 20 个光子（整机耗电没有一手数字，不画）。每一格依次亮起，宽度按比例急剧收窄，最后一格只剩一个小小的紫点。
+  visual: 账本摊开成横向的一整页：电力 → 驱动激光 → EUV → 到达晶圆 1% → 每 nm² 20 个光子。每一格依次亮起，宽度按比例急剧收窄，最后一格只剩一个小小的紫点。
   camera:
     move: slow-truck
     lens_mm: 0
@@ -5280,6 +5281,9 @@ shots:
   - overlay:light_ledger
   fx: []
   overlays:
+  - text: 电力：约 1.26 MW（NXE:3800E）
+    facts:
+    - F48
   - text: 驱动激光：最高 40 kW
     facts:
     - F6
@@ -5771,15 +5775,17 @@ shots:
   - 一滴 · 两响 · 十声玻璃铃音
 - id: D_04
   segment: D
-  duration: 7.6
+  duration: 12.6
   vo:
-  - ASML 说，自 2018 年以来，每片晶圆的能耗已经下降了 57%。
+  - ASML 测得，最新一代 NXE 一台耗电约 1.26 兆瓦；
+  - 而自 2018 年以来，每片晶圆的能耗已经下降了 57%。
   facts:
+  - F48
   - F49
   style: infographic
-  style_why: 回答“多少”：能耗下降比例是 ASML 一手数字，信息图最干净（整机耗电只有媒体估算，不用）
+  style_why: 回答“多少”：整机耗电和每片能耗下降都是 ASML 年报的一手数字，信息图最干净
   transition_in: cut
-  visual: 两根“每片晶圆能耗”柱：2018 年满高度，旁边 2025 年只剩 43% 高度，中间一个“−57%”标注。只画这两个有出处的数据点，不画逐年曲线。
+  visual: 左侧一只功率表指针摆到 1.26 MW；右侧两根“每片晶圆能耗”柱：2018 年满高度，旁边 2025 年只剩 43% 高度，中间一个“−57%”标注。只画有出处的数据点，不画逐年曲线。
   camera:
     move: static
     lens_mm: 0
@@ -5789,6 +5795,9 @@ shots:
   - manim:EnergyPerWafer
   fx: []
   overlays:
+  - text: 耗电：约 1.26 MW（NXE:3800E）
+    facts:
+    - F48
   - text: 每片晶圆能耗：自 2018 年以来 −57%
     facts:
     - F49

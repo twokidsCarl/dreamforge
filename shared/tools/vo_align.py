@@ -17,6 +17,7 @@ import sys
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(__file__))
+from asr_prompt import asr_prompt  # noqa: E402
 import tts  # noqa: E402
 import vo_split  # noqa: E402
 from asr_check import load16k, norm  # noqa: E402
@@ -28,7 +29,7 @@ from paths import AUDIO, EP, REPO  # noqa: E402
 
 def char_times(model, wav):
     segs, _ = model.transcribe(load16k(wav), language="zh", word_timestamps=True, beam_size=5,
-                               initial_prompt="以下是普通话科普旁白，使用简体中文。")
+                               initial_prompt=asr_prompt())
     chars, times = [], []
     for s in segs:
         for w in s.words:

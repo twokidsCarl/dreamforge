@@ -2,7 +2,8 @@
 
   .venv/bin/python tools/asr_check.py [--voice Andre] [--model large-v3-turbo] [--threshold 0.9]
 
-A stand-in for listening: catches misread numbers, units, acronyms and dropped words.
+A stand-in for listening: catches misread numbers, units, acronyms and dropped words. Lines are compared by sound
+(toneless pinyin), so a homophone the recogniser spells differently is not flagged; needs pypinyin (.venv).
 Writes audio/vo/<voice>/asr_report.json and prints the flagged sentences (script vs heard).
 """
 import argparse
@@ -16,6 +17,7 @@ import sys
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(__file__))
+from asr_prompt import asr_prompt  # noqa: E402
 from lint_script import parse  # noqa: E402
 from retime import wav_for  # noqa: E402
 
@@ -64,6 +66,28 @@ def load16k(path):
     return np.frombuffer(raw, dtype=np.float32)
 
 
+def sounds(text):
+    """Toneless pinyin syllables of a normalised line (Latin words and digits-as-read kept as tokens), so homophones
+    the recogniser spells differently (掩模/眼膜, 锡滴/溪滴) count as the same sound."""
+    from pypinyin import Style, lazy_pinyin
+    out = []
+    for tok in lazy_pinyin(norm(text), style=Style.NORMAL, errors=lambda x: [x]):
+        out.extend(re.findall(r"[a-z]+|\d", tok) if not tok.isalpha() or tok.isascii() else [tok])
+    return out
+
+
+def sound_ratio(script, heard):
+    """How much of the script's sound the recogniser heard (0-1): sequence match on toneless pinyin."""
+    return difflib.SequenceMatcher(None, sounds(script), sounds(heard), autojunk=False).ratio()
+
+
+def missed_terms(script, heard, terms):
+    """Glossary terms in the script line whose sound is not heard as a whole (one wrong syllable in a long line
+    barely moves the ratio, but 激光 heard as 机关 is still an error)."""
+    hs = " ".join(sounds(heard))
+    return [t for t in terms if t in script and " ".join(sounds(t)) not in hs]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--voice", default="Andre")
@@ -77,19 +101,24 @@ def main():
         t2s = OpenCC("t2s").convert
     except ImportError:
         t2s = lambda x: x  # noqa: E731
+    from asr_prompt import asr_terms
+    terms = asr_terms()
     rows = []
     for seg in parse(os.path.join(EP, "script/script_zh.md")):
         for L in seg["lines"]:
             segs, _ = model.transcribe(load16k(wav_for(L["text"], a.voice)), language="zh", beam_size=5,
-                                       initial_prompt="以下是普通话科普旁白，使用简体中文。")
+                                       initial_prompt=asr_prompt())
             heard = t2s("".join(x.text for x in segs).strip())
-            r = difflib.SequenceMatcher(None, norm(L["text"]), norm(heard)).ratio()
-            rows.append({"seg": seg["id"], "script": L["text"], "heard": heard, "ratio": round(r, 3)})
-            if r < a.threshold:
-                print(f"[{seg['id']}] {r:.2f}\n  稿：{L['text']}\n  听：{heard}")
+            r = sound_ratio(L["text"], heard)                     # by sound: homophones are not errors
+            rc = difflib.SequenceMatcher(None, norm(L["text"]), norm(heard)).ratio()
+            miss = missed_terms(L["text"], heard, terms)
+            rows.append({"seg": seg["id"], "script": L["text"], "heard": heard, "ratio": round(r, 3),
+                         "char_ratio": round(rc, 3), "missed_terms": miss})
+            if r < a.threshold or miss:
+                print(f"[{seg['id']}] {r:.2f} {'术语没听清：' + '、'.join(miss) if miss else ''}\n  稿：{L['text']}\n  听：{heard}")
     out = os.path.join(AUDIO, "vo", a.voice, "asr_report.json")
     json.dump(rows, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    flagged = sum(r["ratio"] < a.threshold for r in rows)
+    flagged = sum(r["ratio"] < a.threshold or bool(r["missed_terms"]) for r in rows)
     print(f"{len(rows)} sentences, {flagged} flagged below {a.threshold}; report: {out}")
 
 

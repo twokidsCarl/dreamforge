@@ -1885,10 +1885,12 @@ shots:
   - 一滴 · 两响 · 十声玻璃铃音
 - id: D_04
   segment: D
-  duration: 7.6
+  duration: 12.6
   vo:
-  - ASML 说，自 2018 年以来，每片晶圆的能耗已经下降了 57%。
+  - ASML 测得，最新一代 NXE 一台耗电约 1.26 兆瓦；
+  - 而自 2018 年以来，每片晶圆的能耗已经下降了 57%。
   facts:
+  - F48
   - F49
   style: infographic
   style_why: 回答“多少”：整机耗电和每片能耗下降都是 ASML 年报的一手数字，信息图最干净

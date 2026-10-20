@@ -1,0 +1,36 @@
+# Domain terms given to the speech recogniser as context, so homophones (掩模/眼膜, 锡滴/溪滴, 氢/青)
+# are not counted as mispronunciations. One term per line.
+光刻
+光刻机
+极紫外
+EUV
+掩模
+掩模台
+晶圆
+晶圆台
+工件台
+锡滴
+锡流
+预脉冲
+主脉冲
+等离子体
+激光
+收集镜
+椭球形
+中间焦点
+照明系统
+投影物镜
+氢气
+氢分子
+氢自由基
+锡烷
+pellicle
+High-NA
+蔡司
+ASML
+钼
+硅
+皮米
+纳米
+狭缝
+薄饼
