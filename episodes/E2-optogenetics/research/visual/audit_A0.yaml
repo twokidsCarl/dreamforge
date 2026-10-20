@@ -1,0 +1,68 @@
+# E2 视觉事实核查表，A0 冷开场。每行是画面里出现的一项结构、文字或数字（旁白的论断在 research/facts.yaml）。
+# status: sourced / wrong / unsourced / simplified / artistic（WORKFLOW 2.3）。调研报告：research/visual/a0_cold_open.md
+# 规则：本段还有 wrong 或 unsourced 时不能出成片。
+A0_01a:
+  - item: 暗室桌上一页旧纸，侧光照亮其中一行；纸上只有不可读的抽象行
+    status: artistic
+    note: 不是 Crick 的原件（我们没有原件图片）。纸上不排可读的原句，避免冒充原文
+  - item: 右上标签「Francis Crick · 1999」「诺奖科学背景引用」
+    status: sourced
+    source: F3（2026 诺奖科学背景，引用 Crick 1999）
+    note: 检查点①决定 1：只用 1999，不出现 1979，不说「47 年」
+  - item: 空气里的浮尘
+    status: artistic
+A0_01b:
+  - item: 黑底排版「理想的信号，也许是光。」
+    status: sourced
+    source: F3
+    note: 中文是旁白译文，不是原文排版
+A0_02a:
+  - item: 打出「相当牵强」
+    status: sourced
+    source: F3（rather far-fetched）
+A0_02b:
+  - item: 同一页纸的近景，照亮的那一行慢慢暗下
+    status: artistic
+A0_03a:
+  - item: 一排通用神经元，只有被圈出的一类先亮（打开，通道蓝）再暗（关掉，琥珀），两侧保持灰
+    status: simplified
+    source: F3（只打开或关掉某一类神经元，其余大体不动）
+    note: 神经元形态通用，不代表具体脑区或细胞类型；不标比例和数量。蓝 / 琥珀是全片的开 / 关约定色，不是真实光色
+A0_03b:
+  - item: 参数化白模神经元（胞体、树突、轴突），只有被圈出的一类起伏放电
+    status: simplified
+    note: 形态通用；「起伏」只表示活动，不是真实形变
+A0_04a:
+  - item: 三个抽象光点依次亮起，旁边写 Karl Deisseroth、Peter Hegemann、Georg Nagel，以及 2026-10-05 · 诺贝尔生理学或医学奖
+    status: sourced
+    source: F1（nobelprize.org 2026 新闻稿）
+    note: 不画肖像；名字顺序按新闻稿
+A0_04b:
+  - item: 三个名字上下排列，没有第四行
+    status: sourced
+    source: F1
+A0_05a:
+  - item: 蓝图：左侧引文「理想的信号，也许是光」并注 Crick 1999，右侧三个人名，中间一个空方框写「开关」
+    status: sourced
+    source: F3, F1
+    note: 方框是叙事符号（缺的那枚开关），不是任何真实结构
+A0_05b:
+  - item: 方框里一道光走到一半熄灭
+    status: artistic
+A0_06a:
+  - item: 片名《光遗传学》
+    status: sourced
+    source: F7
+A0_06b:
+  - item: 片名下一道细光横过后熄灭；片名一直在画面内
+    status: artistic
+A0_91:
+  - item: 紫膜的二维晶格：细菌视紫红质三聚体排成六方晶格，三聚体之间是脂质；灰度电镜风格，带紫色调；不标年份
+    status: simplified
+    source: Henderson & Unwin 1975 Nature 257:28；Krebs & Isenbarger 2000 BBA 1460:15（P3，晶胞约 62 Å）；F4
+    note: 真实的电镜结果是投影密度图，这里做成带光影的表面；只闪 1.5 秒，第二幕再讲紫膜
+A0_92:
+  - item: HUD 计数 1999 → 2026 后停住
+    status: sourced
+    source: F3（1999）、F1（2026）
+    note: 不出现 1979，也不在屏幕上写相差年数
