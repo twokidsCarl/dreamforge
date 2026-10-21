@@ -230,6 +230,7 @@
   - `step`：每帧前进几个模拟帧，小于 1 就是慢动作；
   - `black_tail`：结尾留几帧黑场。
 - **单帧试渲**：`DREAMFORGE_RENDER_DIR=<临时目录> blender -b --factory-startup -P shared/tools/render_storyboard.py -- --shot X --quality preview --frames 1,60`。改动后先试渲几帧，确认无误再整段渲染。
+- **不开 GPU 的冒烟**：`blender -b --factory-startup -P shared/tools/build_check.py -- [--shots X,Y | --segment B]`。逐镜 build、套风格、切到首 / 中 / 尾帧，检查相机存在、视野里有东西，并核对 registry 覆盖 timed.yaml 的全部镜头 id；不渲染（`--render X` 才渲 1 帧）。registry 里只有 `mograph:` 的条目是 2D 镜头，跳过。
 - 渲染时会在开头读取场景脚本；**渲染进行中改脚本，可能导致同一批镜头用的不是同一版代码**。改完要确认哪些镜头需要重渲。
 - 共用中心点和位置用常量（例如 `BM.CENTER`、`BM.RETICLE`），不要在各个镜头里硬写坐标。
 
@@ -293,7 +294,7 @@ eigenlens/
 2. 设置 `DREAMFORGE_EPISODE=E<n>-<短名>`。
 3. 从 P1 调研开始，按第 3 节逐个阶段推进，第 1、2 节的规则同样适用。
 
-E2《光遗传学》在 `episodes/E2-optogenetics/`。检查点①已于 2026-10-21 通过（六条决定见该期 README），正在做全片配音和 A0 样片段。
+E2《光遗传学》在 `episodes/E2-optogenetics/`。检查点①、检查点②（全片动态分镜）都已于 2026-10-21 通过，见该期 README。现在是 P7 建模与镜头；Carl 开 GPU 后进入 P8 渲染。
 
 ## 12. 拉取请求审查
 
