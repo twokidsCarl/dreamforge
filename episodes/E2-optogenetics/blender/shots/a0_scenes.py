@@ -663,6 +663,7 @@ def after_style(style, shot_id):
         sc.render.use_motion_blur = False
         sc.cycles.volume_step_rate = 4.0
         sc["film_grain"], sc["vignette"] = 0.3, 0.45                                # 低照度纪实：细颗粒 + 轻暗角
+        sc["no_glare"] = True                                                       # L2 Document 不开 bloom
     elif v == "membrane":
         _cycles(sc, {"preview": 16, "sample": 24, "final": 32}, bounces=1, clamp=0.0)
         sc["dispersion"], sc["film_grain"], sc["vignette"] = 0.0, 0.5, 0.55        # 电镜：无色散，颗粒，暗角

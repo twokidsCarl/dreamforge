@@ -6,7 +6,9 @@
 Unlike story_reel (a review board with shot ids and debug overlays), this is the deliverable look:
 - picture: each shot's best render (final > sample > preview), shot-relative frame clamped at its end;
   a short dissolve where the storyboard asks for one;
-- subtitles: Heiti, white with a soft shadow, bottom centre, no box;
+- subtitles: Heiti, #E8ECF4, bottom centre inside the bottom 15 %; on 3D shots and on 2D frames whose
+  subtitle zone is not near-black, a translucent bar rgba(7,11,20,0.55) sits under the line (E2 STYLE_REVIEW
+  P0-5); plain dark 2D cards keep a soft shadow instead;
 - labels: the shot's on-screen overlays (upper right), only on 3D shots (2D graphics carry their own text);
 - sound: the VO track (audio/vo/<voice>/vo_track.wav), music + SFX from episodes/<ep>/sound/<seg>.yaml,
   music ducked under the voice (sidechain), integrated loudness normalised to -16 LUFS;
@@ -43,21 +45,44 @@ def best_frames(sid, order):
     return []
 
 
-def subtitle(img, text, W, H, a=1.0):
+SUB_INK = (232, 236, 244)          # #E8ECF4 (E2 palette INK_1)
+SUB_BAR = (7, 11, 20)              # BG-0 #070B14 ...
+SUB_BAR_ALPHA = 0.55               # ... at 55 %
+SUB_ZONE = 0.85                    # subtitles live in the bottom 15 % of the frame
+SUB_DARK_LUMA = 20                 # subtitle zone darker than this (0-255) counts as a plain dark card
+ENGINES_2D = ("pillow", "manim")
+
+
+def needs_bar(img, W, H, engine):
+    """3D shots always get the bar; 2D frames only when the subtitle zone is not near-black."""
+    if engine not in ENGINES_2D:
+        return True
+    zone = img.convert("L").crop((int(0.1 * W), int(SUB_ZONE * H), int(0.9 * W), H))
+    hist = zone.histogram()
+    mean = sum(i * n for i, n in enumerate(hist)) / max(1, sum(hist))
+    return mean > SUB_DARK_LUMA
+
+
+def subtitle(img, text, W, H, a=1.0, bar=True):
     if not text or a <= 0:
         return img
     layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
-    f = font(int(H * 0.043))
-    tw = d.textlength(text, font=f)
-    x, y = (W - tw) / 2, H * 0.865
-    # a soft dark halo (stroked glyphs, blurred) keeps white type readable on pale studio shots too
-    sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(sh).text((x, y + H * 0.002), text, font=f, fill=(0, 0, 0, int(235 * a)),
-                            stroke_width=max(2, round(H * 0.004)), stroke_fill=(0, 0, 0, int(235 * a)))
-    layer.alpha_composite(sh.filter(ImageFilter.GaussianBlur(H * 0.005)))
-    layer.alpha_composite(sh.filter(ImageFilter.GaussianBlur(H * 0.0015)))
-    d.text((x, y), text, font=f, fill=(255, 255, 255, int(255 * a)))
+    size = int(H * 0.043)
+    f = font(size)
+    cx, cy = W / 2, H * 0.905                       # line centre; bar spans ~0.873H-0.937H, inside the bottom 15 %
+    l, t, r, b = d.textbbox((cx, cy), text, font=f, anchor="mm")
+    if bar:
+        px, py = 0.6 * size, 0.28 * size
+        d.rounded_rectangle((l - px, min(t, cy - size / 2) - py, r + px, max(b, cy + size / 2) + py),
+                            radius=max(1, round(4 * H / 1080)), fill=(*SUB_BAR, int(255 * SUB_BAR_ALPHA * a)))
+    else:
+        # plain dark 2D card: a soft dark halo (stroked glyphs, blurred) is enough
+        sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        ImageDraw.Draw(sh).text((cx, cy + H * 0.002), text, font=f, anchor="mm", fill=(0, 0, 0, int(235 * a)),
+                                stroke_width=max(2, round(H * 0.004)), stroke_fill=(0, 0, 0, int(235 * a)))
+        layer.alpha_composite(sh.filter(ImageFilter.GaussianBlur(H * 0.005)))
+    d.text((cx, cy), text, font=f, anchor="mm", fill=(*SUB_INK, int(255 * a)))
     return Image.alpha_composite(img.convert("RGBA"), layer)
 
 
@@ -84,6 +109,7 @@ def picture(shots, W, H, order, tmp, tail=0.0):
         b = round((s["start"] + s["duration"] - t_film0) * FPS)
         spans.append((s, a, b, best_frames(s["id"], order), label_for(s, mg)))
     cache = {}
+    bars = {}                                                        # shot id -> subtitle bar on / off (one decision per shot)
 
     def frame_of(span, f):
         s, a, b, fr, lab = span
@@ -116,7 +142,9 @@ def picture(shots, W, H, order, tmp, tail=0.0):
         cue = next((c for c in s.get("subs") or [] if c["start"] <= t < c["end"]), None)
         if cue:
             ca = min(1.0, (t - cue["start"]) * 8, (cue["end"] - t) * 8)
-            img = subtitle(img, cue["text"], W, H, ca)
+            if s["id"] not in bars:
+                bars[s["id"]] = needs_bar(img, W, H, s.get("engine"))
+            img = subtitle(img, cue["text"], W, H, ca, bar=bars[s["id"]])
         img.convert("RGB").save(os.path.join(tmp, f"{f:05d}.png"))
     # optional tail for a stand-alone cut: hold the last frame and fade it to black
     n_tail = round(tail * FPS)

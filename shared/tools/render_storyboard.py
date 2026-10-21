@@ -70,7 +70,7 @@ def main():
         styles.apply_style("photoreal")
     if hasattr(module, "after_style"):
         module.after_style(style, a.shot)
-    C.setup_compositor()
+    C.setup_compositor(no_glare=bool(spec.get("no_glare")))   # registry 逐镜 no_glare: true
     if any(o.particle_systems for o in bpy.data.objects if o.type == "MESH"):
         bpy.ops.ptcache.bake_all(bake=True)
 

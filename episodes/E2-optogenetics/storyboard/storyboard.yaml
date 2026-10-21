@@ -9,6 +9,7 @@ shots:
   facts:
   - F3b
   style: documentary
+  look: L2
   style_why: 冷开场先给 1979 年那条要求，用纪实纸页，不先上机制，也不提光。
   transition_in: fade
   visual: 暗室里一页泛黄纸，侧光只照亮其中一行；纸上是不可读的抽象行，不冒充原稿（示意 1979《科学美国人》一文，不是原件）。没有人脸，只有纸和灰尘。
@@ -38,6 +39,7 @@ shots:
   facts:
   - F3c
   style: hud
+  look: L3
   style_why: 1979 和 1999 之间不干跳：用一只暗的 HUD 并行记下微生物那条线，只给剪影和刻度，不开第二幕。
   transition_in: cut
   visual: 暗底 HUD，标题「微生物」。两条细轨道先后亮起：上轨是杆状古菌剪影，刻度「1981 · 古菌 · 盐视紫红质」；下轨是双鞭毛绿藻剪影，刻度「1991–1996 · 衣藻 · 微秒级光电流」。不画蛋白结构，不出现通道视紫红质、2002/2003，不开门。
@@ -67,6 +69,7 @@ shots:
   - F3b
   - F3
   style: type
+  look: L3
   style_why: 从讲座里的猜测到 1999 年落成文字，再到自嘲的停顿，都做成排版，不急着解释蛋白。
   transition_in: cut
   visual: 黑底上先浮出一行暗的「……也许是光？」（讲座里的猜测，不标年份）；它淡掉，换成「理想的信号会是光。」并注「Crick · 1999」；句子上移变暗，后面慢慢打出「相当牵强」，光标停住。
@@ -86,6 +89,7 @@ shots:
   vo: []
   facts: *id001
   style: documentary
+  look: L2
   style_why: 停顿要落回纸页，而不是继续打字。
   transition_in: cut
   visual: 纸页近景（示意 1999 一文，不是原件），被照亮的那一行慢慢暗下。写字的手不出现。
@@ -114,6 +118,7 @@ shots:
   - F3
   - F3b
   style: infographic
+  look: L3
   style_why: 把「只动一类细胞」画成可核对的选择，而不是口号。
   transition_in: cut
   visual: 一排简化神经元，只有中间一类被细线圈出，两侧保持灰色。图是示意，不标未核实的比例。
@@ -133,6 +138,7 @@ shots:
   vo: []
   facts: *id002
   style: clay
+  look: L1
   style_why: 被圈出的那一类细胞要能单独活动，白模看运动。
   transition_in: cut
   visual: 白模神经元里只有被圈的一类抬起放电，两侧不动。参数化神经元。
@@ -153,6 +159,7 @@ shots:
   facts: &id003
   - F1
   style: energy
+  look: L1
   style_why: 诺奖公告用光点名，能量图把三人从纸页里点亮，不画写实脸。
   transition_in: cut
   visual: 三个抽象光标依次亮起，字幕只写 Deisseroth、Hegemann、Nagel，以及 2026-10-05。没有肖像。
@@ -177,6 +184,7 @@ shots:
   vo: []
   facts: *id003
   style: type
+  look: L3
   style_why: 三个人名需要无肖像的停顿。
   transition_in: cut
   visual: 三个名字上下排列，没有第四行。
@@ -199,6 +207,7 @@ shots:
   - F3
   - F3b
   style: blueprint
+  look: L3
   style_why: 把缺口画成还没闭合的设计问题：有预言，有名单，中间缺开关。
   transition_in: cut
   visual: 蓝图上左侧是两行：上行「只动一类神经元」注「1979」，下行「理想的信号会是光」注「1999」；右侧是三个人名，中间一个空的方框标着「开关」。
@@ -218,6 +227,7 @@ shots:
   vo: []
   facts: *id004
   style: energy
+  look: L3
   style_why: 空着的开关用一道尚未接通的光表示。
   transition_in: cut
   visual: 方框里一道光走到一半熄灭。
@@ -239,6 +249,7 @@ shots:
   facts: &id005
   - F7
   style: type
+  look: L3
   style_why: 片名卡需要停住，排版比写实场景更干净。
   transition_in: cut
   visual: 黑场中央只有片名《光遗传学》，字停在画面里。
@@ -258,6 +269,7 @@ shots:
   vo: []
   facts: *id005
   style: energy
+  look: L3
   style_why: 片名之后留一束光，作为全片会回到的动机。
   transition_in: cut
   visual: 片名下一条细光横过，然后灭掉。
@@ -276,6 +288,7 @@ shots:
   vo: []
   facts: []
   style: sem
+  look: S
   style_why: 冷开场在纸页之前，先给一个微生物尺度的谜面，不解释。
   transition_in: cut
   visual: 电镜风格的一小片紫膜一闪而过，不标注年份。蛋白结构用参数化 Blender Python。
@@ -298,6 +311,7 @@ shots:
   - F1
   - F3c
   style: hud
+  look: L3
   style_why: 把冷开场的三个年份收进一只计时器：1979 的要求、1999 的光、2026 的名单。
   transition_in: cut
   visual: HUD 计数器 1979 → 1999 → 2026 三次翻牌，每个停一拍，最后停在暗处（不逐年滚动，中间不出现可读的年份）。刻度尺下方一条暗的细轨上有几颗不带字的小点，标微生物那条线（F3c），不写年份，不会被读成 Crick
@@ -319,6 +333,7 @@ shots:
   facts: &id006
   - F6
   style: xray
+  look: L1
   style_why: 第一幕要看见膜的里面：电压差和离子穿过膜。
   transition_in: cut
   visual: 参数化的细胞膜剖面。膜两侧电荷符号相反，几个离子穿过孔，膜电位曲线猛地翻上去再回来。核心结构用参数化 Blender Python。
@@ -338,6 +353,7 @@ shots:
   vo: []
   facts: *id006
   style: energy
+  look: L1
   style_why: 离子流本身要用能量图再看一眼，剖视已经交代了位置。
   transition_in: cut
   visual: 阳离子流入时膜电位发光，随后熄灭。参数化。
@@ -358,6 +374,7 @@ shots:
   facts: &id007
   - F2
   style: documentary
+  look: L2
   style_why: 把「只能记录、不能证明因果」放回实验室的真实动作。
   transition_in: cut
   visual: 风格化的记录场景：电极或屏幕上的活动痕迹，旁边一块组织示意被标记。不出现可辨认的人脸，也不出现血腥。
@@ -378,6 +395,7 @@ shots:
   vo: []
   facts: *id007
   style: infographic
+  look: L3
   style_why: 记录和损毁并成两种旧方法，都指向同一个缺口。
   transition_in: cut
   visual: 两个图标：记录、损毁。底下同一行：证明不了因果。
@@ -398,6 +416,7 @@ shots:
   facts: &id008
   - F2
   style: infographic
+  look: L3
   style_why: 相关和因果要并排对照，信息图比写实更不容易说满。
   transition_in: cut
   visual: 左右两栏。左栏「同时亮着」，右栏打一个问号：「是它造成的吗」。没有伪造的统计图。
@@ -417,6 +436,7 @@ shots:
   vo: []
   facts: *id008
   style: energy
+  look: L1
   style_why: 问号要落成可操作的动作：打开或按住。
   transition_in: cut
   visual: 一小群细胞被光点亮，又被另一束光按暗。
@@ -438,6 +458,7 @@ shots:
   - F3
   - F6
   style: hud
+  look: L3
   style_why: 毫秒和分钟的差别用计时读出来，观众才知道工具必须有多快。
   transition_in: cut
   visual: HUD 上两个计时器：一个跳在毫秒，一个慢走到分钟。只有毫秒那只被圈为可用。
@@ -457,6 +478,7 @@ shots:
   vo: []
   facts: *id009
   style: blueprint
+  look: L3
   style_why: 速度要求写成设计规格，而不是口号。
   transition_in: cut
   visual: 蓝图标题：只动一类、可开可关、毫秒。
@@ -477,6 +499,7 @@ shots:
   facts: &id010
   - F16
   style: clay
+  look: L1
   style_why: 早期方案是零件堆在一起还是不够快，白模适合讲组装失败。
   transition_in: cut
   visual: 白模工作台上，一串零件用箭头串成多步接力，旁边还有一个外加的化学开关。计时条停在毫秒之前。示意，不点名未单独核实的系统。
@@ -496,6 +519,7 @@ shots:
   vo: []
   facts: *id010
   style: blueprint
+  look: L3
   style_why: 多步方案的失败用图纸打叉，白模已经演过零件。
   transition_in: cut
   visual: 多步箭头的末端打叉，旁边写「达不到毫秒」。
@@ -516,6 +540,7 @@ shots:
   facts: &id011
   - F5
   style: energy
+  look: L1
   style_why: 答案收成一个蛋白、一道光，用能量而不是零件堆。
   transition_in: cut
   visual: 一个简化的七次跨膜蛋白，一束光打上，孔自己打开。参数化 Blender Python，不使用生成网格代替通道。
@@ -536,6 +561,7 @@ shots:
   vo: []
   facts: *id011
   style: clay
+  look: L1
   style_why: 单个蛋白要从零件堆里被单独拿出来。
   transition_in: cut
   visual: 白模桌上其他零件让开，只留一个跨膜蛋白。参数化。
@@ -556,6 +582,7 @@ shots:
   facts: &id012
   - F10
   style: xray
+  look: L1
   style_why: 食欲素实验要看见光纤到达下丘脑外侧，而不是抽象口号。
   transition_in: cut
   visual: 小鼠脑的风格化剖面，下丘脑外侧一小团细胞被标出。动物是示意模型，不写实、不血腥。周边小鼠形体可以日后用道具流程，本镜结构位置用参数化示意。
@@ -575,6 +602,7 @@ shots:
   vo: []
   facts: *id012
   style: infographic
+  look: L3
   style_why: 相关还是因果，用两列问题卡住。
   transition_in: cut
   visual: 左：和清醒有关。右：放电够不够。右列被圈出。
@@ -595,6 +623,7 @@ shots:
   facts: &id013
   - F10
   style: photoreal
+  look: L1
   style_why: 活体实验的「光送进去」需要一个可信的器物，而不是再画一张表。
   transition_in: cut
   visual: 风格化实验台，光纤头靠近脑表面的示意植入件，蓝光只在光纤末端。不生成写实人脸。道具是示意，检查点①不调用生成模型。
@@ -614,6 +643,7 @@ shots:
   vo: []
   facts: *id013
   style: hud
+  look: L3
   style_why: 脉冲频率是读数，1 Hz 和 5–30 Hz 必须分开。
   transition_in: cut
   visual: HUD：5–30 Hz 潜伏期缩短；1 Hz 不缩短。只使用论文里的这两个档。
@@ -632,6 +662,7 @@ shots:
   vo: []
   facts: []
   style: sem
+  look: S
   style_why: 第一幕结束前回到膜上的孔，提醒下一幕要找这个蛋白的来历。
   transition_in: cut
   visual: 参数化膜蛋白的显微模型，孔还关着。
@@ -650,6 +681,7 @@ shots:
   vo: []
   facts: []
   style: documentary
+  look: L2
   style_why: 食欲素实验的动物只留一个远景，避免停在读数上。
   transition_in: cut
   visual: 风格化小鼠在暗笼里，光纤是一根细线，不血腥。
@@ -670,6 +702,7 @@ shots:
   facts: &id014
   - F4
   style: sem
+  look: S
   style_why: 第二幕的来源是微生物膜，显微尺度先把观众带离神经科。
   transition_in: cut
   visual: 嗜盐古菌表面一片颜色更深的膜斑，像电镜里的一块补丁。紫膜按文献做成示意色块，不冒充原子分辨率照片。
@@ -689,6 +722,7 @@ shots:
   vo: []
   facts: *id014
   style: clay
+  look: L1
   style_why: 从神经科回到微生物，用白模膜片做转场。
   transition_in: cut
   visual: 一张膜片被放到镜头前，上面只有一种蛋白。参数化。
@@ -709,6 +743,7 @@ shots:
   facts: &id015
   - F4
   style: sem
+  look: L1
   style_why: 1971 年的发现是视黄醛绑在唯一的那种蛋白上，仍停在显微尺度。
   transition_in: cut
   visual: 膜斑放大：视黄醛小分子嵌在一种蛋白里，画面标注「膜片段里只有这一种蛋白」。蛋白用参数化 Blender Python。
@@ -728,6 +763,7 @@ shots:
   vo: []
   facts: *id015
   style: energy
+  look: L1
   style_why: 视黄醛感光是能量事件。
   transition_in: cut
   visual: 视黄醛在光下闪一下，蛋白骨架保持不动。参数化。
@@ -748,6 +784,7 @@ shots:
   facts: &id016
   - F4b
   style: energy
+  look: L1
   style_why: 1973 年要看见质子被泵出去，这是看不见的物理，不是外观。
   transition_in: cut
   visual: 同一蛋白在光照下把质子从一侧打到另一侧，吸收颜色从深色跳向浅色再回来。标注细菌视紫红质，质子泵。参数化。
@@ -768,6 +805,7 @@ shots:
   vo: []
   facts: *id016
   style: xray
+  look: L1
   style_why: 质子跨膜要看见膜的两侧，能量图之后补剖视。
   transition_in: cut
   visual: 膜两侧 pH 示意一高一低，质子留在一侧。参数化膜。
@@ -790,6 +828,7 @@ shots:
   - F5
   - F6
   style: blueprint
+  look: L3
   style_why: 泵和通道必须拆开讲，蓝图适合并排两种设计。
   transition_in: cut
   visual: 左图箭头逆着梯度，标「泵」。右图孔打开，离子顺梯度，标「通道」。两张都是参数化结构，不混成一个分子。
@@ -809,6 +848,7 @@ shots:
   vo: []
   facts: *id017
   style: clay
+  look: L1
   style_why: 两种分子不要在蓝图里停太久，白模把它们拆开拿在手里。
   transition_in: cut
   visual: 左手泵、右手通道，明确是两个物体。参数化。
@@ -829,6 +869,7 @@ shots:
   facts: &id018
   - F1
   style: photoreal
+  look: L1
   style_why: 衣藻是真实存在的生物，先给外形，再进分子。
   transition_in: cut
   visual: 一枚风格化的衣藻朝一束光游动，眼点是一个小色斑。细胞形态参数化，不做成不明生物。
@@ -848,6 +889,7 @@ shots:
   vo: []
   facts: *id018
   style: energy
+  look: L1
   style_why: 朝光游的原因先收成眼点上的一道电流。
   transition_in: cut
   visual: 眼点处一道快速电流，细胞转向光源。参数化。
@@ -868,6 +910,7 @@ shots:
   facts: &id019
   - F5
   style: blueprint
+  look: L3
   style_why: 2002 年的证据是异源表达：卵母细胞自己没有这套系统。
   transition_in: cut
   visual: 蓝图：衣藻蛋白的基因箭头指向一枚爪蟾卵母细胞，光打上后出现电流表偏转，离子标成质子。参数化膜和通道。
@@ -887,6 +930,7 @@ shots:
   vo: []
   facts: *id019
   style: sem
+  look: L1
   style_why: 卵母细胞实验之后，回到蛋白自己的尺度。
   transition_in: cut
   visual: 通道视紫红质一的显微风格模型，光只打开质子通路。参数化。
@@ -909,6 +953,7 @@ shots:
   - F16
   - F6
   style: clay
+  look: L1
   style_why: 「蛋白本身就够」要用组装语言：拿掉帮手，孔还在。
   transition_in: cut
   visual: 白模上先有感受器和孔两个零件，感受器被拿掉，只剩一段通道，光仍能打开电导。参数化通道，不用生成网格。
@@ -928,6 +973,7 @@ shots:
   vo: []
   facts: *id020
   style: xray
+  look: L1
   style_why: 只保留通道那一段，剖视看截短之后孔还在。
   transition_in: cut
   visual: 蛋白被裁到跨膜核心，电导仍在。参数化。
@@ -948,6 +994,7 @@ shots:
   facts: &id021
   - F5
   style: energy
+  look: L1
   style_why: ChR2 的物理是阳离子流入和去极化，能量图最直接。
   transition_in: cut
   visual: 蓝光打开通道视紫红质二，钠离子等阳离子流入，膜电位曲线上升。持续光照时电流从高峰落到平台。参数化。
@@ -968,6 +1015,7 @@ shots:
   vo: []
   facts: *id021
   style: hud
+  look: L3
   style_why: 去极化用一条上升的电压读出来。
   transition_in: cut
   visual: 电压计上跳，标注阳离子、蓝光、ChR2。
@@ -989,6 +1037,7 @@ shots:
   - F5
   - F6
   style: infographic
+  look: L3
   style_why: 脱敏是一条曲线，不是一句形容词。
   transition_in: cut
   visual: 电流对时间的示意曲线：尖峰后落到较低平台，标注「持续光照会脱敏」。不另造未核实的时间常数。
@@ -1008,6 +1057,7 @@ shots:
   vo: []
   facts: *id022
   style: energy
+  look: L1
   style_why: 平台期的门没有关死，只是开得更小。
   transition_in: cut
   visual: 通道口从大到小，光还在。参数化。
@@ -1028,6 +1078,7 @@ shots:
   facts: &id023
   - F6
   style: clay
+  look: L1
   style_why: 2005 年是培养神经元自己打出锋电位，白模适合看细胞被驱动。
   transition_in: cut
   visual: 培养皿里一枚参数化神经元。蓝光短脉冲，锋电位一根根对齐脉冲出现。Boyden 为第一作者的实验，细胞不用生成网格。
@@ -1047,6 +1098,7 @@ shots:
   vo: []
   facts: *id023
   style: hud
+  look: L3
   style_why: 毫秒脉冲和锋电位一一对应。
   transition_in: cut
   visual: 脉冲列和锋电位列对齐，不画未给出的频率上限。
@@ -1068,6 +1120,7 @@ shots:
   - F6
   - F1
   style: infographic
+  look: L3
   style_why: 两份名单必须分成两列，避免观众把第一作者听成得主。
   transition_in: cut
   visual: 左列论文署名：Boyden 第一，Deisseroth 通讯。右列 2026 新闻稿把这次发表记在 Deisseroth 名下。两列都保留。
@@ -1087,6 +1140,7 @@ shots:
   vo: []
   facts: *id024
   style: type
+  look: L3
   style_why: 第一作者四个字单独停一拍，避免和得主混。
   transition_in: cut
   visual: 一行字：第一作者 Boyden。下一行空着，不写得主。
@@ -1106,6 +1160,7 @@ shots:
   facts: &id025
   - F1
   style: type
+  look: L3
   style_why: 得主名单要用排版钉死，不靠旁白一带而过。
   transition_in: cut
   visual: 三行名字：Deisseroth、Hegemann、Nagel。第四行空着，不出现第四个得主。
@@ -1125,6 +1180,7 @@ shots:
   vo: []
   facts: *id025
   style: infographic
+  look: L3
   style_why: 三人名单和 Brain Prize 先别混，这里只钉诺奖。
   transition_in: cut
   visual: 2026 生理学或医学奖，三行，没有 Boyden。
@@ -1145,6 +1201,7 @@ shots:
   facts: &id026
   - F7
   style: documentary
+  look: L2
   style_why: 命名是一篇真实发表的杂志论文，不是后来的奖状。
   transition_in: cut
   visual: 2006 年《神经科学杂志》的风格化封面和目录，标题区出现 optogenetic。不复制受版权保护的版式细节，只作示意。
@@ -1165,6 +1222,7 @@ shots:
   vo: []
   facts: *id026
   style: type
+  look: L3
   style_why: 词本身要被看见。
   transition_in: cut
   visual: optogenetics 这个词逐字出现，年份 2006。
@@ -1185,6 +1243,7 @@ shots:
   facts: &id027
   - F8
   style: xray
+  look: L1
   style_why: 活体要看见光纤进到运动皮层，剖视回答位置。
   transition_in: cut
   visual: 啮齿动物头部剖面，光纤到达运动皮层，只在兴奋性神经元层有蓝光。脑和皮层用参数化结构；光纤器件是示意道具。
@@ -1204,6 +1263,7 @@ shots:
   vo: []
   facts: *id027
   style: photoreal
+  look: L1
   style_why: 光纤是器物，剖视之后给一个外表。
   transition_in: cut
   visual: 细光纤和示意固定件，蓝光只在尖端。检查点①不调用生成模型。
@@ -1225,6 +1285,7 @@ shots:
   - F1
   - F8
   style: hud
+  look: L3
   style_why: 新闻稿的「大约两年后」和论文的 2007 要对齐，用时间读数而不是口号。
   transition_in: cut
   visual: HUD 时间轴：2005 培养神经元，2007 光纤活体。两点之间不填未核实的月份。
@@ -1244,6 +1305,7 @@ shots:
   vo: []
   facts: *id028
   style: documentary
+  look: L1
   style_why: 活体小鼠的行为只给剪影级的结果。
   transition_in: cut
   visual: 风格化小鼠胡须或身体轻微偏转，不血腥，不写实眼部特写。
@@ -1264,6 +1326,7 @@ shots:
   facts: &id029
   - F8
   style: energy
+  look: L1
   style_why: NpHR 是相反方向的离子流，必须用能量图和 ChR2 分开。
   transition_in: cut
   visual: 黄光打在氯离子泵上，氯离子进入细胞，膜电位往下走，锋电位消失。蛋白参数化。
@@ -1284,6 +1347,7 @@ shots:
   vo: []
   facts: *id029
   style: blueprint
+  look: L3
   style_why: 氯离子泵的方向要画成和阳离子通道相反的箭头。
   transition_in: cut
   visual: 蓝图：黄光，氯离子向内，电压下降。参数化。
@@ -1305,6 +1369,7 @@ shots:
   - F8
   - F2
   style: infographic
+  look: L3
   style_why: 双向控制是一张对照，不是再演一次实验。
   transition_in: cut
   visual: 同一细胞的两行：蓝光开，黄光关。光谱两条分开的色带，不写未核实的纳米宽度以外的新数字。
@@ -1324,6 +1389,7 @@ shots:
   vo: []
   facts: *id030
   style: energy
+  look: L1
   style_why: 两种颜色同时存在，但打在不同蛋白上。
   transition_in: cut
   visual: 同一膜上两个蛋白，一蓝一黄，不同时误开。参数化。
@@ -1346,6 +1412,7 @@ shots:
   - F6
   - F17
   style: sem
+  look: L1
   style_why: ChrimsonR 是后继分子，显微尺度提醒它不是改名。
   transition_in: cut
   visual: 两个通道并排。左侧蓝光敏感，右侧更长波长。右侧标注 ChrimsonR，2021 用于人眼。结构参数化，不假装是晶体结构电影。
@@ -1365,6 +1432,7 @@ shots:
   vo: []
   facts: *id031
   style: infographic
+  look: L3
   style_why: 波长只做先后，不发明新的峰值。
   transition_in: cut
   visual: 箭头从蓝光通道指向更长波长的 ChrimsonR。
@@ -1385,6 +1453,7 @@ shots:
   facts: &id032
   - F14
   style: infographic
+  look: L3
   style_why: 六人奖和三人奖是计数问题，信息图比群像安全。
   transition_in: cut
   visual: 2013 Brain Prize 六个名字排成一行：Bamberg、Boyden、Deisseroth、Hegemann、Miesenböck、Nagel。没有肖像。
@@ -1404,6 +1473,7 @@ shots:
   vo: []
   facts: *id032
   style: type
+  look: L3
   style_why: 六个名字太长，排版让观众数得清。
   transition_in: cut
   visual: 六个人名分两列，不配照片。
@@ -1425,6 +1495,7 @@ shots:
   - F14
   - F1
   style: blueprint
+  look: L3
   style_why: 两份名单的差集要用设计图的方式圈出来。
   transition_in: cut
   visual: 六人框里圈出 Boyden、Bamberg、Miesenböck，箭头指向「不在 2026 诺奖三人里」。
@@ -1444,6 +1515,7 @@ shots:
   vo: []
   facts: *id033
   style: type
+  look: L3
   style_why: 差集用一句话收住。
   transition_in: cut
   visual: 大字：六人奖 ≠ 三人诺奖。
@@ -1462,6 +1534,7 @@ shots:
   vo: []
   facts: []
   style: xray
+  look: L1
   style_why: 第二幕收在双向开关的位置：两种蛋白在同一张膜上。
   transition_in: cut
   visual: 剖视膜上蓝敏通道和黄敏氯泵并排。参数化 Blender Python。
@@ -1480,6 +1553,7 @@ shots:
   vo: []
   facts: []
   style: clay
+  look: L1
   style_why: 把两种蛋白从膜上拆下来给观众看一眼零件。
   transition_in: cut
   visual: 白模两只蛋白分开托在镜头前。参数化。
@@ -1500,6 +1574,7 @@ shots:
   facts: &id034
   - F9
   style: energy
+  look: L1
   style_why: 第三幕打开记忆问题，先用光点出「选定的细胞」，还不进房间。
   transition_in: cut
   visual: 脑的示意里只有一小簇细胞被光标出，其余保持暗。标注对象是小鼠。参数化细胞，不写实。
@@ -1520,6 +1595,7 @@ shots:
   vo: []
   facts: *id034
   style: infographic
+  look: L3
   style_why: 这一幕只讲一件事，先把范围写成标题。
   transition_in: cut
   visual: 标题：小鼠海马。副题：不讲人体记忆操作。
@@ -1540,6 +1616,7 @@ shots:
   facts: &id035
   - F9
   style: clay
+  look: L1
   style_why: 标记的是环境甲里活跃过的齿状回细胞，白模讲步骤。
   transition_in: cut
   visual: 白模海马切片，齿状回一批细胞在环境甲中亮起，并被装上通道。结构参数化。环境只是色块，不建真实房间品牌。
@@ -1559,6 +1636,7 @@ shots:
   vo: []
   facts: *id035
   style: documentary
+  look: L2
   style_why: 环境甲只是一个地点，不是刑讯场面。
   transition_in: cut
   visual: 空的风格化笼箱，地面没有电击标记。
@@ -1579,6 +1657,7 @@ shots:
   facts: &id036
   - F9
   style: photoreal
+  look: L2
   style_why: 环境乙里的行为需要一个可辨认的地点，但动物保持风格化。
   transition_in: cut
   visual: 另一间空笼，地面有风格化的惊吓标记。光纤把那批来自甲的细胞重新点亮。小鼠是示意，不血腥，不写实毛发特写。
@@ -1598,6 +1677,7 @@ shots:
   vo: []
   facts: *id036
   style: energy
+  look: L1
   style_why: 被重新打开的是甲的那批细胞，用光标出身份。
   transition_in: cut
   visual: 细胞上仍带着环境甲的标记，在乙的笼里被光打开。参数化细胞。
@@ -1618,6 +1698,7 @@ shots:
   facts: &id037
   - F9
   style: documentary
+  look: L2
   style_why: 回到环境甲却冻结，这是行为结果，用纪实笼箱而不是分子。
   transition_in: cut
   visual: 回到第一间笼。没有电击标记。风格化小鼠停住、冻结。画面不出现血，也不把冻结画成痛苦特写。
@@ -1638,6 +1719,7 @@ shots:
   vo: []
   facts: *id037
   style: infographic
+  look: L3
   style_why: 冻结对上「甲里没有电击」。
   transition_in: cut
   visual: 两行：甲，无电击；实验组，冻结。
@@ -1658,6 +1740,7 @@ shots:
   facts: &id038
   - F9
   style: type
+  look: L3
   style_why: 必须把「写进去的是什么」说成句子，防止观众理解成改写人生。
   transition_in: cut
   visual: 屏幕上先出现被划掉的「一句话 / 一段人生」，换成「一批细胞的活动」。
@@ -1677,6 +1760,7 @@ shots:
   vo: []
   facts: *id038
   style: clay
+  look: L1
   style_why: 一批细胞被光再次打开，白模把「绑定」演成动作。
   transition_in: cut
   visual: 细胞组和环境甲的色块之间连上一条线。参数化细胞。
@@ -1698,6 +1782,7 @@ shots:
   - F9
   - F2
   style: hud
+  look: L3
   style_why: 因果演示的边界用读数标出来：小鼠有，人没有。
   transition_in: cut
   visual: HUD 两行状态：小鼠恐惧行为，已在实验中驱动；人体记忆操作：本研究不涉及。
@@ -1717,6 +1802,7 @@ shots:
   vo: []
   facts: *id039
   style: type
+  look: L3
   style_why: 边界句单独占一屏。
   transition_in: cut
   visual: 一行：没有说明同样的操作已经用在人身上。
@@ -1737,6 +1823,7 @@ shots:
   facts: &id040
   - F11
   style: xray
+  look: L1
   style_why: 视觉路线要看见视网膜里谁死了、谁还在。
   transition_in: cut
   visual: 参数化视网膜剖面。感光细胞层变稀，神经节细胞层还在，并被标成可转导。不用生成网格代替解剖结构。
@@ -1756,6 +1843,7 @@ shots:
   vo: []
   facts: *id040
   style: sem
+  look: L1
   style_why: 感光层和神经节层的尺度用显微风格再确认一次。
   transition_in: cut
   visual: 两层细胞，上层稀疏，下层仍密。参数化视网膜。
@@ -1776,6 +1864,7 @@ shots:
   facts: &id041
   - F11
   style: clay
+  look: L1
   style_why: 病毒、护目镜和神经节细胞是一套组装，白模先讲零件。
   transition_in: cut
   visual: 白模眼球剖面：玻璃体里一次注射，神经节细胞获得新通道；护目镜把外界变化变成视网膜上的光脉冲。眼球结构参数化，护目镜是示意道具。
@@ -1795,6 +1884,7 @@ shots:
   vo: []
   facts: *id041
   style: photoreal
+  look: L1
   style_why: 护目镜是观众认得的器物。
   transition_in: cut
   visual: 一副风格化护目镜，镜片里只有稀疏线框（叙事符号，不是设备显示或患者所见）。示意道具，不生成佩戴者的脸。
@@ -1815,6 +1905,7 @@ shots:
   facts: &id042
   - F11
   style: documentary
+  look: L1
   style_why: 患者能做什么、不能做什么，用纪实任务桌，不把视力画满。
   transition_in: cut
   visual: 桌面上几个简单的白色物体（白物暗底是画法；论文的测试物体有几档对比度，不只高对比）。第一人称只能在戴着护目镜时分辨它们的位置和个数。不生成患者的写实脸。
@@ -1835,6 +1926,7 @@ shots:
   vo: []
   facts: *id042
   style: xray
+  look: L1
   style_why: 物体看不见的条件要回到眼睛：没有护目镜就没有脉冲。
   transition_in: cut
   visual: 视网膜上的脉冲熄灭，神经节细胞还在，但不再被驱动。参数化。
@@ -1856,6 +1948,7 @@ shots:
   - F11
   - F1
   style: energy
+  look: L1
   style_why: 看见的是护目镜把亮度变化译成的光脉冲，不是日常照片。能量图把图像收成脉冲。
   transition_in: cut
   visual: 外界物体先变成稀疏光脉冲，再落到视网膜。画面始终是稀疏线框和光点（叙事符号，不是论文图，也不是患者所见），不溶成清晰照片。
@@ -1876,6 +1969,7 @@ shots:
   vo: []
   facts: *id043
   style: type
+  look: L3
   style_why: 部分恢复四个字需要停，避免听成恢复如初。
   transition_in: cut
   visual: 屏幕只留「部分功能恢复」和「离不开护目镜」。
@@ -1896,6 +1990,7 @@ shots:
   facts: &id044
   - F12
   style: infographic
+  look: L3
   style_why: 受理和未获批必须同时出现，信息图防止只记住产品名。
   transition_in: cut
   visual: 时间点 2026-09-09。MCO-010 / MOGENRY 一栏写「BLA 已受理」。另一栏写「尚未获批」。
@@ -1915,6 +2010,7 @@ shots:
   vo: []
   facts: *id044
   style: type
+  look: L3
   style_why: 如果获批四个字单独出现。
   transition_in: cut
   visual: 大字：如果获批。小字：当时尚未获批。
@@ -1935,6 +2031,7 @@ shots:
   facts: &id045
   - F12
   style: hud
+  look: L3
   style_why: 公司终点是公告里的读数，HUD 适合，同时标明这不是许可。
   transition_in: cut
   visual: 两周读数：第 52 周、第 76 周，视力终点达到；严重不良事件一栏为无治疗相关。底部一行：申请方公告，不是已生效许可。
@@ -1954,6 +2051,7 @@ shots:
   vo: []
   facts: *id045
   style: infographic
+  look: L3
   style_why: 周次是公告数字，信息图比 HUD 更适合和许可状态并列。
   transition_in: cut
   visual: 52 周与 76 周两格打勾，旁边一格写明不是许可。
@@ -1974,6 +2072,7 @@ shots:
   facts: &id046
   - F13
   style: documentary
+  look: L2
   style_why: GS030 的消息是一篇当天的医院与公司公告，用纪实纸页。
   transition_in: cut
   visual: 2026-10-08 的公告页风格化示意，标题区是 GS030 与 PIONEER，不复刻杂志内页版式。
@@ -1994,6 +2093,7 @@ shots:
   vo: []
   facts: *id046
   style: infographic
+  look: L3
   style_why: PIONEER 的身份是一期二期，先分类。
   transition_in: cut
   visual: 标签：1/2 期 · 安全为主 · 2026-10-08 公告。
@@ -2014,6 +2114,7 @@ shots:
   facts: &id047
   - F13
   style: type
+  look: L3
   style_why: 「不是为了确证疗效」要用大字停住，避免后面的数字被听成治愈。
   transition_in: cut
   visual: 黑底三行：安全性为主 / 非确证疗效设计 / 结果仍属探索性。
@@ -2033,6 +2134,7 @@ shots:
   vo: []
   facts: *id047
   style: infographic
+  look: L3
   style_why: 探索性不是装饰词，放进结果的标题。
   transition_in: cut
   visual: 结果栏的标题就是「探索性」。
@@ -2053,6 +2155,7 @@ shots:
   facts: &id048
   - F13
   style: infographic
+  look: L3
   style_why: 6/10 和 4/8 必须带分母，这是信息图的本职。
   transition_in: cut
   visual: 两行分数：光敏感 6/10；完成行为测试者中 4/8 在部分任务上有正向变化，且戴着护目镜。不写成全体患者。
@@ -2076,6 +2179,7 @@ shots:
   vo: []
   facts: *id048
   style: hud
+  look: L3
   style_why: 分数用读数，避免口播滑过去。
   transition_in: cut
   visual: 6/10 与 4/8 两行，分母保持可见。
@@ -2096,6 +2200,7 @@ shots:
   facts: &id049
   - F13
   style: blueprint
+  look: L3
   style_why: 没有上市许可是设计边界，用图章而不是庆祝。
   transition_in: cut
   visual: GS030 的框上盖一枚线稿章：任何司法辖区无上市许可。
@@ -2115,6 +2220,7 @@ shots:
   vo: []
   facts: *id049
   style: type
+  look: L3
   style_why: 无上市许可需要一句静止的话。
   transition_in: cut
   visual: 任何司法辖区都没有上市许可。
@@ -2135,6 +2241,7 @@ shots:
   facts: &id050
   - F15
   style: xray
+  look: L1
   style_why: 光学耳蜗只留一句，剖视耳蜗后立刻离开，不展开试验。
   transition_in: cut
   visual: 参数化耳蜗剖面里一根发光的示意阵列，随即淡出。不出现试验编号，不画成已经植入的商品。
@@ -2154,6 +2261,7 @@ shots:
   vo: []
   facts: *id050
   style: infographic
+  look: L3
   style_why: 一句耳蜗之后立刻回到边界，不给第二句。
   transition_in: cut
   visual: 只留一行：2023 综述 · 临床前 · 无人体疗效结果。
@@ -2174,6 +2282,7 @@ shots:
   facts: &id051
   - F5
   style: energy
+  look: L1
   style_why: 脱敏回到通道本身的物理极限。
   transition_in: cut
   visual: 通道视紫红质二在连续光下，电导从高峰掉到平台，门不再全开。参数化蛋白。
@@ -2194,6 +2303,7 @@ shots:
   vo: []
   facts: *id051
   style: infographic
+  look: L3
   style_why: 脱敏写成限制，而不是再讲一遍发现史。
   transition_in: cut
   visual: 限制 1：持续光照，通道疲劳。
@@ -2215,6 +2325,7 @@ shots:
   - F8
   - F11
   style: photoreal
+  look: L1
   style_why: 光必须送到细胞旁边，用两件真实器物收束：光纤和护目镜。
   transition_in: cut
   visual: 分屏。左：光纤末端的蓝光。右：护目镜摘下后，物体轮廓消失。两者都是示意道具，不生成人脸。
@@ -2234,6 +2345,7 @@ shots:
   vo: []
   facts: *id052
   style: blueprint
+  look: L3
   style_why: 光纤和护目镜是两种送光设计。
   transition_in: cut
   visual: 两张小蓝图：脑内光纤，眼外护目镜。
@@ -2256,6 +2368,7 @@ shots:
   - F12
   - F13
   style: infographic
+  look: L3
   style_why: 临床边界收成三行，防止最后一句又说满。
   transition_in: cut
   visual: 三行：部分功能且依赖装置；MCO-010 尚未获批；GS030 无上市许可，且研究不是为了确证疗效。
@@ -2275,6 +2388,7 @@ shots:
   vo: []
   facts: *id053
   style: type
+  look: L3
   style_why: 三行边界再停一拍，不加新数据。
   transition_in: cut
   visual: 部分、未获批、无许可，三行并列。
@@ -2293,6 +2407,7 @@ shots:
   vo: []
   facts: []
   style: blueprint
+  look: L3
   style_why: 临床三条路线收成一张还不封口的图纸。
   transition_in: cut
   visual: 三格线稿：小鼠记忆实验、部分视觉、耳蜗一句。耳蜗格打上临床前。
@@ -2311,6 +2426,7 @@ shots:
   vo: []
   facts: []
   style: photoreal
+  look: L1
   style_why: 护目镜摘下，轮廓消失，作为第三幕最后一个器物。
   transition_in: cut
   visual: 风格化护目镜放在桌上，镜片里没有清晰照片。不生成人脸。
@@ -2332,6 +2448,7 @@ shots:
   - F2
   - F8
   style: energy
+  look: L1
   style_why: 尾声先给开关做得到的事：开、关、因果。
   transition_in: cut
   visual: 同一类细胞被蓝光打开、被黄光关掉，旁边细胞保持暗。参数化通道和神经元。
@@ -2352,6 +2469,7 @@ shots:
   vo: []
   facts: *id054
   style: clay
+  look: L1
   style_why: 开和关是两个动作，白模演给尾声看。
   transition_in: cut
   visual: 同一神经元先被蓝光点亮，再被黄光按住。参数化。
@@ -2373,6 +2491,7 @@ shots:
   - F9
   - F11
   style: type
+  look: L3
   style_why: 做不到的两件事用排版划清，不新加实验。
   transition_in: cut
   visual: 两行被放下的句子：小鼠实验不等于某一个人的人生；部分视觉报告不等于失明结束。
@@ -2392,6 +2511,7 @@ shots:
   vo: []
   facts: *id055
   style: infographic
+  look: L3
   style_why: 做不到的范围用两格，不再叙述实验。
   transition_in: cut
   visual: 左格小鼠恐惧实验，右格「人体记忆：本研究不涉及」。
@@ -2412,6 +2532,7 @@ shots:
   facts: &id056
   - F3
   style: documentary
+  look: L2
   style_why: 回到开场那页纸，纪实收束，不预告别的题目。
   transition_in: cut
   visual: 再次看到那页纸和「相当牵强」。光线比开场稍亮，仍然没有人脸。
@@ -2432,6 +2553,7 @@ shots:
   vo: []
   facts: *id056
   style: type
+  look: L3
   style_why: 牵强两个字回到开场的语气。
   transition_in: cut
   visual: 「相当牵强」再次出现，字号更大。
@@ -2454,6 +2576,7 @@ shots:
   - F1
   - F3
   style: type
+  look: L3
   style_why: 最后一张片名卡，明确这一期结束。
   transition_in: cut
   visual: 片名《光遗传学》停住，下面没有下一期题目。
@@ -2473,6 +2596,7 @@ shots:
   vo: []
   facts: *id057
   style: energy
+  look: L1
   style_why: 结束在光熄灭，不接下一题。
   transition_in: cut
   visual: 细光灭掉，黑场，没有下集标题。
@@ -2491,6 +2615,7 @@ shots:
   vo: []
   facts: []
   style: infographic
+  look: L3
   style_why: 能与不能分成两列，尾声不再加新实验。
   transition_in: cut
   visual: 左列：打开或关掉选定细胞。右列：不是某人的人生，也不是失明结束。
@@ -2509,6 +2634,7 @@ shots:
   vo: []
   facts: []
   style: sem
+  look: S
   style_why: 最后用通道本身的尺度把开关交还，不预告下一题。
   transition_in: cut
   visual: 参数化通道视紫红质，光灭，孔合上。

@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), "blender", "scripts"))
 
 import build_retina as BR  # noqa: E402
 import e2_common as E  # noqa: E402
+import e2_palette as P  # noqa: E402
 import raw_overlay as R  # noqa: E402
 from mograph import ease, ease_out, seg, shot  # noqa: E402
 from overlay_labels import font  # noqa: E402
@@ -51,8 +52,8 @@ def c_01a(t, dur, W, H):
 # ---- C_07a：视网膜剖面 + 「可转导」 ------------------------------------------------------------
 C07_LABEL = "可转导"
 C07_ANCHOR = (2.3, -0.5, BR.layer_z("GCL"))           # c_scenes.retina：LabelAnchor_Transducible
-C07_INK = (22, 52, 128)                                # 深通道蓝：浅灰 xray 底上要深色字
-C07_PILL = (246, 248, 252)                             # 字后的浅色衬底，压住后面的树突和细胞点
+C07_INK = P.CHANNEL_GLOW                               # 通道蓝字：P0-3 后 C_07a 是 L1 暗棚，不再是浅灰 xray 底
+C07_PILL = P.BG_0                                      # 字后的暗衬底，压住后面的树突和细胞点
 
 
 @shot("C_07a")
@@ -114,8 +115,8 @@ def c_07a(t, dur, W, H):
 from a0 import HUD_BG, INK, _canvas, _done, _hud_frame, _mix, _scale, _stext, _warp, _zoom  # noqa: E402
 from overlay_labels import mono_font, serif_font  # noqa: E402
 
-TYPE_BG = (0, 0, 0)                                     # 排版卡：纯黑（同 A0_02a / A0_04b）
-INFO_BG = (8, 10, 16)                                   # 信息图：暗底（同 A0_03a）
+TYPE_BG = P.BG_0                                        # 排版卡：全片唯一的底（同 A0_02a / A0_04b）
+INFO_BG = P.BG_0                                        # 信息图：同一个底（同 A0_03a）
 HUD_LINE = _mix(E.MEMBRANE, HUD_BG, 0.45)               # HUD 框线（同 A0_01b / A0_92）
 HUD_INK = _mix(E.LINE, E.MEMBRANE, 0.25)                # HUD 读数字
 DIM = _scale(INK, 0.55)

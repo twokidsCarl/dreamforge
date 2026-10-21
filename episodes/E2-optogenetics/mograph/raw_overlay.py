@@ -12,14 +12,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), "blender", "scripts"))
 
 import e2_common as E  # noqa: E402
+import e2_palette as P  # noqa: E402
 from mograph import RENDERS  # noqa: E402
 from overlay_labels import font  # noqa: E402
 
 FPS = 24
 
 # 衬底配色：(字, 衬底, 衬底不透明度 0-255, 边线)
-DARK = (E.LINE, (8, 10, 16), 170, E.GREY)
-BLUEPRINT = ((222, 236, 255), (12, 52, 122), 215, (222, 236, 255))   # 与 a0.py 的 BP_LINE / BP_BG 同
+DARK = (E.LINE, P.BG_0, 170, E.GREY)
+BLUEPRINT = (P.SCHEMATIC_LINE, P.SCHEMATIC_BG, 215, P.SCHEMATIC_LINE)   # 与 a0.py 的 BP_LINE / BP_BG 同（schematic）
 
 
 def raw_frame(sid, f, W):

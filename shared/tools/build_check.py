@@ -88,7 +88,7 @@ def check(sid, spec, shot, quality, render):
         styles.apply_style(style, line_px=1.3 * C.PRESETS[quality][1] / 540)
     if hasattr(module, "after_style"):
         module.after_style(style, sid)
-    C.setup_compositor()
+    C.setup_compositor(no_glare=bool(spec.get("no_glare")))   # registry 逐镜 no_glare: true
     n = 1 if spec.get("hold") else max(1, round(shot["duration"] * FPS))
     seen = []
     for rel in sorted({1, (n + 1) // 2, n}):

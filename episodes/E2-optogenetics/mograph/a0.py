@@ -17,16 +17,18 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), "blender", "scripts"))
 
 import build_neuron as BN  # noqa: E402
 import e2_common as E  # noqa: E402
+import e2_palette as P  # noqa: E402
 from mograph import RENDERS, Canvas, ease, ease_out, seg, shot  # noqa: E402
 from overlay_labels import font, mono_font, serif_font  # noqa: E402
 
 SS = 2                                    # 超采样倍数
 FPS = 24
-BG = (6, 7, 11)
-INK = (238, 235, 226)                     # 排版的暖白
-BP_BG = (12, 52, 122)                     # 蓝图底（与 mograph 的 BLUE_BG 同）
-BP_GRID = (40, 88, 160)
-BP_LINE = (222, 236, 255)
+# 底色和字色全部取自 e2_palette（STYLE_REVIEW §4.2）。蓝图改成深海军 schematic，不再全幅铺饱和蓝。
+BG = P.BG_0
+INK = P.INK_1                             # 排版白
+BP_BG = P.SCHEMATIC_BG                    # schematic 底（取代蓝图蓝 #0C347A）
+BP_GRID = P.SCHEMATIC_GRID
+BP_LINE = P.SCHEMATIC_LINE
 
 # 盒子（「开关」）在 A0_05a 和 A0_05b 里位置相同（1080p 坐标）
 BOX = (790.0, 310.0, 1130.0, 650.0)
@@ -83,7 +85,7 @@ def _zoom(img, z):
 
 
 # ---- A0_01b：微生物那条线（HUD 剪影） ----------------------------------------------------------------
-HUD_BG = (5, 8, 9)
+HUD_BG = P.BG_0
 
 
 def _hud_frame(c, box, col, L=46, a=0.9):
@@ -151,7 +153,7 @@ def _quote_line(c, y, a):
 @shot("A0_02a")
 def a0_02a(t, dur, W, H):
     # 两句旁白：讲座里的猜测（不标年份）占前约 40%，1999 那句和「相当牵强」占后面；打字、光标仍从结尾倒推。
-    c = _canvas(W, H, (0, 0, 0))
+    c = _canvas(W, H, P.BG_0)
     q_at = 0.4 * dur                                              # 1999 那句进来（retime 后按 review_words 对齐）
     g_a = ease(seg(t, 0.3, 1.1)) * (1.0 - ease(seg(t, q_at - 0.6, q_at)))
     if g_a > 0:
@@ -215,7 +217,7 @@ def _draw_neuron(c, i, col, a, widen=1.0, glow=False):
 @shot("A0_03a")
 def a0_03a(t, dur, W, H):
     s = t   # 真实秒；按 review_words 对齐旁白：「打开」3.80 s、「关掉」4.82 s、「旁边的细胞大体不动」6.22 s（屏幕字跟旁白用同一说法）
-    c = _canvas(W, H, (8, 10, 16))
+    c = _canvas(W, H, P.BG_0)
     for i in range(E.NEURON_COUNT):
         circled = i in E.NEURON_CIRCLED
         a_in = ease(seg(s, 0.05 + 0.05 * i, 0.75 + 0.05 * i))
@@ -290,7 +292,7 @@ def a0_04a(t, dur, W, H):
 # ---- A0_04b ------------------------------------------------------------------------------------
 @shot("A0_04b")
 def a0_04b(t, dur, W, H):
-    c = _canvas(W, H, (0, 0, 0))
+    c = _canvas(W, H, P.BG_0)
     for i, name in enumerate(E.LIGHT_NAMES):
         a = ease(seg(t, 0.04 + 0.07 * i, 0.3 + 0.07 * i))
         _stext(c, (960, 400 + 100 * i), name, 62, INK, a, anchor="mm", glow=0.2)
@@ -362,7 +364,7 @@ def a0_05a(t, dur, W, H):
 @shot("A0_05b")
 def a0_05b(t, dur, W, H):
     s = _warp(t, dur, 1.35)
-    c = _canvas(W, H, (0, 0, 0))
+    c = _canvas(W, H, P.BG_0)
     _dashed_rect(c, BOX, E.LINE, 3, 1.0, a=0.42)
     x_in, x_mid, y = BOX[0] + 16, BOX_C[0], BOX_C[1]
     run = ease(seg(s, 0.12, 0.78))                                # 从左走到一半
@@ -389,7 +391,7 @@ BEAM_Y = 640
 
 
 def _title_canvas(W, H, a):
-    c = _canvas(W, H, (0, 0, 0))
+    c = _canvas(W, H, P.BG_0)
     f = serif_font(int(c.px(TITLE_SIZE)))
     gap = 36                                                      # 字距（1080p 像素）
     ws = [c.d.textlength(ch, font=f) / c.px(1) for ch in TITLE]
@@ -415,7 +417,7 @@ def a0_06a(t, dur, W, H):
 def a0_06b(t, dur, W, H):
     s = _warp(t, dur, 1.35)
     base = _title(W, H, 1.0)                                      # 与 A0_06a 末帧逐像素一致
-    c = _canvas(W, H, (0, 0, 0))
+    c = _canvas(W, H, P.BG_0)
     run = ease(seg(s, 0.1, 0.85))
     fade = 1.0 - ease(seg(s, 0.8, 1.25))
     if fade > 0 and s >= 0.1:

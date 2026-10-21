@@ -2,27 +2,30 @@
 
 纯 Python，不 import bpy：Blender 场景（blender/shots/a0_scenes.py）和 2D 镜头（mograph/a0.py）都从这里取值，
 同一个数在两边只写一次（WORKFLOW 8.1：共用位置用常量，不在各镜头里硬写）。
-颜色来源：storyboard/page.yaml 的 accents（通道蓝 / 抑制琥珀 / 膜青）；蓝 = 打开，琥珀 = 关掉。
+颜色来源：mograph/e2_palette.py（Deep Lab 调色板，page.yaml 的 accents 与它一致）；蓝 = 打开，琥珀 = 关掉。
 """
 import math
 import os
+import sys
 
-# ---- 配色（sRGB 0-255）---------------------------------------------------------------------
-CHANNEL = (142, 175, 255)        # #8eafff 通道蓝（亮）：打开
-CHANNEL_DEEP = (47, 111, 224)    # #2f6fe0 通道蓝（深）
-AMBER = (255, 193, 77)           # #ffc14d 抑制琥珀：关掉
-MEMBRANE = (93, 222, 196)        # #5ddec4 膜青
-LINE = (236, 240, 248)           # 线稿白
-GREY = (150, 158, 178)           # 未动的细胞
-BLACK = (4, 5, 8)
+# 调色板在 mograph/e2_palette.py（2D、3D 共用，STYLE_REVIEW §4.2）。Blender 里 mograph/ 不在 sys.path 上，这里补上。
+_MOGRAPH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "mograph")
+if _MOGRAPH not in sys.path:
+    sys.path.append(_MOGRAPH)
+import e2_palette as P  # noqa: E402
 
+# ---- 配色（sRGB 0-255，全部取自 e2_palette）------------------------------------------------------
+CHANNEL = P.CHANNEL_GLOW         # #8eafff 通道蓝（亮）：打开
+CHANNEL_DEEP = P.CHANNEL_DEEP    # #2f6fe0 通道蓝（深）
+AMBER = P.AMBER                  # #ffb547 抑制琥珀：关掉
+MEMBRANE = P.MEMBRANE            # #4fd1b5 膜青
+RETINAL = P.RETINAL              # #b784ff 视黄醛紫：发色团、紫膜
+CORAL = P.CORAL                  # #f2766b 警示珊瑚：只用于「未获批 / 无许可」
+LINE = P.INK_1                   # 线稿白 / 正文白
+GREY = P.INK_2                   # 未动的细胞
+BLACK = P.BG_0                   # 全片唯一的「黑」
 
-def srgb_to_linear(c):
-    """0-255 sRGB 三元组 -> 线性 0-1（Blender 材质、灯光用）。"""
-    def f(v):
-        v /= 255.0
-        return v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4
-    return tuple(f(v) for v in c[:3])
+srgb_to_linear = P.linear        # 0-255 sRGB 三元组 -> 线性 0-1（Blender 材质、灯光用）
 
 
 # ---- 字体（跨平台）--------------------------------------------------------------------------

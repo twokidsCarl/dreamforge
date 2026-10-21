@@ -443,7 +443,7 @@ def cycles(sc, spp, bounces=4, clamp=4.0):
 
 def after_style_common(sc, style):
     """各模块 after_style 的公共部分：EEVEE 风格化镜头关掉光追（只有发光和描边，没必要）；
-    纪实 / 真实渲染镜头用 Cycles 低采样 + 降噪，并加纪实的细颗粒和暗角。"""
+    纪实 / 真实渲染镜头用 Cycles 低采样 + 降噪，并加纪实的细颗粒和暗角；L2 纪实和 S 电镜关 bloom。"""
     if sc.render.engine == "CYCLES":
         cycles(sc, {"preview": 24, "sample": 48, "final": 64})
         if style in ("documentary", "photoreal"):
@@ -452,6 +452,8 @@ def after_style_common(sc, style):
         sc.eevee.use_raytracing = False
     if style == "sem":
         sc["dispersion"], sc["film_grain"], sc["vignette"] = 0.0, 0.5, 0.55
+    if style == "documentary":
+        sc["no_glare"] = True                     # L2 Document 不开 bloom（STYLE_REVIEW §4.3 技术参数 2）
 
 
 # ---- 膜电位 / 电流曲线（A_01a、B_08a、B_10a、B_16a 等）------------------------------------------
