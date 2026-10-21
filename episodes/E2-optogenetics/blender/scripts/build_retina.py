@@ -173,18 +173,19 @@ def build_retina(name, width=6.0, depth=1.0, photoreceptor_density=1.0, dying_gr
     photoreceptors = _mesh_object(f"{name}_Photoreceptors", keep_bm, root, m_("pr"), "structure", tag)
     dying = [_mesh_object(f"{name}_Dying{k}", g, root, m_("pr"), "structure", tag) for k, g in enumerate(groups)]
 
-    # 内核层：双极 / 水平 / 无长突细胞胞体（两三排小球），加双极细胞的上下突起
+    # 内核层：双极 / 水平 / 无长突细胞胞体；双极细胞显式串起 ONL→INL→IPL（P0-6）
     bm = bmesh.new()
     i0, i1 = zs["INL"]
+    ipl_mid = (zs["IPL"][0] + zs["IPL"][1]) / 2
     for k in range(int(width / 0.12)):
         for row in range(3):
             x = -width / 2 + (k + 0.5) * 0.12 + rnd.uniform(-0.03, 0.03)
             y = rnd.uniform(-depth / 2 + 0.05, depth / 2 - 0.05)
             z = i0 + (i1 - i0) * (0.22 + 0.28 * row) + rnd.uniform(-0.02, 0.02)
-            _ball_into(bm, (x, y, z), 0.036, sub=1, scale=(1, 1, 1.15))
-            if row == 1 and k % 2 == 0:                                         # 双极细胞：上连 OPL，下连 IPL
-                _cyl_into(bm, (x, y, z), (x, y, zs["OPL"][0] + 0.04), 0.008, 0.006, seg=5)
-                _cyl_into(bm, (x, y, zs["IPL"][0] + 0.1), (x, y, z), 0.006, 0.008, seg=5)
+            _ball_into(bm, (x, y, z), 0.038, sub=2, scale=(1, 1, 1.15))
+            if row == 1:  # 中排胞体做成双极：上连 ONL，下连 IPL
+                _cyl_into(bm, (x, y, zs["ONL"][0] + 0.06), (x, y, z), 0.010, 0.007, seg=6)
+                _cyl_into(bm, (x, y, z), (x, y, ipl_mid), 0.007, 0.009, seg=6)
     inl = _mesh_object(f"{name}_INL", bm, root, m_("inl"), "structure", tag)
 
     # 神经节细胞：每个一个胞体（可单独打光晕），树突伸进 IPL，轴突拐进 NFL 往 +x 走（汇向视盘的方向，示意）
@@ -299,42 +300,116 @@ def _cap(name, parent, mat, role, tag, R, th0, th1, thick, c=(0, 0, 0), axis_sca
 
 
 def eyeball_section(name, loc=(0, 0, 0), mat=None, retina_color=(0.55, 0.69, 1.0), tag=None):
-    """半个眼球（y ≥ 0）：巩膜、视网膜（后 3/4 内壁，带一层可发光的神经节细胞带）、角膜、虹膜、晶状体、玻璃体、视神经。
-    返回 dict(root, sclera, retina, rgc_band, rgc_mat, cornea, iris, lens, vitreous, nerve, center, R)。光轴沿 +X（角膜在 -X）。"""
+    """半个眼球（y ≥ 0）：巩膜、脉络膜、视网膜、神经节细胞带、角膜、虹膜、睫状体、悬韧带、
+    双凸晶状体、玻璃体（默认隐藏，clay 下会变实心块）、带鞘视神经、视盘、黄斑。
+    返回 dict(...)。光轴沿 +X（角膜在 -X）。"""
     import bpy
+    import bmesh
     import e2_shot as S
     tag = tag or (lambda o, r: o)
     root = bpy.data.objects.new(name, None)
     bpy.context.scene.collection.objects.link(root)
     root.location = loc
     R = EYE_R
-    front = math.radians(148)                     # 巩膜在角膜缘处止（θ 从 +X 轴量起；角膜在 θ = π 一侧）
+    front = math.radians(148)
     sclera = _cap(f"{name}_Sclera", root, mat, "structure", tag, R, 0.0, front, 0.06)
+    # 脉络膜：巩膜与视网膜之间的红棕带（emitter 保色，不被 clay 换掉）
+    choroid = _cap(f"{name}_Choroid", root, S.glow(f"{name}_ChoroidMat", (0.32, 0.07, 0.04), 0.85),
+                   "emitter", tag, R - 0.035, 0.0, math.radians(140), 0.028)
     retina = _cap(f"{name}_Retina", root, mat, "structure", tag, R - 0.07, 0.0, math.radians(118), 0.035)
+    # RGC：离散光点贴在视网膜内壁，共用一个 glow mat（避免整块平涂蓝盘）
     rgc_mat = S.glow(f"{name}_RGCMat", retina_color, 0.0)
-    rgc = _cap(f"{name}_RGCBand", root, rgc_mat, "emitter", tag, R - 0.112, math.radians(6), math.radians(115), 0.012)
-    # 角膜：曲率半径更小的一块，向前凸出
+    rgc_spots = []
+    rr = R - 0.105
+    for i, th in enumerate([math.radians(a) for a in (18, 32, 48, 62, 78, 95, 40, 70)]):
+        for j, ph in enumerate((0.35, 0.7, 1.05, 1.4, 1.75)):
+            if (i + j) % 2 == 0 and j == 4:
+                continue
+            x = rr * math.cos(th)
+            y = rr * math.sin(th) * math.sin(ph)
+            z = rr * math.sin(th) * math.cos(ph)
+            if y < 0.02:
+                continue
+            sp = S.sphere(f"{name}_RGC{i}_{j}", 0.045 + 0.01 * ((i + j) % 3), (x, y, z),
+                          rgc_mat, "emitter", seg=16, rings=10)
+            sp.parent = root
+            rgc_spots.append(sp)
+    rgc = rgc_spots[0] if rgc_spots else None  # 兼容旧字段：动画改 mat 强度即可
     cr = R * 0.66
     cc = (-R * math.cos(math.pi - front) + cr * math.cos(math.radians(40)) - 0.02, 0, 0)
     cornea = _cap(f"{name}_Cornea", root, mat, "shell", tag, cr, math.radians(140), math.pi, 0.04, c=cc)
-    # 虹膜：角膜后的环（瞳孔开口），晶状体：双凸椭球（只建半个）
     xi = -R * 0.80
-    import bmesh
     bm = bmesh.new()
-    rin, rout, nseg = 0.22, R * 0.62, 24
+    rin, rout, nseg = 0.22, R * 0.58, 28
     for j in range(nseg):
         a0, a1 = math.pi * j / nseg, math.pi * (j + 1) / nseg
         vs = [bm.verts.new((xi, r * math.sin(a), r * math.cos(a))) for r, a in ((rin, a0), (rout, a0), (rout, a1), (rin, a1))]
         bm.faces.new(vs)
     iris = _mesh_object(f"{name}_Iris", bm, root, mat, "structure", tag)
     s = iris.modifiers.new("Solid", "SOLIDIFY")
-    s.thickness = 0.03
-    lens = _cap(f"{name}_Lens", root, mat, "structure", tag, 0.42, 0.0, math.pi, 0.0, c=(xi + 0.2, 0, 0), axis_scale=(0.62, 1, 1))  # v5: 双凸更厚
-    vit = _cap(f"{name}_Vitreous", root, mat, "shell", tag, R - 0.12, 0.0, math.radians(125), 0.0)
-    nerve = S.cylinder(f"{name}_OpticNerve", 0.17, 0.7, (R + 0.3, 0.0, -0.18), mat, "structure", rot=(0, math.pi / 2, 0))
-    nerve.parent = root
-    return {"root": root, "sclera": sclera, "retina": retina, "rgc_band": rgc, "rgc_mat": rgc_mat, "cornea": cornea,
-            "iris": iris, "lens": lens, "vitreous": vit, "nerve": nerve, "center": loc, "R": R}
+    s.thickness = 0.035
+    # 睫状体：虹膜根部后方一圈稍厚的三角环（剖面里是两三个小鼓包）
+    bm = bmesh.new()
+    ciliary_x = xi + 0.06
+    for j in range(nseg):
+        a0, a1 = math.pi * j / nseg, math.pi * (j + 1) / nseg
+        r_in, r_out = R * 0.52, R * 0.70
+        # 三角截面：前尖后钝
+        pts = [
+            (ciliary_x - 0.04, r_in * math.sin(a0), r_in * math.cos(a0)),
+            (ciliary_x + 0.08, r_out * math.sin(a0), r_out * math.cos(a0)),
+            (ciliary_x + 0.02, r_in * math.sin(a0), r_in * math.cos(a0)),
+            (ciliary_x - 0.04, r_in * math.sin(a1), r_in * math.cos(a1)),
+            (ciliary_x + 0.08, r_out * math.sin(a1), r_out * math.cos(a1)),
+            (ciliary_x + 0.02, r_in * math.sin(a1), r_in * math.cos(a1)),
+        ]
+        vs = [bm.verts.new(p) for p in pts]
+        try:
+            bm.faces.new((vs[0], vs[1], vs[4], vs[3]))
+            bm.faces.new((vs[1], vs[2], vs[5], vs[4]))
+            bm.faces.new((vs[0], vs[2], vs[5], vs[3]))
+        except ValueError:
+            pass
+    ciliary = _mesh_object(f"{name}_Ciliary", bm, root,
+                           S.glow(f"{name}_CiliaryMat", (0.55, 0.18, 0.10), 0.55), "emitter", tag)
+    # 晶状体：更厚的双凸
+    lens = _cap(f"{name}_Lens", root, mat, "structure", tag, 0.40, 0.0, math.pi, 0.0,
+                c=(xi + 0.22, 0, 0), axis_scale=(0.70, 1.0, 1.0))
+    # 悬韧带：睫状突 → 晶状体赤道的细丝（剖面可见 7–9 根）
+    zonules = []
+    lens_eq_x = xi + 0.22
+    zon_mat = S.glow(f"{name}_ZonuleMat", (0.92, 0.88, 0.78), 0.35)
+    for k in range(11):
+        a = math.pi * (0.08 + 0.84 * k / 10)
+        y, z = 0.36 * math.sin(a), 0.36 * math.cos(a)
+        p0 = (ciliary_x + 0.03, y * 1.45, z * 1.45)
+        p1 = (lens_eq_x + 0.02, y * 1.0, z * 1.0)
+        mid = ((p0[0] + p1[0]) / 2 + 0.01, (p0[1] + p1[1]) / 2, (p0[2] + p1[2]) / 2)
+        zobj = S.tube(f"{name}_Zonule{k}", [p0, mid, p1], 0.011, zon_mat, "emitter", res=1)
+        zobj.parent = root
+        zonules.append(zobj)
+    # 玻璃体：默认隐藏（clay 会把它变成实心蓝/黑块）；调用方可再显示
+    vit = _cap(f"{name}_Vitreous", root, mat, "shell", tag, R - 0.14, 0.0, math.radians(120), 0.0)
+    vit.hide_render = vit.hide_viewport = True
+    # 视神经：内芯 + 稍粗的鞘，从后极收窄伸出
+    nerve_core = S.cylinder(f"{name}_OpticNerve", 0.12, 0.85, (R + 0.35, 0.0, -0.18), mat, "structure",
+                            rot=(0, math.pi / 2, 0))
+    nerve_core.parent = root
+    nerve_sheath = S.cylinder(f"{name}_OpticSheath", 0.20, 0.55, (R + 0.18, 0.0, -0.18), mat, "structure",
+                              rot=(0, math.pi / 2, 0))
+    nerve_sheath.parent = root
+    # 视盘 / 黄斑（emitter 保色）
+    disc = S.sphere(f"{name}_OpticDisc", 0.11, (R - 0.09, 0.02, -0.18),
+                    S.glow(f"{name}_OpticDiscMat", (1.0, 0.86, 0.55), 1.3), "emitter", seg=20, rings=12)
+    disc.parent = root
+    macula = S.sphere(f"{name}_Macula", 0.08, (R - 0.10, 0.02, 0.12),
+                      S.glow(f"{name}_MaculaMat", (0.55, 0.28, 0.06), 0.9), "emitter", seg=20, rings=12)
+    macula.parent = root
+    return {"root": root, "sclera": sclera, "choroid": choroid, "retina": retina, "rgc_band": rgc,
+            "rgc_spots": rgc_spots, "rgc_mat": rgc_mat, "cornea": cornea, "iris": iris,
+            "ciliary": ciliary, "zonules": zonules, "lens": lens, "vitreous": vit,
+            "nerve": nerve_core, "nerve_sheath": nerve_sheath, "optic_disc": disc,
+            "macula": macula, "center": loc, "R": R}
 
 
 def injection_path(eye, entry_deg=132, depth=0.55):

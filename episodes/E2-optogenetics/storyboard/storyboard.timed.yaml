@@ -1,4 +1,3 @@
-# v5: topic-turn holds 1.65 (gap~2.75s), intra 0.25 (gap~1.35s), F5 lecture line.
 shots:
 - id: A0_01a
   segment: A0
@@ -57,7 +56,8 @@ shots:
   style: hud
   style_why: 1979 和 1999 之间不干跳：用一只暗的 HUD 并行记下微生物那条线，只给剪影和刻度，不开第二幕。
   transition_in: cut
-  visual: 暗底 HUD，标题「微生物」。两条细轨道先后亮起：上轨是杆状古菌剪影，刻度「1981 · 古菌 · 盐视紫红质」；下轨是双鞭毛绿藻剪影，刻度「1991–1996 · 衣藻 · 微秒级光电流」。不画蛋白结构，不出现通道视紫红质、2002/2003，不开门。
+  visual: 暗底 HUD，标题「微生物」。两条细轨道先后亮起：上轨是杆状古菌剪影，刻度「1981 · 古菌 · 盐视紫红质」；下轨是双鞭毛绿藻剪影，刻度「1991–1996
+    · 衣藻 · 微秒级光电流」。不画蛋白结构，不出现通道视紫红质、2002/2003，不开门。
   overlays:
   - text: 1981 · 古菌 · 盐视紫红质
     facts:
@@ -142,8 +142,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id001
-  style: documentary
-  style_why: 停顿要落回纸页，而不是继续打字。
+  style: type
+  style_why: '停顿要落回纸页，而不是继续打字。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 纸页近景（示意 1999 一文，不是原件），被照亮的那一行慢慢暗下。写字的手不出现。
   overlays:
@@ -206,8 +206,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id002
-  style: clay
-  style_why: 被圈出的那一类细胞要能单独活动，白模看运动。
+  style: infographic
+  style_why: '被圈出的那一类细胞要能单独活动，白模看运动。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 白模神经元里只有被圈的一类抬起放电，两侧不动。参数化神经元。
   camera:
@@ -273,8 +273,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id003
-  style: type
-  style_why: 三个人名需要无肖像的停顿。
+  style: energy
+  style_why: '三个人名需要无肖像的停顿。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 三个名字上下排列，没有第四行。
   camera:
@@ -334,8 +334,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id004
-  style: energy
-  style_why: 空着的开关用一道尚未接通的光表示。
+  style: blueprint
+  style_why: '空着的开关用一道尚未接通的光表示。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 方框里一道光走到一半熄灭。
   camera:
@@ -387,8 +387,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id005
-  style: energy
-  style_why: 片名之后留一束光，作为全片会回到的动机。
+  style: type
+  style_why: '片名之后留一束光，作为全片会回到的动机。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 片名下一条细光横过，然后灭掉。
   camera:
@@ -434,8 +434,8 @@ shots:
   style: hud
   style_why: 把冷开场的三个年份收进一只计时器：1979 的要求、1999 的光、2026 的名单。
   transition_in: cut
-  visual: HUD 计数器 1979 → 1999 → 2026 三次翻牌，每个停一拍，最后停在暗处（不逐年滚动，中间不出现可读的年份）。刻度尺下方一条暗的细轨上有几颗不带字的小点，标微生物那条线（F3c），不写年份，不会被读成 Crick
-    的年份。不写相差年数。
+  visual: HUD 计数器 1979 → 1999 → 2026 三次翻牌，每个停一拍，最后停在暗处（不逐年滚动，中间不出现可读的年份）。刻度尺下方一条暗的细轨上有几颗不带字的小点，标微生物那条线（F3c），不写年份，不会被读成
+    Crick 的年份。不写相差年数。
   camera:
     move: locked-off
     lens_mm: 50
@@ -489,8 +489,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id006
-  style: energy
-  style_why: 离子流本身要用能量图再看一眼，剖视已经交代了位置。
+  style: xray
+  style_why: '离子流本身要用能量图再看一眼，剖视已经交代了位置。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 阳离子流入时膜电位发光，随后熄灭。参数化。
   camera:
@@ -552,8 +552,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id007
-  style: infographic
-  style_why: 记录和损毁并成两种旧方法，都指向同一个缺口。
+  style: documentary
+  style_why: '记录和损毁并成两种旧方法，都指向同一个缺口。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 两个图标：记录、损毁。底下同一行：证明不了因果。
   camera:
@@ -614,8 +614,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id008
-  style: energy
-  style_why: 问号要落成可操作的动作：打开或按住。
+  style: infographic
+  style_why: '问号要落成可操作的动作：打开或按住。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 一小群细胞被光点亮，又被另一束光按暗。
   camera:
@@ -674,8 +674,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id009
-  style: blueprint
-  style_why: 速度要求写成设计规格，而不是口号。
+  style: hud
+  style_why: '速度要求写成设计规格，而不是口号。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 蓝图标题：只动一类、可开可关、毫秒。
   camera:
@@ -739,8 +739,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id010
-  style: blueprint
-  style_why: 多步方案的失败用图纸打叉，白模已经演过零件。
+  style: clay
+  style_why: '多步方案的失败用图纸打叉，白模已经演过零件。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 多步箭头的末端打叉，旁边写「达不到毫秒」。
   camera:
@@ -796,8 +796,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id011
-  style: clay
-  style_why: 单个蛋白要从零件堆里被单独拿出来。
+  style: energy
+  style_why: '单个蛋白要从零件堆里被单独拿出来。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 白模桌上其他零件让开，只留一个跨膜蛋白。参数化。
   camera:
@@ -861,8 +861,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id012
-  style: infographic
-  style_why: 相关还是因果，用两列问题卡住。
+  style: xray
+  style_why: '相关还是因果，用两列问题卡住。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 左：和清醒有关。右：放电够不够。右列被圈出。
   camera:
@@ -932,8 +932,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id013
-  style: hud
-  style_why: 脉冲频率是读数，1 Hz 和 5–30 Hz 必须分开。
+  style: photoreal
+  style_why: '脉冲频率是读数，1 Hz 和 5–30 Hz 必须分开。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: HUD：5–30 Hz 潜伏期缩短；1 Hz 不缩短。只使用论文里的这两个档。
   camera:
@@ -1026,8 +1026,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id014
-  style: clay
-  style_why: 从神经科回到微生物，用白模膜片做转场。
+  style: sem
+  style_why: '从神经科回到微生物，用白模膜片做转场。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 一张膜片被放到镜头前，上面只有一种蛋白。参数化。
   camera:
@@ -1091,8 +1091,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id015
-  style: energy
-  style_why: 视黄醛感光是能量事件。
+  style: sem
+  style_why: '视黄醛感光是能量事件。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 视黄醛在光下闪一下，蛋白骨架保持不动。参数化。
   camera:
@@ -1160,8 +1160,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id016
-  style: xray
-  style_why: 质子跨膜要看见膜的两侧，能量图之后补剖视。
+  style: energy
+  style_why: '质子跨膜要看见膜的两侧，能量图之后补剖视。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 膜两侧 pH 示意一高一低，质子留在一侧。参数化膜。
   camera:
@@ -1236,8 +1236,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id017
-  style: clay
-  style_why: 两种分子不要在蓝图里停太久，白模把它们拆开拿在手里。
+  style: blueprint
+  style_why: '两种分子不要在蓝图里停太久，白模把它们拆开拿在手里。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 左手泵、右手通道，明确是两个物体。参数化。
   camera:
@@ -1295,8 +1295,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id018
-  style: energy
-  style_why: 朝光游的原因先收成眼点上的一道电流。
+  style: photoreal
+  style_why: '朝光游的原因先收成眼点上的一道电流。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 眼点处一道快速电流，细胞转向光源。参数化。
   camera:
@@ -1369,8 +1369,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id019
-  style: sem
-  style_why: 卵母细胞实验之后，回到蛋白自己的尺度。
+  style: blueprint
+  style_why: '卵母细胞实验之后，回到蛋白自己的尺度。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 通道视紫红质一的显微风格模型，光只打开质子通路。参数化。
   camera:
@@ -1454,8 +1454,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id020
-  style: xray
-  style_why: 只保留通道那一段，剖视看截短之后孔还在。
+  style: clay
+  style_why: '只保留通道那一段，剖视看截短之后孔还在。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 蛋白被裁到跨膜核心，电导仍在。参数化。
   camera:
@@ -1523,8 +1523,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id021
-  style: hud
-  style_why: 去极化用一条上升的电压读出来。
+  style: energy
+  style_why: '去极化用一条上升的电压读出来。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 电压计上跳，标注阳离子、蓝光、ChR2。
   camera:
@@ -1595,8 +1595,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id022
-  style: energy
-  style_why: 平台期的门没有关死，只是开得更小。
+  style: infographic
+  style_why: '平台期的门没有关死，只是开得更小。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 通道口从大到小，光还在。参数化。
   camera:
@@ -1672,8 +1672,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id023
-  style: hud
-  style_why: 毫秒脉冲和锋电位一一对应。
+  style: clay
+  style_why: '毫秒脉冲和锋电位一一对应。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 脉冲列和锋电位列对齐，不画未给出的频率上限。
   camera:
@@ -1729,8 +1729,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id024
-  style: type
-  style_why: 第一作者四个字单独停一拍，避免和得主混。
+  style: infographic
+  style_why: '第一作者四个字单独停一拍，避免和得主混。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 一行字：第一作者 Boyden。下一行空着，不写得主。
   camera:
@@ -1772,8 +1772,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id025
-  style: infographic
-  style_why: 三人名单和 Brain Prize 先别混，这里只钉诺奖。
+  style: type
+  style_why: '三人名单和 Brain Prize 先别混，这里只钉诺奖。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 2026 生理学或医学奖，三行，没有 Boyden。
   camera:
@@ -1838,8 +1838,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id026
-  style: type
-  style_why: 词本身要被看见。
+  style: documentary
+  style_why: '词本身要被看见。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: optogenetics 这个词逐字出现，年份 2006。
   camera:
@@ -1909,8 +1909,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id027
-  style: photoreal
-  style_why: 光纤是器物，剖视之后给一个外表。
+  style: xray
+  style_why: '光纤是器物，剖视之后给一个外表。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 细光纤和示意固定件，蓝光只在尖端。检查点①不调用生成模型。
   camera:
@@ -1969,8 +1969,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id028
-  style: documentary
-  style_why: 活体小鼠的行为只给剪影级的结果。
+  style: hud
+  style_why: '活体小鼠的行为只给剪影级的结果。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 风格化小鼠胡须或身体轻微偏转，不血腥，不写实眼部特写。
   camera:
@@ -2038,8 +2038,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id029
-  style: blueprint
-  style_why: 氯离子泵的方向要画成和阳离子通道相反的箭头。
+  style: energy
+  style_why: '氯离子泵的方向要画成和阳离子通道相反的箭头。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 蓝图：黄光，氯离子向内，电压下降。参数化。
   camera:
@@ -2107,8 +2107,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id030
-  style: energy
-  style_why: 两种颜色同时存在，但打在不同蛋白上。
+  style: infographic
+  style_why: '两种颜色同时存在，但打在不同蛋白上。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 同一膜上两个蛋白，一蓝一黄，不同时误开。参数化。
   camera:
@@ -2171,8 +2171,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id031
-  style: infographic
-  style_why: 波长只做先后，不发明新的峰值。
+  style: sem
+  style_why: '波长只做先后，不发明新的峰值。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 箭头从蓝光通道指向更长波长的 ChrimsonR。
   camera:
@@ -2230,8 +2230,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id032
-  style: type
-  style_why: 六个名字太长，排版让观众数得清。
+  style: infographic
+  style_why: '六个名字太长，排版让观众数得清。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 六个人名分两列，不配照片。
   camera:
@@ -2290,8 +2290,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id033
-  style: type
-  style_why: 差集用一句话收住。
+  style: blueprint
+  style_why: '差集用一句话收住。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 大字：六人奖 ≠ 三人诺奖。
   camera:
@@ -2388,8 +2388,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id034
-  style: infographic
-  style_why: 这一幕只讲一件事，先把范围写成标题。
+  style: energy
+  style_why: '这一幕只讲一件事，先把范围写成标题。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 标题：小鼠海马。副题：不讲人体记忆操作。
   camera:
@@ -2453,8 +2453,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id035
-  style: documentary
-  style_why: 环境甲只是一个地点，不是刑讯场面。
+  style: clay
+  style_why: '环境甲只是一个地点，不是刑讯场面。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 空的风格化笼箱，地面没有电击标记。
   camera:
@@ -2518,8 +2518,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id036
-  style: energy
-  style_why: 被重新打开的是甲的那批细胞，用光标出身份。
+  style: photoreal
+  style_why: '被重新打开的是甲的那批细胞，用光标出身份。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 细胞上仍带着环境甲的标记，在乙的笼里被光打开。参数化细胞。
   camera:
@@ -2581,8 +2581,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id037
-  style: infographic
-  style_why: 冻结对上「甲里没有电击」。
+  style: documentary
+  style_why: '冻结对上「甲里没有电击」。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 两行：甲，无电击；实验组，冻结。
   camera:
@@ -2643,8 +2643,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id038
-  style: clay
-  style_why: 一批细胞被光再次打开，白模把「绑定」演成动作。
+  style: type
+  style_why: '一批细胞被光再次打开，白模把「绑定」演成动作。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 细胞组和环境甲的色块之间连上一条线。参数化细胞。
   camera:
@@ -2712,8 +2712,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id039
-  style: type
-  style_why: 边界句单独占一屏。
+  style: hud
+  style_why: '边界句单独占一屏。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 一行：没有说明同样的操作已经用在人身上。
   camera:
@@ -2777,8 +2777,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id040
-  style: sem
-  style_why: 感光层和神经节层的尺度用显微风格再确认一次。
+  style: xray
+  style_why: '感光层和神经节层的尺度用显微风格再确认一次。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 两层细胞，上层稀疏，下层仍密。参数化视网膜。
   camera:
@@ -2854,8 +2854,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id041
-  style: photoreal
-  style_why: 护目镜是观众认得的器物。
+  style: clay
+  style_why: '护目镜是观众认得的器物。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 一副风格化护目镜，镜片里只有稀疏线框（叙事符号，不是设备显示或患者所见）。示意道具，不生成佩戴者的脸。
   camera:
@@ -2923,8 +2923,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id042
-  style: xray
-  style_why: 物体看不见的条件要回到眼睛：没有护目镜就没有脉冲。
+  style: documentary
+  style_why: '物体看不见的条件要回到眼睛：没有护目镜就没有脉冲。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 视网膜上的脉冲熄灭，神经节细胞还在，但不再被驱动。参数化。
   camera:
@@ -3002,8 +3002,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id043
-  style: type
-  style_why: 部分恢复四个字需要停，避免听成恢复如初。
+  style: energy
+  style_why: '部分恢复四个字需要停，避免听成恢复如初。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 屏幕只留「部分功能恢复」和「离不开护目镜」。
   camera:
@@ -3067,8 +3067,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id044
-  style: type
-  style_why: 如果获批四个字单独出现。
+  style: infographic
+  style_why: '如果获批四个字单独出现。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 大字：如果获批。小字：当时尚未获批。
   camera:
@@ -3132,8 +3132,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id045
-  style: infographic
-  style_why: 周次是公告数字，信息图比 HUD 更适合和许可状态并列。
+  style: hud
+  style_why: '周次是公告数字，信息图比 HUD 更适合和许可状态并列。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 52 周与 76 周两格打勾，旁边一格写明不是许可。
   camera:
@@ -3195,8 +3195,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id046
-  style: infographic
-  style_why: PIONEER 的身份是一期二期，先分类。
+  style: documentary
+  style_why: 'PIONEER 的身份是一期二期，先分类。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 标签：1/2 期 · 安全为主 · 2026-10-08 公告。
   camera:
@@ -3257,8 +3257,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id047
-  style: infographic
-  style_why: 探索性不是装饰词，放进结果的标题。
+  style: type
+  style_why: '探索性不是装饰词，放进结果的标题。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 结果栏的标题就是「探索性」。
   camera:
@@ -3338,8 +3338,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id048
-  style: hud
-  style_why: 分数用读数，避免口播滑过去。
+  style: infographic
+  style_why: '分数用读数，避免口播滑过去。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 6/10 与 4/8 两行，分母保持可见。
   camera:
@@ -3394,8 +3394,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id049
-  style: type
-  style_why: 无上市许可需要一句静止的话。
+  style: blueprint
+  style_why: '无上市许可需要一句静止的话。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 任何司法辖区都没有上市许可。
   camera:
@@ -3450,8 +3450,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id050
-  style: infographic
-  style_why: 一句耳蜗之后立刻回到边界，不给第二句。
+  style: xray
+  style_why: '一句耳蜗之后立刻回到边界，不给第二句。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 只留一行：2023 综述 · 临床前 · 无人体疗效结果。
   camera:
@@ -3510,8 +3510,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id051
-  style: infographic
-  style_why: 脱敏写成限制，而不是再讲一遍发现史。
+  style: energy
+  style_why: '脱敏写成限制，而不是再讲一遍发现史。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 限制 1：持续光照，通道疲劳。
   camera:
@@ -3573,8 +3573,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id052
-  style: blueprint
-  style_why: 光纤和护目镜是两种送光设计。
+  style: photoreal
+  style_why: '光纤和护目镜是两种送光设计。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 两张小蓝图：脑内光纤，眼外护目镜。
   camera:
@@ -3637,8 +3637,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id053
-  style: type
-  style_why: 三行边界再停一拍，不加新数据。
+  style: infographic
+  style_why: '三行边界再停一拍，不加新数据。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 部分、未获批、无许可，三行并列。
   camera:
@@ -3736,8 +3736,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id054
-  style: clay
-  style_why: 开和关是两个动作，白模演给尾声看。
+  style: energy
+  style_why: '开和关是两个动作，白模演给尾声看。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 同一神经元先被蓝光点亮，再被黄光按住。参数化。
   camera:
@@ -3802,8 +3802,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id055
-  style: infographic
-  style_why: 做不到的范围用两格，不再叙述实验。
+  style: type
+  style_why: '做不到的范围用两格，不再叙述实验。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 左格小鼠恐惧实验，右格「人体记忆：本研究不涉及」。
   camera:
@@ -3859,8 +3859,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id056
-  style: type
-  style_why: 牵强两个字回到开场的语气。
+  style: documentary
+  style_why: '牵强两个字回到开场的语气。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 「相当牵强」再次出现，字号更大。
   camera:
@@ -3922,8 +3922,8 @@ shots:
   duration: 0.4
   vo: []
   facts: *id057
-  style: energy
-  style_why: 结束在光熄灭，不接下一题。
+  style: type
+  style_why: '结束在光熄灭，不接下一题。 [v6: hold of a, style matched]'
   transition_in: cut
   visual: 细光灭掉，黑场，没有下集标题。
   camera:

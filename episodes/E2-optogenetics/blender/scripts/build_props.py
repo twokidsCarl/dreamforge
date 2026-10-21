@@ -52,12 +52,40 @@ def _parent(obs, root):
 
 # ---- 笼箱 ------------------------------------------------------------------------------------
 # TODO(prop): 可换 Tripo/Meshy 道具（先在 research/visual/assets.yaml 记录）
+def _cage_floor_mat(name, tint):
+    """笼箱垫面：底色 + 细噪点 + 轻微明暗，避免平涂粉/青色块。"""
+    import bpy
+    if name in bpy.data.materials:
+        return bpy.data.materials[name]
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    nt.nodes.clear()
+    out = nt.nodes.new("ShaderNodeOutputMaterial"); out.location = (400, 0)
+    bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled"); bsdf.location = (120, 0)
+    bsdf.inputs["Roughness"].default_value = 0.72
+    bsdf.inputs["Metallic"].default_value = 0.0
+    noise = nt.nodes.new("ShaderNodeTexNoise"); noise.location = (-400, 40)
+    noise.inputs["Scale"].default_value = 38.0
+    noise.inputs["Detail"].default_value = 8.0
+    noise.inputs["Roughness"].default_value = 0.55
+    ramp = nt.nodes.new("ShaderNodeValToRGB"); ramp.location = (-180, 40)
+    ramp.color_ramp.elements[0].position = 0.35
+    ramp.color_ramp.elements[0].color = (*tuple(max(0, c * 0.55) for c in tint), 1)
+    ramp.color_ramp.elements[1].position = 0.72
+    ramp.color_ramp.elements[1].color = (*tuple(min(1, c * 1.15 + 0.04) for c in tint), 1)
+    nt.links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
+    nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return m
+
+
 def cage(name, loc=(0, 0, 0), size=(0.42, 0.26, 0.22), shock_marks=False, floor_tint=(0.5, 0.5, 0.5), tag=None):
     """透明塑料笼箱：底面（structure，floor_tint 是环境色块）+ 四面薄壁和顶框（shell）。
     shock_marks=True 时地面上有几道风格化的锯齿标记（emitter 很弱的琥珀色，示意「这里有电击」）。"""
     w, d, h = size
     root = _root(name, loc)
-    floor_m = _mat(name + "FloorMat", floor_tint, 0.8)
+    floor_m = _cage_floor_mat(name + "FloorMat", floor_tint)
     wall_m = _mat("CagePlastic", (0.85, 0.9, 0.95), 0.08, alpha=0.18, transmission=0.9)
     floor = S.box(name + "Floor", (0, 0, 0.004), (w, d, 0.008), floor_m, "structure", bevel=0.003)
     walls = []

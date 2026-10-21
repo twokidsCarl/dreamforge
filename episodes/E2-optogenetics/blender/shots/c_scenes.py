@@ -343,15 +343,7 @@ def eye(sc, rnd, **_):
         S.set_strength(e["rgc_mat"], f + 22, 0.42)
         f += 14
         k += 1
-    # v4 P0-6 min: vitreous 勿被 clay 换成实心块；机位改 3/4；护目镜拉近
-    # v5 P0-6 min: 玻璃体整块隐藏（clay 下会变成黑块 / 平涂蓝块），露出视网膜内壁和神经节细胞带；
-    # 机位抬高成 3/4 俯视，看进眼杯；护目镜拉近缩小
-    # v5 P0-6 min：补脉络膜（红棕带）、视盘（淡黄）、黄斑（暗琥珀）——clay 只换 structure/shell，emitter 保色
-    import bmesh as _bm
-    ch = BR._cap("Eye_Choroid", e["root"], S.glow("ChoroidMat", (0.32, 0.07, 0.04), 0.9), "emitter", styles.tag,
-                 BR.EYE_R - 0.03, 0.0, math.radians(146), 0.03)
-    S.sphere("Eye_OpticDisc", 0.1, (BR.EYE_R - 0.1, 0.02, -0.18), S.glow("OpticDiscMat", (1.0, 0.86, 0.55), 1.4), "emitter", seg=20, rings=12)
-    S.sphere("Eye_Macula", 0.075, (BR.EYE_R - 0.11, 0.02, 0.1), S.glow("MaculaMat", (0.55, 0.28, 0.06), 1.0), "emitter", seg=20, rings=12)
+    # v6 P0-6: eyeball_section 已含脉络膜/睫状体/悬韧带/视盘/黄斑/带鞘视神经；玻璃体默认隐藏
     vit = e.get("vitreous")
     if vit is not None:
         vit.hide_render = vit.hide_viewport = True
@@ -359,7 +351,8 @@ def eye(sc, rnd, **_):
     g["root"].location = (-1.85, 0.2, 0.05)
     g["root"].scale = (0.72, 0.72, 0.72)
     S.studio_lights(0.55, (0.4, -0.6, 0.5))
-    S.dolly("CamC_08a", (-0.3, 0.0, 0.0), (0.4, -5.6, 3.0), (0.2, -4.4, 2.3), 1, n, lens=42, aim1=(-0.2, 0.0, 0.0))
+    # 3/4 俯视，看进眼杯：能读出晶状体、睫状体、悬韧带、视网膜内壁、视神经
+    S.dolly("CamC_08a", (-0.25, 0.0, 0.05), (0.55, -5.2, 3.4), (0.15, -4.0, 2.5), 1, n, lens=40, aim1=(-0.15, 0.0, 0.0))
 
 
 # ---- goggles：C_08b / C_92 ----------------------------------------------------------------
@@ -570,7 +563,8 @@ def cochlea(sc, rnd, **_):
     S.set_strength(m, _f(sid, 0.45), 6.0)
     S.set_strength(m, _f(sid, 0.65), 0.0)                       # 随即淡出
     S.studio_lights(1.2, (0, 0, 2.0))
-    S.dolly("CamC_17a", (0.0, 0.0, 2.0), (0.0, -15.5, 5.2), (0.0, -12.5, 4.0), 1, n, lens=50)
+    # v6 P0-6: 改 3/4 偏正视，读得出螺旋（原正侧俯视螺旋挤成一条线）
+    S.dolly("CamC_17a", (0.0, 0.0, 1.6), (4.8, -11.5, 6.5), (3.2, -9.0, 5.0), 1, n, lens=45, aim1=(0.2, 0.0, 1.4))
 
 
 # ---- desens：C_18a -------------------------------------------------------------------------

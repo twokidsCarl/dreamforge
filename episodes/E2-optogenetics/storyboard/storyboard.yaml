@@ -1,4 +1,3 @@
-# Merged by tools/storyboard_check.py from storyboard/parts/*.yaml — edit the parts.
 shots:
 - id: A0_01a
   segment: A0
@@ -42,7 +41,8 @@ shots:
   look: L3
   style_why: 1979 和 1999 之间不干跳：用一只暗的 HUD 并行记下微生物那条线，只给剪影和刻度，不开第二幕。
   transition_in: cut
-  visual: 暗底 HUD，标题「微生物」。两条细轨道先后亮起：上轨是杆状古菌剪影，刻度「1981 · 古菌 · 盐视紫红质」；下轨是双鞭毛绿藻剪影，刻度「1991–1996 · 衣藻 · 微秒级光电流」。不画蛋白结构，不出现通道视紫红质、2002/2003，不开门。
+  visual: 暗底 HUD，标题「微生物」。两条细轨道先后亮起：上轨是杆状古菌剪影，刻度「1981 · 古菌 · 盐视紫红质」；下轨是双鞭毛绿藻剪影，刻度「1991–1996
+    · 衣藻 · 微秒级光电流」。不画蛋白结构，不出现通道视紫红质、2002/2003，不开门。
   overlays:
   - text: 1981 · 古菌 · 盐视紫红质
     facts:
@@ -88,7 +88,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id001
-  style: documentary
+  style: type
   look: L2
   style_why: 停顿要落回纸页，而不是继续打字。
   transition_in: cut
@@ -137,7 +137,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id002
-  style: clay
+  style: infographic
   look: L1
   style_why: 被圈出的那一类细胞要能单独活动，白模看运动。
   transition_in: cut
@@ -183,7 +183,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id003
-  style: type
+  style: energy
   look: L3
   style_why: 三个人名需要无肖像的停顿。
   transition_in: cut
@@ -226,7 +226,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id004
-  style: energy
+  style: blueprint
   look: L3
   style_why: 空着的开关用一道尚未接通的光表示。
   transition_in: cut
@@ -268,7 +268,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id005
-  style: energy
+  style: type
   look: L3
   style_why: 片名之后留一束光，作为全片会回到的动机。
   transition_in: cut
@@ -314,8 +314,8 @@ shots:
   look: L3
   style_why: 把冷开场的三个年份收进一只计时器：1979 的要求、1999 的光、2026 的名单。
   transition_in: cut
-  visual: HUD 计数器 1979 → 1999 → 2026 三次翻牌，每个停一拍，最后停在暗处（不逐年滚动，中间不出现可读的年份）。刻度尺下方一条暗的细轨上有几颗不带字的小点，标微生物那条线（F3c），不写年份，不会被读成 Crick
-    的年份。不写相差年数。
+  visual: HUD 计数器 1979 → 1999 → 2026 三次翻牌，每个停一拍，最后停在暗处（不逐年滚动，中间不出现可读的年份）。刻度尺下方一条暗的细轨上有几颗不带字的小点，标微生物那条线（F3c），不写年份，不会被读成
+    Crick 的年份。不写相差年数。
   camera:
     move: locked-off
     lens_mm: 50
@@ -352,7 +352,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id006
-  style: energy
+  style: xray
   look: L1
   style_why: 离子流本身要用能量图再看一眼，剖视已经交代了位置。
   transition_in: cut
@@ -394,7 +394,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id007
-  style: infographic
+  style: documentary
   look: L3
   style_why: 记录和损毁并成两种旧方法，都指向同一个缺口。
   transition_in: cut
@@ -435,7 +435,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id008
-  style: energy
+  style: infographic
   look: L1
   style_why: 问号要落成可操作的动作：打开或按住。
   transition_in: cut
@@ -477,7 +477,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id009
-  style: blueprint
+  style: hud
   look: L3
   style_why: 速度要求写成设计规格，而不是口号。
   transition_in: cut
@@ -518,7 +518,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id010
-  style: blueprint
+  style: clay
   look: L3
   style_why: 多步方案的失败用图纸打叉，白模已经演过零件。
   transition_in: cut
@@ -560,7 +560,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id011
-  style: clay
+  style: energy
   look: L1
   style_why: 单个蛋白要从零件堆里被单独拿出来。
   transition_in: cut
@@ -601,7 +601,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id012
-  style: infographic
+  style: xray
   look: L3
   style_why: 相关还是因果，用两列问题卡住。
   transition_in: cut
@@ -642,7 +642,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id013
-  style: hud
+  style: photoreal
   look: L3
   style_why: 脉冲频率是读数，1 Hz 和 5–30 Hz 必须分开。
   transition_in: cut
@@ -721,7 +721,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id014
-  style: clay
+  style: sem
   look: L1
   style_why: 从神经科回到微生物，用白模膜片做转场。
   transition_in: cut
@@ -762,7 +762,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id015
-  style: energy
+  style: sem
   look: L1
   style_why: 视黄醛感光是能量事件。
   transition_in: cut
@@ -804,7 +804,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id016
-  style: xray
+  style: energy
   look: L1
   style_why: 质子跨膜要看见膜的两侧，能量图之后补剖视。
   transition_in: cut
@@ -847,7 +847,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id017
-  style: clay
+  style: blueprint
   look: L1
   style_why: 两种分子不要在蓝图里停太久，白模把它们拆开拿在手里。
   transition_in: cut
@@ -888,7 +888,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id018
-  style: energy
+  style: photoreal
   look: L1
   style_why: 朝光游的原因先收成眼点上的一道电流。
   transition_in: cut
@@ -929,7 +929,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id019
-  style: sem
+  style: blueprint
   look: L1
   style_why: 卵母细胞实验之后，回到蛋白自己的尺度。
   transition_in: cut
@@ -972,7 +972,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id020
-  style: xray
+  style: clay
   look: L1
   style_why: 只保留通道那一段，剖视看截短之后孔还在。
   transition_in: cut
@@ -1014,7 +1014,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id021
-  style: hud
+  style: energy
   look: L3
   style_why: 去极化用一条上升的电压读出来。
   transition_in: cut
@@ -1056,7 +1056,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id022
-  style: energy
+  style: infographic
   look: L1
   style_why: 平台期的门没有关死，只是开得更小。
   transition_in: cut
@@ -1097,7 +1097,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id023
-  style: hud
+  style: clay
   look: L3
   style_why: 毫秒脉冲和锋电位一一对应。
   transition_in: cut
@@ -1139,7 +1139,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id024
-  style: type
+  style: infographic
   look: L3
   style_why: 第一作者四个字单独停一拍，避免和得主混。
   transition_in: cut
@@ -1179,7 +1179,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id025
-  style: infographic
+  style: type
   look: L3
   style_why: 三人名单和 Brain Prize 先别混，这里只钉诺奖。
   transition_in: cut
@@ -1221,7 +1221,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id026
-  style: type
+  style: documentary
   look: L3
   style_why: 词本身要被看见。
   transition_in: cut
@@ -1262,7 +1262,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id027
-  style: photoreal
+  style: xray
   look: L1
   style_why: 光纤是器物，剖视之后给一个外表。
   transition_in: cut
@@ -1304,7 +1304,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id028
-  style: documentary
+  style: hud
   look: L1
   style_why: 活体小鼠的行为只给剪影级的结果。
   transition_in: cut
@@ -1346,7 +1346,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id029
-  style: blueprint
+  style: energy
   look: L3
   style_why: 氯离子泵的方向要画成和阳离子通道相反的箭头。
   transition_in: cut
@@ -1388,7 +1388,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id030
-  style: energy
+  style: infographic
   look: L1
   style_why: 两种颜色同时存在，但打在不同蛋白上。
   transition_in: cut
@@ -1431,7 +1431,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id031
-  style: infographic
+  style: sem
   look: L3
   style_why: 波长只做先后，不发明新的峰值。
   transition_in: cut
@@ -1472,7 +1472,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id032
-  style: type
+  style: infographic
   look: L3
   style_why: 六个名字太长，排版让观众数得清。
   transition_in: cut
@@ -1514,7 +1514,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id033
-  style: type
+  style: blueprint
   look: L3
   style_why: 差集用一句话收住。
   transition_in: cut
@@ -1594,7 +1594,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id034
-  style: infographic
+  style: energy
   look: L3
   style_why: 这一幕只讲一件事，先把范围写成标题。
   transition_in: cut
@@ -1635,7 +1635,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id035
-  style: documentary
+  style: clay
   look: L2
   style_why: 环境甲只是一个地点，不是刑讯场面。
   transition_in: cut
@@ -1676,7 +1676,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id036
-  style: energy
+  style: photoreal
   look: L1
   style_why: 被重新打开的是甲的那批细胞，用光标出身份。
   transition_in: cut
@@ -1718,7 +1718,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id037
-  style: infographic
+  style: documentary
   look: L3
   style_why: 冻结对上「甲里没有电击」。
   transition_in: cut
@@ -1759,7 +1759,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id038
-  style: clay
+  style: type
   look: L1
   style_why: 一批细胞被光再次打开，白模把「绑定」演成动作。
   transition_in: cut
@@ -1801,7 +1801,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id039
-  style: type
+  style: hud
   look: L3
   style_why: 边界句单独占一屏。
   transition_in: cut
@@ -1842,7 +1842,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id040
-  style: sem
+  style: xray
   look: L1
   style_why: 感光层和神经节层的尺度用显微风格再确认一次。
   transition_in: cut
@@ -1883,7 +1883,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id041
-  style: photoreal
+  style: clay
   look: L1
   style_why: 护目镜是观众认得的器物。
   transition_in: cut
@@ -1925,7 +1925,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id042
-  style: xray
+  style: documentary
   look: L1
   style_why: 物体看不见的条件要回到眼睛：没有护目镜就没有脉冲。
   transition_in: cut
@@ -1968,7 +1968,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id043
-  style: type
+  style: energy
   look: L3
   style_why: 部分恢复四个字需要停，避免听成恢复如初。
   transition_in: cut
@@ -2009,7 +2009,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id044
-  style: type
+  style: infographic
   look: L3
   style_why: 如果获批四个字单独出现。
   transition_in: cut
@@ -2050,7 +2050,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id045
-  style: infographic
+  style: hud
   look: L3
   style_why: 周次是公告数字，信息图比 HUD 更适合和许可状态并列。
   transition_in: cut
@@ -2092,7 +2092,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id046
-  style: infographic
+  style: documentary
   look: L3
   style_why: PIONEER 的身份是一期二期，先分类。
   transition_in: cut
@@ -2133,7 +2133,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id047
-  style: infographic
+  style: type
   look: L3
   style_why: 探索性不是装饰词，放进结果的标题。
   transition_in: cut
@@ -2178,7 +2178,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id048
-  style: hud
+  style: infographic
   look: L3
   style_why: 分数用读数，避免口播滑过去。
   transition_in: cut
@@ -2219,7 +2219,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id049
-  style: type
+  style: blueprint
   look: L3
   style_why: 无上市许可需要一句静止的话。
   transition_in: cut
@@ -2260,7 +2260,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id050
-  style: infographic
+  style: xray
   look: L3
   style_why: 一句耳蜗之后立刻回到边界，不给第二句。
   transition_in: cut
@@ -2302,7 +2302,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id051
-  style: infographic
+  style: energy
   look: L3
   style_why: 脱敏写成限制，而不是再讲一遍发现史。
   transition_in: cut
@@ -2344,7 +2344,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id052
-  style: blueprint
+  style: photoreal
   look: L3
   style_why: 光纤和护目镜是两种送光设计。
   transition_in: cut
@@ -2387,7 +2387,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id053
-  style: type
+  style: infographic
   look: L3
   style_why: 三行边界再停一拍，不加新数据。
   transition_in: cut
@@ -2468,7 +2468,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id054
-  style: clay
+  style: energy
   look: L1
   style_why: 开和关是两个动作，白模演给尾声看。
   transition_in: cut
@@ -2510,7 +2510,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id055
-  style: infographic
+  style: type
   look: L3
   style_why: 做不到的范围用两格，不再叙述实验。
   transition_in: cut
@@ -2552,7 +2552,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id056
-  style: type
+  style: documentary
   look: L3
   style_why: 牵强两个字回到开场的语气。
   transition_in: cut
@@ -2595,7 +2595,7 @@ shots:
   duration: 1.35
   vo: []
   facts: *id057
-  style: energy
+  style: type
   look: L1
   style_why: 结束在光熄灭，不接下一题。
   transition_in: cut
