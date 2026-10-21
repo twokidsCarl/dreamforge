@@ -21,6 +21,7 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 import time
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -61,13 +62,21 @@ def request(spoken, voice, wav):
     body = json.dumps({"model": MODEL, "input": {"text": spoken, "voice": voice,
                                                   "language_type": "Chinese"}}).encode()
     url = ENDPOINTS[os.environ.get("QWEN_REGION", "singapore")]
+    fd, hdr = tempfile.mkstemp(prefix="tts_hdr_")         # the key goes in a 0600 file, not on the command line
+    with os.fdopen(fd, "w") as f:
+        f.write(f"Authorization: Bearer {os.environ['DASHSCOPE_API_KEY']}\nContent-Type: application/json\n")
+    try:
+        return _request(body, url, hdr, wav, spoken)
+    finally:
+        os.remove(hdr)
+
+
+def _request(body, url, hdr, wav, spoken):
     r = None
     for attempt in range(5):
         try:
             # curl uses the system trust store (python.org builds of Python ship without one)
-            r = subprocess.run(["curl", "-s", "-m", "90", "-X", "POST", url,
-                                "-H", f"Authorization: Bearer {os.environ['DASHSCOPE_API_KEY']}",
-                                "-H", "Content-Type: application/json", "--data-binary", "@-"],
+            r = subprocess.run(["curl", "-s", "-m", "90", "-X", "POST", url, "-H", f"@{hdr}", "--data-binary", "@-"],
                                input=body, capture_output=True, check=True)
             d = json.loads(r.stdout)
             audio_url = d["output"]["audio"]["url"]
@@ -80,8 +89,14 @@ def request(spoken, voice, wav):
             return wav
         except Exception as e:  # noqa: B902  # rate limits / transient network errors / API error bodies
             wait = 2 ** attempt
-            detail = r.stdout[:200] if "r" in locals() and hasattr(r, "stdout") else ""
-            print(f"  retry {attempt + 1} in {wait}s: {e} {detail}", file=sys.stderr)
+            # never print the exception itself: a CalledProcessError carries the curl command line,
+            # including the Authorization header with the API key
+            if isinstance(e, subprocess.CalledProcessError):
+                what = f"curl/ffmpeg exit {e.returncode}"
+            else:
+                what = type(e).__name__
+            detail = r.stdout[:200].decode("utf-8", "replace") if r is not None and r.stdout else ""
+            print(f"  retry {attempt + 1} in {wait}s: {what} {detail}", file=sys.stderr)
             time.sleep(wait)
     raise RuntimeError(f"TTS failed: {spoken[:30]}")
 
