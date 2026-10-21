@@ -596,7 +596,8 @@ def make_diff(redraw_png, out_png):
         sheet.paste(im_, (10, y + 36))
         y += TH + 50
     d.text((10, 8), "EigenLens mark vs 03s6_amber_gold.png - pixel comparison", fill=(255, 215, 120), font=fs)
-    sheet.save(out_png)
+    # 256-colour palette keeps the review sheet under the repo's 2 MiB file limit
+    sheet.quantize(256, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(out_png, optimize=True)
     return stats
 
 

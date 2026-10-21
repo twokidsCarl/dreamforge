@@ -17,9 +17,17 @@ python3 build.py --stills   # stills + diff only
 | `lockup.svg`, `lockup_1254.png` | same composition in the reference's own 1254 frame (used for the diff) |
 | `lockup_16x9.png` | 1920×1080, content at 80 % height |
 | `endcard_16x9.png` | 1920×1080 end card, content at 66 % height |
-| `sting_open.mp4` (3 s), `sting_end.mp4` (2 s) | 1920×1080 @24, both land on the end card with both text lines |
+| `sting_open_mid.png`, `sting_end_mid.png` | mid-frame stills of the two stings (for review) |
 | `symbol_only.svg`, `symbol_only_1024.png` | symbol without text — favicon/avatar sizes only, not the brand mark |
-| `diff_vs_03s6.png`, `.json` | self-check against the reference |
+| `diff_vs_03s6.png`, `.json` | self-check against the reference (PNG is 256-colour so it stays under 2 MiB) |
+
+## Stings (not in git)
+
+`build.py` also writes `sting_open.mp4` (3 s) and `sting_end.mp4` (2 s),
+1920×1080 @24, both landing on the end card with both text lines. The repo
+bans video files, so the production stings live only on the box at
+`/workspace/dreamforge/brand/eigenlens_logo_locked/`. Regenerate with
+`python3 build.py` if they are missing; do not commit them.
 
 ## Wordmark
 
