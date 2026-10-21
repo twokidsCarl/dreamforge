@@ -156,7 +156,7 @@ def sound(shots, seg_files, dur, voice, out_wav):
         filters.append("[fx][vokey2]sidechaincompress=threshold=0.04:ratio=3:attack=20:release=350[fxd]")
         mixes.append("[fxd]")
     filters.append("[vo]" + "".join(mixes) + f"amix=inputs={1 + len(mixes)}:normalize=0,"
-                   f"atrim=0:{dur:.3f},loudnorm=I=-16:TP=-1.5:LRA=11[out]")
+                   f"atrim=0:{dur:.3f},loudnorm=I=-16:TP=-2.0:LRA=11[out]")
     cmd = ["ffmpeg", "-loglevel", "error", "-y", *inputs, "-filter_complex", ";".join(filters), "-map", "[out]",
            "-ar", "48000", out_wav]
     subprocess.run(cmd, check=True)

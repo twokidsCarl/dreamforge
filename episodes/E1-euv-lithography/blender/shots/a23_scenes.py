@@ -222,9 +222,12 @@ def tour(sc, rnd):
     path.data.keyframe_insert("bevel_factor_end", frame=1)
     path.data.bevel_factor_end = 1.0
     path.data.keyframe_insert("bevel_factor_end", frame=125)
-    B._area("MKey", (0, -9, 8), (0.9, 0, 0), 16, 2500, (0.8, 0.85, 1.0))
-    B._camera("CamA3_06", [(1, BM.PLASMA, (-6.5, -7.0, 2.4), 32, 8.0), (70, BM.FACET2, (-2.6, -7.5, 3.2), 32, 8.0),
-                           (135, (0.5, 0, 0.2), (1.8, -7.8, 2.0), 32, 8.0)])
+    B._area("MKey", (BM.CENTER[0], -9, 8), (0.9, 0, 0), 16, 2500, (0.8, 0.85, 1.0))
+    # follow the light: source unit (+x) -> illuminator -> reticle -> projection optics and wafer (x ~ 0)
+    px, f1 = BM.PLASMA, BM.FACET1
+    B._camera("CamA3_06", [(1, px, (px[0] + 1.0, -7.5, px[2] + 1.6), 32, 8.0),
+                           (70, f1, (f1[0] - 0.4, -8.0, f1[2] + 0.6), 32, 8.0),
+                           (135, (0.0, 0, 0.6), (-1.0, -8.5, 2.2), 32, 8.0)])
 
 
 def build(variant="ribbon", seed=23):
