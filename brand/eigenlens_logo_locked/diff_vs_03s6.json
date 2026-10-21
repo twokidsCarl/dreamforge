@@ -1,0 +1,97 @@
+{
+  "mean_abs_diff_mark_0_255": 6.94,
+  "mean_abs_diff_text_0_255": 6.53,
+  "psnr_mark_db": 22.79,
+  "line_precision_2px": 0.987,
+  "line_recall_2px": 0.998,
+  "pixels_off_by_gt_40_mark_pct": 3.17,
+  "text": {
+    "glyph_edge_err_max_px": 0.36,
+    "glyph_edge_err_per_glyph_px": {
+      "E0": 0.32,
+      "i1": 0.36,
+      "g2": 0.08,
+      "e3": 0.13,
+      "n4": 0.19,
+      "L5": 0.13,
+      "e6": 0.22,
+      "n7": 0.07,
+      "s8": 0.24,
+      "主": 0.17,
+      "观": 0.14,
+      "知": 0.02,
+      "识": 0.08
+    },
+    "stroke_width_src_vs_redraw_px": {
+      "E stem": [
+        5.63,
+        5.58
+      ],
+      "i stem": [
+        5.19,
+        5.14
+      ],
+      "n stem": [
+        5.28,
+        5.24
+      ],
+      "L stem": [
+        5.58,
+        5.73
+      ],
+      "n(Lens) stem": [
+        5.01,
+        5.23
+      ],
+      "主 stem": [
+        2.26,
+        2.15
+      ],
+      "主 bar": [
+        1.87,
+        1.88
+      ]
+    },
+    "stroke_width_err_max_px": 0.22,
+    "ink_rgb_src_vs_redraw": {
+      "Eigen": [
+        [
+          253,
+          252,
+          247
+        ],
+        [
+          253,
+          253,
+          248
+        ]
+      ],
+      "Lens": [
+        [
+          250,
+          226,
+          116
+        ],
+        [
+          252,
+          226,
+          116
+        ]
+      ],
+      "主观知识": [
+        [
+          246,
+          236,
+          186
+        ],
+        [
+          246,
+          236,
+          186
+        ]
+      ]
+    },
+    "ink_rgb_err_max": 2,
+    "pass": true
+  }
+}
