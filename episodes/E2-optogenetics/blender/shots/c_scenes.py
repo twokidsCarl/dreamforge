@@ -320,7 +320,8 @@ def eye(sc, rnd, **_):
     S.set_strength(e["rgc_mat"], _f(sid, 0.4), 0.18)
     S.set_strength(e["rgc_mat"], _f(sid, 0.5), 0.42)  # v5b: 平涂淡蓝盘 → 暗蓝壁，闪时才亮
     # 护目镜（示意道具）在眼前，镜片朝眼睛（+X）
-    g = P.goggles("Goggles", (-2.9, 0.15, 0.0), (0, 0, math.pi / 2), 5.0, tag=styles.tag, lens_color=BLUE)
+    GX = -1.95
+    g = P.goggles("Goggles", (GX, 0.15, 0.05), (0, 0, math.pi / 2 - 0.55), 3.6, tag=styles.tag, lens_color=BLUE)
     f_g = _f(sid, 0.55)
     for o in [g["root"]] + g["lenses"] + g["frame"] + [g["strap"]]:
         S.show_between(o, f_g)
@@ -332,8 +333,8 @@ def eye(sc, rnd, **_):
     while f + 14 < n:
         th = math.radians(rnd.uniform(-35, 35))
         dst = (R * 0.86 * math.cos(th), 0.05, R * 0.86 * math.sin(th))
-        b = S.sphere(f"Pulse{k}", 0.045, (-2.75, 0.05, 0.0), bead_m, "emitter", seg=12, rings=8)
-        S.key(b, f, location=(-2.75, 0.05, rnd.uniform(-0.08, 0.08)))
+        b = S.sphere(f"Pulse{k}", 0.045, (GX + 0.08, 0.05, 0.0), bead_m, "emitter", seg=12, rings=8)   # v7: 从镜片出发（原 -2.75 在镜片外面凭空出现）
+        S.key(b, f, location=(GX + 0.08, 0.05, rnd.uniform(-0.08, 0.08)))
         S.key(b, f + 6, location=(-1.0, 0.05, 0.0))
         S.key(b, f + 14, location=dst)
         S.linear(b)
@@ -348,11 +349,10 @@ def eye(sc, rnd, **_):
     if vit is not None:
         vit.hide_render = vit.hide_viewport = True
         styles.tag(vit, "rig")
-    g["root"].location = (-1.85, 0.2, 0.05)
-    g["root"].scale = (0.72, 0.72, 0.72)
+    # v7 N14: 原来这里把护目镜缩到 0.72（宽约 0.1 BU），低清下成了眼球左边一个漂浮的小白字形；改成 3.6 倍、朝镜头侧转 30°，读得出是护目镜
     S.studio_lights(0.55, (0.4, -0.6, 0.5))
     # 3/4 俯视，看进眼杯：能读出晶状体、睫状体、悬韧带、视网膜内壁、视神经
-    S.dolly("CamC_08a", (-0.25, 0.0, 0.05), (0.55, -5.2, 3.4), (0.15, -4.0, 2.5), 1, n, lens=40, aim1=(-0.15, 0.0, 0.0))
+    S.dolly("CamC_08a", (-0.25, 0.0, 0.05), (0.55, -5.2, 3.4), (0.3, -4.7, 2.95), 1, n, lens=40, aim1=(-0.05, 0.0, 0.0))   # v7: 推镜收短，视神经不出框
 
 
 # ---- goggles：C_08b / C_92 ----------------------------------------------------------------

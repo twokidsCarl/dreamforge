@@ -314,13 +314,14 @@ def eyeball_section(name, loc=(0, 0, 0), mat=None, retina_color=(0.55, 0.69, 1.0
     front = math.radians(148)
     sclera = _cap(f"{name}_Sclera", root, mat, "structure", tag, R, 0.0, front, 0.06)
     # 脉络膜：巩膜与视网膜之间的红棕带（emitter 保色，不被 clay 换掉）
-    choroid = _cap(f"{name}_Choroid", root, S.glow(f"{name}_ChoroidMat", (0.32, 0.07, 0.04), 0.85),
-                   "emitter", tag, R - 0.035, 0.0, math.radians(140), 0.028)
-    retina = _cap(f"{name}_Retina", root, mat, "structure", tag, R - 0.07, 0.0, math.radians(118), 0.035)
+    # v7 N14: 脉络膜只铺到视网膜前缘（112° < 118°），不再在晶状体后面露出一圈；加厚，剖切面上沿后极读成巩膜/脉络膜/视网膜三层
+    choroid = _cap(f"{name}_Choroid", root, S.glow(f"{name}_ChoroidMat", (0.36, 0.08, 0.04), 1.0),
+                   "emitter", tag, R - 0.035, 0.0, math.radians(112), 0.05)
+    retina = _cap(f"{name}_Retina", root, mat, "structure", tag, R - 0.09, 0.0, math.radians(118), 0.035)
     # RGC：离散光点贴在视网膜内壁，共用一个 glow mat（避免整块平涂蓝盘）
     rgc_mat = S.glow(f"{name}_RGCMat", retina_color, 0.0)
     rgc_spots = []
-    rr = R - 0.105
+    rr = R - 0.135                     # v7: 视网膜内移 0.02，光点跟着内移
     for i, th in enumerate([math.radians(a) for a in (18, 32, 48, 62, 78, 95, 40, 70)]):
         for j, ph in enumerate((0.35, 0.7, 1.05, 1.4, 1.75)):
             if (i + j) % 2 == 0 and j == 4:
@@ -371,21 +372,21 @@ def eyeball_section(name, loc=(0, 0, 0), mat=None, retina_color=(0.55, 0.69, 1.0
         except ValueError:
             pass
     ciliary = _mesh_object(f"{name}_Ciliary", bm, root,
-                           S.glow(f"{name}_CiliaryMat", (0.55, 0.18, 0.10), 0.55), "emitter", tag)
+                           S.glow(f"{name}_CiliaryMat", (0.62, 0.44, 0.32), 0.55), "emitter", tag)
     # 晶状体：更厚的双凸
     lens = _cap(f"{name}_Lens", root, mat, "structure", tag, 0.40, 0.0, math.pi, 0.0,
                 c=(xi + 0.22, 0, 0), axis_scale=(0.70, 1.0, 1.0))
     # 悬韧带：睫状突 → 晶状体赤道的细丝（剖面可见 7–9 根）
     zonules = []
     lens_eq_x = xi + 0.22
-    zon_mat = S.glow(f"{name}_ZonuleMat", (0.92, 0.88, 0.78), 0.35)
+    zon_mat = S.glow(f"{name}_ZonuleMat", (1.0, 0.95, 0.82), 1.6)          # v7 N14: 提亮加粗，640 px 下能读成放射细丝
     for k in range(11):
         a = math.pi * (0.08 + 0.84 * k / 10)
         y, z = 0.36 * math.sin(a), 0.36 * math.cos(a)
         p0 = (ciliary_x + 0.03, y * 1.45, z * 1.45)
         p1 = (lens_eq_x + 0.02, y * 1.0, z * 1.0)
         mid = ((p0[0] + p1[0]) / 2 + 0.01, (p0[1] + p1[1]) / 2, (p0[2] + p1[2]) / 2)
-        zobj = S.tube(f"{name}_Zonule{k}", [p0, mid, p1], 0.011, zon_mat, "emitter", res=1)
+        zobj = S.tube(f"{name}_Zonule{k}", [p0, mid, p1], 0.022, zon_mat, "emitter", res=1)
         zobj.parent = root
         zonules.append(zobj)
     # 玻璃体：默认隐藏（clay 会把它变成实心蓝/黑块）；调用方可再显示
