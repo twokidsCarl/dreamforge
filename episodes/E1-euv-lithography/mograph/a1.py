@@ -84,12 +84,12 @@ def hundred_layers(t, dur, W, H):
     w = 300                                                         # one straight column, like the tower
     for i in range(n):
         y = base - (i + 1) * lh
-        fine = i < 22                                               # the finest ~20 layers sit at the bottom
+        fine = i < 22                                               # the finest layers sit at the bottom (count illustrative)
         col = VIOLET if fine else (110 + i // 2, 116 + i // 2, 140 + i // 3)
         c.rect((640 - w / 2, y, 640 + w / 2, y + lh - 1.4), fill=tuple(min(255, v) for v in col), a=a * 0.9)
     if n >= 22:
-        c.text((640 + w / 2 + 24, base - 11 * lh), "最精细的约 20 层", 22, VIOLET, a, anchor="lm")
-    c.text((640, base + 50), f"约 {n} 层", 40, INK, a, anchor="mm", weight_glow=n >= 100)
+        c.text((640 + w / 2 + 24, base - 11 * lh), "最精细的那几层", 22, VIOLET, a, anchor="lm")
+    c.text((640, base + 50), "上百层" if n >= 100 else f"{n} 层", 40, INK, a, anchor="mm", weight_glow=n >= 100)
     # a 100-storey tower lighting floor by floor
     tx, tw = 1300, 160
     for i in range(100):
@@ -98,7 +98,7 @@ def hundred_layers(t, dur, W, H):
         c.rect((tx, y, tx + tw, y + lh - 1.6), fill=(250, 220, 150) if on else (36, 40, 52), a=a * (0.85 if on else 0.8))
     c.rect((tx + tw / 2 - 4, base - 100 * lh - 60, tx + tw / 2 + 4, base - 100 * lh), fill=(80, 86, 100), a=a)
     c.text((tx + tw / 2, base + 50), "100 层的楼", 30, INK2, a, anchor="mm")
-    c.text((1880, 1050), "一颗芯片最多约 100 层图形（F44）· 示意", 18, INK2, a, anchor="rm")
+    c.text((1880, 1050), "ASML：一颗芯片有上百层图形 · 层数示意", 18, INK2, a, anchor="rm")
     return c.finish(glow_radius=8, glow_gain=0.6)
 
 
@@ -172,7 +172,7 @@ def finer_pen(t, dur, W, H):
         c.img.paste(vio, (int(660 * k), int(240 * k)), mask)
         c.d = ImageDraw.Draw(c.img, "RGBA")
     labels = {1: "粗笔：1 个字", 2: "细一点：4 个", 4: "16 个", 8: "64 个", 16: "256 个", 32: "1024 个……"}
-    c.text((960, 900), labels[n] if tex < 0.5 else "→ 真正的电路版图", 34, INK, a, anchor="mm")
+    c.text((960, 900), labels[n] if tex < 0.5 else "→ 电路版图（示意）", 34, INK, a, anchor="mm")
     c.text((960, 150), "笔越细 → 字越小 → 装得越多", 40, INK, a * ease(seg(t, 0.3, 0.9)), anchor="mm", weight_glow=True)
     return c.finish(glow_radius=8, glow_gain=0.6)
 

@@ -1,4 +1,4 @@
-"""A3 2D shots: three hard problems as cards (F1, F10), air eating the beam, and the light ledger
+"""A3 2D shots: three hard problems as cards, air eating the beam, and the light ledger
 introduced on the right of the frame."""
 import math
 import random
@@ -40,19 +40,36 @@ def problem1(t, dur, W, H):
     card(c, 960, 520, flip, a, 1, title=True, w=1500, h=640)
     if flip > 0.5:
         on = ease(seg(t, 0.9, 1.6))
-        # a horizontal spectrum band with a dark gap at 13.5 nm
+        # a log wavelength axis, 10-1000 nm: colour only across visible light (400-800 nm, ZEISS's range);
+        # 193 nm (DUV) and 13.5 nm (EUV) sit far out in the ultraviolet, where the eye sees nothing
         x0, x1, y = 300, 1620, 560
-        for i in range(132):
-            x = x0 + (x1 - x0) * i / 132
-            u = i / 132
-            col = (int(120 + 120 * math.sin(6.28 * (u + 0.0))), int(120 + 120 * math.sin(6.28 * (u + 0.33))),
-                   int(120 + 120 * math.sin(6.28 * (u + 0.66))))
-            gap = 0.08 < u < 0.14
-            c.rect((x, y - 50, x + 11, y + 50), fill=(10, 10, 14) if gap else tuple(max(0, v) for v in col),
-                   a=a * on * (1.0 if gap else 0.55))
-        c.text((x0 + (x1 - x0) * 0.11, y + 90), "13.5 nm", 26, VIOLET, a * on, anchor="mm")
+
+        def X(nm):
+            return x0 + (x1 - x0) * (math.log10(nm) - 1.0) / 2.0
+
+        def vis_rgb(nm):                                           # rough spectral colour, for display only
+            stops = [(400, (110, 0, 160)), (450, (40, 40, 255)), (490, (0, 190, 255)), (530, (40, 230, 60)),
+                     (580, (250, 230, 0)), (620, (255, 120, 0)), (700, (220, 0, 0)), (800, (90, 0, 0))]
+            for (l0, c0), (l1, c1) in zip(stops, stops[1:]):
+                if l0 <= nm <= l1:
+                    u = (nm - l0) / (l1 - l0)
+                    return tuple(int(c0[i] + (c1[i] - c0[i]) * u) for i in range(3))
+            return (40, 40, 50)
+        c.line((x0, y + 52), (x1, y + 52), INK2, 2, a * on)
+        for nm in (10, 100, 1000):
+            c.line((X(nm), y + 46), (X(nm), y + 60), INK2, 2, a * on)
+            c.text((X(nm), y + 84), f"{nm} nm", 20, INK2, a * on, anchor="mm")
+        c.rect((x0, y - 40, X(400), y + 40), fill=(22, 24, 34), a=a * on)          # ultraviolet: invisible
+        for i in range(60):
+            nm0 = 400 * (2.0 ** (i / 60))
+            nm1 = 400 * (2.0 ** ((i + 1) / 60))
+            c.rect((X(nm0), y - 40, X(nm1) + 1, y + 40), fill=vis_rgb(nm0), a=a * on * 0.85)
+        c.text(((X(400) + X(800)) / 2, y - 64), "可见光", 24, INK, a * on, anchor="mm")
+        c.text(((x0 + X(400)) / 2, y - 64), "紫外 · 肉眼看不见", 24, INK2, a * on, anchor="mm")
+        for nm, lab, col in ((193, "193 nm DUV", CYAN), (13.5, "13.5 nm EUV", VIOLET)):
+            c.line((X(nm), y - 40), (X(nm), y + 40), col, 4, a * on, glow=True)
+            c.text((X(nm), y + 124), lab, 26, col, a * on, anchor="mm")
         c.text((960, 330), "① 没有现成的 13.5 nm 强光源", 44, INK, a * on, anchor="mm", weight_glow=True)
-        c.text((1640, 760), "（F1）", 20, INK2, a * on, anchor="rm")
     return c.finish(glow_radius=10, glow_gain=0.7)
 
 

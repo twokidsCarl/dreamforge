@@ -72,6 +72,27 @@ def fade(t, a, b, dur, f=0.35):
     return ease(seg(t, a, a + f)) * (1 - ease(seg(t, b - f, b))) if b < dur else ease(seg(t, a, a + f))
 
 
+_FACT_ID = r"F\d+[a-z]?"
+
+
+def screen_text(s):
+    """What a viewer may read: fact-library IDs (F44, F4c...) are internal and never drawn. They are dropped with
+    their separators; a line that was nothing but IDs becomes the sources' organisations ("来源：ASML")."""
+    import re
+    ids = re.findall(_FACT_ID, s)
+    if not ids:
+        return s
+    out = re.sub(r"\s*[·,，、]\s*" + _FACT_ID, "", s)
+    out = re.sub(_FACT_ID + r"\s*[·,，、]\s*", "", out)
+    out = re.sub(_FACT_ID, "", out)
+    out = re.sub(r"\s*[（(]\s*[)）]", "", out).strip(" ·,，、")
+    if out:
+        return out
+    from story_reel import fact_orgs
+    orgs = fact_orgs(ids)
+    return f"来源：{orgs}" if orgs else ""
+
+
 # ---- drawing helpers -----------------------------------------------------------------------
 class Canvas:
     def __init__(self, W, H, bg=BG):
@@ -86,7 +107,8 @@ class Canvas:
         return v * self.k
 
     def text(self, xy, s, size, color=INK, a=1.0, anchor="la", weight_glow=False):
-        if a <= 0:
+        s = screen_text(s)
+        if a <= 0 or not s:
             return
         f = font(int(self.px(size)))
         x, y = self.px(xy[0]), self.px(xy[1])

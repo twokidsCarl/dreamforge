@@ -1,0 +1,174 @@
+# Visual fact audit, segment A1 (光刻是什么). One row per engineering / process / structural detail the PICTURE or
+# on-screen text shows (narration numbers live in research/facts.yaml). status:
+#   sourced    - matches a primary source cited here
+#   wrong      - contradicts a source; must change
+#   unsourced  - invented or unchecked; may not reach the final render
+#   simplified - deliberate simplification; the difference and where the film corrects it are written down
+#   artistic   - deliberate convention, flagged on screen as 示意 where a viewer could take it literally
+# Quotes and URLs for every source tag (S1..S14): research/visual/A1_sources.md
+# Downloads (not committed): renders/review/refs/A1/
+# Checked against: storyboard/parts/p1_A0-B1.yaml (A1_*), blender/shots/a1_scenes.py, mograph/a1.py, preview frames
+# renders/shots/A1_*/preview (A1_08 preview is stale: it shows a widening trapezoid, the code now draws a straight column).
+# Counts: sourced 12, wrong 5, unsourced 3, simplified 10, artistic 12.
+A1_01:
+  - item: chapter card over a defocused rainbow sheen on a wafer edge
+    status: artistic
+    source: chips.md C (patterned wafers show diffraction colours from coarse periodic structures)
+    note: mood only; nothing a viewer would read as a measurement
+A1_02:
+  - item: wafer = substrate with thin films built on top, one layer at a time (cut-away shows substrate plus three film layers)
+    status: sourced
+    source: S3 (ASML Annual Report 2021 - "layers about 50 to 150 nm thick that are built on the semiconductor substrate one layer at a time")
+  - item: proportions - drawn diameter/thickness about 8.5:1 (r 2.0, total thickness 0.47); films 1/5-1/8 of the substrate thickness
+    status: simplified
+    note: real 300 mm wafer is 775 um thick (S13), diameter/thickness about 390:1; films are 50-150 nm (S3), about 1/10,000 of the substrate.
+      Necessary for a readable section; no number is shown.
+    fix: none needed for the shot; do not add a dimension label. If a caption is added later use 示意（未按比例）
+A1_03:
+  - item: spin coating - resist dispensed at the centre of a spinning wafer (dynamic dispense), spreads into a uniform film, excess leaves at the edge
+    status: sourced
+    source: S9 p1 (MicroChemicals, Spin-coating - dispensed on a substrate brought to "several 1000 rpm before (dynamic spin-coating) or shortly thereafter (static)"; "excess resist is spun off the edge")
+  - item: rotation speed as drawn - 9 turns in 174 frames (7.25 s) = about 75 rpm, visibly slow through the edge threads
+    status: wrong
+    source: S9 p1 ("several 1000 rpm"); S9 p2 ("2000 - 4000 rpm for 20 - 30 seconds")
+    fix: key the spinner at about 3000 rpm (50 rev/s; at 24 fps this must read as motion blur, so add a radial/tangential blur streak on the film edge and on the spun-off resist instead of trackable rotation). Keep the slow-motion idea out, the VO does not say 慢动作.
+  - item: fine threads (细丝) flung from the wafer edge
+    status: unsourced
+    note: the primary source only says excess resist is spun off the edge; fibre/thread formation is not in any source found
+    fix: replace the 10 rotating cylinders with a thin ring of droplets leaving the edge tangentially (spray caught by the bowl), S9 p1
+  - item: yellow-light room
+    status: sourced
+    source: S10 p1 (resists are sensitive "in the near-UV range, and with most resists, also in the visible short-wavelength (blue) spectral range") - yellow light carries no blue/UV
+  - item: amber resist colour; generic steel catch bowl and chuck
+    status: artistic
+    note: resist colour varies by chemistry; no specific coater copied
+A1_04:
+  - item: light passes through a patterned mask; where it lands, the resist's chemistry (solubility) changes
+    status: sourced
+    source: S10 p1 ("result in an increased (positive resists) or reduced (negative resists) solubility in the developer")
+  - item: mask is transmissive (light passes through a plate)
+    status: simplified
+    note: true for DUV masks; EUV masks are reflective. Storyboard already defers this to B6; overlay carries 示意
+    fix: keep 示意; B6 must show the reflective EUV mask
+  - item: geometry - parallel beam, the pattern on the resist is the same size as the mask pattern (shadow / contact printing, 1:1)
+    status: simplified
+    source: S10 p2 (1:1 is the mask-aligner case; "Using a stepper ... By reduction optics, the dimensions of the exposed resist areas are, however, smaller"); S4 (ASML scanners shrink "the reticle pattern by a factor of four")
+    note: corrected in B7 (p3_B7-D.yaml - 它把图形缩小 4 倍 / 缩小 4×)
+    fix: cheap improvement - taper the patterned beam below the mask (BeamBelow) so the glowing pattern on the resist is visibly smaller than the mask pattern; never call it 影子 in on-screen text
+  - item: mask pattern = circuit.png (stylised - gates, local metal, vias and power rails all on one plate)
+    status: simplified
+    source: blender/textures/make_circuit.py header ("Illustrative only, not a real design")
+    note: a real mask carries one layer only
+    fix: use a single-layer pattern (e.g. one metal layer of the open SkyWater SKY130 PDK, which the storyboard already names as pdk_patterns.sky130_layout), or keep 示意 (present)
+  - item: violet-white beam; latent pattern glowing in the resist
+    status: artistic
+    note: the colour code stands for "the exposure light"; a latent image does not glow
+A1_05:
+  - item: latent image - in a positive resist on a substrate, the exposed columns (matching the mask openings) change chemically; unexposed resist stays
+    status: sourced
+    source: S10 p1
+  - item: the change sweeps down through the resist from top to bottom over time (scan line moving down)
+    status: simplified
+    source: S10 p6 ("optically thin resist films ... an almost homogeneous exposure occurs from the exposure start"; the top-down front applies only to optically thick, bleaching resists)
+    note: advanced-node resists are thin; a moving front implies a thick DNQ resist
+    fix: fade the exposed columns in through the full thickness at once (optionally slightly weaker near the substrate) instead of the descending scan line
+  - item: grey "molecular network" texture, perfectly vertical latent walls, resist thickness about 3x the line width
+    status: artistic
+    note: on-screen 潜像（示意） (code) covers it; a latent image is not visible in an SEM
+A1_06:
+  - item: develop - the exposed resist dissolves and opens windows (positive tone)
+    status: sourced
+    source: S10 p1
+  - item: etch - trenches cut through the film down to the layer below
+    status: sourced
+    source: S11 p33 Fig. 3 (dual-damascene - line/via definition in the insulator over an etch-stop)
+  - item: deposit + strip order as drawn - metal fills the trenches exactly flush while the resist is still on, then the remaining resist is stripped
+    status: wrong
+    source: S11 p33 (Damascene - patterned insulator, blanket barrier + seed, plating everywhere, "excess material is deposited on top of the useful wiring structure (called 'overburden') and must be removed by ... chemical mechanical planarization (CMP)")
+    note: the drawn sequence matches neither damascene (resist gone before metal) nor through-mask plating (metal grows in resist openings on a seed, no trench etch)
+    fix: after etch, strip the resist first; then a blanket metal layer overfills the trenches and covers the top; then polish flat so metal stays only in the trenches. Labels 显影 · 刻蚀 · 沉积 · 抛光 (VO unchanged - 洗掉一部分胶，再刻蚀、再沉积 still holds)
+  - item: wiring drawn in light gold
+    status: artistic
+    note: storyboard says so for contrast; copper is the real metal (S11)
+A1_07:
+  - item: the cycle repeats layer after layer and the stack grows
+    status: sourced
+    source: S3 ("this process is repeated layer after layer, stacking the patterns")
+  - item: every new layer is a full, continuous slab; metal layers are unbroken gold sheets across the whole section
+    status: wrong
+    note: a continuous metal sheet would short every wire; each layer is patterned (S3, S11 Fig. 3)
+    fix: build each new metal level as separate lines in dielectric (alternate line direction level to level, a few vias down to the level below), same damascene steps as A1_06
+  - item: all layers equally thick (0.3)
+    status: simplified
+    source: S3 ("Typically, the most complex layers are at the bottom and the least complex at the top")
+    fix: let the upper levels get thicker and coarser as they rise, which also sets up A1_09
+  - item: violet flash per exposure; accelerating rhythm
+    status: artistic
+A1_08:
+  - item: VO + overlay 最多约 100 层图形; counter stops at 100
+    status: wrong
+    source: S1, S2, S5 (ASML web - "up to 100 layers" / "As many as 100 of these patterns") vs S3 (ASML Annual Report 2021 - "the most complex can have over 150 layers"; "up to 150 or more layers")
+    note: ASML contradicts itself; the cap 最多约 100 is contradicted by ASML's annual report. Both are compatible with 上百层
+    fix: VO 一颗先进芯片，要叠上百层图形；overlay 多达上百层图形; counter ends on 100+ (tower comparison still works). Update F44 notes with the conflict
+  - item: bottom 22 layers violet with label 最精细的约 20 层
+    status: unsourced
+    note: same count as F55 (grade C only, see A1_09); also inconsistent with the VO 二十多层 in A1_09
+    fix: label 最精细的那几层 (no number), or drop the violet tint here and let A1_09 introduce it
+  - item: mask-pattern layers drawn as stacked physical storeys
+    status: simplified
+    source: S3 (ASML itself frames layers as built one at a time)
+    note: many patterning steps (implants, cuts) do not add a storey; acceptable at this level, 示意 is on screen
+  - item: 100-storey tower lighting floor by floor
+    status: artistic
+  # presentation, not a fact: the footer prints the internal fact ID - 一颗芯片最多约 100 层图形（F44）· 示意. Remove "（F44）" from the picture.
+A1_09:
+  - item: finest layers at the bottom next to the transistors, coarser toward the top
+    status: sourced
+    source: S3 ("the most complex layers are at the bottom and the least complex at the top"); S4 (NXE prints "the highly complex foundation layers")
+  - item: overlay 先进芯片约二十多层用 EUV 曝光 (and VO 其中最精细的二十多层)
+    status: unsourced
+    source: only F55 (grade C, TrendForce/TheElec, S14). Primary sources found - S7 ASML Investor Day 2018 - logic 7-5 nm "10 - 20" EUV layers ("typical" 2018-2022 estimate); S8 ASML Investor Day 2024 - layers "continue to increase node on node", no absolute count
+    note: grade C may not appear in VO or on screen (WORKFLOW 2.2). The same number is used again in D (F55)
+    fix: VO 其中最精细、最关键的那几层，要交给极紫外光刻机来画。 overlay 最底部、最精细的关键层用 EUV 曝光 (+ 示意). No number unless a foundry/ASML primary count is found (ASML 2018's 10-20 is for 7-5 nm and dated)
+  - item: the violet (EUV) layers form one unbroken block at the bottom
+    status: simplified
+    source: S6 (immersion systems "used in seamless combination with EUV systems to print different layers on the same chip"); S5 ("even most of the layers on advanced chips, are printed on dry lithography machines")
+    fix: within the bottom zone, leave some layers non-violet (EUV and DUV interleave); keep 示意
+  - item: 60 layers drawn (storyboard and A1_08 say about 100)
+    status: simplified
+    fix: optional - draw 100 to match A1_08, or leave (示意 on screen)
+  - item: transparent "city in glass" x-ray look
+    status: artistic
+A1_10:
+  - item: box-in-box overlay marks; inner box on the new layer, outer box on the layer below; overlay = offset between the box centres
+    status: sourced
+    source: S12 (US20160025650A1 - "The inner box 11 is formed on a current layer"; "the outer box 12 is formed on a previous layer"; error = distance between centres)
+  - item: every layer must line up with the one below (VO, caption)
+    status: sourced
+    source: S2 ("the patterns in different layers have to line up with extreme accuracy"; overlay "better than 2 nm")
+  - item: SEM-style grey top view
+    status: artistic
+    note: overlay is measured optically (ASML YieldStar optical metrology, S6); on-screen SEM 风格示意 covers it
+  - item: large offset that slides into place
+    status: simplified
+    source: S2 (wafer arrives at ~80 um, alignment marks correct it before exposure; result better than 2 nm)
+    note: exaggerated by many orders of magnitude, and the sliding suggests a printed layer is moved afterwards; really the wafer is aligned before exposure and the marks verify the result
+    fix: none required (示意 on screen); if the caption is edited, 曝光前先对准 is the accurate wording
+  - item: upper-layer lines run perpendicular to the lower layer's
+    status: artistic
+A1_11:
+  - item: finer pen -> 1, 4, 16, 64, 256, 1024 characters in the same square
+    status: sourced
+    note: arithmetic - halving the linear size quadruples the count per area (n x n grid, n = 1..32)
+  - item: label "→ 真正的电路版图" over circuit.png
+    status: wrong
+    source: blender/textures/make_circuit.py header - "a stylised standard-cell layout mask ... Illustrative only, not a real design"
+    fix: either change the label to → 电路版图（示意）, or swap in a real open layout (SkyWater SKY130 PDK, as the storyboard's pdk_patterns.sky130_layout intends) and keep 真正的电路版图
+  - item: the "pen" analogy for lithographic resolution
+    status: artistic
+    source: F53 (resolution set by k1 * lambda / NA) carries the physics in A2
+A1_12:
+  - item: a line of light that gets thinner and blurs / frays at its finest
+    status: artistic
+    source: F53 (ASML Rayleigh page); S10 p9 (diffraction makes the intensity at the resist inhomogeneous even in contact)
+    note: lead-in to A2's diffraction limit; no scale is shown

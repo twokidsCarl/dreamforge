@@ -87,8 +87,19 @@ def lens(sc, rnd):
     ring.modifiers.new("Hollow", "SOLIDIFY").thickness = 0.08
     _cyl("Post", 0.08, 1.0, (0, 0, -0.1), stand)
     _box("Bench", (0, 0, -0.65), (10, 3, 0.1), M.principled("BenchTop", (0.04, 0.04, 0.05), roughness=0.4))
-    mirror = A0._cyl("Mirror", 1.3, 0.16, (0, 0, 1.6), M.multilayer_mirror("A3Mirror", r_max=1.3),
+    # a plain silver-looking face, as ZEISS photographs its EUV mirrors (the multilayer shows no visible rainbow)
+    mirror = A0._cyl("Mirror", 1.3, 0.16, (0, 0, 1.6), M.polished_steel("A3MirrorSilver", 0.04),
                      rot=(0, math.radians(90 + 25), 0))          # normal bisects in (+X) and out (50° up-left)
+    # the whole bench sits in a vacuum chamber: air at 1 atm absorbs half the EUV in 0.1 mm (CXRO;
+    # research/visual/A3_sources.md), so a beam crossing open air would contradict the shot before
+    shell = M.principled("VacGlass", (0.9, 0.93, 1.0), roughness=0.02)
+    shb = shell.node_tree.nodes["Principled BSDF"]
+    shb.inputs["Transmission Weight"].default_value = 1.0
+    shb.inputs["IOR"].default_value = 1.05
+    vac = _cyl("VacChamber", 3.1, 12.0, (-0.5, 0, 1.4), shell, rot=(0, math.pi / 2, 0), role="shell")
+    vac.modifiers.new("Wall", "SOLIDIFY").thickness = 0.04
+    for x in (-6.5, 5.5):
+        _cyl(f"VacFlange{x}", 3.25, 0.25, (x, 0, 1.4), stand, rot=(0, math.pi / 2, 0))
     for ob in (ln, ring):
         _key(ob, 1, location=ob.location.copy())
         _key(ob, 90, location=ob.location.copy())
@@ -115,7 +126,8 @@ def lens(sc, rnd):
     _key(b_in2, 1, hide_render=True)
     _key(b_in2, 121, hide_render=False)
     out_dir = Vector((-math.cos(math.radians(50)), 0, math.sin(math.radians(50))))
-    b_out = _beam("BeamOut", (0, 0, 1.6), tuple(Vector((0, 0, 1.6)) + out_dir * 6), 0.07, beam_m)
+    beam_back = M.emission("A3BeamReflected", VIOLET, 8.0 * 0.7)   # ZEISS: "up to 70 percent" reflected
+    b_out = _beam("BeamOut", (0, 0, 1.6), tuple(Vector((0, 0, 1.6)) + out_dir * 2.6), 0.07, beam_back)
     _key(b_out, 1, hide_render=True)
     _key(b_out, 122, hide_render=False)
     _key(b_out, 122, scale=(1, 1, 0.001))
@@ -156,7 +168,10 @@ def montage(sc, rnd):
     # 2) polishing a large mirror blank on a turntable (x = 400)
     o2 = Vector((400, 0, 0))
     _cyl("PolishTable", 2.2, 0.6, tuple(o2 + Vector((0, 0, 0.3))), dark)
-    blank = _cyl("Blank", 1.8, 0.35, tuple(o2 + Vector((0, 0, 0.78))), M.multilayer_mirror("Blank", r_max=1.8))
+    # ZEISS figures and polishes the bare glass-ceramic substrate first and coats it afterwards
+    sub_m = M.principled("SubstrateGlass", (0.86, 0.72, 0.52), roughness=0.03)
+    sub_m.node_tree.nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.7
+    blank = _cyl("Blank", 1.8, 0.35, tuple(o2 + Vector((0, 0, 0.78))), sub_m)
     _key(blank, 66, rotation_euler=(0, 0, 0))
     _key(blank, 130, rotation_euler=(0, 0, math.radians(120)))
     _box("Arm", o2 + Vector((1.2, 0, 2.2)), (3.0, 0.3, 0.3), steel)
@@ -169,7 +184,12 @@ def montage(sc, rnd):
     for k in range(6):
         _box(f"Amp{k}", o3 + Vector((-10 + 4.2 * k, 0, 1.0)), (3.2, 1.6, 2.0), M.principled("AmpPanel", (0.82, 0.84, 0.86),
                                                                                       roughness=0.45), bevel=0.05)
-    _beam("AmpBeam", o3 + Vector((-12, 0, 2.2)), o3 + Vector((14, 0, 2.2)), 0.05, tube)
+    # the drive-laser beam travels inside a closed beam tube; small view ports glow
+    _cyl("BeamTube", 0.22, 26.0, tuple(o3 + Vector((1, 0, 2.2))), M.principled("TubeSteel", (0.6, 0.62, 0.65),
+         metallic=0.9, roughness=0.3), rot=(0, math.pi / 2, 0))
+    for k in range(7):
+        _cyl(f"TubePort{k}", 0.08, 0.46, tuple(o3 + Vector((-11 + 4 * k, 0, 2.2))), tube, rot=(math.pi / 2, 0, 0),
+             role="emitter")
     _box("HallFloor3", o3 + Vector((0, 0, -0.05)), (60, 20, 0.1), M.principled("Floor3", (0.05, 0.05, 0.06), roughness=0.15))
     # 4) clean-room assembly: fab hall with the machine and backlit people (origin)
     BM.fab_hall(people=4)
@@ -182,8 +202,8 @@ def montage(sc, rnd):
         (129, tuple(o2 + Vector((0, 0, 0.9))), tuple(o2 + Vector((3.0, -4.0, 2.6))), 35, 4.0),
         (130, tuple(o3 + Vector((2, 0, 1.6))), tuple(o3 + Vector((-13.0, -4.5, 2.2))), 24, 5.6),
         (194, tuple(o3 + Vector((4, 0, 1.6))), tuple(o3 + Vector((-11.0, -4.2, 2.1))), 24, 5.6),
-        (195, (-1.0, 0, 0.8), (7.0, -9.0, 2.2), 28, 4.0),
-        (259, (-1.0, 0, 0.8), (6.0, -8.0, 2.0), 28, 4.0)])
+        (195, (BM.CENTER[0], 0, 0.8), (BM.CENTER[0] + 6.0, -15.0, 2.4), 28, 4.0),
+        (259, (BM.CENTER[0], 0, 0.8), (BM.CENTER[0] + 5.0, -13.5, 2.2), 28, 4.0)])
     for ob in (cam, bpy.data.objects["CamA3_05Aim"]):
         for fc in C.fcurves(ob.animation_data.action):
             pts = fc.keyframe_points

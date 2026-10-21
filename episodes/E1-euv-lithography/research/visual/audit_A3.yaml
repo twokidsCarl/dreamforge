@@ -27,7 +27,7 @@ A3_02:
     status: wrong
     source: S2 ZEISS EUV page ("The light visible to humans has wavelengths between 400 and 800 nanometers. The range of ultraviolet light begins below 400 nanometers"); S1 (13.5 nm, 193 nm DUV)
     note: 13.5 nm is ~30x shorter than the shortest visible light; drawing it as a gap between green and orange tells the viewer it sits among visible colours. The band has no axis, so the gap position means nothing
-    fix: draw a labelled log wavelength axis (~5 nm to ~1000 nm): only 400-800 nm in rainbow colours (label 可见光), 193 nm (DUV) and 13.5 nm (EUV) marked in the UV region in grey/violet, with the dark notch at 13.5 nm. Card text unchanged
+    fix: 'draw a labelled log wavelength axis (~5 nm to ~1000 nm): only 400-800 nm in rainbow colours (label 可见光), 193 nm (DUV) and 13.5 nm (EUV) marked in the UV region in grey/violet, with the dark notch at 13.5 nm. Card text unchanged'
   - item: on-screen "（F1）" bottom right of the card
     status: wrong
     note: internal fact-ID leaked into the picture (visible in preview frame 0100); viewers cannot use it
@@ -39,7 +39,7 @@ A3_03:
     note: 几乎 is a fair softening (multilayer mirrors reflect, thin pellicles partly transmit)
   - item: violet beam dies out in a sparse gas; each molecule it meets lights up and takes a bite (exp(-hits/9))
     status: artistic
-    source: S4 CXRO gas transmission - air, 760 Torr, 295 K, 13.5 nm: 49.9 % left after 0.1 mm, 0.096 % after 1 mm (attenuation length ~0.14 mm)
+    source: 'S4 CXRO gas transmission - air, 760 Torr, 295 K, 13.5 nm: 49.9 % left after 0.1 mm, 0.096 % after 1 mm (attenuation length ~0.14 mm)'
     note: physics matches (Beer-Lambert absorption by N2/O2), but molecule size/spacing and the screen-width path length are not to scale - in real air the beam is gone within about a millimetre; violet = film colour code for EUV. 示意 is on screen
   - item: on-screen "示意 · F10" bottom right
     status: wrong
@@ -59,7 +59,7 @@ A3_04:
     fix: keep the glow subtle and add 示意 to the shot, or make it a brief heat-shimmer rather than an orange emitter
   - item: the violet beam travels ~6 scene units (metres in look) through the open studio air to the lens and mirror
     status: wrong
-    source: S4 (air at 1 atm: half the EUV gone in 0.1 mm, 99.9 % in 1 mm); S3 ("the whole light path ... from source to wafer – must be in high vacuum")
+    source: 'S4 (air at 1 atm: half the EUV gone in 0.1 mm, 99.9 % in 1 mm); S3 ("the whole light path ... from source to wafer – must be in high vacuum")'
     note: directly after A3_03 says air eats the beam, this shot shows it crossing metres of air; contradicts the point being made
     fix: stage the bench inside a vacuum chamber (chamber wall / viewport / bellows visible, matte steel interior) or at minimum put 真空中 · 示意 on screen
   - item: Mo/Si multilayer mirror replaces the lens and reflects the beam (EUV mirrors are glass substrates with a Mo/Si coating)
@@ -67,7 +67,7 @@ A3_04:
     source: S3 ("several multilayer mirrors instead of lenses"); S2 ("thin layers of silicon and molybdenum ... vapor-deposited onto the glass surface ... up to 100 layers")
   - item: reflected beam as bright as the incoming beam
     status: simplified
-    source: S2 ("a reflectivity that makes up to 70 percent of the light usable"); S6 CXRO multilayer calc, Mo/Si d=6.9 nm, 40 bilayers, normal incidence: R=0.729 at 13.5 nm (ideal interfaces)
+    source: 'S2 ("a reflectivity that makes up to 70 percent of the light usable"); S6 CXRO multilayer calc, Mo/Si d=6.9 nm, 40 bilayers, normal incidence: R=0.729 at 13.5 nm (ideal interfaces)'
     note: real mirror returns at most ~70 %; ledger corrects this from B4 on
     fix: cheap and honest - drop the outgoing beam emission to ~0.7x the incoming (8.0 -> 5.6), so the loss is visible before the ledger starts
   - item: angle of incidence 25 deg (normal bisects incoming +X and outgoing 50 deg up-left)
@@ -77,13 +77,15 @@ A3_04:
     fix: optional - reduce AOI to ~10 deg (outgoing beam 20 deg from the incoming); then nothing to footnote
   - item: rainbow thin-film iridescence on the mirror face (thin_film_iridescence fx, M.multilayer_mirror)
     status: artistic
-    note: Mo/Si period is ~7 nm (S6 design), far below visible wavelengths, and 40 Mo layers make the stack opaque - the coating itself gives no visible interference colours; a real EUV mirror looks like a plain metallic mirror. Keep it faint as a "coating" cue or remove; no public photo supports strong rainbow colour
+    source: S8 slide 18 (photo), S6
+    note: Mo/Si period is ~7 nm (S6 design), far below visible wavelengths, and 40 Mo layers make the stack opaque - the coating itself gives no visible interference colours; a real EUV mirror looks like a plain metallic mirror. ZEISS's own photo of a finished Starlith 3400 mirror (S8 slide 18) shows a plain silvery mirror reflecting the worker's face, no rainbow
+    fix: drop thin_film_iridescence to a faint tint or remove it; a clean silver mirror is what ZEISS shows
 A3_05:
   - item: time bar 1 -> 17 年 and counter 60 多亿欧元 / overlay 投入 60 多亿欧元
     status: sourced
     source: S3 ASML EUV systems page ("ASML invested more than €6 billion in EUV R&D over 17 years")
     note: F20; ASML gives no start/end year for the 17 years, so the bar must stay in relative years (no calendar dates)
-  - item: overlay ASML · 蔡司 ZEISS · 通快 TRUMPF 等伙伴 (facts: [])
+  - item: 'overlay ASML · 蔡司 ZEISS · 通快 TRUMPF 等伙伴 (facts: [])'
     status: sourced
     source: S2 ZEISS ("in 2019, together with strategic partner ASML, TRUMPF, the Fraunhofer Institute IOF and around 1,200 other partners"); S7 TRUMPF drive-laser page ("ASML, Zeiss, and TRUMPF joined forces")
     fix: add a fact entry (e.g. F50) with these two quotes and point the overlay's facts at it
@@ -95,7 +97,7 @@ A3_05:
     note: generic lab; no specific historical source is depicted. The cylinders must not read as transmissive EUV optics - they are posts, fine
   - item: vignette 2 - a large blank already showing the multilayer (iridescent) coating while it is being polished on a turntable
     status: wrong
-    source: S2 (layers "vapor-deposited onto the glass surface"); S8 ZEISS EUVL Workshop 2022 mirror-manufacturing flow (grinding -> polishing -> ion beam figuring -> coating -> metrology)
+    source: 'S2 (layers "vapor-deposited onto the glass surface"); S8 ZEISS Kaiser, VLSI-TSA 2019, slide 19 (substrate figuring: computer-controlled polishing + ion beam figuring + interferometry in iterative loops) and slide 23 (Mo/Si Bragg coating drawn on the substrate, >50 bilayers)'
     note: the coating goes on after the substrate is polished and figured; a coated surface would be destroyed by polishing
     fix: give the blank a bare glass-ceramic substrate material (pale, matte-to-polished glass, no iridescence) in a23_scenes.montage(); multilayer_mirror material only for finished mirrors
   - item: vignette 3 - six white amplifier cabinets in a straight row with an open orange beam above them

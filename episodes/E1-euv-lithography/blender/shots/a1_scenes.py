@@ -104,18 +104,32 @@ def spin(sc, rnd):
     _key(film, 1, scale=(0.05, 0.05, 3.0))
     _key(film, 40, scale=(0.08, 0.08, 3.0))
     _key(film, 150, scale=(1.0, 1.0, 1.0))
-    for k in range(10):                                             # fine threads flung off the edge
-        th = 2 * math.pi * k / 10
-        f = _cyl(f"Thread{k}", 0.006, 0.5, (2.2 * math.cos(th), 2.2 * math.sin(th), 0.02), resist,
-                 rot=(0, math.pi / 2, th), verts=6)
-        f.parent = rot
-        _key(f, 1, hide_render=True)
-        _key(f, 120, hide_render=False)
+    notch = _box("WaferNotch", (2.0, 0, 0.02), (0.12, 0.12, 0.06), M.principled("Notch", (0.02, 0.02, 0.02)))
+    notch.parent = rot                                              # the orientation notch shows the slow phase
+    # spin coating: resist is dispensed at rest / slowly, then the wafer spins up to a few thousand rpm
+    # (MicroChemicals application notes; research/visual/A1_sources.md). 3000 rpm = 750 deg per frame at 24 fps,
+    # read through motion blur; excess resist leaves the edge as droplets flung off along the tangent.
     _key(rot, 1, rotation_euler=(0, 0, 0))
-    _key(rot, 174, rotation_euler=(0, 0, math.radians(360 * 9)))
+    _key(rot, 60, rotation_euler=(0, 0, math.radians(60)))          # dispense, wafer turning slowly
+    _key(rot, 90, rotation_euler=(0, 0, math.radians(60 + 15 * 750)))   # ramp (about half the top speed on average)
+    _key(rot, 174, rotation_euler=(0, 0, math.radians(60 + 15 * 750 + 84 * 750)))
     for fc in C.fcurves(rot.animation_data.action):
         for kp in fc.keyframe_points:
             kp.interpolation = "LINEAR"
+    for k in range(14):                                             # droplets flung off the edge, tangentially
+        th = 2 * math.pi * rnd.random()
+        f0 = 92 + 5 * k
+        p0 = Vector((2.0 * math.cos(th), 2.0 * math.sin(th), 0.03))
+        tang = Vector((-math.sin(th), math.cos(th), 0.0))
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=0.025, location=tuple(p0))
+        d = bpy.context.object
+        d.name = f"Fling{k}"
+        d.data.materials.append(resist)
+        styles.tag(d, "structure")
+        _key(d, 1, hide_render=True)
+        _key(d, f0, hide_render=False, location=tuple(p0))
+        _key(d, f0 + 6, location=tuple(p0 + tang * 1.4 + Vector((p0.x, p0.y, 0)) * 0.08))
+        _key(d, f0 + 7, hide_render=True)
     stream = _cyl("Drip", 0.04, 3.0, (0, 0, 1.55), resist, verts=12)
     _key(stream, 1, scale=(1, 1, 1))
     _key(stream, 60, scale=(1, 1, 1))
@@ -179,19 +193,29 @@ def process(sc, rnd):
         for ob, zb in ((film, 0.0), (res, 0.3)):
             ob.data.transform(Matrix.Translation((0, 0, ob.location.z - zb)))
             ob.location.z = zb
+        # damascene order (IBM): develop -> etch the trench -> strip the resist -> deposit metal over the whole
+        # wafer (filling and overfilling the trenches) -> chemical-mechanical polish back to the dielectric
         if exposed[k]:
             _key(res, 20, scale=(1, 1, 1))
             _key(res, 55, scale=(1, 1, 0.001))                      # develop: exposed resist dissolves
             _key(film, 60, scale=(1, 1, 1))
-            _key(film, 100, scale=(1, 1, 0.001))                    # etch: trench bites into the film
+            _key(film, 95, scale=(1, 1, 0.001))                     # etch: trench bites into the film
             met = _apply_scale(_box(f"Metal{k}", (x, 0, 0.0), (w * 0.98, 2.0, 0.3), metal_m, role="emitter"))
             met.data.transform(Matrix.Translation((0, 0, 0.15)))
             _key(met, 1, scale=(1, 1, 0.001))
-            _key(met, 105, scale=(1, 1, 0.001))
+            _key(met, 122, scale=(1, 1, 0.001))
             _key(met, 145, scale=(1, 1, 1))                         # deposit: metal fills the trench
         else:
-            _key(res, 150, scale=(1, 1, 1))
-            _key(res, 172, scale=(1, 1, 0.001))                     # strip the remaining resist
+            _key(res, 98, scale=(1, 1, 1))
+            _key(res, 118, scale=(1, 1, 0.001))                     # strip the remaining resist (before metal)
+    over = _apply_scale(_box("Overburden", (0, 0, 0.0), (8.0, 2.0, 0.14), metal_m, role="emitter"))
+    over.data.transform(Matrix.Translation((0, 0, 0.07)))
+    over.location.z = 0.3
+    _key(over, 1, scale=(1, 1, 0.001))
+    _key(over, 124, scale=(1, 1, 0.001))
+    _key(over, 145, scale=(1, 1, 1))                                # blanket deposition overfills the trenches
+    _key(over, 152, scale=(1, 1, 1))
+    _key(over, 174, scale=(1, 1, 0.001))                            # CMP polishes it away: lines left in the trenches
     # A1_07 (181-321): the cycle repeats, faster and faster; each new layer grows on top with a violet flash
     flash = _additive("ExpoFlash", VIOLET)
     top = 0.3
@@ -199,15 +223,31 @@ def process(sc, rnd):
     for c in range(9):
         dur = max(8, int(30 * 0.8 ** c))
         th = 0.3
-        lay = _apply_scale(_box(f"Stack{c}", (0, 0, 0), (8.0, 2.0, th), film_m if c % 2 else metal_m,
-                                role="structure" if c % 2 else "emitter"))
-        _key(lay, 1, hide_render=True)
-        _key(lay, f, hide_render=False)
-        lay.data.transform(Matrix.Translation((0, 0, th / 2)))
-        lay.location.z = top
-        _key(lay, 1, scale=(1, 1, 0.001))
-        _key(lay, f, scale=(1, 1, 0.001))
-        _key(lay, f + dur // 2, scale=(1, 1, 1))
+        # every level is dielectric with metal embedded: wire levels carry parallel lines (direction alternating
+        # from one wire level to the next), via levels carry a few vertical plugs; a continuous metal sheet
+        # would short everything
+        parts = [_apply_scale(_box(f"Stack{c}", (0, 0, 0), (8.0, 2.0, th), film_m))]
+        if c % 2 == 0:
+            along_x = (c // 2) % 2 == 0
+            for j in range(7):
+                if along_x:
+                    parts.append(_apply_scale(_box(f"Stack{c}W{j}", (0, -0.85 + 0.283 * j, 0), (8.0, 0.13, th * 0.9),
+                                                   metal_m, role="emitter")))
+                else:
+                    parts.append(_apply_scale(_box(f"Stack{c}W{j}", (-3.6 + 1.2 * j, 0, 0), (0.22, 2.0, th * 0.9),
+                                                   metal_m, role="emitter")))
+        else:
+            for j in range(5):
+                parts.append(_apply_scale(_box(f"Stack{c}V{j}", (-3.0 + 1.5 * j, -0.85 + 0.566 * (j % 4), 0),
+                                               (0.12, 0.12, th), metal_m, role="emitter")))
+        for lay in parts:
+            _key(lay, 1, hide_render=True)
+            _key(lay, f, hide_render=False)
+            lay.data.transform(Matrix.Translation((0, 0, th / 2)))
+            lay.location.z = top
+            _key(lay, 1, scale=(1, 1, 0.001))
+            _key(lay, f, scale=(1, 1, 0.001))
+            _key(lay, f + dur // 2, scale=(1, 1, 1))
         M.set_emission_strength(flash, f + dur // 2 - 1, 0.0)
         M.set_emission_strength(flash, f + dur // 2, 12.0)
         M.set_emission_strength(flash, f + dur // 2 + 3, 0.0)
