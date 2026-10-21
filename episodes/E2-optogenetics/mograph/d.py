@@ -47,7 +47,7 @@ def d_02a(t, dur, W, H):
     s = _warp(t, dur, D02_BASE)
     c = _canvas(W, H, TYPE_BG)
     for i, (y, at, down) in enumerate(((400, 0.4, 6.3), (600, 6.9, 11.9))):
-        a = ease(seg(s, at, at + 0.7))
+        a = _cut_in(s, 0.7, 0.4) if i == 0 else ease(seg(s, at, at + 0.7))
         if a <= 0:
             continue
         d = ease(seg(s, down, down + 0.8))
