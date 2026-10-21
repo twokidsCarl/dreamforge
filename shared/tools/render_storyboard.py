@@ -1,7 +1,7 @@
 """Render storyboard shots from the shot registry.
 
   blender -b --factory-startup -P tools/render_storyboard.py -- --shot B1_10 [--quality preview|sample|final]
-      [--frames 1,60] [--engine eevee|cycles]
+      [--frames 1,60 | 1,mid,last] [--engine eevee|cycles]
 
 episodes/<episode>/blender/shots/registry.yaml maps a storyboard id to a scene module, a camera and the
 simulation frame where the shot starts:
@@ -44,7 +44,7 @@ def args():
     ap.add_argument("--shot", required=True)
     ap.add_argument("--quality", choices=list(C.PRESETS), default="preview")
     ap.add_argument("--engine", choices=["eevee", "cycles"])
-    ap.add_argument("--frames", help="comma-separated shot-relative frames (1-based) to render")
+    ap.add_argument("--frames", help="comma-separated shot-relative frames (1-based), or mid / last")
     return ap.parse_args(argv)
 
 
@@ -77,7 +77,9 @@ def main():
     # raw: true 的镜头先写到 <quality>_raw，由 mograph 里同 id 的后处理（叠字等）再写 <quality>
     out = os.path.join(C.render_root(), "shots", a.shot, a.quality + ("_raw" if spec.get("raw") else ""))
     os.makedirs(out, exist_ok=True)
-    rel = [int(f) for f in a.frames.split(",")] if a.frames else range(1, n + 1)
+    # --frames 1,60 或 1,mid,last（mid = 中帧，last = 尾帧，按本镜帧数算）
+    named = {"mid": (n + 1) // 2, "last": n}
+    rel = [named[f] if f in named else int(f) for f in a.frames.split(",")] if a.frames else range(1, n + 1)
     log = os.path.join(C.render_root(), "times.csv")
     new = not os.path.exists(log)
     with open(log, "a", newline="") as fh:
