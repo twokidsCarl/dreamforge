@@ -87,7 +87,7 @@ def ions(sc, rnd, buffer=False, n=520):
         if r is None:
             continue
         q = rnd.randrange(8)
-        f0 = 4 + int(rnd.uniform(0, 30))
+        f0 = 4 + int(rnd.uniform(0, 140))           # the source fires 50,000 times a second: tracks keep coming
         if not buffer:
             ob = _curve(f"Track{made}", [(0, 0, 0), tuple(d * r)], mats[q], radius=0.006 + 0.002 * (7 - q))
             ob.data.bevel_factor_end = 0.0
@@ -101,16 +101,13 @@ def ions(sc, rnd, buffer=False, n=520):
                 _key(sp, f0 + 11, scale=(1.4, 1.4, 1.4))
                 _key(sp, f0 + 16, scale=(0, 0, 0))
         else:
-            # deflected, shortened tracks: bright first leg, dim tail, dying out before the mirror
+            # slowed in the hydrogen: a tin ion (119 u) hitting H2 (2 u) is deflected by about 1 deg at most per
+            # collision, so the track stays straight, dims and stops short of the mirror
+            # (research/visual/B2_sources.md)
             stop = r * rnd.uniform(0.35, 0.82)
-            pts, p, dirn = [Vector((0, 0, 0))], Vector((0, 0, 0)), d.copy()
-            legs = 4
-            for k in range(legs):
-                p = p + dirn * (stop / legs)
-                pts.append(p.copy())
-                dirn = (dirn + Vector((rnd.gauss(0, 0.5), rnd.gauss(0, 0.5), rnd.gauss(0, 0.5)))).normalized()
-            a_ = _curve(f"TrackA{made}", [tuple(v) for v in pts[:3]], mats[q], radius=0.005)
-            b_ = _curve(f"TrackB{made}", [tuple(v) for v in pts[2:]], dim[q], radius=0.004)
+            mid = d * (stop * 0.5)
+            a_ = _curve(f"TrackA{made}", [(0, 0, 0), tuple(mid)], mats[q], radius=0.005)
+            b_ = _curve(f"TrackB{made}", [tuple(mid), tuple(d * stop)], dim[q], radius=0.004)
             for ob, (fa, fb) in ((a_, (f0, f0 + 8)), (b_, (f0 + 8, f0 + 20))):
                 ob.data.bevel_factor_end = 0.0
                 ob.data.keyframe_insert("bevel_factor_end", frame=fa)
@@ -142,15 +139,19 @@ def bounce(sc, rnd):
     styles.tag(m, "structure")
     ion_mat = M.emission("Ion", (1.0, 0.75, 0.45), 40.0)
     ion = _sphere("Ion", 0.025, ion_mat, (2.8, 0.2, 0.0))
-    path = [Vector((2.8, 0.2, 0.0)), Vector((1.6, -0.15, 0.1)), Vector((0.7, 0.35, -0.12)),
-            Vector((-0.4, -0.2, 0.15)), Vector((-1.4, 0.15, -0.05)), Vector((-2.25, 0.05, 0.0))]
-    times = [1, 18, 34, 50, 64, 80]
+    # a heavy tin ion barely deviates from a straight line (<= ~1 deg per collision with H2); it loses
+    # speed at each collision and stops before the mirror, while each light H2 molecule is knocked away
+    path = [Vector((2.8 - 4.2 * u, 0.2 - 0.18 * u, 0.0)) for u in (0.0, 0.32, 0.56, 0.74, 0.87, 0.95)]
+    times = [1, 14, 30, 48, 66, 84]                     # longer and longer between collisions: decelerating
     for k, (p, f) in enumerate(zip(path, times)):
         _key(ion, f, location=tuple(p))
-        if 0 < k < len(path) - 1:                       # an H2 molecule at every collision
+        if 0 < k < len(path) - 1:                       # an H2 molecule at every collision, knocked away
             off = Vector((0, 0.07, 0))
+            kick = Vector((rnd.uniform(-0.4, 0.2), rnd.choice((-1, 1)) * rnd.uniform(0.6, 1.0), rnd.uniform(-0.4, 0.4)))
             for s_ in (-1, 1):
-                _sphere(f"HB{k}{s_}", 0.035, h2, tuple(p + off * s_ + Vector((0.06, 0, 0))), seg=12)
+                hb = _sphere(f"HB{k}{s_}", 0.035, h2, tuple(p + off * s_ + Vector((0.06, 0, 0))), seg=12)
+                _key(hb, f, location=hb.location.copy())
+                _key(hb, f + 30, location=hb.location + kick * 1.6)
             fl = _sphere(f"Flash{k}", 0.05, flash, tuple(p), seg=12)
             _key(fl, 1, scale=(0, 0, 0))
             _key(fl, f - 1, scale=(0, 0, 0))
@@ -161,20 +162,29 @@ def bounce(sc, rnd):
     for f, v in ((1, 14), (34, 8), (64, 4), (80, 2), (FRAMES, 0.5)):
         s.default_value = v
         s.keyframe_insert("default_value", frame=f)
-    trail = _curve("Trail", [tuple(p) for p in path], M.emission("Trail", (1.0, 0.6, 0.3), 3.0), radius=0.006)
+    trail = _curve("Trail", [tuple(path[0]), tuple(path[-1])], M.emission("Trail", (1.0, 0.6, 0.3), 3.0), radius=0.006)
     trail.data.bevel_factor_end = 0.0
     trail.data.keyframe_insert("bevel_factor_end", frame=1)
     trail.data.bevel_factor_end = 1.0
-    trail.data.keyframe_insert("bevel_factor_end", frame=80)
+    trail.data.keyframe_insert("bevel_factor_end", frame=84)
     B._camera("CamB2_07", [(1, (2.0, 0.1, 0.0), (2.4, 2.4, 0.4), 65, 4.0),
                            (84, (-1.8, 0.0, 0.0), (-1.2, 2.2, 0.4), 65, 4.0)])
 
 
 def multilayer(sc, n_pairs=10, width=6.0, depth=2.0, t=0.18):
-    """Alternating Mo (dark) / Si (light) layers seen in cross-section; top surface at z=0."""
+    """Alternating Mo (dark) / Si (light) layers seen in cross-section, under a thin protective capping layer
+    (collectors carry "special collector capping layers", Fomenkov 2017 p.182); top surface at z=0."""
     mo = M.principled("Mo", (0.2, 0.2, 0.2), roughness=0.5)
     si = M.principled("Si", (0.6, 0.6, 0.6), roughness=0.5)
-    z = 0.0
+    cap = M.principled("Cap", (0.75, 0.72, 0.6), roughness=0.4)
+    bpy.ops.mesh.primitive_cube_add(location=(0, 0, -t * 0.35))
+    cl = bpy.context.object
+    cl.name = "CappingLayer"
+    cl.scale = (width / 2, depth / 2, t * 0.35 * 0.98)
+    cl.data.materials.append(cap)
+    styles.tag(cl, "structure")
+    cl["sem_tone"] = 0.75
+    z = -t * 0.7
     for k in range(2 * n_pairs):
         bpy.ops.mesh.primitive_cube_add(location=(0, 0, z - t / 2))
         lay = bpy.context.object
@@ -250,19 +260,8 @@ def pumps(sc, rnd):
         pump = bpy.context.object
         pump.location = (-4.0 + 3.2 * k, 0.0, 16.4)
         pump.data.materials.append(steel)
-        styles.tag(pump, "shell")
-        for b in range(6):                                  # impeller blades
-            bpy.ops.mesh.primitive_cube_add(location=pump.location)
-            bl = bpy.context.object
-            bl.scale = (1.1, 0.08, 0.05)
-            bl.rotation_euler = (0, 0, b * math.pi / 3)
-            bl.data.materials.append(steel)
-            styles.tag(bl, "structure")
-            _key(bl, 1, rotation_euler=(0, 0, b * math.pi / 3))
-            _key(bl, FRAMES, rotation_euler=(0, 0, b * math.pi / 3 + 40 * math.pi))
-            for fc in C.fcurves(bl.animation_data.action):
-                for kp in fc.keyframe_points:
-                    kp.interpolation = "LINEAR"
+        styles.tag(pump, "shell")                           # a generic pumping port: pump type, count and
+        #                                                     position are not public (示意)
         for j in range(10):                                  # stannane drifting up the wall into the pump
             th = rnd.uniform(-0.8, 0.8)
             pts = [(rnd.uniform(-4, 0), 7.0 * math.sin(th), 7.0 * math.cos(th) * 0.4),
@@ -318,16 +317,19 @@ def glow(sc, rnd):
         ob.rotation_euler = d.to_track_quat("Z", "Y").to_euler()
         ob.data.materials.append(vol)
         styles.tag(ob, "emitter")
-    for f, e in ((1, 0.0), (30, 0.0), (40, 0.9), (80, 0.35), (150, 0.0)):
+    # the EUV pulses come 50,000 times a second, so the hydrogen plasma they leave is a quasi-steady glow
+    # that follows the beam (van de Kerkhof et al. 2021), not one flash dying away
+    for f, e in ((1, 0.0), (30, 0.0), (48, 0.6), (FRAMES, 0.6)):
         M.set_volume_strength(vol, f, emission_strength=e)
     lp = bpy.data.objects.get("LightPath")
     if lp:
         lmat = lp.data.materials[0]
-        for f, e in ((1, 0.0), (30, 0.0), (40, 12.0), (80, 4.0), (150, 0.0)):
+        for f, e in ((1, 0.0), (30, 0.0), (48, 8.0), (FRAMES, 8.0)):
             M.set_emission_strength(lmat, f, e)
-    B._area("GlowKey", (0, -6, 6), (0.8, 0, 0), 8, 120, (0.6, 0.7, 1.0))
-    B._camera("CamB2_11", [(1, (0.4, 0, 1.0), (-3.2, -3.4, 1.6), 35, 4.0),
-                           (156, (0.6, 0, 0.6), (-2.2, -3.6, 1.2), 35, 4.0)])
+    B._area("GlowKey", (BM.CENTER[0], -6, 6), (0.8, 0, 0), 8, 120, (0.6, 0.7, 1.0))
+    f2, ret = BM.FACET2, BM.RETICLE
+    B._camera("CamB2_11", [(1, f2, (f2[0] + 1.6, -3.4, f2[2] - 0.4), 35, 4.0),
+                           (156, ret, (ret[0] + 1.0, -3.6, ret[2] - 0.9), 35, 4.0)])
 
 
 def build(variant="ions", seed=11):

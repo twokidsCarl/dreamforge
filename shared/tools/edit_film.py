@@ -65,7 +65,9 @@ def label_for(s, mg):
         return None
     tr = str.maketrans("₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻", "01234567890123456789+-")
     ovs = [dict(o, text=o["text"].translate(tr)) for o in ovs]
-    return {"text": ovs[0]["text"], "sub": " ｜ ".join(o["text"] for o in ovs[1:3]),
+    rest = [o["text"] for o in ovs[1:]]
+    rest = (["示意"] if "示意" in rest else []) + [r for r in rest if r != "示意"]   # 示意 is never dropped
+    return {"text": ovs[0]["text"], "sub": " ｜ ".join(rest[:2]),
             "source": SR.fact_orgs(sorted({f for o in ovs for f in o.get("facts") or []})), "facts": [],
             "pos": "upper_right"}
 

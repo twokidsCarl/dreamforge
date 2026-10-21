@@ -1,0 +1,347 @@
+# Visual fact audit, segment B1 (EUV light source). One row per engineering / structural / optical detail the PICTURE or
+# on-screen text shows (narration numbers live in research/facts.yaml). Checked 2026-10-21.
+# status: sourced | wrong | unsourced | simplified | artistic   (see docs/WORKFLOW.md 2.3)
+# Sources: S-numbers = research/visual/B1_sources.md; ES §n = research/visual/euv_source.md.
+# Scale note for the b1_source simulation (sample_b1.py / build_source.py): 1 unit = 125 um. The droplet (25 um) and
+# pancake (300 um) are to scale; the collector (rim diameter 1.6 mm, real 650 mm), the nozzle (1.75 mm from the plasma)
+# and the droplet spacing (3.0 units = 375 um, real 1.4-1.5 mm) are not.
+# Previews reviewed via 3x3 contact sheets in renders/review/refs/B1/sheets/. Stale previews (made before later code
+# changes) are flagged under `glitch`.
+
+B1_01:
+  - item: chapter card 第一站 · 光源 over a blurred nozzle frame; ledger 电 "约 1.26 MW · ASML 2025 年报"
+    status: sourced
+    source: F48 (ASML AR2025, NXE:3800E 1.26 MW)
+    glitch: the preview (10-16) still reads "兆瓦量级 · 据行业估算"; re-render (mograph/b1.py was updated on 10-21)
+
+B1_02:
+  - item: source vessel as a drum that narrows in a cone to the intermediate focus
+    status: simplified
+    source: ES §4 (POS16 panel 1, cone with vanes narrowing to the IF unit; SW17 slide 28 real vessel)
+    note: generic shell; the vanes, hydrogen ports and bowl-shaped lower chamber are omitted
+  - item: ellipsoidal collector with the plasma at the first focus and the IF at the second; rays plasma -> mirror -> IF
+    status: sourced
+    source: ES §5 (SW17 slide 35 "Ellipsoidal design • Plasma at first focus ... intermediate focus"); light_rays() uses the focal property
+  - item: collector depth / diameter about 0.29, small central hole (about 1/9 of the diameter)
+    status: simplified
+    source: S10 (FOM17 Fig.16 / SW17 slide 35 photos, a deep bowl, matches); the hole size is not public (ES not-public 2), drawn as a plausible fit
+  - item: drive-laser entry port at the back of the vessel, on the collector axis
+    status: sourced
+    source: ES §2 (FOM17 p.176 "propagates through a central aperture in the collector")
+  - item: droplet generator port on the side, perpendicular to the collector axis
+    status: sourced
+    source: ES §1 (POS16 x along the droplets, z along the collector axis)
+  - item: droplet catcher opposite the generator
+    status: wrong
+    note: missing. build_vacuum.source_vessel has a generator port at -Y but nothing at +Y; real vessels have the catcher diametrically opposite (SW17 slide 28, POS16 "Tin catch")
+    fix: add a catcher port and module at (0, +r+0.5, 0) and give it a label, or at least draw it
+  - item: vessel orientation (collector axis horizontal on screen, IF to the side)
+    status: simplified
+    note: real NXE vessel has a "62 degree orientation", collector at the bottom "facing up against gravity", IF on top (ES §5-6). There is no floor in this shot, so roll CamB1_02 until the IF points up-right at about 60 deg; then no viewer is misled.
+  - item: labels 喷嘴（示意）/ 收集镜 / 激光入口 / 中间焦点 IF
+    status: sourced
+    note: added in post; not in the preview, so check them once rendered
+
+B1_03:
+  - item: tin droplets flying horizontally across the collector axis, generator to plasma site
+    status: sourced
+    source: ES §1, S1
+  - item: droplet spacing 375 um (15 droplet diameters)
+    status: wrong
+    note: real spacing is 70 m/s / 50 kHz = 1.4 mm (FOM17 p.180 "1.5-mm droplet-to-droplet spacing", S10), about 56 diameters. B1_07 states 1.4 mm on screen, so the picture contradicts its own caption. The same error shows in B1_08, B1_10, B1_12 and B1_21 (the next droplet sits right beside the 300 um sheet).
+    fix: sample_b1.py spacing = 11.2 units (1.4 mm); keep at most one or two droplets in macro frames
+  - item: nozzle tip 1.75 mm from the plasma (14 units), inside the frame together with the plasma site
+    status: wrong
+    note: the installed distance is not public, but the generator sits on the vessel flank outside a 650 mm collector (SW17 slide 28, POS16), so it is at least about 0.3 m away (derived, S-notpublic). Demonstrations image droplets 200-300 mm from the nozzle (ES §1).
+    fix: move the nozzle out of every shot that also shows the plasma site (B1_03, B1_08, B1_21, B2/B3 reuse), or label the shot 示意 · 非比例
+  - item: dark chamber walls, ribs, ports, LED bokeh
+    status: artistic
+    source: build_vacuum.py docstring ("purely stylised")
+
+B1_04:
+  - item: nozzle tip "外形示意" plus caption 喷嘴内径 3–5 μm（按 ASML 专利描述 · 示意）
+    status: sourced (caption) / simplified (shape)
+    source: S8 (US9715174 "inner diameter of 3-5 μm"); S9 (orifice at the end of a capillary tube)
+  - item: visible end face of the nozzle reads as an open bore about 30 um across, as large as a droplet
+    status: wrong
+    note: the cone is capped at radius 0.12 units (15 um), and the bevel/reflection makes the whole face look like an opening. This contradicts the 3-5 um caption, which says the bore is several times smaller than the droplet.
+    fix: model a 4 um orifice (radius 0.016 units) as a dark pinhole in a flat, matte end face; keep the tip outer diameter at least 5x the bore
+  - item: no jet at the orifice; full-size 25 um droplets appear right next to the tip
+    status: wrong
+    note: FOM17 Fig.10 and US9715174 show a continuous jet about as thick as the nozzle, which breaks into tiny droplets that coalesce only "at some distance away from the nozzle" (S8, S10). The storyboard also asks for a hair-thin jet.
+    fix: emit a 3-5 um jet from the orifice in CamB1_04 (reuse the b1_jet metaball emitter at real proportions); no full-size droplets in this frame
+
+B1_05:
+  - item: jet necks and pinches, small droplets catch up and merge (double modulation)
+    status: sourced
+    source: S8 (MHz Rayleigh break-up plus kHz speed modulation; "high speed droplets overtake low speed droplets and coalesce"), S9
+  - item: 3 small droplets merge into one; jet as thick as the final droplets; final droplets spaced about 2 diameters
+    status: wrong
+    note: "ASML/Cymer: \"Approximately 100 small droplets at an average frequency of 5 MHz ... produce 50 kHz droplets with a 1.5-mm droplet-to-droplet spacing\" (S10, FOM17 p.180). The jet is about nozzle-sized (3-5 um) against 25-27 um droplets, and the final spacing is about 55 diameters (FOM17 Fig.10 bottom: two small dots far apart)."
+    fix: b1_jet.py PER_BIG to about 20-30 per visible merge (or show clusters of dozens), element radius about 1/6 of the final droplet, and end the shot on widely spaced droplets; add 约 100 颗小液滴合成 1 颗（ASML/Cymer 2017） to the caption, or keep "示意" and drop the implied ratio
+  - item: caption 射流经双重调制，在飞行中合并（ASML 专利 · 示意）; 慢动作
+    status: sourced
+    source: S8
+
+B1_06:
+  - item: droplet 25 um next to a hair cross-section of 80 um, drawn to the same scale (5.2 px/um)
+    status: sourced
+    source: "S1 (25 um); S7 (ASML: 80 um \"about the diameter of an average human hair\"); S2 \"a fraction of the thickness of a human hair\""
+  - item: speed readout 70 m/s
+    status: sourced
+    source: S1 (70 m/s); S2 (241 km/h = 67 m/s)
+  - item: speed counter rising from 0 while the droplet accelerates off screen
+    status: artistic
+  - item: small caption under m/s
+    status: sourced
+    glitch: the preview (10-18) shows "(F3)"; screen_text now renders 来源：ASML. Re-render.
+
+B1_07:
+  - item: axial telephoto string of droplets, strobe, counter to 50 000; caption 每秒最多 5 万颗 · 每 20 μs 一颗
+    status: wrong
+    note: ASML AR2025 says "60,000 times per second in our latest commercial sources" (S3), so "最多 5 万" is false. The ASML web page figure of 50,000 (S1) is older.
+    fix: 每秒 5 万颗 · 每 20 μs 一颗 (drop 最多), or switch to 6 万 / about 17 us with S3 (then also update the narration, F2 and F4c)
+  - item: caption 间距约 1.4 mm（推算：70 m/s × 20 μs）
+    status: sourced
+    source: derived from S1; FOM17 p.180 measured "1.5-mm" (S10); could cite that directly
+  - item: only 6 droplets in the chain (array count 5)
+    status: artistic
+    glitch: the chain ends after six droplets, so it never reads as "看不到头"; raise the array count once spacing is 1.4 mm
+
+B1_08:
+  - item: each droplet individually imaged and targeted (HUD lock boxes, 单独成像 · 单独瞄准)
+    status: sourced
+    source: S2 (F22) "individually imaged and targeted"
+  - item: HUD design, decorative characters, lock colour change
+    status: artistic
+    note: labelled 示意：成像与瞄准系统细节未公开; overlay:hud_lock_boxes is not implemented yet (not in the preview)
+  - item: droplet spacing and nozzle-to-plasma distance
+    status: wrong
+    note: same as B1_03
+
+B1_09:
+  - item: two pulses, thin then thick, arriving from the collector's central hole along one axis
+    status: sourced
+    source: "ES §2 (SW17 slide 29, PUR20 slide 23: both CO2 beams from one side; PP beam 100 um, MP beam 400 um)"
+  - item: pulse widths 6 px vs 18 px (3x)
+    status: simplified
+    note: real PP/MP beam diameters are 100/400 um (4x, PUR20 slide 23); close enough for a diagram
+  - item: both pulses end on the same droplet outline
+    status: simplified
+    note: the main pulse really hits the expanded sheet downstream (PUR20 slide 23); B1_10-13 show the sequence
+  - item: orange colour for CO2 light, caption CO₂ 激光为红外光，橙色为示意
+    status: artistic
+  - item: labels
+    glitch: "\"主脉冲：粗\" overlaps \"预脉冲：细\" when the pulses converge (preview frames 7-9); also the preview caption ends \"· F4\" (stale; screen_text now strips it). Offset or fade the pre-pulse label when the main pulse arrives."
+
+B1_10:
+  - item: pre-pulse from behind the collector flattens the droplet into a sheet facing the laser
+    status: sourced
+    source: S1, S5, ES §3 (FOM17 Fig.13B; PM351 "dominant expansion orthogonal to the incident beam")
+  - item: sheet diameter 300 um (12x the droplet), caption 预脉冲：薄饼直径约 300 μm（锡滴约 25 μm）
+    status: sourced
+    source: F4b (TOR20 "about 300 μm"); PUR20 slide 23 "Target Diameter 400µm"
+  - item: sheet thickness 6 um at the centre, 21 um at the rim, plus 10 um displacement ripples (it reads as a thick lens / coin)
+    status: wrong
+    note: ARCNL measured "a thickness of just several tens of nanometers" with a "bounding rim" (S13). Mass conservation gives a 0.12 um mean, so the mesh is about 50-100x too thick.
+    fix: build_source.pancake half-thickness about 0.0004 units at the centre (visually a hairline), a beaded rim about 2-4 um, ripple strength at or below 0.005; give it the satin/rough tin of _cold_open so it does not mirror blotches
+  - item: pre-pulse beam radius 0.12 units (30 um diameter); main-pulse beam radius 0.7 (175 um diameter)
+    status: wrong
+    note: PUR20 slide 23 "Beam Diameter 100µm" (PP) and "Beam Diameter 400µm / Target Diameter 400µm" (MP). As drawn, the main pulse is narrower than the 300 um sheet, which contradicts B1_16 (薄盘接住整个光斑).
+    fix: PrePulse radius 0.4, MainPulse radius 1.6 (or at least 1.2 = the sheet radius); draw both as converging cones toward the focus (FOM17 p.176 "focused to a minimum spot size") rather than cylinders
+  - item: sheet drifts +x (along the laser, away from the collector) by 44 um and stays on the droplet path
+    status: simplified
+    note: the push along +laser is real (KUR16 U 0.5-350 m/s; ejecta go back toward the laser, S14). Missing is the downstream motion along the droplet path, about 160-300 um before the main pulse (80 m/s x 2-4 us; PUR20 slide 23 MP about 300 um downstream). The backlog note is half right.
+    fix: key the sheet along +y by about 1.6-2.4 units between T_PRE and T_MAIN, plus the existing small +x push; put the main-pulse axis at that downstream point
+  - item: droplet growth and concentric ripples in slow motion
+    status: artistic
+  - glitch: blotchy mirror reflections on the sheet (WORKFLOW s.9 "薄盘表面一团团斑驳"). The satin fix exists only in _cold_open; apply it to B1_10, B1_12 and B1_13.
+
+B1_11:
+  - item: shadowgraph freeze of the sheet, grey field, black silhouette, scale bar 300 μm, 示意（仿高速阴影成像）
+    status: sourced (concept)
+    source: "ES §3 (FOM17 Fig.13B; KUR16 Fig.2: edge-on sheet = thin dark vertical line with thicker rim)"
+  - item: silhouette is a fat lens about 1/4 as thick as it is wide
+    status: wrong
+    note: CamB1_11 sits about 13 deg off edge-on (camera at (2.3, 8.6, 0.4) aimed at (0.25, 0, 0)), and the mesh itself is 50-100x too thick (B1_10). The reference shadowgrams show a hairline with beaded tips and fragments.
+    fix: camera exactly perpendicular to the laser axis (location (0.25+0, 8.6, 0) aimed along -y), thin sheet as in B1_10, rim beads and a few ligament fragments at the tips (storyboard asks for 液丝)
+
+B1_12:
+  - item: sheet drifting toward the main-pulse focus, ripples spreading
+    status: simplified
+    note: same motion issue as B1_10 (needs the downstream component)
+  - item: next droplet visible beside the sheet
+    status: wrong
+    note: spacing 375 um; at 1.4 mm the next droplet would be about 4.7 sheet diameters away (B1_03 fix)
+
+B1_13:
+  - item: main pulse hits the sheet, flash, plasma at the collector's primary focus
+    status: sourced
+    source: S1, ES §4 (FOM17 p.174)
+  - item: caption 约 50 万开尔文
+    status: sourced
+    source: F5 (ASML "hot machines" page)
+    note: ASML AR2025 (S3) now says "40 times hotter than the surface of the sun" (about 23万 K, matching ZEISS). Producer chose 50万 K; record S3 in F5's notes.
+  - item: caption 主脉冲约 500 mJ（实验条件）
+    status: sourced
+    source: F4b (TOR20, ASML S2 source used in the experiments)
+  - item: violet-white volumetric plasma about 300 um across; orange/white debris sparks flying in all directions
+    status: artistic
+    note: plasma size and visible colour are not public (ES §4); debris of "target fragments, clusters of neutrals and ions" is real (FOM17 p.175), but its look is ours
+  - item: camera shake and exposure flash
+    status: artistic
+
+B1_14:
+  - item: debris cooling from white-violet to orange-red on black, pulsing core
+    status: artistic
+
+B1_15:
+  - item: grazing pass over the collector with rainbow thin-film interference bands (materials.multilayer_mirror)
+    status: wrong
+    note: ASML collector photos (SW17 slide 35, FOM17 Fig.16; S10) show a plain, mirror-bright bowl with a warm metallic cast and no rainbow or concentric bands. The 6.9 nm Mo/Si period gives no visible interference colour. A3_04 already went to a plain silver mirror for the same reason. The preview shows little banding, but the material is built to produce it.
+    fix: drop the thin-film and band nodes for the collector (keep metallic, roughness 0.03, a faint warm tint); show the multilayer only in a labelled cutaway if needed
+  - item: the plasma reflected in the mirror
+    status: sourced (physics)
+
+B1_16:
+  - item: left 直接打锡滴 (small sphere hit by the centre of the spot), right 先拍扁 (sheet fills the spot), caption 示意 · 非比例
+    status: sourced (idea)
+    source: ES §3 (FOM17 Fig.12 "expansion of the Sn droplet to match the main pulse (MP) beam waist diameter and lower the density"); S3 ("flattening the tin droplet ... increased the EUV light output"); S5 (disk with a larger surface area)
+  - item: "projections mixed: the laser spot is drawn face-on (dashed circle) but the sheet edge-on (horizontal bar)"
+    status: wrong
+    note: a sheet that faces the laser looks like a disc in the beam's view. Drawn as a bar inside a circular spot, it reads as a stick that catches only a strip of the beam, the opposite of the message.
+    fix: right panel, filled disc with diameter 0.75 of the spot (300/400 um, PUR20 slide 23); left panel droplet 27/400 of the spot; or switch both panels to a side view (beam as a horizontal band, droplet as a dot, sheet as a vertical hairline spanning most of the band)
+  - item: text 薄盘接住整个光斑，受热均匀 and the narration's 受热更均匀
+    status: unsourced
+    note: the sources give a larger area and lower density matched to the beam waist, and more EUV output (S3, S5, FOM17 Fig.12). None says "more uniform heating".
+    fix: 薄盘面积大、密度低，正好接住整个光斑 (and narration 先拍扁，薄饼正好接住整束主脉冲，更多能量变成 13.5 纳米的光)
+  - item: arrow 更多能量 → 变成 13.5 nm 的光（示意）
+    status: sourced
+    source: S3; FOM17 Fig.14 (CE rises from no-PP to disk to cloud targets)
+
+B1_17:
+  - item: tin atom with Bohr shells 2-8-18-18-4; outer electrons stripped one by one to Sn14+; corner counter Sn⁸⁺ … Sn¹⁴⁺, 剥掉 8–14 个电子, 示意（壳层模型）
+    status: sourced
+    source: S15 (NIST ground configurations; strip order 5p, 5s, then 4d gives Sn14+ = 4s2 4p6); S12 (Sn8+-Sn14+ emit in band)
+  - item: Bohr-style rings, glow of the ion brightening as it is stripped
+    status: artistic
+  - glitch: electrons are not on their rings. In preview frame 100 they form ellipses offset below and in front of the drawn orbits (a parenting/transform error in b1_atom.build_atom; the electrons ignore the tilt/ring transform). Fix the parent inverse or compute positions in the tilted frame. Also check that all 5 rings are visible.
+
+B1_18:
+  - item: spectrum 10-18 nm; lines of each charge state Sn8+ to Sn14+ falling in layers and piling into a peak at 13.5 nm; caption UTA
+    status: sourced
+    source: S12 (Sn8+–Sn14+, 4p-4d / 4d-4f UTAs, "a peak at exactly 13.5 nm", thousands of lines)
+  - item: line positions random (Gaussian, sigma 0.24 nm), symmetric peak, no out-of-band features
+    status: simplified
+    note: real Sn LPP spectra have a long-wavelength tail and short-wavelength 7-12 nm arrays (S12); the caption 成千上万条谱线（示意） covers it
+    glitch: the preview (10-18) shows "（示意，F24）"; screen_text now strips the ID. Re-render.
+
+B1_19:
+  - item: energy-level "city" (horizontal levels, vertical transition strokes), counter 超过 100 亿; caption Sn¹²⁺ 一种离子：超过 100 亿种可能的跃迁
+    status: sourced
+    source: "S11 (Sn12+: \"more than 10^10 dipole-allowed transitions\", over 3x10^5 levels)"
+  - item: levels and transitions random, 420 levels / 2600 strokes
+    status: artistic
+    note: illustrative (b1_atom docstring)
+  - glitch: a black horizontal bar crosses the web in every frame. It is the ConvergedBeam cylinder at zero emission occluding the lines. Hide it (hide_render) until frame 175.
+
+B1_20:
+  - item: the web converges into one violet beam; caption Torretti, Versolato 等 · Nature Communications 2020; 多重激发态 → EUV 光
+    status: sourced
+    source: S11
+  - item: textbook page "单电子跃迁示意" crossed out and retitled 多重激发态
+    status: wrong
+    note: the paper's old paradigm is "singly-excited states decaying to the ground state" / "one-electron-excited states" (S11). "单电子跃迁" is wrong because the EUV lines from multiply-excited states are also one-electron jumps. overlay:textbook_page is not implemented yet.
+    fix: old title 单激发态 → 基态（旧解释）, new 多重激发态之间的跃迁; optionally add 向基态的跃迁只占约 11%（S11）
+  - item: beam forming out of the web
+    status: artistic
+
+B1_21:
+  - item: pull back; collector lit; EUV cone from the collector to the IF; IF aperture glowing; caption EUV 肉眼不可见 · 光锥为示意
+    status: sourced (geometry) / artistic (visible cone)
+    source: ES §5 (ellipsoid, IF at second focus)
+  - item: solid cone with no central hole
+    status: simplified
+    note: "the collector's central aperture and the obscuration make the bundle hollow (PUR20 slide 11 far field: an annulus with a dark centre, ES §6). Optional: hollow the cone with an inner radius from COLLECTOR_HOLE_R."
+  - item: collector 1.6 mm across at droplet scale; plasma-IF distance 1.75 mm
+    status: simplified
+    note: real collector 650 mm (POS16, ES §5). The backlog item stands; this pull-back is the place to show the scale jump honestly (cut to a vessel-scale model) or add 非比例 to the caption.
+  - item: "\"next droplet already on its way\", 375 um behind"
+    status: wrong
+    note: spacing (B1_03 fix)
+
+B1_22:
+  - item: blueprint of a straight chain seed box -> pre-amplifier -> 4 amplifier stages -> beam transport tube; caption 通快 TRUMPF · CO₂ 驱动激光, 示意 · 非真实结构
+    status: sourced (stages) / simplified (layout)
+    source: S5 (seed, 100 W pre-amp, "four resonators", BTS); FOM17 Fig.1 / POS16 (seed, pre-amp, PA1-PA4)
+    note: "the real floor plan is not a straight row (FOM17 Fig.2 scale drawing: four big enclosures in a T/L plan); the caption covers it"
+  - item: one seed box
+    status: wrong
+    note: "TRUMPF: the seed module \"consists of two seed lasers\" (pre-pulse and main pulse; POS16 \"PP&MP Seed unit\") (S5)"
+    fix: draw two small seed lasers inside or side by side in the seed module, merging into the pre-amp
+  - item: dimension lines and hidden lines promised in the storyboard
+    glitch: not visible in the preview (only outlines); add them or edit the storyboard text
+
+B1_23:
+  - item: power steps 几 W → 100 W → 4 级放大 → 几十 kW（最高约 40 kW）; 放大 1 万倍以上
+    status: sourced
+    source: S5 ("a few watts", "100 W", "four resonators", "40 kilowatts", "more than 10,000 times")
+  - item: three copper cooling pipes on each amplifier stage
+    status: simplified
+    source: S5 ("three different cooling circuits"); routing is ours
+  - item: metal housings, window glow stepping up per stage (风格化外形)
+    status: artistic
+
+B1_24:
+  - item: orange pulse leaving the last amplifier into the beam tube (energy view)
+    status: artistic
+
+B1_25:
+  - item: caption 光路最长约 30 m
+    status: sourced
+    source: S5 ("up to 30 meters in the direction of the droplet chamber")
+  - item: beam tube lying along the fab floor in the same hall as the scanner
+    status: wrong
+    note: the drive laser "is typically installed in the sub-fab" and the beam goes "from the sub-fab to the fab through the waffle-slab floor" via turning mirrors (FOM17 p.176; FOM17 Fig.1 / POS16 / WS18 "Fab Floor" over "Sub-Fab Floor"; ES §6). The storyboard itself says 从地面下方穿过.
+    fix: "two-level section in build_machine.fab_hall: laser enclosures and a horizontal tube in a lower sub-fab, a vertical tube rising through a perforated (waffle) slab to the source vessel beside the scanner; silhouettes on both levels"
+  - item: orange light dot racing along an observation slot in the tube
+    status: artistic
+    note: the BTS is enclosed and CO2 light is invisible. The storyboard marks this 示意, but the overlay list has no 示意.
+    fix: add 示意 to the caption (光路最长约 30 m · 光点为示意) or drop the slot
+  - item: stylised hall, columns, light strips, people silhouettes for scale
+    status: artistic
+    note: project rule (no real fab copied; silhouettes only)
+
+B1_26:
+  - item: caption 超过 45 万个零件 · 重 20 多吨; 示意
+    status: sourced
+    source: S6 (TRUMPF press release, new-generation laser)
+  - item: clay exploded view of the same straight chain (hundreds of parts, not 450,000)
+    status: artistic
+    note: labelled 示意; the exterior is not TRUMPF's
+
+B1_27:
+  - item: ledger 电 约 1.26 MW → 激光 几十 kW → EUV; log scale, 量级示意 · 对数刻度
+    status: sourced
+    source: F48 (1.26 MW), S5 (40 kW)
+  - item: EUV entry 量产最高约 600 W
+    status: unsourced
+    note: "grade C only (Bits&Chips 2026). ASML first-party / SPIE: NXE:3800E \">500W\" (S4, Hummler et al. 2024); 600 W only as a \"milestone\" on \"ASMLs research systems\" (S4, Umstadter et al. 2023)."
+    fix: 量产光源 500 W 以上（NXE:3800E）, ledger value 500; or name the research milestone separately
+  - item: dashed extension 1000 W 原理样机（实验室）
+    status: simplified
+    note: the 1000 W demonstration (April 2025) is grade A (S3, ASML AR2025 p.31), but "原理样机/实验室" is media wording
+    fix: 1000 W 光源已演示（2025 年 4 月，ASML 年报）; downgrade F4c's 1000 W part to grade A with S3 and keep the 600 W part rejected
+  - glitch: the preview (10-16) still shows "据报道" and "据行业估算"; re-render (b1.py now has neither)
+
+B1_28:
+  - item: x-ray whole machine, light from the source through the IF into the scanner, 示意
+    status: sourced
+    source: audit_A0.yaml A0_05 (High-NA EXE:5000 layout from van Schoot 2022/2021 and ZEISS 2024; build_machine.py header)
+    glitch: the preview (10-18) predates the High-NA re-layout of build_machine.py (10-19), and CamB1_28 keys use the old frame (audit_backlog ALL). Re-frame on BM.CENTER, re-render, then check that every turn of the path is at a mirror (WORKFLOW s.9); the stale frames look as if the path kinks near the IF.
+
+B1_29:
+  - item: thin violet beam through the IF in the dark; ledger static
+    status: sourced
+    source: as B1_28
+    glitch: stale preview, same re-render as B1_28

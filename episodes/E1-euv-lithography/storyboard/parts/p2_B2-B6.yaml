@@ -197,7 +197,7 @@ shots:
   - scanlines
   - deposition_particles
   overlays:
-  - text: 沉积 · 注入 · 溅射（示意）
+  - text: 沉积 · 注入 · 溅射（示意 · 顶层为保护层）
     facts:
     - F26
   - text: 反射率 ↓
@@ -301,7 +301,7 @@ shots:
   - text: Sn + 4 H· → SnH₄↑（气体）
     facts:
     - F27
-  - text: 示意
+  - text: 示意 · 顶层为保护层
     facts: []
   engine: eevee
   sfx:
@@ -331,7 +331,9 @@ shots:
   fx:
   - ghost_glass
   - gas_flow_particles
-  overlays: []
+  overlays:
+  - text: 抽气口（泵的类型与位置未公开 · 示意）
+    facts: []
   engine: eevee
   sfx:
   - 真空泵高速旋转的稳定嗡声

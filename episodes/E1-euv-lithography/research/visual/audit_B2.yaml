@@ -1,0 +1,299 @@
+# Visual fact audit, segment B2 (vacuum, hydrogen and debris). One row per engineering / structural / physics
+# detail the PICTURE or on-screen text shows (narration numbers live in research/facts.yaml). status:
+#   sourced    - matches a primary source cited here
+#   wrong      - contradicts a source; must change
+#   unsourced  - invented or unchecked; may not reach the final render
+#   simplified - deliberate simplification; the difference from reality is stated
+#   artistic   - deliberate convention (slow motion, violet EUV...); flag 示意 where a viewer could take it literally
+#   glitch     - rendering / readability problem (not a fact status; listed so it is fixed in the same pass)
+# Sources: S-numbers in research/visual/B2_sources.md (local copies in renders/review/refs/B2/ and refs/source/).
+# Checked 2026-10-21 against code (b2_scenes.py, b1_source.py, build_vacuum.py, mograph/b2.py), storyboard
+# parts/p2_B2-B6.yaml and preview frames renders/shots/B2_*/preview (640x360).
+# NOTE: B2_11 uses build_machine (now the High-NA EXE:5000 model) and must be re-framed (audit_backlog ALL).
+
+B2_01:   # b1_source sim, CamB2_01, photoreal
+  - item: collector face in the dark vessel just after the main pulse
+    status: simplified
+    source: S1 slide 35 (photo of a real collector - mirror-bright bowl with a gold cast); euv_source.md s.5
+    note: in the render the face is a flat lavender wash lit by the plasma glow; the collector look itself is a B1 item
+  - item: glowing tin embers drifting slowly toward the collector
+    status: simplified
+    source: S1 slide 23 (cartoon - tin ions fly back toward the laser side, i.e. toward the collector; '"ejecta" microparticles, tin vapor' leave the far side); S2 p.182 ("high-energy ions and neutrals from the plasma could strike the collector"), p.183 (microparticles reach the collector as secondary debris after hitting walls)
+    note: primary microparticles go mostly away from the collector; what hits the mirror directly is ions and neutral vapour, which do not glow as sparks
+    fix: let most embers fly away from the mirror (toward the far side / catcher) and leave the 'threat to the mirror' to the ion tracks in B2_04; or keep a few embers but do not aim them at the mirror
+  - item: violet EUV cone from the mirror toward the IF (storyboard)
+    status: glitch
+    note: not visible in any preview frame
+    fix: make sure the euv_cone is in frame and lit, or drop it from the storyboard text
+  - item: last ~1.4 s (frames ~70-103) are an almost featureless lavender field (out-of-focus collector face fills the frame)
+    status: glitch
+    fix: end the push-in on the collector rim / hole so the frame keeps a readable structure
+  - item: chamber wall, ribs, ports, status LEDs
+    status: artistic
+    source: build_vacuum.py docstring; euv_source.md 'NOT public' (vessel internals are not published)
+
+B2_02:   # b2_scenes variant air, xray
+  - item: EUV dies within a short run of air (beam lit over ~2 of 12 tube units)
+    status: sourced
+    source: S11 (CXRO, air at 1 atm - 50 % gone in 0.1 mm, 99.9 % in 1 mm; A3_sources.md S4); S3 ("absorbed by everything, even air")
+    note: real attenuation length ~0.14 mm, so the drawn length is hugely exaggerated; covered by the 示意 overlay
+  - item: air molecules as dots in the tube
+    status: artistic
+  - item: overlay λ = 13.5 nm
+    status: sourced
+    source: F1 (ASML light-and-lasers page)
+  - item: overlay 空气会吞掉 EUV → 整条光路：真空
+    status: sourced
+    source: S3 ("the whole light path ... from source to wafer – must be in high vacuum"); refinement to ~5 Pa H2 comes in B2_10 (S4)
+  - item: source vessel = horizontal drum narrowing into a cone toward the IF
+    status: simplified
+    source: S5 panel 1 (schematic - cone lined with "Vanes" narrowing to the "Intermediate Focus Unit"); S1 slide 28 (real vessel - bowl around the collector, IF on top); S5 ("62 degree orientation")
+    note: real vessel is tilted (IF up) and has vanes and an obscuration on the plasma-IF line; neither shown. 示意 overlay is present
+  - item: storyboard says collector, EUV path and wall-mounted pumps appear after the scan-wipe; the 'air' variant builds only the empty vessel
+    status: glitch
+    note: end frames show an empty ghost vessel under the label 整条光路：真空 - no light path to point at
+    fix: in b2_scenes.air() add S.collector(), S.euv_cone()/intermediate_focus() and the pumps (as in pumps()), framed as B2_09's opening
+  - item: EUV beam in the air tube renders near-white in xray instead of violet
+    status: glitch
+    fix: keep the violet EUV colour code in xray (exclude the beam from the xray restyle)
+
+B2_03:   # b1_source sim, CamB2_03, photoreal
+  - item: main pulse hits the flattened target, plasma flash
+    status: sourced
+    source: euv_source.md s.2-4 (FOM17, PUR20); same simulation as B1
+  - item: debris flies out as an isotropic spherical shell, sparks heading at the mirror (VO 四面八方喷出锡离子)
+    status: simplified
+    source: S6 (Poirier et al. 2022, "strongly anisotropic ion emission" from Sn microdroplet plasma); S1 slide 23 (ions back toward the laser, ejecta forward)
+    note: emission is not uniform; ions peak back toward the laser/collector side, microparticles forward
+    fix: 'bias the spark burst - fewer sparks toward the mirror, more toward the far side - or accept as simplified (VO 四面八方 is loose but not false: ions are detected at all measured angles)'
+  - item: glowing sparks stand for 'tin ions' of the VO
+    status: simplified
+    note: keV ions are invisible; the sparks are microparticles/fragments. B2_04 shows the ions as tracks
+  - item: violet plasma cloud glowing for ~6 s; camera shake
+    status: artistic
+    source: S8 p.3 (EUV pulse <100 ns, 50 kHz); plasma visible colour not public (euv_source.md s.4)
+
+B2_04:   # b2_scenes variant ions, energy
+  - item: ion tracks radiate from the plasma and strike the collector
+    status: sourced
+    source: S2 p.176, p.182 ("high-energy ions and neutrals from the plasma could strike the collector surface"); S1 slide 23
+  - item: overlay 锡离子 Sn¹⁺–Sn⁸⁺
+    status: sourced
+    source: S7 (Poirier et al. 2022, Appl. Phys. B - "Typically the Sn ions coming from the plasma are in charge states of 1+ to 8+")
+    note: ARCNL lab plasma (Nd:YAG); the charge distribution of ASML's CO2-driven source is not public (F26 note)
+  - item: overlay 能量可达数 keV
+    status: sourced
+    source: S2 p.180 ("accelerates ions ... up to several keV"), Fig. 18 (ion energies at the collector position up to ~3.5 keV without H2); S7 ("energies ranging up to several keV")
+  - item: colour/width by charge state - 1+ brightest and thickest, 8+ dimmest and thinnest
+    status: artistic
+    source: S7 ("For ions with the same energy-over-charge ratio, the higher charged ions have higher energy")
+    note: if a viewer reads brightness as energy, the encoding is backwards; no legend is shown
+    fix: uniform colour, or make higher charge states brighter (more energetic)
+  - item: a spark at every 4th impact on the mirror
+    status: artistic
+    note: ion impacts deposit/implant/sputter atoms; there is no source for visible sparks
+    fix: optional - tiny grey sputter puffs instead of white sparks
+  - item: all 520 tracks are drawn by frame ~45 and then stay as a static starburst for ~4.5 s
+    status: glitch
+    fix: animate each ion as a moving head with a fading tail, emitted continuously, so the 'rain' keeps falling while the VO runs
+  - item: collector shown only as a faint dark-blue outline, barely visible
+    status: glitch
+    fix: brighter metrology-cyan rim as the storyboard says
+  - item: number of tracks
+    status: artistic
+
+B2_05:   # b2_scenes variant micro, sem
+  - item: tin atoms deposit on, implant into, or sputter the Mo/Si stack (overlay 沉积 · 注入 · 溅射（示意）)
+    status: sourced
+    source: S7 ("coating, implantation or sputtering depending on the energy and charge state of the ions"); S2 p.176
+  - item: reflectivity falls (overlay 反射率 ↓, no number)
+    status: sourced
+    source: S2 Fig. 17 (NXE:3300 collector reflectivity falling -0.4 to -0.6 %/Gpulse even with protection)
+  - item: 'top of the stack is a bare Mo layer (multilayer(): k=0 is Mo)'
+    status: wrong
+    source: S2 p.182 ("special collector capping layers"); S4 slide 2 (scanner mirrors are "Ru-coated")
+    fix: add a thin capping layer on top in its own tone, labelled 保护层（示意） (collector cap material not public); same in B2_08
+  - item: Mo and Si layers equal thickness (t = 0.18 each)
+    status: simplified
+    source: S10 (Mo/Si for 13.5 nm - 50 bilayers, period 6.97-7.07 nm)
+    note: the Mo/Si thickness split is not sourced in this pass; align with the B4 multilayer research
+    fix: take the period split from the B4 sources (Mo is the thinner layer in standard stacks - verify) and reuse in B2_05/B2_08/B4_02
+  - item: tin atom diameter ~0.8 of a layer thickness
+    status: simplified
+    source: S10 (period ~7 nm); a Sn atom is ~0.3 nm across (derived from its ~0.15 nm metallic radius)
+    note: atoms drawn roughly 10x too large relative to the layers
+    fix: say so on screen (原子放大 · 示意) or shrink atoms to ~1/10 of a layer
+  - item: implanted atoms end inside the opaque layers and are hidden; sputtered atoms hard to see
+    status: glitch
+    note: only deposition reads on screen, although the label says 沉积 · 注入 · 溅射
+    fix: keep all atoms on the section plane (y = front face) or cut the stack open so implants show in cross-section
+  - item: grey-scale 'SEM' that resolves single atoms
+    status: artistic
+    note: SEM cannot resolve atoms; 示意 is on screen
+  - item: reflectivity needle sliding in the corner (storyboard)
+    status: glitch
+    note: not built; only the 反射率 ↓ overlay exists
+
+B2_06:   # b2_scenes variant ions_h2, energy
+  - item: hydrogen buffer gas slows the ions before the mirror (overlay H₂ 缓冲层)
+    status: sourced
+    source: S1 slide 34 ("Hydrogen buffer gas (pressure ~100Pa) causes deceleration of ions"); S2 p.182 and Fig. 18
+  - item: ion tracks kink through large random angles at each leg (gauss 0.5 per leg)
+    status: wrong
+    source: S9 (two-body elastic kinematics - a projectile heavier than its target is deflected by at most arcsin(m_target/m_projectile)); Sn 118.7 u on H2 2 u -> max ~1.0 deg per collision
+    fix: tracks stay nearly straight while they dim and shorten (losing energy); only the last, thermalised part may wander slowly with the gas flow
+  - item: some ions still reach the mirror region / tracks die at 35-82 % of the way
+    status: simplified
+    source: S2 Fig. 18 (higher H2 pressure cuts ion flux and energy at the collector by orders of magnitude; not to zero)
+  - item: H2 molecules static, spread uniformly around the plasma
+    status: simplified
+    source: S1 slide 34 ("Hydrogen flow away from collector reduces atomic tin deposition rate"; flow lines start on the collector surface); S2 p.183 ("fresh gas has to be flown constantly into the vessel at high flow rates")
+    fix: drift the H2 dots away from the mirror surface (slow streaks), which also explains why tin is pushed back
+  - item: tracks shift from white to dark orange as they slow
+    status: artistic
+    note: consistent with S7 (H2 lowers charge states by electron capture), but colour is a convention
+  - item: same static-starburst problem as B2_04 after frame ~40
+    status: glitch
+    fix: as B2_04
+  - item: number and size of H2 'dumbbells'
+    status: artistic
+    note: optional overlay addition 约 100 Pa (S1 slide 34) would keep it distinct from the scanner's 5 Pa in B2_10
+
+B2_07:   # b2_scenes variant bounce, energy
+  - item: one tin ion caroms off H2 molecules like a billiard ball, zig-zagging 20-40 deg at each hit
+    status: wrong
+    source: S9 (max deflection of Sn on H2 ~1.0 deg per collision)
+    fix: ion keeps a straight line and visibly slows (each leg shorter in time), the light H2 is kicked away at a large angle, ion stops and dims
+  - item: the hit H2 molecules stay where they were
+    status: wrong
+    source: S9 (momentum conservation - the struck molecule recoils)
+    fix: animate each H2 recoiling away from the track after the flash
+  - item: cyan flash at each collision
+    status: artistic
+    source: S2 p.183 (ion kinetic energy "is released into the buffer gas")
+  - item: mirror (plane at x = -3.2) is not visible in any preview frame, so 'stops short of the mirror' does not read
+    status: glitch
+    fix: light the mirror edge or bring it into frame at the end of the track
+  - item: 示意 overlay
+    status: sourced
+    note: present, keep
+
+B2_08:   # b2_scenes variant clean, sem
+  - item: overlay Sn + 4 H· → SnH₄↑（气体）
+    status: sourced
+    source: S1 slide 34 ("Sn (s) + 4H (g) → SnH4 (g)"); S2 p.183 eq. (1), "it can be pumped away as it is gas under the source conditions"
+  - item: overlay H₂ → 2 H·
+    status: sourced
+    source: S2 p.183 eq. (2)
+  - item: radicals made by EUV (VO 极紫外光又把氢分子打碎)
+    status: simplified
+    source: S2 p.183 ("thermal dissociation in the plasma region, photo-dissociation by plasma radiation, dissociation by photo-electrons"); S4 slide 15
+    note: EUV/plasma radiation is one of three routes; acceptable for narration
+  - item: H atoms arrive already split from above; no H2 molecules and no EUV flash (storyboard asked for both)
+    status: simplified
+    fix: start with H2 dumbbells above the surface, a violet flash, then the pairs fly apart into single radicals
+  - item: four H attach at once to make a tetrahedral SnH4
+    status: simplified
+    note: tetrahedral geometry is correct for stannane; real hydrogenation is stepwise (SnH, SnH2 ...)
+  - item: every SnH4 leaves and the surface ends clean
+    status: simplified
+    source: S2 p.183 (photo-dissociation of stannane and catalytic dissociation on Sn-covered surfaces "tend to bring Sn back to collector surfaces"; K_net = K_SnH4(1 - K_redep))
+    fix: optional - one molecule breaks up and drops its Sn back
+  - item: dedicated in-situ hydrogen-radical sources for collector cleaning not shown
+    status: simplified
+    source: S2 p.182 ("A tin cleaning technique using hydrogen radicals was developed"); S12 (ASML patent US11013096B2, RF/inductive radical sources in the vessel)
+  - item: bare Mo top layer (atom scale is simplified, see B2_05)
+    status: wrong
+    note: same as B2_05 - add a capping layer (wrong); atom scale is simplified (label it)
+  - item: SEM look resolving atoms and molecules
+    status: artistic
+    note: 示意 on screen
+
+B2_09:   # b2_scenes variant pumps, xray
+  - item: stannane pumped out of the vessel
+    status: sourced
+    source: S1 slide 34 ("Vessel with vacuum pumping to remove hot gas and tin vapor"); S2 p.183
+  - item: SnH4 drawn as pale grey streams
+    status: artistic
+    note: stannane is a colourless gas
+  - item: three pumps on top of the vessel with spinning six-blade rotors (code comment calls them turbo pumps)
+    status: unsourced
+    note: pump type, number and position on the vessel are not public (S12 says only "purge outlet"; S1 says only "vacuum pumping")
+    fix: no rotors; draw generic exhaust ports/ducts and add a 示意 overlay (B2_09 has no overlay now)
+  - item: flow from the collector region along the wall to the pumps
+    status: simplified
+    source: S1 slide 34 (flow starts at the collector surface and runs toward plasma and IF); exhaust positions not public
+  - item: vessel horizontal, no vanes
+    status: simplified
+    source: S5 (62 deg orientation; vanes)
+  - item: streams render as jagged 3-point V-shaped polylines; pumps cut at the top edge and rotors not readable
+    status: glitch
+    fix: smooth NURBS/Bezier streamlines with tapered alpha; frame the exhaust fully
+
+B2_10:   # mograph/b2.py five_pascal
+  - item: about 5 Pa of hydrogen, not absolute vacuum (VO 扫描仪里)
+    status: sourced
+    source: 'S4 slide 2 ("System is not at vacuum: ~5 Pa of H2"); S8 p.1 ("a background gas of roughly 5 Pa hydrogen (H2) must be used")'
+  - item: both icons are the SOURCE-VESSEL silhouette (drum + cone to IF), the right one labelled 实际：约 5 Pa 氢气
+    status: wrong
+    source: S1 slide 34 (source vessel ~100 Pa H2); S4 slide 2 / S8 p.1 (~5 Pa is the scanner)
+    note: the on-screen text never says 扫描仪 (storyboard overlay is not drawn on mograph shots), so the picture says the source vessel holds 5 Pa
+    fix: draw a scanner icon (mirror box with folded light path) and label 扫描仪内部：约 5 Pa 氢气
+  - item: log gauge 0.01 Pa - 1 atm (at 1e5 Pa), needle settling on 5 Pa
+    status: sourced
+    note: 1 atm = 101 325 Pa; log placement checked in code
+  - item: a few dozen H2 molecules
+    status: artistic
+    note: real density at 5 Pa ~1.2e21 m^-3 (S8 p.7)
+  - item: preview frames show （F28 · 示意） under the gauge
+    status: glitch
+    note: preview is from 2026-10-16; current Canvas.text -> screen_text strips the ID (-> （示意）). Re-render and check
+  - item: gauge tick labels 20 px and note 22 px at 1080p
+    status: glitch
+    fix: '>= 28 px or drop the tick labels except 1 atm and 5 Pa'
+
+B2_11:   # b2_scenes variant glow (build_machine = High-NA model) - RE-FRAME NEEDED
+  - item: EUV ionises the ~5 Pa hydrogen into a weak plasma along the light path
+    status: sourced
+    source: S4 slide 15 ("In scanner, plasma is created by EUV photons ... EUV photons hit H2 molecules; primary electrons create secondaries; low plasma density & temperature"); S8 p.1, p.3
+  - item: glow colour violet
+    status: artistic
+    source: S4 slide 15 (ASML's own illustration of the scanner plasma is a violet glow along the beam)
+    note: no photograph is public; ionisation is tiny (~1e15 m^-3 ions per pulse vs 1.2e21 m^-3 gas, S8 p.7-8), so the real glow would be very faint
+  - item: one pulse lights the glow, which fades over ~5 s
+    status: simplified
+    source: S8 p.3 (pulses <100 ns every 20 us; phases 0-0.2 us photoionisation, 1-20 us diffusion and decay), p.6-7 ("decay times ... at 1-10 Pa will be longer than the pulse interval of 20 us and plasma will build up over several pulses")
+    note: in reality it is a quasi-steady glow while the exposure runs, not a single slow flash
+    fix: show it as a glow that builds up over a few rapid pulses and stays while the light is on; or mark 慢动作 · 示意
+  - item: glow drawn as constant-radius (0.12) tubes along each leg of the path
+    status: simplified
+    source: S8 p.1 ("The EUV beam will vary in intensity and shape throughout the scanner, as will the plasma"), Table 1 (beam 11 x 1 cm at the reticle); S13 Fig. 4b ("plasma accumulation beyond the beam confines over multiple pulses")
+    fix: let the glow follow the beam envelope (converging/diverging cones, slit-shaped at the reticle) with a soft halo outside it
+  - item: machine interior, mirror positions and light path
+    status: sourced
+    source: high_na_optics.md (build_machine PATH)
+    note: rebuilt as High-NA EXE:5000 - re-frame camera CamB2_11 (BM.CENTER) before final render
+
+B2_12:   # b1_source sim, CamB2_12, photoreal
+  - item: collector centred, droplet stream through the focus, plasma at the focus
+    status: sourced
+    source: euv_source.md s.1, s.4, s.5 (same simulation as B1)
+  - item: violet glow of the light cone brightening with each pulse
+    status: artistic
+    source: S8 p.3 (50 kHz - to any real-time eye the glow is continuous)
+    note: per-pulse breathing is slow motion
+  - item: persistent violet plasma cloud; lavender haze filling the vessel
+    status: artistic
+    note: visible colour of the tin plasma is not public (euv_source.md s.4); H2 at ~100 Pa does not scatter visibly
+  - item: droplets hardly visible in the preview
+    status: glitch
+    fix: check in the full-res render
+
+ALL:
+  - item: label renderer flattens sub/superscripts (edit_film.label_for maps ₂ ¹ ⁺ to ASCII) - Sn¹⁺–Sn⁸⁺ shows as Sn1+–Sn8+, H₂ as H2, SnH₄ as SnH4
+    status: glitch
+    fix: use a label font with these glyphs (e.g. Noto Sans CJK) or draw sub/superscripts with a smaller raised/lowered run
+  - item: facts.yaml F27 cites US7372049B2 and US11013096B2, which do not say that EUV makes the radicals (US7372049 does not mention SnH4; US11013096 uses RF/inductive radical sources)
+    status: wrong
+    fix: re-source F27 to S2 p.183 (eq. 1-2 and the dissociation mechanisms) and S1 slide 34; keep US11013096B2 only for in-situ radical cleaning
+

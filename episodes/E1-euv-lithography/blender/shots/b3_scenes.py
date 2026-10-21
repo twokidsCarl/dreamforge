@@ -117,52 +117,46 @@ def handoff(sc, rnd):
 
 
 def nave(sc, rnd):
+    """B3_07: through the intermediate focus into the illuminator, as the real optics are laid out (the High-NA
+    train from build_machine, after ZEISS 2024 s.13): small fold mirror, field facet mirror, pupil facet mirror,
+    each lighting up as the beam turns on it. Only the mirrors and the light path are shown."""
+    import build_machine as BM
     C.set_world(top=(0.004, 0.005, 0.008), horizon=(0.002, 0.002, 0.004), bottom=(0.0, 0.0, 0.001))
+    path, pmat = BM.machine()
+    keep = ("FoldMirror", "Facet", "POMirror", "Reticle", "LightPath")
+    for ob in list(bpy.data.objects):
+        if ob.type in ("MESH", "CURVE") and not ob.name.startswith(keep):
+            ob.hide_render = True
+    ax = Vector(BM.SRC_AXIS)                             # points from the IF back toward the source
+    rot = (-ax).to_track_quat("Z", "Y").to_euler()
     plate_mat = M.dark_anodized("Aperture")
-    bpy.ops.mesh.primitive_cylinder_add(radius=6.0, depth=0.3, vertices=96, location=(0, 0, 0),
-                                        rotation=(0, math.pi / 2, 0))
+    bpy.ops.mesh.primitive_cylinder_add(radius=1.2, depth=0.06, vertices=96, location=BM.IF, rotation=rot)
     plate = bpy.context.object
-    bpy.ops.mesh.primitive_cylinder_add(radius=0.6, depth=1.0, vertices=64, location=(0, 0, 0),
-                                        rotation=(0, math.pi / 2, 0))
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.12, depth=0.5, vertices=64, location=BM.IF, rotation=rot)
     hole = bpy.context.object
     hole.hide_render = hole.hide_viewport = True
-    b = plate.modifiers.new("Hole", "BOOLEAN")
-    b.object = hole
-    b.operation = "DIFFERENCE"
+    bo = plate.modifiers.new("Hole", "BOOLEAN")
+    bo.object = hole
+    bo.operation = "DIFFERENCE"
     plate.data.materials.append(plate_mat)
     styles.tag(plate, "structure")
     glow = M.emission("IFPoint", (0.8, 0.7, 1.0), 25.0)
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.08, location=(0, 0, 0))
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.03, location=BM.IF)
     gp = bpy.context.object
     gp.data.materials.append(glow)
     styles.tag(gp, "emitter")
-    mirror = M.multilayer_mirror("NaveMirror", r_max=1.6)
-    rim = M.emission("Rim", (0.55, 0.75, 1.0), 0.0)
-    for k in range(7):                                   # mirrors receding like nave columns
-        x = 6 + 6 * k
-        for side in (-1, 1):
-            bpy.ops.mesh.primitive_cylinder_add(radius=1.4, depth=0.18, vertices=64,
-                                                location=(x, side * 3.2, 0.6 * (k % 2)),
-                                                rotation=(0, math.pi / 2 - 0.5 * side, 0))
-            m = bpy.context.object
-            m.rotation_euler = (math.pi / 2, 0, side * 0.6)
-            m.data.materials.append(mirror)
-            styles.tag(m, "structure")
-            bpy.ops.mesh.primitive_torus_add(major_radius=1.42, minor_radius=0.025, location=m.location,
-                                             rotation=m.rotation_euler)
-            t = bpy.context.object
-            t.data.materials.append(rim)
-            styles.tag(t, "emitter")
-    for k in range(7):                                   # rims light up one after another
-        pass
-    s = rim.node_tree.nodes["Emission"].inputs["Strength"]
-    for f, v in ((1, 0.0), (40, 0.0), (110, 6.0)):
-        s.default_value = v
-        s.keyframe_insert("default_value", frame=f)
-    B._area("NaveKey", (20, 0, 10), (0, 0, 0), 30, 400, (0.6, 0.7, 1.0))
-    B._camera("CamB3_07", [(1, (0, 0, 0), (-6.0, 0.4, 0.3), 24, 4.0),
-                           (60, (6, 0, 0), (0.6, 0.0, 0.0), 24, 4.0),
-                           (132, (30, 0, 0), (9.0, 0.0, 0.5), 24, 4.0)])
+    # the beam draws on from the IF to the reticle as the camera flies through
+    n = len(BM.PATH) - 1
+    i_if, i_ret = BM.PATH.index(BM.IF), BM.PATH.index(BM.RETICLE)
+    path.data.bevel_factor_start = i_if / n
+    for f, v in ((1, i_if / n), (30, i_if / n), (120, i_ret / n)):
+        path.data.bevel_factor_end = v
+        path.data.keyframe_insert("bevel_factor_end", frame=f)
+    B._area("NaveKey", tuple(Vector(BM.FACET1) + Vector((0, -6, 4))), (0.9, 0, 0), 8, 300, (0.6, 0.7, 1.0))
+    start = Vector(BM.IF) + ax * 2.2 + Vector((0, -0.25, 0.1))
+    B._camera("CamB3_07", [(1, BM.IF, tuple(start), 24, 4.0),
+                           (60, BM.FOLD, tuple(Vector(BM.IF) + ax * 0.15 + Vector((0, -0.3, 0.1))), 24, 4.0),
+                           (132, BM.FACET2, tuple(Vector(BM.FOLD) + Vector((0.4, -2.2, 0.6))), 24, 4.0)])
 
 
 def build(variant="burst", seed=31):

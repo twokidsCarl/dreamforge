@@ -314,10 +314,11 @@ F26:
 F27:
   claim: 氢气缓冲层给锡离子减速；EUV 把氢分子打成氢自由基，与锡反应生成气态 SnH₄ 被抽走
   status: verified
-  grade: B
+  grade: A
   sources:
-    - https://patents.google.com/patent/US11013096B2
-    - https://patents.google.com/patent/US7372049B2
+    - https://www.degruyterbrill.com/document/doi/10.1515/aot-2017-0029/pdf
+    - https://www.euvlitho.com/2017/S1.pdf
+  notes: Fomenkov et al. 2017 (Adv. Opt. Techn.) p.183 and ASML 2017 Source Workshop p.34 (source vessel ~100 Pa H2); the two patents cited before do not support the radical step (research/visual/B2_sources.md).
   segments: [B2]
 
 F28:
