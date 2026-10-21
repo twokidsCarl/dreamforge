@@ -105,9 +105,12 @@ def main():
     terms = asr_terms()
     rows = []
     for seg in parse(os.path.join(EP, "script/script_zh.md")):
+        prev = ""
         for L in seg["lines"]:
+            # the previous line as context: a bare clip that starts with 锡滴 gets heard as the letters "CD"
             segs, _ = model.transcribe(load16k(wav_for(L["text"], a.voice)), language="zh", beam_size=5,
-                                       initial_prompt=asr_prompt())
+                                       initial_prompt=asr_prompt() + prev)
+            prev = L["text"]
             heard = t2s("".join(x.text for x in segs).strip())
             r = sound_ratio(L["text"], heard)                     # by sound: homophones are not errors
             rc = difflib.SequenceMatcher(None, norm(L["text"]), norm(heard)).ratio()

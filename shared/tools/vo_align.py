@@ -27,9 +27,12 @@ from speech_text import normalize  # noqa: E402
 from paths import AUDIO, EP, REPO  # noqa: E402
 
 
-def char_times(model, wav):
+PLAIN_PROMPT = "以下是普通话科普旁白，使用简体中文。"
+
+
+def char_times(model, wav, prompt=None):
     segs, _ = model.transcribe(load16k(wav), language="zh", word_timestamps=True, beam_size=5,
-                               initial_prompt=asr_prompt())
+                               initial_prompt=prompt or asr_prompt())
     chars, times = [], []
     for s in segs:
         for w in s.words:
@@ -99,8 +102,17 @@ def main():
         if a.reuse and seg.get("spans"):
             spans = [tuple(v) for v in seg["spans"]]
         else:
-            asr_text, asr_times = char_times(model, wav)
-            spans = align_spans(spoken, asr_text, asr_times, vo_split.pauses(x, min_len=0.08))
+            pz = vo_split.pauses(x, min_len=0.08)
+            for prompt in (None, PLAIN_PROMPT):          # glossary prompt first; it can make the recogniser drop a line
+                asr_text, asr_times = char_times(model, wav, prompt)
+                spans = align_spans(spoken, asr_text, asr_times, pz)
+                short = [i for i, (s0, s1) in enumerate(spans) if s1 - s0 < 0.3]
+                if not short:
+                    break
+                print(f"  {seg['id']}: ASR alignment lost sentence(s) {short} ({'glossary' if prompt is None else 'plain'} prompt)",
+                      flush=True)
+            if short:                                    # still lost: fall back to the pause-based split
+                spans, _ = vo_split.split(wav, [spoken_len(sp) for sp in spoken])
         seg["spans"] = [list(v) for v in spans]
         rates_all = [spoken_len(sp) / max(s1 - s0, 0.2) * 60 for sp, (s0, s1) in zip(spoken, spans)]
         ref = float(np.median(rates_all))
