@@ -1575,7 +1575,7 @@ shots:
   - 一声清亮的高音
 - id: B1_16
   segment: B1
-  duration: 8.5
+  duration: 10.4
   vo:
   - 先拍扁，薄饼的面积正好接住整束主脉冲，密度也更低，更多的能量才能变成我们要的那一种光。
   facts:
@@ -1912,7 +1912,7 @@ shots:
   - 零件分离的细碎金属声汇成一片
 - id: B1_27
   segment: B1
-  duration: 11.0
+  duration: 12.4
   vo:
   - 最新的 NXE:3800E，光源功率超过 500 瓦；2025 年，ASML 演示了第一台 1000 瓦的 EUV 光源。
   facts:

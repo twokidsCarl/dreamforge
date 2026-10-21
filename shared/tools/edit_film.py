@@ -125,7 +125,7 @@ def sound(shots, seg_files, dur, voice, out_wav):
     inputs, filters, mixes = [], [], []
     vo = os.path.join(AUDIO, "vo", voice, "vo_track.wav")
     inputs += ["-ss", f"{t0:.3f}", "-t", f"{dur:.3f}", "-i", vo]
-    filters.append("[0:a]aresample=48000,pan=stereo|c0=c0|c1=c0,asplit=3[vo][vokey][vokey2]")
+    filters.append(None)                     # the VO split, filled in once we know which keys are needed
     n = 1
     music_parts, sfx_parts = [], []
     for sf in seg_files:
@@ -148,6 +148,9 @@ def sound(shots, seg_files, dur, voice, out_wav):
             filters.append(f"[{n}:a]aresample=48000,volume={c.get('gain', -14)}dB,adelay={d}|{d}[s{n}]")
             sfx_parts.append(f"[s{n}]")
             n += 1
+    keys = (["[vokey]"] if music_parts else []) + (["[vokey2]"] if sfx_parts else [])
+    filters[0] = ("[0:a]aresample=48000,pan=stereo|c0=c0|c1=c0" +
+                  (f",asplit={1 + len(keys)}[vo]{''.join(keys)}" if keys else "[vo]"))   # no unconnected pads
     if music_parts:
         filters.append("".join(music_parts) + f"amix=inputs={len(music_parts)}:normalize=0[mus]")
         filters.append("[mus][vokey]sidechaincompress=threshold=0.03:ratio=6:attack=40:release=500[musd]")
