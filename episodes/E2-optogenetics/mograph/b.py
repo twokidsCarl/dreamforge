@@ -537,12 +537,12 @@ def _name_row_xs(c, names, size, gap, cx=960):
 
 @shot("B_19a")
 def b_19a(t, dur, W, H):
-    """标题「2013 Brain Prize」随「2013 年」进来，「隆德贝克基金会」小字随旁白；六枚同样大小的名签排成一行，
+    """硬切进来：标题「2013 Brain Prize」和六个空的虚线位第 1 帧就在（_cut_in），「隆德贝克基金会」小字随旁白；六枚同样大小的名签排成一行，
     每个名字在旁白念到时亮起（之前是空的虚线位）。没有照片、没有肖像，六个人同等分量。"""
     s = _warp(t, dur, B19_BASE)
     c = _canvas(W, H, INFO_BG)
     fa = _cut_in(s, 0.6, 0.4)
-    c.text((960, 300), B19_HEAD, 80, INK, ease(seg(s, 1.0, 1.7)), anchor="mm", weight_glow=True)
+    c.text((960, 300), B19_HEAD, 80, INK, fa, anchor="mm", weight_glow=True)
     c.text((960, 395), B19_SUB, 44, DIM, ease(seg(s, 2.2, 2.8)), anchor="mm")
     size, y = 46, 560
     xs = _name_row_xs(c, B19_NAMES, size, 22)
@@ -550,7 +550,7 @@ def b_19a(t, dur, W, H):
     for x, name, at in zip(xs, B19_NAMES, B19_AT):
         w = _tw(c, name, f) + 52
         slot = (x - w / 2, y - 48, x + w / 2, y + 48)
-        sa = ease(seg(s, 3.4, 4.2)) * (1 - ease(seg(s, at, at + 0.5)))
+        sa = fa * (1 - ease(seg(s, at, at + 0.5)))
         if sa > 0:
             _dashed_box(c, slot, EMPTY, sa)
         _chip(c, (x, y), name, size, _mix(E.LINE, E.MEMBRANE, 0.4), ease(seg(s, at, at + 0.5)), pad=(26, 25))
@@ -581,7 +581,7 @@ B20_BASE = 12.92          # 字幕：6.22 2026 年的诺奖是三个人 / 8.51 �
 def b_20a(t, dur, W, H):
     """蓝图图框里一个六人框（两行三列；被圈的三人排在下排、各排内按字母序，好让箭头直接往下、不压住别的名字），旁白念到 Boyden、Bamberg、Miesenböck 时依次被琥珀虚线圈出；
     说到「诺奖是三个人」时三支箭头从圈出的名字往下汇到琥珀字「不在 2026 诺奖三人里」。六人框一直完整保留，
-    不划掉任何人、不和诺奖名单并成一份。"""
+    不划掉任何人、不和诺奖名单并成一份。慢推镜（同 B_15a）。"""
     s = _warp(t, dur, B20_BASE)
     a = _cut_in(s, 0.6, 0.4)
     c = _bp_canvas(W, H, a)
@@ -611,7 +611,8 @@ def b_20a(t, dur, W, H):
         _arrow(c, (x, y + 52), (target[0] + (x - 960) * 0.25, target[1] - 52), OFF, 3, a=ease(seg(s, 6.3, 6.6)),
                progress=ar, head=18)
     c.text(target, B20_NOT, 64, OFF, ease(seg(s, 7.0, 7.6)), anchor="mm", weight_glow=True)
-    return _done(c, W, H, glow_radius=8, glow_gain=0.6)
+    img = _done(c, W, H, glow_radius=8, glow_gain=0.6)
+    return _zoom(img, 1.0 + 0.03 * ease(seg(s, 0.0, B20_BASE)))
 
 
 # ---- B_20b：大字「六人奖 ≠ 三人诺奖」（排版，1.35 s，F14 / F1） --------------------------------------------
