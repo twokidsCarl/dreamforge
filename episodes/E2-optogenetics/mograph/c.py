@@ -452,7 +452,7 @@ def c_12a(t, dur, W, H):
 # 第二批（剩下的 Pillow 镜头）：C_12b C_13b C_14a C_14b C_15a C_15b C_16b C_17b C_18b C_20a C_20b。
 # 屏幕字逐字照 audit_C.yaml。F12/F13：勾 / 终点 ≠ 许可，公告 ≠ 已生效许可；F13 数字都带分母，不用媒体的另一个分数，
 # 屏幕不加公司的疗效评价词；F15：只说临床前、无人体疗效结果，不说没有任何人体研究；F11：部分且依赖装置，不写视力数字。
-# C_16a、C_19b、C_91 是 manim 镜头，不在这里。
+# C_16a、C_19b、C_91（原 manim 镜头）在文件末尾的蓝图批里。
 # ================================================================================================
 def _check(c, xy, size, col, a, run=1.0, width=6):
     """打勾符号（两笔，run 0–1 依次画出）。只表示「公告称达到」，不是独立核实。"""
@@ -760,3 +760,245 @@ def c_20b(t, dur, W, H):
         a = _cut_in(s) if i == 0 else ease(seg(s, 0.1 * i, 0.1 * i + 0.3))
         _stext(c, (960, 330 + 160 * i), line, 104, INK, a, anchor="mm", glow=0.2)
     return _done(c, W, H, glow_radius=10)
+
+
+# ================================================================================================
+# 蓝图批（原 manim 镜头，按 Pillow 实现）：C_16a C_19b C_91。蓝图底 BP_BG + 网格 + BP_LINE 线稿（同 A0_05a）。
+# 屏幕字逐字照 audit_C.yaml。F13：章 = 任何司法辖区无上市许可（公告脚注），不写上市 / 获批日期；
+# F8/F11：光纤和护目镜只是两种送光设计，不写视力数字、不写疗效；F9：只写小鼠实验；F15：「临床前」只打在耳蜗格。
+# ================================================================================================
+from a0 import BP_BG, BP_GRID, BP_LINE, _dashed_rect  # noqa: E402
+
+BP_SUB = _mix(BP_LINE, BP_BG, 0.3)                      # 蓝图上的次要线 / 小字
+BP_FAINT = _mix(BP_LINE, BP_BG, 0.65)                   # 抽象行、示意填充
+STAMP_INK = E.AMBER                                     # 章：琥珀 = 全片「未生效 / 关掉」的约定色
+
+
+def _bp_canvas(W, H, a=1.0):
+    c = _canvas(W, H, BP_BG)
+    c.grid(step=60, color=BP_GRID, a=0.55 * a)
+    return c
+
+
+def _stamp(c, center, text, size, a, drop=0.0, angle=-6.0, col=STAMP_INK):
+    """线稿章：双线圆角框 + 一行字，整体转 angle 度。drop 0→1：从 1.18 倍大、半透明落到原大（盖章感，不弹跳）。
+    画在单独的 RGBA 层上再旋转、贴回 Canvas（主层 + 一点发光）。"""
+    if a <= 0:
+        return
+    f = font(int(c.px(size)))
+    l, t_, r, b = ImageDraw.Draw(c.img).textbbox((0, 0), text, font=f, anchor="mm")
+    padx, pady = c.px(0.9 * size), c.px(0.55 * size)
+    w, h = (r - l) + 2 * padx, (b - t_) + 2 * pady
+    m = c.px(24)
+    lay = Image.new("RGBA", (int(w + 2 * m), int(h + 2 * m)), (0, 0, 0, 0))
+    d = ImageDraw.Draw(lay)
+    box = (m, m, m + w, m + h)
+    d.rounded_rectangle(box, radius=c.px(18), outline=(*col, 255), width=max(1, int(c.px(5))))
+    inset = c.px(12)
+    d.rounded_rectangle((box[0] + inset, box[1] + inset, box[2] - inset, box[3] - inset), radius=c.px(10),
+                        outline=(*col, 255), width=max(1, int(c.px(2))))
+    d.text(((box[0] + box[2]) / 2, (box[1] + box[3]) / 2), text, font=f, fill=(*col, 255), anchor="mm")
+    lay = lay.rotate(angle, resample=Image.BICUBIC, expand=True)
+    z = 1.0 + 0.18 * (1.0 - ease_out(drop))
+    if z > 1.0001:
+        lay = lay.resize((int(lay.width * z), int(lay.height * z)), Image.LANCZOS)
+    k = a * (0.35 + 0.65 * ease(drop))
+    alpha = lay.getchannel("A").point(lambda v: int(v * k))
+    x, y = int(c.px(center[0]) - lay.width / 2), int(c.px(center[1]) - lay.height / 2)
+    c.img.paste(col, (x, y, x + lay.width, y + lay.height), alpha)
+    c.glow.paste(_scale(col, 0.35), (x, y, x + lay.width, y + lay.height), alpha)
+
+
+# ---- C_16a：GS030 框上盖一枚线稿章「任何司法辖区无上市许可」（蓝图，F13，慢推） ---------------------------
+C16A_NAME = "GS030"
+C16A_STAMP = "任何司法辖区无上市许可"
+C16A_FOOT = "公告脚注"
+C16A_BASE = 6.19          # timed 时长；字幕：0.30 公告脚注写明 / 1.62 GS030 / 2.72 在任何司法辖区都没有上市许可
+
+
+@shot("C_16a")
+def c_16a(t, dur, W, H):
+    """蓝图上一张 GS030 的图框（栏头等宽字 GS030，栏身几条不可读的抽象行，栏底一条脚注线 +「公告脚注」小字）；
+    旁白说到「在任何司法辖区都没有上市许可」时，一枚琥珀线稿章斜着落到框上、停到结尾。章不是庆祝，也不是叉。慢推。"""
+    s = _warp(t, dur, C16A_BASE)
+    fa = _cut_in(s, 0.6, 0.45)
+    c = _bp_canvas(W, H, fa)
+    c.rect((60, 60, 1860, 860), outline=BP_LINE, width=2, a=0.45 * fa)
+    box = (500, 190, 1420, 790)
+    c.rect(box, fill=_mix(BP_BG, BP_LINE, 0.05), outline=BP_LINE, width=2.5, a=fa, radius=6)
+    hy = box[1] + 120
+    c.line((box[0], hy), (box[2], hy), BP_LINE, 2, a=fa)
+    na = ease(seg(s, 1.6, 2.2))
+    c.text_font((box[0] + 50, box[1] + 62), C16A_NAME, mono_font(int(c.px(64))), BP_LINE, na, anchor="lm", glow=0.2)
+    c.line((box[0] + 50, box[1] + 100), (box[0] + 260, box[1] + 100), BP_LINE, 2, a=0.8 * na,
+           progress=ease_out(seg(s, 1.8, 2.5)))
+    for i, wfrac in enumerate((0.72, 0.55, 0.64, 0.40)):           # 抽象行：不可读，没有字也没有数
+        y = hy + 75 + 72 * i
+        ra = fa * ease(seg(s, 0.1 + 0.12 * i, 0.6 + 0.12 * i))
+        c.rect((box[0] + 50, y - 10, box[0] + 50 + (box[2] - box[0] - 100) * wfrac, y + 10), fill=BP_FAINT,
+               a=0.55 * ra, radius=10)
+    fy = box[3] - 70                                                  # 脚注线
+    foa = ease(seg(s, 0.4, 1.1))
+    _dashed_rect(c, (box[0] + 50, fy, box[2] - 50, fy), BP_SUB, 2, ease_out(seg(s, 0.4, 1.4)) * 0.5, a=foa)
+    c.text((box[0] + 50, fy + 34), "* " + C16A_FOOT, 30, BP_SUB, foa, anchor="lm")
+    drop = seg(s, 2.85, 3.35)
+    if drop > 0:
+        _stamp(c, (960, 505), C16A_STAMP, 60, 1.0, drop=drop)
+    img = _done(c, W, H, glow_radius=8, glow_gain=0.6)
+    return _zoom(img, 1.0 + 0.045 * ease(seg(s, 0.0, C16A_BASE)))
+
+
+# ---- C_19b：两张小蓝图「脑内光纤」「眼外护目镜」（蓝图，F8 / F11，1.35 s） ------------------------------
+C19B_FIBER = "脑内光纤"
+C19B_GOGGLE = "眼外护目镜"
+
+
+def _fiber_sketch(c, cx, cy, a, run=1.0):
+    """侧视脑轮廓（线稿）+ 一根光纤从上方插入，纤端一小团蓝光（F8：光纤送 473 nm 蓝光进脑）。只是示意，不画尺寸。"""
+    if a <= 0:
+        return
+    X, Y = c.px(cx), c.px(cy)
+    rx, ry = c.px(190), c.px(130)
+    bb = [X - rx, Y - ry, X + rx, Y + ry]
+    c.d.arc(bb, 180, 180 + 360 * run, fill=(*BP_LINE, int(255 * a)), width=max(1, int(c.px(3))))
+    for k, (ox, oy, rr, a0_, a1_) in enumerate(((-80, -30, 60, 200, 330), (40, -50, 70, 200, 340), (-20, 50, 80, 20, 160))):
+        R_ = c.px(rr)
+        c.d.arc([X + c.px(ox) - R_, Y + c.px(oy) - R_, X + c.px(ox) + R_, Y + c.px(oy) + R_], a0_, a1_,
+                fill=(*BP_SUB, int(200 * a * run)), width=max(1, int(c.px(2))))
+    cr = c.px(62)                                                     # 小脑 + 脑干：让轮廓读成脑而不是眼
+    c.d.arc([X + c.px(95) - cr, Y + c.px(85) - cr, X + c.px(95) + cr, Y + c.px(85) + cr], -10, 150,
+            fill=(*BP_LINE, int(255 * a * run)), width=max(1, int(c.px(3))))
+    c.line((cx + 30, cy + 125), (cx + 48, cy + 175), BP_LINE, 3, a=a * run)
+    c.line((cx + 75, cy + 140), (cx + 88, cy + 175), BP_LINE, 3, a=a * run)
+    tip = (cx + 20, cy - 10)
+    c.line((cx + 20, cy - 250), tip, BP_LINE, 5, a=a)                 # 光纤
+    c.rect((cx + 4, cy - 270, cx + 36, cy - 220), outline=BP_LINE, width=2.5, a=a, radius=4)   # 插头
+    la = a * ease(seg(run, 0.4, 1.0))
+    for r_, k in ((46, 0.25), (28, 0.5), (12, 1.0)):
+        c.circle(tip, r_, fill=E.CHANNEL, a=la * k, glow=True)
+
+
+def _goggle_sketch(c, cx, cy, a, run=1.0, scale=1.0):
+    """侧视：右边一只眼（圆 + 晶状体），左边护目镜（镜框 + 带子），几道光线从镜片指向眼（F11：护目镜在眼外送光）。"""
+    if a <= 0:
+        return
+    k = scale
+    ex, ey = cx + 110 * k, cy
+    c.circle((ex, ey), 95 * k, outline=BP_LINE, width=3, a=a)
+    c.circle((ex - 82 * k, ey), 26 * k, outline=BP_SUB, width=2.5, a=a)      # 晶状体 / 角膜
+    X, Y, R_ = c.px(ex), c.px(ey), c.px(95 * k)
+    c.d.arc([X - R_ * 0.82, Y - R_ * 0.82, X + R_ * 0.82, Y + R_ * 0.82], -60, 60,
+            fill=(*BP_SUB, int(220 * a)), width=max(1, int(c.px(4 * k))))     # 视网膜一侧
+    gx = cx - 120 * k
+    c.rect((gx - 30 * k, cy - 80 * k, gx + 18 * k, cy + 80 * k), fill=_mix(BP_BG, BP_LINE, 0.12), outline=BP_LINE,
+           width=3, a=a, radius=10 * k)
+    c.line((gx - 30 * k, cy - 60 * k), (gx - 120 * k, cy - 110 * k), BP_SUB, 3, a=a)   # 带子
+    c.line((gx - 30 * k, cy + 60 * k), (gx - 120 * k, cy + 110 * k), BP_SUB, 3, a=a)
+    ra = a * ease(seg(run, 0.3, 1.0))
+    for dy in (-36, 0, 36):
+        c.line((gx + 22 * k, cy + dy * k), (ex - 108 * k, ey + dy * 0.35 * k), BP_LINE, 2, a=0.8 * ra,
+               progress=ease_out(run))
+
+
+@shot("C_19b")
+def c_19b(t, dur, W, H):
+    """两张并排的小图纸，各带标题栏：左「脑内光纤」，右「眼外护目镜」。同一种线稿画法，只说两种送光设计，不写效果。"""
+    s = _warp(t, dur, 1.35)
+    a = _cut_in(s)
+    c = _bp_canvas(W, H, a)
+    run = 0.35 + 0.65 * ease_out(seg(s, 0.0, 0.7))                 # 第 1 帧线稿已画出三成多
+    for i, (box, lab) in enumerate((((250, 200, 910, 800), C19B_FIBER), ((1010, 200, 1670, 800), C19B_GOGGLE))):
+        x0, y0, x1, y1 = box
+        c.rect(box, fill=_mix(BP_BG, BP_LINE, 0.04), outline=BP_LINE, width=2.5, a=a, radius=6)
+        c.line((x0, y1 - 110), (x1, y1 - 110), BP_LINE, 2, a=a)
+        c.text(((x0 + x1) / 2, y1 - 55), lab, 60, BP_LINE, ease(seg(s, 0.05 + 0.1 * i, 0.4 + 0.1 * i)), anchor="mm",
+               weight_glow=True)
+        cx, cy = (x0 + x1) / 2, y0 + 330
+        if i == 0:
+            _fiber_sketch(c, cx - 10, cy, a, run)
+        else:
+            _goggle_sketch(c, cx, cy, a, run)
+    return _done(c, W, H, glow_radius=8, glow_gain=0.6)
+
+
+# ---- C_91：三格线稿「小鼠记忆实验」「部分视觉」「耳蜗」+ 耳蜗格「临床前」（蓝图，F9 / F11 / F15，1.5 s） ----------
+C91_TILES = ("小鼠记忆实验", "部分视觉", "耳蜗")
+C91_BADGE = "临床前"
+
+
+def _mouse_sketch(c, cx, cy, a, run=1.0):
+    """侧视小鼠线稿（身体、头、耳、尾）+ 头部一枚海马小图标（与 C_01b 同一符号）。只是实验对象的示意。"""
+    if a <= 0:
+        return
+    X, Y = c.px(cx), c.px(cy)
+    lw = max(1, int(c.px(3)))
+    col = (*BP_LINE, int(255 * a))
+    rx, ry = c.px(105), c.px(62)
+    c.d.ellipse([X - rx, Y - ry, X + rx, Y + ry], outline=col, width=lw)                      # 身体
+    hx, hy, hr = X + c.px(120), Y - c.px(28), c.px(46)
+    c.d.ellipse([hx - hr, hy - hr * 0.85, hx + hr * 1.15, hy + hr * 0.85], outline=col, width=lw)   # 头
+    er = c.px(22)
+    c.d.ellipse([hx - er * 1.4, hy - hr * 0.6 - er * 1.6, hx + er * 0.6, hy - hr * 0.6 + er * 0.4], outline=col,
+                width=lw)                                                                  # 耳
+    c.d.ellipse([hx + c.px(26) - 3, hy - 3, hx + c.px(26) + 3, hy + 3], fill=col)             # 眼
+    tr = c.px(42)                                                                              # 尾
+    c.d.arc([X - rx - 2 * tr, Y - tr * 0.3, X - rx, Y + tr * 1.7], 270, 270 + 140 * run, fill=col, width=lw)
+    ia = a * ease(seg(run, 0.3, 1.0))                                                         # 引出框：脑里的海马
+    ox, oy = cx - 90, cy - 130
+    c.circle((ox, oy), 52, outline=BP_SUB, width=2, a=ia)
+    _dashed_rect(c, (ox + 50, oy + 14, cx + 120, oy + 14), BP_SUB, 2, 1.0, a=ia, dash=8, gap=6)
+    c.line((cx + 120, oy + 14), (cx + 120, cy - 40), BP_SUB, 2, a=ia)
+    hr_ = ease(seg(run, 0.3, 1.0))                     # 海马小符号（细线版，同 C_01b 的读法：C 形 + 扣在口上的 ⊃）
+    for x, y, rr, a0_, a1_ in ((ox - 10, oy, 26, 45, 315), (ox + 14, oy + 2, 15, -95, 95)):
+        X_, Y_, R2 = c.px(x), c.px(y), c.px(rr)
+        bb = [X_ - R2, Y_ - R2, X_ + R2, Y_ + R2]
+        c.d.arc(bb, a0_, a0_ + (a1_ - a0_) * hr_, fill=(*E.CHANNEL, int(255 * ia)), width=max(1, int(c.px(5))))
+        c.g.arc(bb, a0_, a0_ + (a1_ - a0_) * hr_, fill=_scale(E.CHANNEL, 0.5 * ia), width=max(1, int(c.px(8))))
+
+
+def _cochlea_sketch(c, cx, cy, a, run=1.0, turns=2.5, r0=14, r1=105):
+    """耳蜗：一条约 2.5 圈的螺旋线（线稿，不代表比例）。"""
+    if a <= 0:
+        return
+    import math
+    n = 160
+    m = max(2, int(n * run))
+    pts = []
+    for i in range(m):
+        u = i / (n - 1)
+        th = turns * 2 * math.pi * u
+        r = r1 - (r1 - r0) * u
+        pts.append((cx + r * math.cos(th), cy + r * math.sin(th)))
+    _poly_c = [(c.px(x), c.px(y)) for x, y in pts]
+    c.d.line(_poly_c, fill=(*BP_LINE, int(255 * a)), width=max(1, int(c.px(3))), joint="curve")
+
+
+@shot("C_91")
+def c_91(t, dur, W, H):
+    """三格一排的线稿：小鼠（+ 海马小符号）、眼 + 护目镜（「部分视觉」）、耳蜗螺旋（「耳蜗」+ 琥珀小章「临床前」）。
+    外框只画到约九成、右下留口——「还不封口的图纸」（分镜 style_why）。不写效果、不写数字。"""
+    s = _warp(t, dur, 1.5)
+    a = _cut_in(s)
+    c = _bp_canvas(W, H, a)
+    _dashed_rect(c, (120, 170, 1800, 840), BP_SUB, 2, 0.88 * ease_out(seg(s, 0.0, 0.9)) + 0.0, a=0.8 * a)
+    run = 0.35 + 0.65 * ease_out(seg(s, 0.0, 0.8))
+    tiles = ((190, 230, 690, 780), (710, 230, 1210, 780), (1230, 230, 1730, 780))
+    for i, (box, lab) in enumerate(zip(tiles, C91_TILES)):
+        x0, y0, x1, y1 = box
+        ta = a
+        c.rect(box, fill=_mix(BP_BG, BP_LINE, 0.04), outline=BP_LINE, width=2.5, a=ta, radius=6)
+        c.line((x0, y1 - 110), (x1, y1 - 110), BP_LINE, 2, a=ta)
+        c.text(((x0 + x1) / 2, y1 - 55), lab, 54, BP_LINE, ease(seg(s, 0.1 + 0.1 * i, 0.45 + 0.1 * i)), anchor="mm",
+               weight_glow=True)
+        cx, cy = (x0 + x1) / 2, y0 + 210
+        if i == 0:
+            _mouse_sketch(c, cx - 30, cy + 40, ta, run)
+        elif i == 1:
+            _goggle_sketch(c, cx - 10, cy, ta, run, scale=0.85)
+        else:
+            _cochlea_sketch(c, cx, cy, ta, run)
+    drop = seg(s, 0.55, 0.9)
+    if drop > 0:
+        x0, y0, x1, y1 = tiles[2]
+        _stamp(c, (x1 - 110, y0 + 70), C91_BADGE, 40, 1.0, drop=drop, angle=-8.0)
+    return _done(c, W, H, glow_radius=8, glow_gain=0.6)

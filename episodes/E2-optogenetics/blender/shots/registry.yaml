@@ -128,17 +128,17 @@ C_14a: {mograph: c, style: type, engine: pillow}
 C_14b: {mograph: c, style: infographic, engine: pillow}
 C_15a: {mograph: c, style: infographic, engine: pillow}
 C_15b: {mograph: c, style: hud, engine: pillow}
-C_16a: {mograph: c, style: blueprint, engine: manim}
+C_16a: {mograph: c, style: blueprint, engine: pillow}
 C_16b: {mograph: c, style: type, engine: pillow}
 C_17a: {scene: c_scenes, args: {variant: cochlea}, camera: CamC_17a, start: 1, style: xray, engine: eevee}
 C_17b: {mograph: c, style: infographic, engine: pillow}
 C_18a: {scene: c_scenes, args: {variant: desens}, camera: CamC_18a, start: 1, style: energy, engine: eevee}
 C_18b: {mograph: c, style: infographic, engine: pillow}
 C_19a: {scene: c_scenes, args: {variant: split}, camera: CamC_19a, start: 1, style: photoreal, engine: cycles}
-C_19b: {mograph: c, style: blueprint, engine: manim}
+C_19b: {mograph: c, style: blueprint, engine: pillow}
 C_20a: {mograph: c, style: infographic, engine: pillow}
 C_20b: {mograph: c, style: type, engine: pillow}
-C_91: {mograph: c, style: blueprint, engine: manim}
+C_91: {mograph: c, style: blueprint, engine: pillow}
 C_92: {scene: c_scenes, args: {variant: goggles, display: "off"}, camera: CamC_92, start: 1, style: photoreal, engine: cycles}
 
 # ---- D 结尾 ----

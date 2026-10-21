@@ -3266,7 +3266,7 @@ shots:
   builders:
   - schematic
   fx: []
-  engine: manim
+  engine: pillow
   sfx:
   - 低噪室温
   duration_design: 6.4
@@ -3471,7 +3471,7 @@ shots:
   builders:
   - schematic
   fx: []
-  engine: manim
+  engine: pillow
   sfx: []
   start: 815.82
 - id: C_20a
@@ -3551,7 +3551,7 @@ shots:
   builders:
   - schematic
   fx: []
-  engine: manim
+  engine: pillow
   sfx: []
   start: 831.39
 - id: C_92
