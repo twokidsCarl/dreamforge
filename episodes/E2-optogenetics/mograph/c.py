@@ -446,3 +446,317 @@ def c_12a(t, dur, W, H):
     c.text((960, 775), C12_FOOT, 54, _mix(HUD_INK, E.AMBER, 0.35), ba, anchor="mm")
     img = _done(c, W, H, glow_radius=12, glow_gain=0.8)
     return _zoom(img, 1.0 + 0.04 * ease(seg(s, 0.0, C12_BASE)))
+
+
+# ================================================================================================
+# 第二批（剩下的 Pillow 镜头）：C_12b C_13b C_14a C_14b C_15a C_15b C_16b C_17b C_18b C_20a C_20b。
+# 屏幕字逐字照 audit_C.yaml。F12/F13：勾 / 终点 ≠ 许可，公告 ≠ 已生效许可；F13 数字都带分母，不用媒体的另一个分数，
+# 屏幕不加公司的疗效评价词；F15：只说临床前、无人体疗效结果，不说没有任何人体研究；F11：部分且依赖装置，不写视力数字。
+# C_16a、C_19b、C_91 是 manim 镜头，不在这里。
+# ================================================================================================
+def _check(c, xy, size, col, a, run=1.0, width=6):
+    """打勾符号（两笔，run 0–1 依次画出）。只表示「公告称达到」，不是独立核实。"""
+    if a <= 0 or run <= 0:
+        return
+    x, y = xy
+    p0, p1, p2 = (x - 0.45 * size, y), (x - 0.12 * size, y + 0.33 * size), (x + 0.5 * size, y - 0.38 * size)
+    r1 = min(1.0, run / 0.35)
+    c.line(p0, p1, col, width, a=a, progress=r1, glow=True)
+    if run > 0.35:
+        c.line(p1, p2, col, width, a=a, progress=(run - 0.35) / 0.65, glow=True)
+
+
+def _half_lamp(c, xy, a, col=E.CHANNEL):
+    """「部分」状态灯：外环 + 左半实心（不是全亮，也不是不涉及）。"""
+    if a <= 0:
+        return
+    x, y = xy
+    c.circle((x, y), 22, outline=col, width=3, a=a)
+    X, Y, R_ = c.px(x), c.px(y), c.px(15)
+    c.d.pieslice([X - R_, Y - R_, X + R_, Y + R_], 90, 270, fill=(*col, int(255 * a)))
+    c.g.pieslice([X - R_, Y - R_, X + R_, Y + R_], 90, 270, fill=_scale(col, a))
+
+
+def _dots(c, x0, y, n, k, a, fill_run=1.0, step=52, r=14, col=E.CHANNEL):
+    """分母点阵：n 个空心点（分母，一直在），其中前 k 个随 fill_run 依次填实（分子）。"""
+    for i in range(n):
+        x = x0 + i * step
+        c.circle((x, y), r, outline=_mix(E.GREY, INFO_BG, 0.15), width=2.5, a=a)
+        if i < k and fill_run * k > i:
+            c.circle((x, y), r - 3, fill=col, a=a * min(1.0, fill_run * k - i), glow=True)
+
+
+def _text_runs(c, xy, runs, size, a=1.0, anchor_y="m"):
+    """一行里分段着色 / 换字体：runs = [(字, 颜色, 字体函数, 不透明度系数)]，从 xy 左沿往右排。返回行尾 x。"""
+    x, y = xy
+    for s, col, fnt, ka in runs:
+        f = fnt(int(c.px(size)))
+        c.text_font((x, y), s, f, col, min(1.0, a * ka), anchor="l" + anchor_y)
+        x += _tw(c, s, f)
+    return x
+
+
+# ---- C_12b：两格周读数打勾 + 一格「不是许可」（信息图，1.35 s） ---------------------------------------
+C12B_WEEKS = C12_WEEKS                                  # 「第 52 周」「第 76 周」，与 C_12a 同字
+C12B_NOT = "不是许可"
+C12B_KEY = "勾：申请方公告称达到终点"                   # 勾的读法（audit_C C_12b note：不是独立核实）
+
+
+@shot("C_12b")
+def c_12b(t, dur, W, H):
+    """三格一排：前两格是周次 + 通道蓝勾（公告所称），第三格是灰色虚线框 + 空心灯「不是许可」。下面一行小字说明勾的读法。"""
+    s = _warp(t, dur, 1.35)
+    c = _canvas(W, H, INFO_BG)
+    a0_ = _cut_in(s)
+    tiles = ((300, 330, 720, 640), (750, 330, 1170, 640), (1200, 330, 1620, 640))
+    for i, ((x0, y0, x1, y1), wk) in enumerate(zip(tiles[:2], C12B_WEEKS)):
+        c.rect((x0, y0, x1, y1), fill=_scale(E.MEMBRANE, 0.06), outline=HUD_LINE, width=2.5, a=a0_, radius=10)
+        c.text(((x0 + x1) / 2, y0 + 80), wk, 60, HUD_INK, a0_, anchor="mm")
+        _check(c, ((x0 + x1) / 2, y0 + 205), 110, E.CHANNEL, a0_,
+               run=ease_out(seg(s, 0.05 + 0.12 * i, 0.4 + 0.12 * i)))
+    x0, y0, x1, y1 = tiles[2]
+    na = ease(seg(s, 0.3, 0.6))
+    _dashed_box(c, tiles[2], _mix(E.GREY, INFO_BG, 0.2), na, progress=ease_out(seg(s, 0.3, 0.8)))
+    f64 = font(int(c.px(64)))
+    w = 58 + _tw(c, C12B_NOT, f64)
+    lx = (x0 + x1) / 2 - w / 2
+    _lamp(c, (lx + 22, (y0 + y1) / 2), False, na)
+    c.text((lx + 80, (y0 + y1) / 2), C12B_NOT, 64, HUD_INK, na, anchor="lm")
+    c.text((735, 720), C12B_KEY, 40, DIM, ease(seg(s, 0.4, 0.75)), anchor="mm")
+    return _done(c, W, H, glow_radius=10, glow_gain=0.6)
+
+
+# ---- C_13b：标签「1/2 期 · 安全为主 · 2026-10-08 公告」（信息图，1.35 s） ---------------------------------
+C13B_PARTS = ("1/2 期", "安全为主", "2026-10-08 公告")
+C13B_SEP = " · "
+
+
+@shot("C_13b")
+def c_13b(t, dur, W, H):
+    """一枚居中的分类标签：圆角框 + 三段字（日期用等宽字），框从中间向两边展开。只是 PIONEER 的分类，不写结果。"""
+    s = _warp(t, dur, 1.35)
+    c = _canvas(W, H, INFO_BG)
+    size = 70
+    f = font(int(c.px(size)))
+    fm = mono_font(int(c.px(size)))
+    date, tail = C13B_PARTS[2].split(" ", 1)
+    runs = [(C13B_PARTS[0], HUD_INK, font, 1.0), (C13B_SEP, DIM, font, 1.0), (C13B_PARTS[1], HUD_INK, font, 1.0),
+            (C13B_SEP, DIM, font, 1.0), (date, HUD_INK, mono_font, 1.0), (" " + tail, HUD_INK, font, 1.0)]
+    tw = sum(_tw(c, r[0], fm if r[2] is mono_font else f) for r in runs)
+    open_ = 0.55 + 0.45 * ease_out(seg(s, 0.0, 0.45))
+    half = (tw / 2 + 60) * open_
+    a = _cut_in(s)
+    c.rect((960 - half, 440, 960 + half, 600), fill=_scale(E.MEMBRANE, 0.07), outline=HUD_LINE, width=2.5, a=a,
+           radius=16)
+    _text_runs(c, (960 - tw / 2, 520), runs, size, ease(seg(s, 0.1, 0.45)))
+    c.line((960 - tw / 2, 640), (960 + tw / 2, 640), HUD_LINE, 2, a=0.6, progress=ease_out(seg(s, 0.25, 0.9)))
+    return _done(c, W, H, glow_radius=10, glow_gain=0.5)
+
+
+# ---- C_14a：三行「安全性为主 / 非确证疗效设计 / 结果仍属探索性」（排版，F13） ------------------------------
+C14_LINES = ("安全性为主", "非确证疗效设计", "结果仍属探索性")
+C14_BASE = 10.82          # timed 时长；字幕：0.30 安全性为主要目的 / 2.88 不是为了确证疗效 / 5.06 公告引用 Sahel / 7.25 探索性
+
+
+@shot("C_14a")
+def c_14a(t, dur, W, H):
+    """黑底三行，随旁白一行一行进来；第二行「非确证疗效设计」字最大、停住（分镜 style_why：避免后面的数字被听成治愈）。
+    新行进来时上一行略压暗，三行一直都在。"""
+    s = _warp(t, dur, C14_BASE)
+    c = _canvas(W, H, TYPE_BG)
+    rows = ((330, 0.45, 76), (500, 3.0, 104), (670, 7.4, 76))
+    nxt = [r[1] for r in rows[1:]] + [None]
+    for (y, at, size), line, n_at in zip(rows, C14_LINES, nxt):
+        a = ease(seg(s, at, at + 0.6))
+        dim = 1.0 - (0.3 * ease(seg(s, n_at, n_at + 0.6)) if n_at else 0.0)
+        _stext(c, (960, y), line, size, _scale(INK, dim), a, anchor="mm", glow=0.25 if size > 80 else 0.12)
+    f = serif_font(int(c.px(104)))
+    w = _tw(c, C14_LINES[1], f)
+    c.line((960 - w / 2, 575), (960 + w / 2, 575), E.CHANNEL, 3, a=0.85 * ease(seg(s, 3.4, 3.9)),
+           progress=ease_out(seg(s, 3.4, 4.4)), glow=True)
+    return _done(c, W, H, glow_radius=10, glow_gain=0.8)
+
+
+# ---- C_14b：结果栏，标题「探索性」（信息图，1.35 s） -------------------------------------------------------
+C14B_TITLE = "探索性"
+
+
+@shot("C_14b")
+def c_14b(t, dur, W, H):
+    """一张结果栏：栏头就是「探索性」（不是装饰词，是结果的标题）。栏身只有几条不可读的灰色抽象行，不放数字。"""
+    s = _warp(t, dur, 1.35)
+    c = _canvas(W, H, INFO_BG)
+    a = _cut_in(s)
+    box = (560, 250, 1360, 800)
+    c.rect(box, fill=_scale(E.MEMBRANE, 0.05), outline=HUD_LINE, width=2.5, a=a, radius=12)
+    c.rect((box[0], box[1], box[2], box[1] + 150), fill=_scale(E.MEMBRANE, 0.16), a=a, radius=12)
+    c.line((box[0], box[1] + 150), (box[2], box[1] + 150), HUD_LINE, 2.5, a=a)
+    c.text((960, box[1] + 75), C14B_TITLE, 84, INK, a, anchor="mm", weight_glow=True)
+    for k, wfrac in enumerate((0.78, 0.62, 0.70, 0.48)):                  # 抽象行：不可读，没有字也没有数
+        y = box[1] + 220 + 95 * k
+        ra = ease(seg(s, 0.15 + 0.08 * k, 0.5 + 0.08 * k))
+        c.rect((box[0] + 60, y - 14, box[0] + 60 + (box[2] - box[0] - 120) * wfrac, y + 14),
+               fill=_mix(E.GREY, INFO_BG, 0.72), a=ra, radius=14)
+    return _done(c, W, H, glow_radius=10, glow_gain=0.6)
+
+
+# ---- C_15a：两行分数 6/10、4/8，分母一直可见（信息图，F13） ------------------------------------------------
+C15_ROW1 = ("光敏感", "6/10")
+C15_ROW2 = ("完成行为测试者中", "4/8")
+C15_ROW2_SUB = "在部分任务上有正向变化，且戴着护目镜"
+C15_TAG = "6/10 · 4/8"
+C15_BASE = 26.93          # timed 时长；字幕：5.74 十名参与者里有六人 / 14.01 完成行为测试的八人里有四人 / 18.02 护目镜 / 24.17 部分任务
+
+
+@shot("C_15a")
+def c_15a(t, dur, W, H):
+    """两行分数，各带一排分母点阵：空心点（分母）先全部出现，再按旁白把分子个数填实——分母始终可见，不写成全体患者。
+    第二行下面一行小字说明是部分任务、且戴着护目镜。右上角一枚小标签「6/10 · 4/8」（2D 镜头自带，edit_film 不再叠）。
+    屏幕不加公司的疗效评价词，也不出现媒体报道的另一个分数。"""
+    s = _warp(t, dur, C15_BASE)
+    c = _canvas(W, H, INFO_BG)
+    fa = _cut_in(s, 0.6, 0.4)
+    # 右上标签
+    ta = ease(seg(s, 0.3, 0.9)) * fa
+    fm = mono_font(int(c.px(40)))
+    tw = _tw(c, C15_TAG, fm)
+    c.rect((1800 - tw - 40, 70, 1800, 140), fill=_scale(E.MEMBRANE, 0.08), outline=HUD_LINE, width=2, a=ta, radius=8)
+    c.text_font((1800 - 20, 105), C15_TAG, fm, HUD_INK, ta, anchor="rm")
+    # 一条细分隔线
+    c.line((260, 470), (1660, 470), HUD_LINE, 2, a=0.5 * fa, progress=ease_out(seg(s, 0.2, 1.4)))
+    x_lab, x_dots = 260, 1140
+    rows = ((350, 5.9, 7.4, C15_ROW1, 10, 6), (600, 14.2, 16.0, C15_ROW2, 8, 4))
+    for y, at, fill_at, (lab, frac), n, k in rows:
+        a = ease(seg(s, at, at + 0.6))
+        fl = font(int(c.px(60)))
+        lw = _tw(c, lab, fl)
+        c.text((x_lab, y), lab, 60, HUD_INK, a, anchor="lm")
+        c.text_font((x_lab + lw + 40, y), frac, mono_font(int(c.px(92))), INK, a, anchor="lm", glow=0.25)
+        _dots(c, x_dots, y, n, k, ease(seg(s, at + 0.2, at + 0.8)), fill_run=ease(seg(s, fill_at, fill_at + 1.2)))
+    c.text((x_lab, 700), C15_ROW2_SUB, 46, _scale(INK, 0.72), ease(seg(s, 18.3, 18.9)), anchor="lm")
+    return _done(c, W, H, glow_radius=10, glow_gain=0.7)
+
+
+# ---- C_15b：HUD 两行读数 6/10、4/8（1.35 s） ---------------------------------------------------------------
+@shot("C_15b")
+def c_15b(t, dur, W, H):
+    """HUD 框两行读数：左边是对象（与 C_15a 同字），右边是分数（等宽字），分母一直写全；每行一排小点阵重复分母。"""
+    s = _warp(t, dur, 1.35)
+    c = _canvas(W, H, HUD_BG)
+    fa = _cut_in(s)
+    box = (380, 260, 1540, 780)
+    _hud_frame(c, box, HUD_LINE, a=0.9 * fa)
+    c.line((box[0] + 40, 520), (box[2] - 40, 520), HUD_LINE, 2, a=0.5 * fa)
+    for i, (y, (lab, frac), n, k) in enumerate(((400, C15_ROW1, 10, 6), (640, C15_ROW2, 8, 4))):
+        a = fa if i == 0 else ease(seg(s, 0.15, 0.45))
+        _sweep(c, (box[0] + 40, y - 70, box[2] - 40, y + 70), seg(s, 0.05 + 0.15 * i, 0.6 + 0.15 * i), E.MEMBRANE, fa)
+        c.text((440, y - 28), lab, 50, _mix(HUD_INK, E.GREY, 0.3), a, anchor="lm")
+        _dots(c, 455, y + 40, n, k, a, step=40, r=10)
+        c.text_font((1480, y), frac, mono_font(int(c.px(110))), HUD_INK, a, anchor="rm", glow=0.3)
+    return _done(c, W, H, glow_radius=12, glow_gain=0.8)
+
+
+# ---- C_16b：一行「任何司法辖区都没有上市许可」（排版，1.35 s） -------------------------------------------
+C16B_LINE = "任何司法辖区都没有上市许可"
+
+
+@shot("C_16b")
+def c_16b(t, dur, W, H):
+    s = _warp(t, dur, 1.35)
+    c = _canvas(W, H, TYPE_BG)
+    _stext(c, (960, 480), C16B_LINE, 84, INK, _cut_in(s), anchor="mm", glow=0.2)
+    return _done(c, W, H, glow_radius=10)
+
+
+# ---- C_17b：一行「2023 综述 · 临床前 · 无人体疗效结果」（信息图，F15，1.35 s） -----------------------------
+C17B_PARTS = ("2023 综述", "临床前", "无人体疗效结果")
+
+
+@shot("C_17b")
+def c_17b(t, dur, W, H):
+    """只留一行；「临床前」用琥珀（全片「未生效 / 还没到」的约定色）。不写「没有任何人体研究」——只说无人体疗效结果（F15 notes）。"""
+    s = _warp(t, dur, 1.35)
+    c = _canvas(W, H, INFO_BG)
+    size = 70
+    yr, rest = C17B_PARTS[0].split(" ", 1)
+    runs = [(yr, HUD_INK, mono_font, 1.0), (" " + rest, HUD_INK, font, 1.0), (C13B_SEP, DIM, font, 1.0),
+            (C17B_PARTS[1], _mix(HUD_INK, E.AMBER, 0.6), font, 1.0), (C13B_SEP, DIM, font, 1.0),
+            (C17B_PARTS[2], HUD_INK, font, 1.0)]
+    tw = sum(_tw(c, r[0], r[2](int(c.px(size)))) for r in runs)
+    a = _cut_in(s)
+    _text_runs(c, (960 - tw / 2, 500), runs, size, a)
+    c.line((960 - tw / 2, 580), (960 + tw / 2, 580), HUD_LINE, 2, a=0.7, progress=ease_out(seg(s, 0.1, 0.7)))
+    return _done(c, W, H, glow_radius=10, glow_gain=0.5)
+
+
+# ---- C_18b：「限制 1：持续光照，通道疲劳」（信息图，F5，1.35 s） ------------------------------------------
+C18B_HEAD = "限制 1："
+C18B_BODY = "持续光照，通道疲劳"
+
+
+@shot("C_18b")
+def c_18b(t, dur, W, H):
+    """写成一条限制：左边琥珀竖条 + 「限制 1：」，后接「持续光照，通道疲劳」。「疲劳」是脱敏的口语说法（F5）；不画曲线、不给数值。"""
+    s = _warp(t, dur, 1.35)
+    c = _canvas(W, H, INFO_BG)
+    size = 80
+    f = font(int(c.px(size)))
+    tw = _tw(c, C18B_HEAD + C18B_BODY, f)
+    x0 = 960 - (tw + 50) / 2
+    a = _cut_in(s)
+    c.rect((x0, 440, x0 + 10, 600), fill=E.AMBER, a=0.85 * a, radius=4, glow=True)
+    _text_runs(c, (x0 + 50, 520), [(C18B_HEAD, _mix(HUD_INK, E.AMBER, 0.55), font, 1.0),
+                                    (C18B_BODY, INK, font, ease(seg(s, 0.15, 0.45)) / max(a, 1e-6))], size, a)
+    return _done(c, W, H, glow_radius=10, glow_gain=0.5)
+
+
+# ---- C_20a：三行临床边界（信息图，F11 / F12 / F13） ------------------------------------------------------
+C20_ROW1 = "部分功能且依赖装置"
+C20_ROW2 = ("MCO-010", " 尚未获批")
+C20_ROW3 = ("GS030", " 无上市许可", "，且研究不是为了确证疗效")
+C20_BASE = 12.87          # timed 时长；字幕：0.30 部分功能 / 3.50 绑在装置上…尚未获批 / 6.71 没有上市许可 / 8.63 不是为了确证疗效
+
+
+@shot("C_20a")
+def c_20a(t, dur, W, H):
+    """三行，随旁白进来：第一行半亮灯（部分，不是全有）；第二、三行空心灯加横杠（没有获批 / 没有许可）。
+    第三行后半句「，且研究不是为了确证疗效」随最后一句字幕补上。三行一直都在，不加新数据。"""
+    s = _warp(t, dur, C20_BASE)
+    c = _canvas(W, H, INFO_BG)
+    fa = _cut_in(s, 0.6, 0.4)
+    box = (250, 220, 1670, 820)
+    _hud_frame(c, box, HUD_LINE, a=0.8 * fa)
+    size = 58
+    xl, xt = 340, 410
+    ys = (340, 520, 700)
+    a1 = ease(seg(s, 0.6, 1.2))
+    a1b = ease(seg(s, 3.7, 4.3))                       # 「且依赖装置」随「绑在装置上」
+    _half_lamp(c, (xl, ys[0]), a1)
+    head, tail = C20_ROW1.split("且", 1)
+    _text_runs(c, (xt, ys[0]), [(head, HUD_INK, font, 1.0), ("且" + tail, HUD_INK, font, a1b / max(a1, 1e-6))],
+               size, a1)
+    a2 = ease(seg(s, 5.3, 5.9))
+    _lamp(c, (xl, ys[1]), False, a2)
+    _text_runs(c, (xt, ys[1]), [(C20_ROW2[0], HUD_INK, mono_font, 1.0), (C20_ROW2[1], HUD_INK, font, 1.0)], size, a2)
+    a3 = ease(seg(s, 6.9, 7.5))
+    a3b = ease(seg(s, 8.8, 9.4))
+    _lamp(c, (xl, ys[2]), False, a3)
+    _text_runs(c, (xt, ys[2]), [(C20_ROW3[0], HUD_INK, mono_font, 1.0), (C20_ROW3[1], HUD_INK, font, 1.0),
+                                (C20_ROW3[2], HUD_INK, font, a3b / max(a3, 1e-6))], size, a3)
+    for y in (430, 610):
+        c.line((box[0] + 50, y), (box[2] - 50, y), HUD_LINE, 2, a=0.45 * fa)
+    return _done(c, W, H, glow_radius=10, glow_gain=0.6)
+
+
+# ---- C_20b：三行「部分」「未获批」「无许可」（排版，1.35 s） -----------------------------------------------
+C20B_LINES = ("部分", "未获批", "无许可")
+
+
+@shot("C_20b")
+def c_20b(t, dur, W, H):
+    s = _warp(t, dur, 1.35)
+    c = _canvas(W, H, TYPE_BG)
+    for i, line in enumerate(C20B_LINES):
+        a = _cut_in(s) if i == 0 else ease(seg(s, 0.1 * i, 0.1 * i + 0.3))
+        _stext(c, (960, 330 + 160 * i), line, 104, INK, a, anchor="mm", glow=0.2)
+    return _done(c, W, H, glow_radius=10)

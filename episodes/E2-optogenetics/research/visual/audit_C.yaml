@@ -27,6 +27,9 @@ C_01b:
     status: sourced
     source: F9 notes（对象是小鼠；不写改写人类记忆）
     note: 这是本片的范围声明，不是对文献的论断
+  - item: 海马线稿小图标（C + ⊃ 抽象符号）
+    status: artistic
+    note: 与 C_02a 同读法的简化符号，不是解剖切片
 C_02a:
   - item: 海马切片白模：CA 区 C 形带，齿状回 U 形带嵌在 C 口里
     status: simplified
@@ -169,6 +172,10 @@ C_12b:
     status: sourced
     source: F12
     note: 勾只表示「公告称达到终点」，不是独立核实
+  - item: 两格下方小字「勾：申请方公告称达到终点」（mograph/c.py 第二批，把上一行 note 写到屏幕上）
+    status: sourced
+    source: F12
+    note: 与 C_12a 底部「申请方公告，不是已生效许可」同一说法
 C_13a:
   - item: 暗桌上一页风格化公告，标题区只有拉丁字「GS030」「PIONEER」和日期 2026-10-08，其余是不可读的抽象行
     status: sourced
