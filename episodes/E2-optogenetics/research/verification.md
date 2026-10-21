@@ -7,13 +7,13 @@
 | 编号 | 等级 | 结论 |
 |---|---|---|
 | F1 | A | 2026-10-05 得主是 Deisseroth、Hegemann、Nagel。Boyden 不在新闻稿名单上。 |
-| F2 | A | 科学背景：从被动记录到主动控制，从而谈因果。新闻稿：20 世纪的方法证明不了因果。 |
+| F2 | A | 科学背景：从被动记录到主动控制，从而谈因果。新闻稿：20 世纪的方法证明不了因果。P6 补：科学背景把 lesion studies（损毁研究）与电生理、药理、成像并列为能建立**相关**的传统方法（A_02b）。 |
 | F3 | A | 「理想信号是光」「相当牵强」在科学背景里归于 Crick **1999**。 |
 | F3b | A | 1979 Sci Am **没有**「理想信号是光」；该文是选择性灭活一类神经元的需求。光控设想是后续讲座 → 1999。冷开场由 1979 起头，只配这条要求。 |
 | F3c | A | 诺奖科学背景：halorhodopsin 分离（Mukohata & Kaji 1981）；衣藻微秒级感光电流（Harz & Hegemann 1991），推断感光蛋白与通道也许是同一个复合体（Harz 1992；Holland 1996）。冷开场只作 HUD / 剪影。 |
 | F4 | B | 1971 年是紫膜上的视黄醛 + 视紫红质样蛋白，论文没用后来的名字。 |
 | F4b | B | 名字 bacteriorhodopsin 和光驱动质子泵是 **1973** 年的论文。 |
-| F5 | B | ChR1：2002 Science，质子通道。ChR2：2003 PNAS，阳离子通道，蛋白本身足以开门。 |
+| F5 | B | ChR1：2002 Science，质子通道。ChR2：2003 PNAS，阳离子通道，蛋白本身足以开门。P6 补：2002 卵母细胞实验在 all-trans retinal 存在下表达（Nagel 2002 摘要；科学背景 introducing all-trans-retinal）（B_06a）。 |
 | F6 | B | 2005 Nature Neuroscience，培养神经元毫秒级锋电位。Boyden 第一作者，Deisseroth 通讯作者。 |
 | F7 | B | 2006 J Neurosci 使用 optogenetic。科学背景写这一组作者正式提出该词。 |
 | F8 | B | 2007 光纤活体（Aravanis 等）；NpHR 黄光抑制（Zhang 等，Nature）。 |
@@ -25,6 +25,7 @@
 | F14 | A | Brain Prize 2013 六人，含 Boyden、Bamberg、Miesenböck，不等于诺奖三人。 |
 | F15 | B | 2023 综述仍写光学耳蜗临床前。另有一项光刺激可行性注册研究，不是疗效结果。 |
 | F16 | A | 科学背景：早期多组件或化学光开关方案达不到毫秒级。 |
+| F17 | B | Klapoetke 等 2014 Nat Methods：Chrimson 峰值约 590 nm、比此前通道视紫红质红移约 45 nm；ChrimsonR（K176R）保留红移光谱。诺奖 PDF 写 Chrimson，Sahel 2021 用 ChrimsonR（B_18a / B_18b）。 |
 
 ## 降级、拆开、本轮不采用
 

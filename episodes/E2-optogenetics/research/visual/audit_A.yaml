@@ -3,7 +3,7 @@
 #   （build_bilayer、build_opsin、build_brain、build_props）。
 # 规则：本段还有 wrong 或 unsourced 时不能出成片。
 # 2026-10-21 首版（P6）。3D 镜头按 a_scenes.py 核；2D 镜头（mograph: a）还没写，按分镜 visual 核，写代码时照此对字。
-# 现有 unsourced：A_02b「损毁」图标（facts.yaml 没有「损毁组织看行为」这一条，F2 只写记录与因果）。改法写在 note 里。
+# 现有 unsourced：0。A_02b「损毁」图标 2026-10-21 已补出处（F2 notes：诺奖科学背景把 lesion studies 列为建立相关的传统方法），改记 sourced。
 # 锋电位的离子机制（A_01a/01b）是教科书通识，facts.yaml 没有单独条目；画面只画示意、不上文字和数字，记 simplified。
 A_01a:
   - item: 参数化脂质双层剖面（亲水头朝外、疏水尾朝里），上面三个通用离子孔
@@ -30,16 +30,15 @@ A_02a:
   - item: 组织上一圈细环标出一小块（分镜：「一块组织示意被标记」）
     status: simplified
     source: F2
-    note: 只读作「这一块在被研究」。若 A_02b 的「损毁」补不到出处，这圈细环也不要读成损毁部位
+    note: 只读作「这一块在被研究」。旁白的「损毁」已有出处（F2 notes，lesion studies），但细环本身不画损毁、也不标损毁部位
 A_02b:
   - item: 图标「记录」
     status: sourced
     source: F2（被动记录脑活动）
   - item: 图标「损毁」（旁白：「也能损毁一块组织，看行为缺了什么」）
-    status: unsourced
-    note: facts.yaml 里 F2 只写「从被动记录转到主动控制」和「20 世纪的方法证明不了因果」，没有损毁 / 毁损研究。
-      改法二选一：回读诺奖新闻稿和科学背景，若有 lesion 一类的原句就补进 F2 notes，改记 sourced；没有就屏幕只留「记录」一个图标，
-      旁白的「损毁」交 Luna 决定（改旁白要重录）
+    status: sourced
+    source: F2 notes（诺奖科学背景：electrophysiology, lesion studies, pharmacology, and imaging 能建立相关）
+    note: 只表示损毁是传统方法之一、看缺损推断相关；与同一行「证明不了因果」一起读，不暗示损毁证明了因果
   - item: 底下同一行「证明不了因果」
     status: sourced
     source: F2（新闻稿：20 世纪的方法证明不了因果关系）

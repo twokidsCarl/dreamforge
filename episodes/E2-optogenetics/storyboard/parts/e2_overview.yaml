@@ -1264,6 +1264,7 @@ shots:
   facts: &id032
   - F11
   - F6
+  - F17
   style: sem
   style_why: ChrimsonR 是后继分子，显微尺度提醒它不是改名。
   transition_in: cut

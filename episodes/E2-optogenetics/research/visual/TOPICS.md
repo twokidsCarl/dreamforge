@@ -1,6 +1,6 @@
 # E2 视觉调研题目
 
-A0 的视觉报告已写：`a0_cold_open.md`，核查表 `audit_A0.yaml`。A、B、C、D 四段核查表 `audit_A.yaml`、`audit_B.yaml`、`audit_C.yaml`、`audit_D.yaml` 已写（2026-10-21 P6）；C_06a、C_10a 两条 unsourced 已改掉。A–D 的视觉调研报告（membrane / opsin / brain / retina 等 .md）还没写，剩下的 unsourced 见各文件头。
+A0 的视觉报告已写：`a0_cold_open.md`，核查表 `audit_A0.yaml`。A、B、C、D 四段核查表 `audit_A.yaml`、`audit_B.yaml`、`audit_C.yaml`、`audit_D.yaml` 已写（2026-10-21 P6）；C_06a、C_10a 两条 unsourced 已改掉。A_02b、B_06a、B_18a / B_18b 四条 unsourced 也已补出处（F2、F5 notes，新增 F17），五段核查表 unsourced 都是 0。A–D 的视觉调研报告（membrane / opsin / brain / retina 等 .md）还没写。
 
 下面只是制作计划里点过名的题目，方便下一轮按主题拆开查。没有引语，没有尺寸。
 
