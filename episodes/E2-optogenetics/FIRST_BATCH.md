@@ -27,7 +27,7 @@
 | 10 | B_08a | b_scenes（chr2） | eevee | energy | 453 | 227 | 第二幕核心：蓝光打开 ChR2、峰值落到平台（PR #17 推荐） |
 | 11 | B_09b | b_scenes（chr2） | eevee | energy | 32 | 16 | 与 B_08a 同一场景、起始帧 265。验证「第二段时间表」接得上 |
 | 12 | C_03a | c_scenes（cage, env B, mouse fiber） | cycles | photoreal | 408 | 204 | 第三幕假记忆：示意小鼠 + 光纤 + 笼。看道具和「不血腥」 |
-| 13 | C_07a | c_scenes（retina, rp） | eevee | xray | 403 | 202 | 第三幕临床线核心：参数化视网膜剖面。`raw: true`，叠字还没写，先只看 `preview_raw/` |
+| 13 | C_07a | c_scenes（retina, rp） | eevee | xray | 403 | 202 | 第三幕临床线核心：参数化视网膜剖面。`raw: true`，叠字在 `mograph/c.py`（渲完在 Mac 上叠） |
 | 14 | C_18a | c_scenes（desens） | eevee | energy | 230 | 115 | ChR2 脱敏，和 B_08a 同一分子在另一幕的样子（PR #17 推荐） |
 | 15 | D_92 | d_scenes（closing） | cycles | sem | 96 | 48 | 结尾最后一镜：通道关闭（PR #17 推荐） |
 
@@ -145,5 +145,5 @@ DREAMFORGE_EPISODE=E2-optogenetics python3 shared/tools/mograph.py --shot A0_04a
 
 - final / sample 全片渲染
 - 2D 镜头（A–D 的 mograph 模块还没写）
-- raw 镜头的叠字（B_02a 等 7 个，除 A0_04a）
-- P6 画面核查表 `research/visual/audit_<段>.yaml`
+- raw 镜头的叠字：8 个后处理都已写（A0_04a 在 a0.py，B 段 5 个在 b.py，C_01a、C_07a 在 c.py），在 Mac 上用 `mograph.py` 叠，不占 GPU
+- P6 画面核查表：`audit_C.yaml` 已写，A、B、D 还没写
