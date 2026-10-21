@@ -1,0 +1,70 @@
+# E2 视觉事实核查表，D 尾声（做得到 / 做不到 → 回到「相当牵强」→ 片尾）。每行是画面里出现的一项结构、文字或数字（旁白的论断在 research/facts.yaml）。
+# status: sourced / wrong / unsourced / simplified / artistic（WORKFLOW 2.3）。几何依据见 blender/shots/d_scenes.py 和各 builder 文件头
+#   （build_neuron、build_opsin、build_bilayer；D_03a 复用 a0_scenes.paper）。
+# 规则：本段还有 wrong 或 unsourced 时不能出成片。
+# 2026-10-21 首版（P6）。3D 镜头按 d_scenes.py 核；2D 镜头（mograph: d）还没写，按分镜 visual 核，写代码时照此对字。
+# 现有 unsourced：无。D_02b 原句「人体记忆：无对应结果」读起来像全称否定，同日改成「人体记忆：本研究不涉及」，与 C_06a 一致（F9）。
+# 留意：D_03a / D_03b 的「相当牵强」只挂 1999（F3），这两镜不能配 1979 标签（F3b notes）。
+D_01a:
+  - item: 一排 9 个参数化神经元（与 A0_03b 同一套种子和排布），只有被圈的那一类先被蓝光打开、沿轴突放电，再被琥珀光按住；两侧始终暗
+    status: simplified
+    source: F3（只打开或关掉某一类神经元，其余大体不动）；F8（蓝光开、黄光关的双向光控）；F2（主动控制、建立因果）；build_neuron 文件头
+    note: 神经元形态通用，不对应具体脑区或细胞类型；蓝 / 琥珀是全片开 / 关约定色。琥珀光时蓝光仍在，表达「按住」，不是论文里的光照方案
+  - item: 被选中的胞体上嵌着缩小的通道视紫红质（蓝）和氯泵（琥珀）：蓝光时通道孔亮，琥珀光时泵的视黄醛亮、通道熄灭
+    status: simplified
+    source: F8（同一回路里 ChR2 与 NpHR 双向光控）；build_opsin
+    note: 蛋白和胞体的比例差了几个数量级，这里只为同框可读
+D_01b:
+  - item: 同一场景锁定近景，只看中间那一个被选中的神经元：先蓝后琥珀
+    status: simplified
+    source: F8
+D_02a:
+  - item: 两行被放下的句子「小鼠实验不等于某一个人的人生」「部分视觉报告不等于失明结束」
+    status: sourced
+    source: F9（对象是小鼠；不写改写人类记忆）；F11（部分恢复，离不开护目镜；不说治愈失明）
+D_02b:
+  - item: 左格「小鼠恐惧实验」
+    status: sourced
+    source: F9
+  - item: 右格「人体记忆：本研究不涉及」
+    status: sourced
+    source: F9 notes（对象是小鼠，不是人）
+    note: 2026-10-21 P6 由「人体记忆：无对应结果」改来：旧句像在说全世界都没有人体结果，facts.yaml 不支持这种全称否定。
+      与 C_06a「人体记忆操作：本研究不涉及」、C_01b「不讲人体记忆操作」同一口径
+D_03a:
+  - item: 复用 A0 纸页场景（a0_scenes.paper）：一页旧纸、不可读的抽象行，掠射光和底光比开场稍亮；新相机 CamD_03a 慢推；没有手、没有人脸
+    status: artistic
+    note: 示意 Crick 1999 一文，不是原件，不排可读原句（同 A0_02b）。场景里没有中文字，「相当牵强」在 D_03b 上屏
+  - item: 本镜配的是「相当牵强」（旁白：「有人曾经觉得，用光去拨动某一类神经元，相当牵强」）
+    status: sourced
+    source: F3（rather far-fetched，Crick 1999）
+    note: 如加右上标签，只能写「Francis Crick · 1999」，不能写 1979（F3b notes：1979 没有这句）
+D_03b:
+  - item: 「相当牵强」再次出现，字号更大
+    status: sourced
+    source: F3
+    note: 同 D_03a，不配 1979，不写年份差
+D_04a:
+  - item: 片名《光遗传学》停住，下面没有下一期题目
+    status: sourced
+    source: F7（optogenetics 一词）
+    note: 「没有下一期题目」是排版（artistic）
+  - item: 旁白「今天它是一套实验方法，也是几条仍在审查中的临床尝试」（不上屏）
+    status: simplified
+    source: F1（新闻稿：临床在尝试恢复视力）；F12（MCO-010 的 BLA 已受理，尚未获批）；F13（GS030 结果仍属探索性，无上市许可）
+    note: 「审查中」严格只对 MCO-010 成立（FDA 受理）；GS030 是「还需进一步确认」的探索性结果。旁白作概括可以，屏幕不要写「审查中」三个字。
+      分镜 facts 写 F1、F3，建议补上 F12、F13
+D_04b:
+  - item: 黑场中一条细光横线，前 0.6 秒内熄灭，之后全黑；不出现下集标题
+    status: artistic
+    note: 与 A0_06b 的细光同一语汇，首尾呼应
+D_91:
+  - item: 左列「打开或关掉选定细胞」；右列「不是某人的人生，也不是失明结束」
+    status: sourced
+    source: F2、F8（左列）；F9、F11（右列）
+    note: 分镜里这镜 facts 为空，按两列内容补上
+D_92:
+  - item: 膜里的一个参数化通道视紫红质从打开回到关闭：TM1/TM2/TM7 回到原位、孔道收窄；sem 下只显示结构
+    status: simplified
+    source: build_opsin 文件头（Henderson & Unwin 1975；Kato et al. 2012）；build_bilayer；F5
+    note: 分镜里这镜 facts 为空。「光灭」由孔合上来读（sem 隐藏发光体）；合上的动作不是实测构象变化
