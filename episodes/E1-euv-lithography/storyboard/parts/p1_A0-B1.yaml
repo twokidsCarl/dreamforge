@@ -498,7 +498,7 @@ shots:
   segment: A1
   duration: 6.0
   vo:
-  - 一颗芯片，最多要叠大约 100 层图形；
+  - 一颗芯片，要叠上百层图形；
   facts:
   - F44
   style: infographic
@@ -526,13 +526,12 @@ shots:
   segment: A1
   duration: 8.0
   vo:
-  - 其中最精细的二十多层，要交给极紫外光刻机来画。
-  facts:
-  - F55
+  - 其中最精细、最关键的那几层，要交给极紫外光刻机来画。
+  facts: []
   style: xray
   style_why: “里面怎么排布”：透明剖视同时展示整体层数和最精细的层在哪里。
   transition_in: scan-wipe
-  visual: 扫描带掠过扁平层柱，它变成一块芯片截面的透明三维模型：上百层结构像封在玻璃里的城市，越往上越粗；最底部、贴着晶体管的那二十多层最细密，被染成 EUV 紫并发光。
+  visual: 扫描带掠过扁平层柱，它变成一块芯片截面的透明三维模型：上百层结构像封在玻璃里的城市，越往上越粗；最底部、贴着晶体管的那几层最细密，被染成 EUV 紫并发光（层数示意）。
   camera:
     move: slow orbit
     lens_mm: 50
@@ -545,9 +544,8 @@ shots:
   - ghost_glass_fresnel
   - bloom
   overlays:
-  - text: 先进芯片约二十多层用 EUV 曝光
-    facts:
-    - F55
+  - text: 最精细的那几层用 EUV 曝光
+    facts: []
   - text: 示意
     facts: []
   engine: eevee
@@ -938,7 +936,7 @@ shots:
   segment: A3
   duration: 6.0
   vo:
-  - 第一，自然界里没有现成的 13.5 纳米强光源。
+  - 第一，地球上没有现成的 13.5 纳米强光源。
   facts:
   - F1
   style: type

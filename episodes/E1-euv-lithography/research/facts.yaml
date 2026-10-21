@@ -489,6 +489,7 @@ F44:
   grade: A
   sources:
     - https://www.asml.com/en/company/stories/2021/fellow-simon-mathijssen-aligning-lithography-nanometer
+  notes: 层数 ASML 自己说法不一：官网“最多 100 层”，2021 年报“最复杂的超过 150 层”。旁白只说“上百层”，不给具体数字（research/visual/A1_sources.md）。
   segments: [A1, B8]
 
 F45:
