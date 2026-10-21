@@ -1,0 +1,115 @@
+# Visual fact audit, segment A2 (why a shorter wavelength). One row per optical / physical / process detail the
+# PICTURE or on-screen text shows (narration numbers live in research/facts.yaml). status:
+#   sourced    - matches a primary source cited here
+#   wrong      - contradicts a source; must change
+#   unsourced  - invented or unchecked
+#   simplified - deliberate simplification; difference from reality and where it is corrected are stated
+#   artistic   - deliberate convention, flagged on screen as 示意 where a viewer could take it literally
+# Quotes, URLs and recomputations: research/visual/A2_sources.md (S1-S8). Code: mograph/a2.py, blender/shots/a23_scenes.py.
+# Audited against preview frames renders/shots/A2_*/preview (contact sheets in renders/review/refs/A2/).
+# No NA 0.33 / 0.55 / 1.35 value, computed EUV resolution or photon-energy statement is drawn anywhere in A2.
+A2_01:
+  - item: plane wavefronts hit a slit and leave it as circular arcs spreading into a fan (Huygens wavelets from the opening)
+    status: sourced
+    source: S5 (OpenStax University Physics 3, s.4.1 "a sin θ = mλ"; "every part of the wave front in the slit emits wavelets")
+  - item: fan half-angle drawn = 1.4 x the first-minimum angle (slit a = 1.5 lambda -> first minimum 41.8 deg, drawn 58.5 deg), arcs of uniform brightness ending sharply, no side lobes
+    status: simplified
+    note: real intensity is concentrated in the central lobe with weak side lobes out to 90 deg; acceptable for a 示意 diagram. Optional fix in waves() - drop the 1.4 factor and fade arc brightness with angle (e.g. alpha * sinc^2(pi a sin(th)/lambda)).
+  - item: phase continuity at the slit
+    status: sourced
+    fixed: "plane fronts now laid out back from the slit (mograph/a2.py waves), in phase with the first arc"
+    note: plane crests sit at x = phase + n*60 from x=0, arcs at r = phase + n*60 from cx=820; 820 mod 60 = 40, so the arcs jump 2/3 lambda (240 deg) at the slit. Barely visible, but a sharp-eyed viewer sees crests not joining. Fix - start the plane-wave loop at x = cx - lam*ceil(cx/lam) + phase so a crest reaches cx exactly when an arc is born.
+  - item: violet-white visible wavefronts; label "衍射 diffraction · 示意"
+    status: artistic
+    note: diffraction applies to every wavelength; the colour is the film's light code; 示意 is on screen
+A2_02:
+  - item: inset - slit narrows from 1.5 lambda to 0.33 lambda and the fan opens to ~85 deg; caption 缝越窄 → 散得越开
+    status: sourced
+    source: 'S5 (a sin θ = λ: smaller a, larger θ; for a < λ there is no minimum and the wave fills the forward half-space, drawn clamped at 85 deg)'
+  - item: main panel - two printed resist lines of fixed width blur and finally merge into one grey band as the slit narrows
+    status: simplified
+    source: S6 (Smith, SPIE 5040, 2003, p.2 and Fig.2 - image detail exists only while the lens captures the first diffraction order, pitch > lambda/(NA(1+sigma)))
+    note: the real mechanism is that finer mask features diffract to wider angles and a lens of finite NA misses those orders, so contrast falls to zero (uniform exposure). The lens/NA half of that story is told in A2_03-A2_04, so the narration line (缝越窄 → 线越糊) is an honest first step. Optional fix - let the line pitch shrink together with the slit so the panel reads "finer lines -> blurrier", which is what actually happens.
+  - item: SEM greyscale look, label "SEM 风格示意"
+    status: artistic
+A2_03:
+  - item: formula CD = k₁ · λ / NA; CD 能画多细, λ 光的波长, NA 数值孔径 · 镜头收光的能力, k₁ 工艺因子
+    status: sourced
+    source: S1 (ASML "Rayleigh criterion" page - "CD = k1 • λ / NA"; CD "smallest possible feature size"; NA "defining how much light they can collect"; k1 "depends on many factors related to the chip manufacturing process")
+  - item: k₁ physical limit 0.25
+    status: sourced
+    source: S1 ("The physical limit lithography is k1 = 0.25."); physics cross-check S6 (first-order capture needs pitch > lambda/(NA(1+sigma)); sigma -> 1 gives pitch lambda/(2NA), half-pitch 0.25 lambda/NA)
+    note: the 0.25 limit is for the half-pitch of dense lines (single exposure); ASML calls it CD - keep ASML's wording, no fix needed
+  - item: on-screen note reads "工艺因子 k 的物理极限：0.25（F53）" - the subscript is missing, so the note names "k" while the formula above shows k₁ (storyboard overlay says k₁)
+    status: sourced
+    fixed: "note now draws k with subscript 1, matching the formula"
+    note: fix in a2.py rayleigh() - draw the note as "工艺因子 k" + a small subscript "1" (same trick as the formula, the font lacks ₁), or write "k1"; the storyboard text is "k₁ 的物理极限：0.25"
+A2_04:
+  - item: route two - converging light cone whose half-angle opens (14 deg -> 36 deg), labelled NA 越大
+    status: sourced
+    source: S7 (Evident/Olympus primer "NA = n • sin(θ)", θ = half the angular aperture); S1/S3 (ASML - NA = how much light the optics collect)
+    note: recomputed - sin 14 deg = 0.24, sin 36 deg = 0.59 (in air), a range that brackets EUV 0.33 (19.3 deg) and 0.55 (33.4 deg); unlabelled, so no number is claimed
+  - item: route one + route two converge on 线更细
+    status: sourced
+    source: S1 ("Smaller critical dimension can be achieved by using a combination of smaller light wavelength and larger numerical aperture")
+  - item: the optic is drawn and labelled as a 镜头 (refractive lens)
+    status: simplified
+    note: EUV optics are mirrors; the general formula is lens-agnostic and A3_04 explicitly replaces the glass lens with a Mo/Si mirror, so the simplification is corrected one segment later
+  - item: wavelength ruler shortens 220 px -> 70 px (ratio 3.1), unlabelled
+    status: artistic
+    note: concept only; the true 14.3x ratio is shown to scale in A2_07
+A2_05:
+  - item: '"193 nm DUV" pen, finest single-exposure line 约 40 nm; footer 单次曝光极限约 40 nm'
+    status: sourced
+    source: S2 (ASML Annual Report 2022 p.82 - "With a single exposure of DUV light at 193 nm ... reaches its physical limit around 40 nm"); S3 (ASML light-and-lasers - ArF "enabled features sizes of 38 nm"); S4 (NXT:2100i - "≤ 38 nm", "1.35 NA")
+    note: recomputed - 0.25 x 193 / 1.35 = 35.7 nm (theoretical), 38 nm -> k1 = 0.266, 40 nm -> k1 = 0.280. 38 vs 40 conflict noted; "约 40 nm" follows the annual report, the more general statement
+  - item: pen labelled plain "193 nm DUV" (no immersion)
+    status: sourced
+    fixed: "label now 193 nm 浸没式 (40 nm single exposure needs immersion)"
+    source: S3b (ASML lenses-and-mirrors - "Without the water, reaching an NA of more than 1 was impossible. With it, our systems' optics reach an NA of 1.35.")
+    note: ~40 nm needs water immersion; dry ArF with NA < 1 cannot go below 0.25 x 193 / 1.0 = 48 nm. ASML's own sentence also omits immersion, so it is acceptable; optional fix - pen text "193 nm DUV（浸没式）"
+  - item: the "two finer lines" the pen fails to draw - two cyan outlines 12 px tall, 44 px apart, while the 40 nm line is 80 px tall (scale 2 px/nm -> lines ~6 nm wide at 22 nm pitch)
+    status: sourced
+    fixed: "now two 20 nm lines with a 20 nm gap at the shot's own 2 px/nm scale"
+    note: unlabelled, but inconsistent with the stated scale and with A2_06 (next level is 20 nm). Fix in duv_marker() - draw them as 20 nm lines with a 20 nm gap at the same scale (40 px tall, centres +-40 px about y2), so the 80 px stroke still covers both
+  - item: fat marker metaphor (pen tip = smallest printable width)
+    status: artistic
+A2_06:
+  - item: 一次曝光 约 40 nm -> 两次曝光 约 20 nm -> 四次曝光 + 额外工序 约 10 nm; the process bar repeats the same steps
+    status: sourced
+    source: S2 (ASML AR 2022 p.82 - "image details at 20 nm with two exposures, or at 10 nm with four exposures and additional process steps ... go through the same process steps multiple times")
+  - item: one cycle drawn as 涂胶 · 曝光 · 刻蚀 plus grey "extra" blocks
+    status: simplified
+    note: develop, deposition, clean and metrology steps are omitted; industrial ~10 nm-class pitch splitting is mostly self-aligned (SAQP - one exposure plus spacer deposition/etch), not four litho-etch passes. The picture follows ASML's own simplified wording (S2), which is the cited source; no fix required
+  - item: footer shows only "F54"
+    status: sourced
+    note: film-wide convention of printing fact IDs (A0 does it too); a bare ID tells a viewer nothing - suggest "ASML 2022 年报 · F54"
+A2_07:
+  - item: 193 nm and 13.5 nm waves drawn to scale - one 193 nm period = 1400 px, 13.5 nm period = 97.9 px, crests counted to 14
+    status: sourced
+    source: S3 (ASML - 13.5 nm; 193 nm); recomputed 193 / 13.5 = 14.30, 14 periods = 1371 px, the remaining 0.30 period (29 px) is left undrawn, consistent with "14 个多"
+  - item: caption 短 14 倍以上（按比例）
+    status: sourced
+    source: S3 ("This wavelength is more than 14 times shorter than DUV light.")
+  - item: wave colours (DUV deep blue-violet, EUV bright violet) and amplitudes (120 vs 60 px)
+    status: artistic
+    note: both are invisible UV; amplitude carries no meaning. Vacuum wavelengths (in the immersion water ArF is 134 nm; not shown, not needed)
+A2_08:
+  - item: 13.5 nm wave as a glowing violet ribbon, no scale or label
+    status: artistic
+    note: quality, not fact - the WOOD/BANDS displacement makes notched, doubled crests (visible in every preview frame); a sine displacement driven by a proper wave (or a curve with a bevel) would give clean "knife-edge" crests as the storyboard intends
+A2_09:
+  - item: EUV replaces several exposures and steps with one exposure for some critical layers
+    status: sourced
+    source: S2 (AR 2022 p.82 - "several exposures and process steps can be replaced by a single exposure and fewer process steps to pattern a certain layer"); S2b (AR 2025 - "moving from multi-patterning to single patterning")
+  - item: overlay 部分关键层：非光刻工序最多减少 3–5 倍（ASML 引用 imec 研究）
+    status: sourced
+    source: S2 (AR 2022 p.82 - "According to a study conducted by imec, EUV enables the number of non-lithography processing steps for some critical layers to be reduced by up to three to five times")
+  - item: the collapse itself - 4 cycles x (coat, expose, etch + 2 grey extras) = 20 blocks, of which 12 are non-litho (4 etch + 8 extra), collapse to one 3-block cycle with 1 non-litho block
+    status: sourced
+    fixed: "after the collapse one cycle + 2 grey blocks remain: 12 -> 3 non-litho steps = 4x, inside the 3-5x caption"
+    note: 'the picture shows a 12x cut in non-litho steps (6.7x in all steps) right under a caption that says "up to 3-5x". Fix in collapse() - after the sweep keep one cycle plus two grey extra blocks (_steps(c, 120, 600, 1, 2, ...)): 12 -> 3 non-litho blocks = 4x, inside ASML/imec''s range'
+A2_10:
+  - item: the violet light pen flickers and goes out
+    status: artistic
+    note: render bug, not fact - pen_fails() uses fade(t, 0.0, 0.2, dur, 0.05), which is 1 only inside [0, 0.2 s]; 128 of 132 preview frames are pure black (750-byte PNGs), so the flicker never shows. Fix - fade(t, 0.0, dur, dur, 0.05)

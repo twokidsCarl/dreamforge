@@ -1,0 +1,127 @@
+# Visual fact audit, segment A3 (the three hard problems + 17 years / EUR 6 bn). One row per technical or
+# historical detail the PICTURE or on-screen text shows (narration numbers live in research/facts.yaml). status:
+#   sourced    - matches a primary source cited here
+#   wrong      - contradicts a source; must change
+#   unsourced  - invented or unchecked
+#   simplified - deliberate simplification; difference from reality and where it is corrected
+#   artistic   - deliberate convention, flagged on screen as 示意 where a viewer could take it literally
+# Quotes, URLs and CXRO query parameters: research/visual/A3_sources.md (S1-S12). Audited 2026-10-21 against the
+# storyboard (p1_A0-B1.yaml), blender/shots/a23_scenes.py, mograph/a3.py and the preview frames in renders/shots/A3_*.
+# Not shown anywhere in A3 (no calendar dates, no source-power history, no mirror-reflectivity number on screen):
+# the 1997 EUV LLC, 2013 NXE:3300, 2019 HVM and 2023 High-NA milestones are recorded in A3_sources.md (S9-S11) only
+# as verified reference in case dates are added to the A3_05 time bar.
+A3_01:
+  - item: chapter card 三道难题, three numbered cards face down
+    status: artistic
+    note: no technical content
+A3_02:
+  - item: card title / overlay ① 没有现成的 13.5 nm 强光源
+    status: sourced
+    source: S1 ASML light-and-lasers ("uses light with a wavelength of 13.5 nanometers"; "EUV light occurs naturally in outer space. But to make EUV lithography possible, we needed to engineer a way to create such light within a system")
+  - item: subtitle / narration 自然界里没有现成的 13.5 纳米强光源
+    status: wrong
+    source: S1 ("EUV light occurs naturally in outer space")
+    note: ASML says EUV does occur in nature (space, e.g. the solar corona); what is missing is a usable source on Earth / inside a machine
+    fix: 第一，地球上没有现成的 13.5 纳米强光源。 (re-voice the sentence, or 第一，没有现成的 13.5 纳米强光源。 which matches the card); add S1 wording to F1 or a new fact
+  - item: spectrum band - a continuous rainbow (green -> orange -> red -> violet -> blue -> green) with a dark gap at 13.5 nm placed inside the colours
+    status: wrong
+    source: S2 ZEISS EUV page ("The light visible to humans has wavelengths between 400 and 800 nanometers. The range of ultraviolet light begins below 400 nanometers"); S1 (13.5 nm, 193 nm DUV)
+    note: 13.5 nm is ~30x shorter than the shortest visible light; drawing it as a gap between green and orange tells the viewer it sits among visible colours. The band has no axis, so the gap position means nothing
+    fix: draw a labelled log wavelength axis (~5 nm to ~1000 nm): only 400-800 nm in rainbow colours (label 可见光), 193 nm (DUV) and 13.5 nm (EUV) marked in the UV region in grey/violet, with the dark notch at 13.5 nm. Card text unchanged
+  - item: on-screen "（F1）" bottom right of the card
+    status: wrong
+    note: internal fact-ID leaked into the picture (visible in preview frame 0100); viewers cannot use it
+    fix: delete the c.text((1640, 760), "（F1）", ...) line in mograph/a3.py
+A3_03:
+  - item: overlay ② 几乎所有物质都吸收它，连空气也不例外
+    status: sourced
+    source: S3 ASML EUV systems page ("EUV light is absorbed by everything, even air"); S2 ZEISS ("absorbed by all materials – including air")
+    note: 几乎 is a fair softening (multilayer mirrors reflect, thin pellicles partly transmit)
+  - item: violet beam dies out in a sparse gas; each molecule it meets lights up and takes a bite (exp(-hits/9))
+    status: artistic
+    source: S4 CXRO gas transmission - air, 760 Torr, 295 K, 13.5 nm: 49.9 % left after 0.1 mm, 0.096 % after 1 mm (attenuation length ~0.14 mm)
+    note: physics matches (Beer-Lambert absorption by N2/O2), but molecule size/spacing and the screen-width path length are not to scale - in real air the beam is gone within about a millimetre; violet = film colour code for EUV. 示意 is on screen
+  - item: on-screen "示意 · F10" bottom right
+    status: wrong
+    note: 示意 is required, the fact-ID is not (internal label)
+    fix: change the string to "示意" only in mograph/a3.py problem2()
+  - item: storyboard says 3D (build_vacuum.gas_absorption, eevee); rendered as 2D mograph
+    status: artistic
+    note: production note only, no factual impact
+A3_04:
+  - item: glass lens - violet beam stops at the entry surface
+    status: sourced
+    source: S2 ZEISS ("absorbed by all materials"); S5 CXRO attenuation length of SiO2 (2.2 g/cm3) at 13.5 nm = 0.0997 um, i.e. ~100 nm
+    note: the light is gone within the first ~0.1 um of glass, so ending the beam at the surface is right
+  - item: warm orange glow ring at the entry point
+    status: artistic
+    note: absorbed EUV becomes heat, but glass would not visibly glow at scanner power levels; reads literally in a photoreal studio
+    fix: keep the glow subtle and add 示意 to the shot, or make it a brief heat-shimmer rather than an orange emitter
+  - item: the violet beam travels ~6 scene units (metres in look) through the open studio air to the lens and mirror
+    status: wrong
+    source: S4 (air at 1 atm: half the EUV gone in 0.1 mm, 99.9 % in 1 mm); S3 ("the whole light path ... from source to wafer – must be in high vacuum")
+    note: directly after A3_03 says air eats the beam, this shot shows it crossing metres of air; contradicts the point being made
+    fix: stage the bench inside a vacuum chamber (chamber wall / viewport / bellows visible, matte steel interior) or at minimum put 真空中 · 示意 on screen
+  - item: Mo/Si multilayer mirror replaces the lens and reflects the beam (EUV mirrors are glass substrates with a Mo/Si coating)
+    status: sourced
+    source: S3 ("several multilayer mirrors instead of lenses"); S2 ("thin layers of silicon and molybdenum ... vapor-deposited onto the glass surface ... up to 100 layers")
+  - item: reflected beam as bright as the incoming beam
+    status: simplified
+    source: S2 ("a reflectivity that makes up to 70 percent of the light usable"); S6 CXRO multilayer calc, Mo/Si d=6.9 nm, 40 bilayers, normal incidence: R=0.729 at 13.5 nm (ideal interfaces)
+    note: real mirror returns at most ~70 %; ledger corrects this from B4 on
+    fix: cheap and honest - drop the outgoing beam emission to ~0.7x the incoming (8.0 -> 5.6), so the loss is visible before the ledger starts
+  - item: angle of incidence 25 deg (normal bisects incoming +X and outgoing 50 deg up-left)
+    status: simplified
+    source: S6 - a 6.9 nm normal-incidence Mo/Si stack at 25 deg reflects only ~1 % at 13.5 nm; a stack tuned for 25 deg (d~7.6 nm) reaches ~57 % at 13.5 nm; EUV imaging mirrors work near normal incidence (high_na_optics.md - CRAO 5.4 deg at the mask)
+    note: physically possible only with a mirror designed for that angle; not wrong for a generic demo, but closer to normal incidence reads truer
+    fix: optional - reduce AOI to ~10 deg (outgoing beam 20 deg from the incoming); then nothing to footnote
+  - item: rainbow thin-film iridescence on the mirror face (thin_film_iridescence fx, M.multilayer_mirror)
+    status: artistic
+    note: Mo/Si period is ~7 nm (S6 design), far below visible wavelengths, and 40 Mo layers make the stack opaque - the coating itself gives no visible interference colours; a real EUV mirror looks like a plain metallic mirror. Keep it faint as a "coating" cue or remove; no public photo supports strong rainbow colour
+A3_05:
+  - item: time bar 1 -> 17 年 and counter 60 多亿欧元 / overlay 投入 60 多亿欧元
+    status: sourced
+    source: S3 ASML EUV systems page ("ASML invested more than €6 billion in EUV R&D over 17 years")
+    note: F20; ASML gives no start/end year for the 17 years, so the bar must stay in relative years (no calendar dates)
+  - item: overlay ASML · 蔡司 ZEISS · 通快 TRUMPF 等伙伴 (facts: [])
+    status: sourced
+    source: S2 ZEISS ("in 2019, together with strategic partner ASML, TRUMPF, the Fraunhofer Institute IOF and around 1,200 other partners"); S7 TRUMPF drive-laser page ("ASML, Zeiss, and TRUMPF joined forces")
+    fix: add a fact entry (e.g. F50) with these two quotes and point the overlay's facts at it
+  - item: narration 才把它送进芯片工厂
+    status: sourced
+    source: S3 ("The first EUV production system – the TWINSCAN NXE:3300 – was shipped in 2013"; "At the beginning of 2020, we celebrated the 100th EUV system shipment"); S2 (2019 = EUV in production)
+  - item: vignette 1 - optical bench with a flashing chrome sphere ("early source chamber") and a row of cylindrical optics
+    status: artistic
+    note: generic lab; no specific historical source is depicted. The cylinders must not read as transmissive EUV optics - they are posts, fine
+  - item: vignette 2 - a large blank already showing the multilayer (iridescent) coating while it is being polished on a turntable
+    status: wrong
+    source: S2 (layers "vapor-deposited onto the glass surface"); S8 ZEISS EUVL Workshop 2022 mirror-manufacturing flow (grinding -> polishing -> ion beam figuring -> coating -> metrology)
+    note: the coating goes on after the substrate is polished and figured; a coated surface would be destroyed by polishing
+    fix: give the blank a bare glass-ceramic substrate material (pale, matte-to-polished glass, no iridescence) in a23_scenes.montage(); multilayer_mirror material only for finished mirrors
+  - item: vignette 3 - six white amplifier cabinets in a straight row with an open orange beam above them
+    status: simplified
+    source: S7 TRUMPF (seed module with two seed lasers, a pre-amplifier, an amplification chain of "four resonators"; beam transport "up to 30 meters"); euv_source.md (FOM17 p.176 - laser in the sub-fab; scale drawing shows four large enclosures in a T/L plan and an enclosed beam-transport tube)
+    note: six units ~ seed + pre-amp + 4 amplifiers is consistent; the straight hall layout and the free beam are not - the 10.6 um CO2 beam is infrared (invisible) and runs inside enclosed beam tubes. Orange = film colour code for the CO2 laser
+    fix: put the orange beam inside a tube (glowing only through a slot, or drawn as a 示意 line) ; layout may stay a stylised row
+  - item: vignette 4 - clean-room assembly of the machine with backlit people
+    status: simplified
+    note: preview frames (rendered 2026-10-18) still show the old generic machine box; build_machine.machine() is now the High-NA EXE:5000 - re-frame and re-render (audit_backlog.yaml item for A3). Exterior must stay generic (project rule)
+  - item: whip-cut montage, film grain, light leaks
+    status: artistic
+A3_06:
+  - item: x-ray tour - violet path lights source -> collector -> IF -> illuminator facet mirrors -> mask -> projection mirrors -> wafer; label 示意
+    status: sourced
+    source: high_na_optics.md (ZEISS Kaumanns et al. 2024 s.13 optical train; ASML van Schoot 2022 s.34 module tiers) - order of modules
+    note: preview (rendered 2026-10-17) shows the superseded model (vertical 6-mirror zig-zag PO, flat collector); camera keys use BM.PLASMA / BM.FACET2 and fixed eye points that predate the EXE:5000 rebuild - RE-FRAME and re-render before audit can close. 示意 stays (illuminator spacing, source-axis elevation not public)
+  - item: machine size / proportions
+    status: unsourced
+    note: as A0_05 - exact dimensions not public; 示意 on screen covers it
+  - item: exterior as ghost glass
+    status: artistic
+A3_07:
+  - item: light ledger bar starts full, base icon lightning + 起点：电
+    status: sourced
+    note: concept only (all EUV light starts as electrical power); the MW figure is not shown here. F48 (ASML AR2025 NXE:3800E 1.26 MW) available if a number is added later
+  - item: dim rectangle standing for the machine, cyan dashed link from the light-path start
+    status: artistic
+    note: should reuse A3_06's last frame (storyboard) once that shot is re-rendered on the EXE:5000 model

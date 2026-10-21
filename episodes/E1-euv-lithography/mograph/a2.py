@@ -18,10 +18,10 @@ def waves(c, t, a, slit_w, cx=820, speed=160, lam=60, region=(0, 1920)):
     c.rect((cx - 12, 0, cx + 12, 540 - slit_w / 2), fill=(40, 44, 60), a=a)
     c.rect((cx - 12, 540 + slit_w / 2, cx + 12, 1080), fill=(40, 44, 60), a=a)
     phase = (t * speed) % lam
-    x = region[0] + phase
-    while x < cx:
+    x = cx + phase - lam                     # laid out back from the slit: a front reaches it as the next arc starts
+    while x > region[0]:
         c.line((x, 120), (x, 960), (210, 196, 255), 3, a * 0.75, glow=True)
-        x += lam
+        x -= lam
     spread = min(math.radians(85), math.asin(min(1.0, lam / max(slit_w, 1))) * 1.4)
     r = phase
     while r < 1100:
@@ -93,7 +93,10 @@ def rayleigh(t, dur, W, H):
             c.text((x + 38, 520), "1", int(56 * pop), col, a * max(on, 0.25), anchor="mm")
         if name:
             c.text((x, 600), name, 30, col, a * on, anchor="mm")
-    c.text((960, 760), "工艺因子 k 的物理极限：0.25（F53）", 28, GREY, a * ease(seg(t, 9.8, 10.4)), anchor="mm")
+    lim = a * ease(seg(t, 9.8, 10.4))                              # k with its subscript 1, as in the formula above
+    c.text((958, 760), "工艺因子 k", 28, GREY, lim, anchor="rm")
+    c.text((966, 772), "1", 18, GREY, lim, anchor="mm")
+    c.text((976, 760), " 的物理极限：0.25（F53）", 28, GREY, lim, anchor="lm")
     return c.finish(glow_radius=10, glow_gain=0.8)
 
 
@@ -149,12 +152,12 @@ def duv_marker(t, dur, W, H):
     mx = 300 + 1100 * p
     c.rect((mx - 10, y - 200, mx + 70, y - 40), fill=(60, 64, 90), a=a, radius=10)          # the marker
     c.rect((mx - 5, y - 52, mx + 65, y + 40), fill=(150, 130, 230), a=a, radius=4)
-    c.text((mx + 30, y - 120), "193 nm DUV", 20, INK, a, anchor="mm")
+    c.text((mx + 30, y - 120), "193 nm 浸没式", 20, INK, a, anchor="mm")
     two = ease(seg(t, 4.2, 5.4))                                   # trying two finer lines: the tip covers both
     if two > 0:
         y2 = 820
-        for dy in (-22, 22):
-            c.rect((300, y2 + dy - 6, 1400, y2 + dy + 6), outline=CYAN, width=2, a=a * two)
+        for dy in (-40, 40):                                       # two 20 nm lines, 20 nm apart (2 px per nm, as above)
+            c.rect((300, y2 + dy - 20, 1400, y2 + dy + 20), outline=CYAN, width=2, a=a * two)
         c.rect((300, y2 - 40, 300 + 1100 * ease(seg(t, 5.0, 7.0)), y2 + 40), fill=(150, 130, 230), a=a * 0.8)
         c.text((1450, y2), "想画两条更细的线 → 一笔盖住", 26, ORANGE, a * ease(seg(t, 6.4, 7.0)), anchor="lm")
     c.text((960, 1030), "单次曝光极限约 40 nm（F1 · F54）", 20, INK2, a, anchor="mm")
@@ -241,7 +244,7 @@ def collapse(t, dur, W, H):
     sx = 120 + 1700 * sweep
     c.line((sx, 520), (sx, 760), VIOLET, 6, a * (sweep < 1), glow=True)
     after = ease(seg(t, 2.2, 3.0))
-    _steps(c, 120, 600, 1, 0, a * after)
+    _steps(c, 120, 600, 1, 2, a * after)                           # 8 grey steps -> 2: 4x, inside the "3-5x" caption
     c.text((480, 720), "EUV：一次曝光", 28, VIOLET, a * after, anchor="lm")
     c.text((960, 300), "部分关键层：非光刻工序最多减少 3–5 倍", 40, INK, a * ease(seg(t, 3.0, 3.6)), anchor="mm",
            weight_glow=True)
@@ -252,7 +255,7 @@ def collapse(t, dur, W, H):
 @shot("A2_10")
 def pen_fails(t, dur, W, H):
     c = Canvas(W, H, bg=(0, 0, 0))
-    a = fade(t, 0.0, 0.2, dur, 0.05)
+    a = fade(t, 0.0, dur, dur, 0.05)
     out = 1 - ease(seg(t, 2.6, 4.2))
     rnd = random.Random(int(t * 24))
     flick = (0.25 + 0.75 * rnd.random()) if t > 0.6 else 1.0

@@ -53,15 +53,12 @@ def ribbon(sc, rnd):
     bpy.ops.object.mode_set(mode="EDIT")
     bpy.ops.mesh.subdivide(number_cuts=400)
     bpy.ops.object.mode_set(mode="OBJECT")
-    tex = bpy.data.textures.new("WaveTex", "WOOD")
-    tex.wood_type = "BANDS"
-    tex.noise_basis_2 = "SIN"
-    tex.noise_scale = 0.5
-    wv = rb.modifiers.new("Wave", "DISPLACE")
-    wv.texture = tex
-    wv.direction = "Z"
-    wv.texture_coords = "GLOBAL"
-    wv.strength = 0.9
+    # an exact sine written into the vertices (a displaced Wood texture clipped its crests into double peaks)
+    lam, amp = 2.0, 0.45
+    for v in rb.data.vertices:
+        v.co.z = amp * math.sin(2 * math.pi * v.co.x / lam)
+    for pl in rb.data.polygons:
+        pl.use_smooth = True
     _key(rb, 1, location=(0, 0, 0))
     _key(rb, 60, location=(-1.2, 0, 0))
     m = M.emission("RibbonGlow", (0.72, 0.52, 1.0), 6.0)

@@ -47,10 +47,17 @@ def char_times(model, wav, prompt=None):
     return "".join(chars), times
 
 
+def _char_sounds(text):
+    """One toneless-pinyin token per character (other characters as themselves), so homophones align."""
+    from pypinyin import Style, lazy_pinyin
+    return [lazy_pinyin(c, style=Style.NORMAL)[0] if "\u4e00" <= c <= "\u9fff" else c for c in text]
+
+
 def align_spans(script_sentences, asr_text, asr_times, pauses):
     keys = [norm(s) for s in script_sentences]
     full = "".join(keys)
-    sm = difflib.SequenceMatcher(None, full, asr_text, autojunk=False)
+    # match by sound, character for character: 掩模 heard as 眼膜 still anchors its timestamps
+    sm = difflib.SequenceMatcher(None, _char_sounds(full), _char_sounds(asr_text), autojunk=False)
     mapping = {}
     for a, b, n in sm.get_matching_blocks():
         for k in range(n):
@@ -72,8 +79,8 @@ def align_spans(script_sentences, asr_text, asr_times, pauses):
     for i in range(len(spans) - 1):
         gap_mid = (spans[i][1] + spans[i + 1][0]) / 2
         near = [p for p in pauses if abs(p[0] - gap_mid) < 0.6]
-        if near:
-            p = min(near, key=lambda p: abs(p[0] - gap_mid))
+        if near:                                    # a sentence break is the longest pause around, not a comma
+            p = max(near, key=lambda p: (round(p[1], 2), -abs(p[0] - gap_mid)))
             spans[i][1], spans[i + 1][0] = p[2] + 0.02, p[3] - 0.02
     return [tuple(s) for s in spans]
 
