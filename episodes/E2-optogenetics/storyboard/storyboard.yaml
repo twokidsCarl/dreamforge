@@ -467,7 +467,7 @@ shots:
   builders:
   - schematic
   fx: []
-  engine: manim
+  engine: pillow
   sfx: []
 - id: A_05a
   segment: A
@@ -506,7 +506,7 @@ shots:
   builders:
   - schematic
   fx: []
-  engine: manim
+  engine: pillow
   sfx: []
 - id: A_06a
   segment: A

@@ -628,7 +628,7 @@ shots:
   builders:
   - schematic
   fx: []
-  engine: manim
+  engine: pillow
   sfx: []
   start: 108.87
 - id: A_05a
@@ -690,7 +690,7 @@ shots:
   builders:
   - schematic
   fx: []
-  engine: manim
+  engine: pillow
   sfx: []
   start: 124.34
 - id: A_06a
