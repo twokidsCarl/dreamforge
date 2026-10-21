@@ -1,4 +1,4 @@
-"""E2 A0 的 2D 镜头（Pillow）：排版、神经元线稿、蓝图、片名、HUD，以及 A0_04a 的叠字后处理。
+"""E2 A0 的 2D 镜头（Pillow）：排版、微生物 HUD、神经元线稿、蓝图、片名、HUD 计数，以及 A0_04a 的叠字后处理。
 
 配色和共用常量在 blender/scripts/e2_common.py（通道蓝 = 打开，抑制琥珀 = 关掉，膜青，线稿白）。
 每个镜头是 draw(t, dur, W, H) -> PIL.Image；全部用 2 倍超采样再缩小（线条不起锯齿）。动画时间点按“分镜板面时长”写，
@@ -32,8 +32,11 @@ BP_LINE = (222, 236, 255)
 BOX = (790.0, 310.0, 1130.0, 650.0)
 BOX_C = ((BOX[0] + BOX[2]) / 2, (BOX[1] + BOX[3]) / 2)
 
-QUOTE = "理想的信号，也许是光"
-QUOTE_FULL = "理想的信号，也许是光。"
+# 年份只配各自的事实：1979 = 只动一类神经元的要求（F3b），1999 = 理想的信号会是光 / 相当牵强（F3）。光不挂 1979。
+WISH = "只动一类神经元"
+QUOTE = "理想的信号会是光"
+QUOTE_FULL = "理想的信号会是光。"
+GUESS = "……也许是光？"                    # 后来讲座里的猜测：不标年份（不编 1979–1999 之间的讲座年份）
 TITLE = "光遗传学"
 
 
@@ -79,33 +82,92 @@ def _zoom(img, z):
     return img.crop(((W - w) / 2, (H - h) / 2, (W + w) / 2, (H + h) / 2)).resize((W, H), Image.LANCZOS)
 
 
-# ---- A0_01b / A0_02a：排版 ------------------------------------------------------------------
+# ---- A0_01b：微生物那条线（HUD 剪影） ----------------------------------------------------------------
+HUD_BG = (5, 8, 9)
+
+
+def _hud_frame(c, box, col, L=46, a=0.9):
+    x0, y0, x1, y1 = box
+    for (px_, py_, dx, dy) in ((x0, y0, 1, 1), (x1, y0, -1, 1), (x0, y1, 1, -1), (x1, y1, -1, -1)):
+        c.line((px_, py_), (px_ + dx * L, py_), col, 3, a=a)
+        c.line((px_, py_), (px_, py_ + dy * L), col, 3, a=a)
+
+
+def _archaeon(c, x, y, col, a):
+    """杆状古菌剪影（只是轮廓，不画膜蛋白）。"""
+    c.rect((x - 70, y - 22, x + 70, y + 22), fill=_scale(col, 0.18), outline=col, width=2.5, a=a, radius=22)
+
+
+def _alga(c, x, y, col, a, t):
+    """双鞭毛绿藻剪影：椭圆细胞 + 两根前端鞭毛 + 一个眼点（只是轮廓）。"""
+    c.circle((x, y), 30, fill=_scale(col, 0.18), outline=col, width=2.5, a=a)
+    sway = 6 * math.sin(t * 5.0)
+    for side in (-1, 1):
+        pts = [(x - 32, y + side * 8)]
+        for k in range(1, 9):
+            u = k / 8
+            pts.append((x - 32 - 70 * u, y + side * (8 + 26 * u) + sway * u * side))
+        _poly(c, pts, col, 2.0, a)
+    c.circle((x + 14, y - 12), 5, fill=E.AMBER, a=a * 0.8)
+
+
+@shot("A0_01b")
+def a0_01b(t, dur, W, H):
+    # 1979 与 1999 之间不干跳：并行记下微生物那条线（F3c）。只有剪影和刻度，不画蛋白结构、不开门（第二幕再讲）。
+    s = _warp(t, dur, 8.2)
+    c = _canvas(W, H, HUD_BG)
+    hud = _mix(E.MEMBRANE, HUD_BG, 0.45)
+    fa = ease(seg(s, 0.0, 0.6))
+    _hud_frame(c, (300, 170, 1620, 800), hud, a=0.9 * fa)
+    c.text((340, 215), "微生物", 34, _mix(E.MEMBRANE, HUD_BG, 0.2), fa, anchor="lm")
+    col = _mix(E.LINE, E.MEMBRANE, 0.35)
+    lanes = (                                                     # (y, 出现时刻, 刻度文字, 剪影)
+        (380, 0.9, "1981 · 古菌 · 盐视紫红质", "archaeon"),
+        (610, 3.6, "1991–1996 · 衣藻 · 微秒级光电流", "alga"),
+    )
+    for y, at, label, kind in lanes:
+        run = ease(seg(s, at, at + 1.0))
+        c.line((420, y), (420 + 1120 * run, y), hud, 2, a=0.8)     # 轨道从左画出
+        a = ease(seg(s, at + 0.5, at + 1.2))
+        if kind == "archaeon":
+            _archaeon(c, 560, y - 70, col, a)
+        else:
+            _alga(c, 580, y - 70, col, a, s)
+        tick_x = 900
+        c.line((tick_x, y - 16), (tick_x, y + 16), E.MEMBRANE, 3, a=a, glow=True)
+        c.text((tick_x + 26, y - 40), label, 40, col, ease(seg(s, at + 0.8, at + 1.4)), anchor="lm")
+    return _done(c, W, H, glow_radius=12, glow_gain=0.7)
+
+
+# ---- A0_02a：讲座里的猜测 → 1999 → 相当牵强（排版） --------------------------------------------------
 QUOTE_SIZE = 78
-QUOTE_Y = 520                             # 01b 里这句的纵向中心（1080p）
+QUOTE_Y = 520                             # 句子的纵向中心（1080p）
 
 
 def _quote_line(c, y, a):
     _stext(c, (960, y), QUOTE_FULL, QUOTE_SIZE, INK, a, anchor="mm", glow=0.25)
 
 
-@shot("A0_01b")
-def a0_01b(t, dur, W, H):
-    c = _canvas(W, H, (0, 0, 0))
-    _quote_line(c, QUOTE_Y, ease(seg(t, 0.12, 0.7)))          # 轻微淡入，之后停住
-    return _done(c, W, H, glow_radius=10)
-
-
 @shot("A0_02a")
 def a0_02a(t, dur, W, H):
+    # 两句旁白：讲座里的猜测（不标年份）占前约 40%，1999 那句和「相当牵强」占后面；打字、光标仍从结尾倒推。
     c = _canvas(W, H, (0, 0, 0))
-    up = ease(seg(t, 0.35, 1.25))
-    _quote_line(c, QUOTE_Y - 120 * up, 1.0 - 0.58 * up)       # 上一句上移并变暗
+    q_at = 0.4 * dur                                              # 1999 那句进来（retime 后按 review_words 对齐）
+    g_a = ease(seg(t, 0.3, 1.1)) * (1.0 - ease(seg(t, q_at - 0.6, q_at)))
+    if g_a > 0:
+        _stext(c, (960, QUOTE_Y), GUESS, 64, _scale(INK, 0.6), g_a, anchor="mm")
+    type_start = max(q_at + 2.5, dur - 2.3)                       # 留出 2 次闪烁后停住
+    up = ease(seg(t, type_start - 1.2, type_start - 0.3))
+    q_a = ease(seg(t, q_at, q_at + 0.7))
+    if q_a > 0:
+        _quote_line(c, QUOTE_Y - 120 * up, q_a * (1.0 - 0.58 * up))  # 句子出现，打字前上移并变暗
+        _stext(c, (960, QUOTE_Y - 120 * up + 72), "Crick · 1999", 30, _scale(INK, 0.55),
+               q_a * (1.0 - 0.5 * up), anchor="mm", fnt=mono_font)
     word = "相当牵强"
     f = serif_font(int(c.px(QUOTE_SIZE)))
     full_w = c.d.textlength(word, font=f) / c.px(1)
     x0 = 960 - full_w / 2
     y = QUOTE_Y + 40
-    type_start = max(1.5, dur - 2.3)                          # 打字、光标都从结尾倒推：留出 2 次闪烁后停住
     cps = 0.2
     n = max(0, min(len(word), int((t - type_start) / cps) + 1)) if t >= type_start else 0
     typed = word[:n]
@@ -272,11 +334,15 @@ def a0_05a(t, dur, W, H):
     for i in range(3):
         c.line((BOX[2], BOX_C[1]), (1282, ys[i]), BP_LINE, 2, a=0.9, progress=lead_r)
         c.circle((1282, ys[i]), 5, fill=BP_LINE, a=lead_r)
-    # 左：引文 + 出处（「一句自认牵强的设想」）
+    # 左：两个年份各配各的话（「一句自认牵强的设想」）：1979 只是要求，光挂在 1999
+    sub = _mix(BP_LINE, BP_BG, 0.25)
+    wa = ease(seg(s, 2.9, 3.7))
+    c.text((110, 300), WISH, 40, sub, wa, anchor="lm")
+    c.text((110, 344), "Crick · 1979", 28, sub, wa, anchor="lm")
     qa = ease(seg(s, 3.2, 4.2))
     c.text((110, 440), QUOTE, 54, BP_LINE, qa, anchor="lm")
     c.line((110, 480), (712, 480), BP_LINE, 2, a=0.8 * qa)
-    c.text((110, 522), "Crick · 1999", 32, _mix(BP_LINE, BP_BG, 0.25), qa, anchor="lm")
+    c.text((110, 522), "Crick · 1999", 32, sub, qa, anchor="lm")
     lead_l = ease(seg(s, 4.3, 5.2))
     c.line((712, 480), (BOX[0] - 6, BOX_C[1]), BP_LINE, 2, a=0.9, progress=lead_l)
     c.circle((BOX[0] - 6, BOX_C[1]), 5, fill=BP_LINE, a=lead_l)
@@ -371,36 +437,46 @@ def a0_06b(t, dur, W, H):
 
 
 # ---- A0_92：HUD 计数 ---------------------------------------------------------------------------------
+YEARS = (1979, 1999, 2026)                # F3b、F3、F1。只翻这三个，不逐年滚动
+PARALLEL = (1981, 1991, 1992, 1996)       # F3c：微生物那条线，只画成无字小点
+
+
 @shot("A0_92")
 def a0_92(t, dur, W, H):
-    s = _warp(t, dur, 1.5)
-    c = _canvas(W, H, (5, 8, 9))
-    # 只出现有事实依据的两个年份（F3 的 1999、F1 的 2026）：1999 停一拍，翻牌换成 2026 后停住。
-    # 不逐年滚动——中间的 2011、2021 之类会被当成年份读出来（v1 审片）。
-    prog = ease(seg(s, 0.45, 0.85))
-    year = 1999 if prog < 0.5 else 2026
-    settled = ease(seg(s, 0.85, 1.05))
-    hud = _mix(E.MEMBRANE, (5, 8, 9), 0.45)
-    # 四角取景框
-    x0, y0, x1, y1, L = 470, 300, 1450, 640, 46
-    for (px_, py_, dx, dy) in ((x0, y0, 1, 1), (x1, y0, -1, 1), (x0, y1, 1, -1), (x1, y1, -1, -1)):
-        c.line((px_, py_), (px_ + dx * L, py_), hud, 3, a=0.9)
-        c.line((px_, py_), (px_, py_ + dy * L), hud, 3, a=0.9)
+    s = _warp(t, dur, 2.0)
+    c = _canvas(W, H, HUD_BG)
+    # 1979 → 1999 → 2026 两次翻牌，每个停一拍。不逐年滚动——中间的年份会被当成年份读出来（v1 审片）。
+    flips = (ease(seg(s, 0.45, 0.7)), ease(seg(s, 1.05, 1.3)))
+    k = 0 if flips[0] < 0.5 else (1 if flips[1] < 0.5 else 2)
+    prog = flips[1] if flips[0] >= 1.0 else flips[0]              # 当前这次翻牌的进度
+    year = YEARS[k]
+    settled = ease(seg(s, 1.3, 1.55))
+    hud = _mix(E.MEMBRANE, HUD_BG, 0.45)
+    _hud_frame(c, (470, 300, 1450, 640), hud)
     # 数字（等宽）
     f = mono_font(int(c.px(230)))
-    col = _mix(_mix(E.LINE, E.MEMBRANE, 0.25), (255, 255, 255), 0.0)
+    col = _mix(E.LINE, E.MEMBRANE, 0.25)
     br = 0.72 + 0.28 * settled
-    flip = 1.0 - abs(prog - 0.5) * 2                                # 0 静止，1 翻到一半：数字纵向压扁、变暗
+    flip = 1.0 - abs(prog - 0.5) * 2 if 0.0 < prog < 1.0 else 0.0  # 0 静止，1 翻到一半：数字纵向压扁、变暗
     yy = 470 + (-36 if prog < 0.5 else 36) * flip
     dim = 1.0 - 0.85 * flip                                        # RGB 画布上 alpha 不生效，用亮度压暗
     c.d.text((c.px(960), c.px(yy)), f"{year}", font=f, fill=(*_scale(col, br * dim), 255), anchor="mm")
     c.g.text((c.px(960), c.px(yy)), f"{year}", font=f, fill=_scale(E.MEMBRANE, 0.3 * br * (1 - flip)), anchor="mm")
-    # 刻度尺：28 格，游标随计数移动（只有刻度，不写数字）
+    # 刻度尺：三个主刻度对应三个年份（只有刻度，不写数字、不写年份差）；游标停在当前年份
     rx0, rx1, ry = 560, 1360, 590
-    for k in range(28):
-        x = rx0 + (rx1 - rx0) * k / 27
-        major = k in (0, 27)
-        c.line((x, ry), (x, ry + (22 if major else 12)), hud, 2, a=0.8 if major else 0.5)
-    mx = rx0 + (rx1 - rx0) * prog                                  # 游标平滑走过刻度，不对应中间年份
+
+    def rx(y):
+        return rx0 + (rx1 - rx0) * (y - YEARS[0]) / (YEARS[-1] - YEARS[0])
+
+    for x in range(28):
+        xx = rx0 + (rx1 - rx0) * x / 27
+        c.line((xx, ry), (xx, ry + 12), hud, 2, a=0.5)
+    for y in YEARS:
+        c.line((rx(y), ry), (rx(y), ry + 22), hud, 2, a=0.8)
+    # 下方暗轨：微生物那条线的无字小点（F3c）。不写年份，不会被读成 Crick 的年份
+    for y in PARALLEL:
+        c.circle((rx(y), ry + 40), 4, fill=_mix(E.MEMBRANE, HUD_BG, 0.3), a=0.7 * ease(seg(s, 0.3, 0.7)))
+    i = 0 if flips[0] < 1.0 else 1                                  # 第几次翻牌：游标从 YEARS[i] 走到 YEARS[i+1]
+    mx = rx(YEARS[i] + (YEARS[i + 1] - YEARS[i]) * prog)            # 游标平滑走过刻度，不对应中间年份
     c.line((mx, ry - 14), (mx, ry - 2), E.MEMBRANE, 3, a=0.9, glow=True)
     return _done(c, W, H, glow_radius=12, glow_gain=0.9)

@@ -2,23 +2,23 @@
 shots:
 - id: A0_01a
   segment: A0
-  duration: 3.76
+  duration: 9.6
   lead: 1.2
   vo:
-  - 理想的信号，也许是光。
+  - 1979 年，有人写下对研究脑的一个要求：要有办法只动某一类神经元，其余的大体不动。
   facts: &id001
-  - F3
+  - F3b
   style: documentary
-  style_why: 冷开场先给一句不解释的话，用纪实纸页，不先上机制。
+  style_why: 冷开场先给 1979 年那条要求，用纪实纸页，不先上机制，也不提光。
   transition_in: fade
-  visual: 暗室里一页泛黄纸，侧光只照亮其中一行；纸上是不可读的抽象行，不冒充原稿。没有人脸，只有纸和灰尘。
+  visual: 暗室里一页泛黄纸，侧光只照亮其中一行；纸上是不可读的抽象行，不冒充原稿（示意 1979《科学美国人》一文，不是原件）。没有人脸，只有纸和灰尘。
   overlays:
-  - text: Francis Crick · 1999
+  - text: Francis Crick · 1979
     facts:
-    - F3
-  - text: 诺奖科学背景引用
+    - F3b
+  - text: 《科学美国人》
     facts:
-    - F3
+    - F3b
   camera:
     move: slow dolly-in
     lens_mm: 50
@@ -32,17 +32,26 @@ shots:
   - 低噪室温
 - id: A0_01b
   segment: A0
-  duration: 1.35
-  vo: []
-  facts: *id001
-  style: type
-  style_why: 纸页上的句子需要被单独读完，排版把字从环境里提出来。
+  duration: 8.2
+  vo:
+  - 接下来的那些年，微生物那边，能被光推动的膜蛋白正在被找到，线索越来越多。
+  facts:
+  - F3c
+  style: hud
+  style_why: 1979 和 1999 之间不干跳：用一只暗的 HUD 并行记下微生物那条线，只给剪影和刻度，不开第二幕。
   transition_in: cut
-  visual: 同一句「理想的信号，也许是光」在黑底上停留一拍。
+  visual: 暗底 HUD，标题「微生物」。两条细轨道先后亮起：上轨是杆状古菌剪影，刻度「1981 · 古菌 · 盐视紫红质」；下轨是双鞭毛绿藻剪影，刻度「1991–1996 · 衣藻 · 微秒级光电流」。不画蛋白结构，不出现通道视紫红质、2002/2003，不开门。
+  overlays:
+  - text: 1981 · 古菌 · 盐视紫红质
+    facts:
+    - F3c
+  - text: 1991–1996 · 衣藻 · 微秒级光电流
+    facts:
+    - F3c
   camera:
     move: locked-off
     lens_mm: 35
-    notes: 纯画面
+    notes: 2D HUD（mograph/a0.py），文字画在镜头里，不由 edit_film 再贴右上角
   builders:
   - schematic
   fx: []
@@ -50,15 +59,17 @@ shots:
   sfx: []
 - id: A0_02a
   segment: A0
-  duration: 4.96
+  duration: 14.4
   vo:
-  - 写下这句话的人随即停住：这个想法相当牵强。
+  - 后来在讲座里，他猜过：拨动这类细胞的信号，也许可以是光。
+  - 1999 年，他把它写进文章：理想的信号会是光。他也承认，这个想法相当牵强。
   facts: &id002
+  - F3b
   - F3
   style: type
-  style_why: 把自嘲的停顿做成排版，不急着解释蛋白。
+  style_why: 从讲座里的猜测到 1999 年落成文字，再到自嘲的停顿，都做成排版，不急着解释蛋白。
   transition_in: cut
-  visual: 黑底上那句话还在，后面慢慢打出「相当牵强」，光标停住。
+  visual: 黑底上先浮出一行暗的「……也许是光？」（讲座里的猜测，不标年份）；它淡掉，换成「理想的信号会是光。」并注「Crick · 1999」；句子上移变暗，后面慢慢打出「相当牵强」，光标停住。
   camera:
     move: locked-off
     lens_mm: 50
@@ -77,7 +88,14 @@ shots:
   style: documentary
   style_why: 停顿要落回纸页，而不是继续打字。
   transition_in: cut
-  visual: 同一页纸的近景，被照亮的那一行慢慢暗下。写字的手不出现。
+  visual: 纸页近景（示意 1999 一文，不是原件），被照亮的那一行慢慢暗下。写字的手不出现。
+  overlays:
+  - text: Francis Crick · 1999
+    facts:
+    - F3
+  - text: 诺奖科学背景引用
+    facts:
+    - F3
   camera:
     move: locked-off
     lens_mm: 35
@@ -94,6 +112,7 @@ shots:
   - 他要的方法很具体。只让某一类神经元打开，或者关掉，旁边的细胞大体不动，而且要快。
   facts: &id003
   - F3
+  - F3b
   style: infographic
   style_why: 把「只动一类细胞」画成可核对的选择，而不是口号。
   transition_in: cut
@@ -178,10 +197,11 @@ shots:
   facts: &id005
   - F1
   - F3
+  - F3b
   style: blueprint
   style_why: 把缺口画成还没闭合的设计问题：有预言，有名单，中间缺开关。
   transition_in: cut
-  visual: 蓝图上左侧是一句引文，右侧是三个人名，中间一个空的方框标着「开关」。
+  visual: 蓝图上左侧是两行：上行「只动一类神经元」注「1979」，下行「理想的信号会是光」注「1999」；右侧是三个人名，中间一个空的方框标着「开关」。
   camera:
     move: slow dolly-in
     lens_mm: 50
@@ -2332,13 +2352,17 @@ shots:
   sfx: []
 - id: A0_92
   segment: A0
-  duration: 1.5
+  duration: 2.0
   vo: []
-  facts: []
+  facts:
+  - F3b
+  - F3
+  - F1
+  - F3c
   style: hud
-  style_why: 把即将到来的年份先藏在一只未点亮的计时器里。
+  style_why: 把冷开场的三个年份收进一只计时器：1979 的要求、1999 的光、2026 的名单。
   transition_in: cut
-  visual: HUD 计数器先停在 1999，翻牌换成 2026 后停在暗处。只出现这两个年份（不逐年滚动），不出现未核实的 1979，不写相差年数。
+  visual: HUD 计数器 1979 → 1999 → 2026 三次翻牌，每个停一拍，最后停在暗处（不逐年滚动，中间不出现可读的年份）。刻度尺下方一条暗的细轨上有几颗不带字的小点，标微生物那条线（F3c），不写年份，不会被读成 Crick 的年份。不写相差年数。
   camera:
     move: locked-off
     lens_mm: 50

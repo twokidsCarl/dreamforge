@@ -55,8 +55,28 @@ F3b:
     （4）Pharmacol Rev、QRB 等谨慎综述均把灭活需求归 1979、把光归后续/1999；
     （5）Boyden 文直接引用 1999 的 light / far-fetched 原句。
     部分二手文章会把光误记到 1979，不可采。
-    仍不进旁白、不上屏；开场钩子维持检查点①的 1999。若日后打开 1979 全文，只需复核「灭活」原句页码，不必改结论方向。
-  segments: []
+    2026-10-21 Carl HARD：冷开场由 1979 起头（只讲「只动一类神经元、其余大体不动」的要求），检查点①决定 1 作废。
+    旁白和屏幕上 1979 只配这条要求；「理想信号是光 / 相当牵强」仍只挂 1999（F3）。「后来在讲座里猜过光」不写年份，
+    1979 与 1999 之间不编 Crick 讲座的具体年份。不说「47 年」，屏幕上不写年份差。
+    若日后打开 1979 全文，只需复核「灭活」原句页码，不必改结论方向。
+  segments: [A0]
+
+F3c:
+  claim: 2026 诺奖科学背景写明微生物光敏膜蛋白的两条早期线索（年份落在 Crick 1979 与 1999 之间是我们的对照，不是 PDF 原话）：1977 年 Matsuno-Yagi 与 Mukohata 在缺少细菌视紫红质的突变株里观察到光致超极化，随后分离出 halorhodopsin（Mukohata & Kaji 1981）；与古菌泵的研究同时，Harz 与 Hegemann 1991 年在衣藻里测到潜伏期只有微秒级的感光电流，Hegemann 组据此提出感光的视紫红质与离子通道紧密相连、也许就是同一个蛋白复合体（Harz 等 1992；Holland 等 1996）。
+  grade: A
+  status: verified
+  sources:
+    - https://www.nobelprize.org/uploads/2026/10/advanced-medicineprize2026.pdf
+    - Mukohata Y, Kaji Y (1981) Arch Biochem Biophys 206:72–76
+    - Harz H, Hegemann P (1991) Nature 351:489–491
+    - Harz H et al. (1992) Phil Trans R Soc Lond B 338:39–52
+    - Holland EM et al. (1996) Biophys J 70:924–931
+  notes: |
+    等级按诺奖科学背景（A）；四篇论文是 PDF 的参考文献条目，本轮没有打开论文页面，不写 DOI、不引原文数字。
+    冷开场只作 HUD / 剪影，不展开第二幕：不出现 channelrhodopsin、ChR1/ChR2、2002/2003，不讲紫膜全过程。
+    1981 是 halorhodopsin 的分离；「光驱动氯离子泵」在 PDF 里是后来对 N. pharaonis 变体的鉴定（1986–1995），不要并进 1981。
+    衣藻这一条是「电流快到微秒级」和「也许同一个蛋白」的推断，不是已经找到通道蛋白；旁白只说「线索越来越多」。
+  segments: [A0]
 
 F4:
   claim: 1971 年 Oesterhelt 与 Stoeckenius 报告：盐杆菌 Halobacterium halobium 的紫膜呈深紫色，紫色来自视黄醛结合在一种视紫红质样蛋白上，该片段里只有这一种蛋白。
