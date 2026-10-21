@@ -1,6 +1,7 @@
 # E2《光遗传学》
 
-状态：**检查点①已通过**（Carl 2026-10-21 01:07 UTC+8 批准下面六条决定）。进入 P4 配音、P5 定时和 A0 样片段。
+状态：**检查点②已通过**（Carl 2026-10-21 对全片动态分镜说「继续吧」，按通过处理）。检查点①已于同日 01:07 UTC+8 通过（六条决定见下）。
+现在是 **P7 建模与镜头**：每个 3D 镜头都有 Blender 场景代码和 registry 条目。下一步是 Luna / Carl 定第一批渲染镜头，Carl 开 RunPod GPU 后正式渲染（P8）。
 
 目录名是 `episodes/E<n>-<短名>/`。这一期是 `episodes/E2-optogenetics/`。
 
@@ -14,6 +15,27 @@
 | 4 | F10 食欲素觉醒实验留在第一幕，作「相关变成因果」的例子 | 不变 |
 | 5 | 光学人工耳蜗只留一句「仍是临床前」，不加 NCT05110183 可行性研究 | 第三幕那句改成「光学人工耳蜗，按 2023 年的综述，仍是临床前。」 |
 | 6 | 按 126 镜分镜总览进入配音和渲染 | P4 起按 `storyboard/storyboard.yaml` |
+
+## 检查点②（全片动态分镜，2026-10-21 通过）
+
+通过的是 PR #13 / #14 的 animatic v2：A0 用成片样片段，其余镜头是定时分镜板 + 真实配音 + 临时配乐。从这里起按下面的约定做：
+
+| 约定 | 内容 |
+|---|---|
+| 时长 | 以 `storyboard/storyboard.timed.yaml` 为准（真实配音定时）。场景代码用 `e2_shot.shot_frames(id)` 读时长，不在代码里写死秒数。旁白、retime 都已锁定，P7 不改 |
+| 镜头 id | registry key = 分镜 id，126 镜一一对应（`shared/tools/build_check.py` 核对覆盖率） |
+| 3D / 2D 分工 | `engine: eevee / cycles` 的镜头走 Blender（`blender/shots/*_scenes.py`）；`pillow / manim` 的镜头是 2D，registry 里写 `mograph: <模块>`，由 `mograph/*.py` 的 `@shot` 渲染。B_04a、B_06a、B_16b 分镜写 manim，但画的是膜、通道、卵母细胞，按硬约束改在 Blender 里用 blueprint 风格做（registry 注释写明） |
+| 画面语言 | 每镜的 `style` 和 `style_why` 跟分镜一致，不连续四镜同风格 |
+| 中文标注 | Blender 文字读不了 SC 字面。需要中文标注的 3D 镜头在 registry 写 `raw: true`，帧先写到 `<质量>_raw/`，由 mograph 里同 id 的后处理叠字（与 A0_04a 相同）。3D 镜头的 `overlays` 由 `edit_film.py` 统一贴在右上角 |
+| 道具 | 小鼠、笼子、光纤、护目镜、实验台是参数化低细节示意（`build_props.py`，标 `TODO(prop)`）。以后可换 Tripo / Meshy，换之前在 `research/visual/assets.yaml` 记录 |
+| 画面核查 | A–D 的 `research/visual/audit_<段>.yaml` 还没写（P6）。场景代码文件头写了几何依据和简化点，进最终渲染前要补核查表 |
+
+## 第一批 GPU 渲染之前
+
+1. Luna / Carl 定第一批镜头（建议先渲每段的分子 / 膜镜头各 1–2 个，按 `--quality preview --frames 1,<中帧>` 单帧试渲）。
+2. Carl 开 RunPod（预算 $15/天、$80/周；agent 不租 GPU）。
+3. 渲染：`DREAMFORGE_EPISODE=E2-optogenetics DREAMFORGE_RENDER_DIR=<目录> blender -b --factory-startup -P shared/tools/render_storyboard.py -- --shot <id> --quality preview --frames 1,60`。
+4. 不开 GPU 的检查：`DREAMFORGE_EPISODE=E2-optogenetics blender -b --factory-startup -P shared/tools/build_check.py`（逐镜 build + 套风格，不渲染）。
 
 ## 定位
 
@@ -77,12 +99,12 @@ episodes/E2-optogenetics/
 ├── research/visual/TOPICS.md  视觉调研题目，报告还没写
 ├── script/script_zh.md        定稿旁白
 ├── script/pronunciation.yaml  空词表，读音未猜
-├── storyboard/                分镜总览（未渲染）
-├── sound/                     空（P9）
-├── subs/                      空（P5）
-├── blender/scripts/           空（P7）
-├── blender/shots/             空（P7）
-└── mograph/                   空（P7）
+├── storyboard/                分镜、定时分镜（storyboard.timed.yaml）、总览页
+├── sound/                     临时配乐（P9 前）
+├── subs/                      zh.srt
+├── blender/scripts/           参数化 builder：膜、通道、神经元、紫膜、脑、视网膜、耳蜗、细胞、道具；e2_shot 共用件
+├── blender/shots/             各段场景模块（a0 / a / b / b_cell / c / d）和 registry.yaml（126 镜）
+└── mograph/                   2D 镜头（目前只有 a0.py；A–D 的 2D 镜头 P7 后续补）
 ```
 
 `audio/` 和 `renders/` 按仓库惯例不入库，也还没有产出。
