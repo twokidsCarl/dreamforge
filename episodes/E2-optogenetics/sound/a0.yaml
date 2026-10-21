@@ -1,16 +1,16 @@
 music:
 - at: 0.0
+  file: music/room_bed_v6.mp3
+  gain: -22
+  fade_in: 0.3
+  fade_out: 1.0
+  overlap: 2.0
+- at: 0.0
   file: music/ef5d21f9c2443180.mp3
   gain: -9
   fade_out: 1.5
   fade_in: 0.6
 cues:
-- shot: A0_01a
-  at: 0.0
-  len: 65.0
-  gain: -28
-  text: very quiet continuous dark room tone bed, soft low air, no clicks, seamless
-    loop feel, clean
 - shot: A0_01a
   at: 0.0
   len: 4.0
