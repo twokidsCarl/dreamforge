@@ -37,7 +37,6 @@ FRAMES = 1100
 EUV = (0.30, 0.06, 1.0)               # saturated EUV violet that stays violet under AgX (xray uses the same)
 VIOLET = (0.62, 0.45, 1.0)
 CYAN = (0.2, 0.85, 0.95)
-ORANGE = (1.0, 0.42, 0.12)
 _key, _box, _cyl = A0._key, A0._box, A0._cyl
 N = len(BM.PATH) - 1
 # PATH indices: 0 collector, 1 IF, 2 fold, 3 field facet, 4 pupil facet, 5 reticle, 6-9 M1-M4, 10 PO focus,
@@ -427,7 +426,6 @@ def ride(sc, rnd):
              (r + 472, w, w + Vector((0.6, -1.15, 1.0)), 40, 16.0)]
     B._camera("CamC_04", [(f, tuple(a), tuple(l), lens, fs) for f, a, l, lens, fs in keys4])
     # C_05 (911-1054): fast pull-back from the wafer to the whole machine (machine spans x -3.3..9.4)
-    cx = Vector(BM.CENTER)
     B._camera("CamC_05", [(911, w, w + Vector((0.6, -1.15, 1.0)), 40, 16.0),
                           (930, w + Vector((0.2, 0, 0.6)), w + Vector((0.8, -4.0, 1.4)), 35, 11.0),
                           (1010, WIDE_AIM, WIDE_LOC + Vector((0, 0.6, -0.05)), 35, 11.0),
@@ -592,7 +590,6 @@ def pulses(sc, rnd):
     for fr, v in ((1, 0.35), (60, 0.5), (84, 3.0), (92, 2.4), (100, 2.9), (110, 2.5), (120, 2.8), (130, 2.5), (139, 2.7)):
         s.default_value = v                                        # fused: a steady band that trembles slightly
         s.keyframe_insert("default_value", frame=fr)
-    cx = Vector(BM.CENTER)
     B._camera("CamC_06", [(1, WIDE_AIM, WIDE_LOC, 35, 11.0),
                           (139, WIDE_AIM, WIDE_LOC + Vector((0, 1.3, -0.07)), 35, 11.0)])
 

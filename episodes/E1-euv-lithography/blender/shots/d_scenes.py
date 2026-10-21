@@ -218,7 +218,7 @@ BLOCK = (10.0, 3.2, 4.5)                 # double-decker-bus proportions (Intel:
 
 
 def _monolith():
-    blk = M.principled("Monolith", (0.012, 0.012, 0.014), metallic=0.6, roughness=0.25)
+    blk = M.principled("Monolith", (0.012, 0.012, 0.014), metallic=0.6, roughness=0.42)
     seam = M.emission("Seam", EUV, 6.0)                          # saturated violet: a pale violet clipped to white
     L, D, Hh = BLOCK
     _box("Block", (0, 0, Hh / 2), BLOCK, blk, bevel=0.06)
@@ -300,7 +300,7 @@ def crowd(sc, rnd):
     L, D, _ = BLOCK
     placed = []
     while len(placed) < 34:                                         # people standing, working, talking, around
-        x, y = rnd.uniform(-L / 2 - 4.5, L / 2 + 4.5), rnd.uniform(-D / 2 - 5.5, D / 2 + 3.0)   # the block, not in it
+        x, y = rnd.uniform(-L / 2 - 4.5, L / 2 + 4.5), rnd.uniform(-D / 2 - 4.0, D / 2 + 3.0)   # the block, not in it
         if abs(x) < L / 2 + 0.5 and abs(y) < D / 2 + 0.5:
             continue
         if any((x - a) ** 2 + (y - b) ** 2 < 0.7 ** 2 for a, b in placed):
@@ -331,7 +331,7 @@ def crowd(sc, rnd):
         styles.tag(mp, "emitter")
         M.set_emission_strength(mat, f0, 0.0)
         M.set_emission_strength(mat, f0 + 40, strength)
-    B._area("Rim", (6, 8, 7), (2.2, 0, 2.4), 6, 900, (0.6, 0.7, 1.0))
+    B._area("Rim", (6, 8, 7), (2.2, 0, 2.4), 6, 250, (0.6, 0.7, 1.0))      # low: it flared the block corner white
     B._camera("CamD_07", [(1, (0, 0, 2.0), (0.6, -8.5, 0.5), 28, 5.6), (154, (0, 4, 5.0), (0.0, -25.0, 6.5), 28, 5.6)])
 
 

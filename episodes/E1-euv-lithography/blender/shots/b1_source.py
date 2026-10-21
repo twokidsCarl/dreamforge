@@ -202,5 +202,9 @@ def after_style(style, shot_id):
         _cold_open()
         if shot_id in ("D_08", "D_09"):
             _closing_droplet(shot_id)
+        else:                                       # A0_01 has the same two faults as D_08: the droplet crosses the
+            for ob in bpy.data.objects:             # SoftBack card (a dark crescent on the tin) and the bokeh LEDs
+                if ob.name == "SoftBack" or ob.name.startswith("BokehLED"):   # read as a second droplet
+                    ob.hide_render = True
     elif shot_id in ("B1_10", "B1_12", "B1_13", "C_02"):
         _satin_sheet()
