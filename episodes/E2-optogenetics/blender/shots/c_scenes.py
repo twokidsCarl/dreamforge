@@ -28,9 +28,11 @@
   desens    C_18a          energy / EEVEE：膜上一个通道视紫红质二（build_opsin），蓝光持续照着：孔先开到最大、随后收到一半
                            （脱敏，示意）；穿孔的阳离子先密后疏；旁边的电流示意曲线从峰落到平台。不带刻度和数值。
   split     C_19a          photoreal / Cycles：一个画面左右两半，中间暗隔板。左：组织块上的光纤，蓝光只在尖端。
-                           右：桌上的护目镜后面浮着高对比轮廓；护目镜被拿开，轮廓随即消失。
+                           右：桌上的护目镜后面浮着高对比线框（画法，artistic）；护目镜被拿开，线框随即消失。
 
 依据见各 builder 文件头（build_retina、build_cochlea、build_brain、build_props、build_opsin、build_bilayer）。
+线框画法（C_08b、C_09a、C_10a、C_19a 的高对比线框 / 白物暗底）只是画面语言（artistic），不是 Sahel 2021 的论文图，
+也不是患者所见：论文写的是护目镜侦测亮度变化、投成光脉冲；测试物体有 40%、55%、100% 三档对比度（F11 notes、audit_C C_10a）。
 全部示意（核查表记 simplified / artistic）；没有人物、没有血、没有未核实数字。颜色：蓝 = 通道 / 打开，琥珀 = 惊吓标记 / 关；
 「环境甲」= 膜青色块，「环境乙」= 玫红色块（只是两种环境的区分色，不代表真实房间）。
 """
@@ -346,7 +348,7 @@ def eye(sc, rnd, **_):
 
 # ---- goggles：C_08b / C_92 ----------------------------------------------------------------
 def _outline_shapes(prefix, center, size, mat, parent=None, normal="Y"):
-    """高对比线框轮廓：一个方框、一个圆、一个三角（白色发光细管），排在 center 附近的 x-z 平面。返回 [(名字, 点列)]。"""
+    """高对比线框轮廓（画法，artistic，不是患者所见）：一个方框、一个圆、一个三角（白色发光细管），排在 center 附近的 x-z 平面。返回 [(名字, 点列)]。"""
     cx, cy, cz = center
     s = size
     shapes = {
@@ -625,7 +627,7 @@ def split(sc, rnd, **_):
     S.set_gain(fb["tip_glow_mat"], 8, 3.5)
     S.set_gain(fb["beam_mat"], 1, 0.0)
     S.set_gain(fb["beam_mat"], 8, 1.2)
-    # 右：护目镜 + 后面浮着的高对比轮廓；护目镜拿开，轮廓消失
+    # 右：护目镜 + 后面浮着的线框（画法，不是患者所见）；护目镜拿开，线框消失
     g = P.goggles("Goggles", (0.27, -0.12, 0.026), (0, 0, 0.0), 1.0, tag=styles.tag)
     line_m = S.glow("FloatOutlineMat", WHITE, 6.0)
     _outline_shapes("Float", (0.34, 0.12, 0.13), 0.028, line_m)

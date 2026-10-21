@@ -2588,7 +2588,7 @@ shots:
   style: hud
   style_why: 因果演示的边界用读数标出来：小鼠有，人没有。
   transition_in: cut
-  visual: HUD 两行状态：小鼠恐惧行为，已在实验中驱动；人体记忆操作，无此结果。
+  visual: HUD 两行状态：小鼠恐惧行为，已在实验中驱动；人体记忆操作：本研究不涉及。
   camera:
     move: slow dolly-in
     lens_mm: 50
@@ -2762,7 +2762,7 @@ shots:
   style: photoreal
   style_why: 护目镜是观众认得的器物。
   transition_in: cut
-  visual: 一副风格化护目镜，镜片里只有高对比轮廓。示意道具，不生成佩戴者的脸。
+  visual: 一副风格化护目镜，镜片里只有稀疏线框（叙事符号，不是设备显示或患者所见）。示意道具，不生成佩戴者的脸。
   camera:
     move: locked-off
     lens_mm: 35
@@ -2783,7 +2783,7 @@ shots:
   style: documentary
   style_why: 患者能做什么、不能做什么，用纪实任务桌，不把视力画满。
   transition_in: cut
-  visual: 桌面上几个高对比的简单物体。第一人称只能在戴着护目镜时分辨它们的位置和个数。不生成患者的写实脸。
+  visual: 桌面上几个简单的白色物体（白物暗底是画法；论文的测试物体有几档对比度，不只高对比）。第一人称只能在戴着护目镜时分辨它们的位置和个数。不生成患者的写实脸。
   camera:
     move: slow dolly-in
     lens_mm: 50
@@ -2848,9 +2848,9 @@ shots:
   - F11
   - F1
   style: energy
-  style_why: 看见的是护目镜翻译的轮廓，不是日常照片。能量图把图像收成脉冲。
+  style_why: 看见的是护目镜把亮度变化译成的光脉冲，不是日常照片。能量图把图像收成脉冲。
   transition_in: cut
-  visual: 外界物体先变成稀疏光脉冲，再落到视网膜。画面始终是高对比轮廓，不溶成清晰照片。
+  visual: 外界物体先变成稀疏光脉冲，再落到视网膜。画面始终是稀疏线框和光点（叙事符号，不是论文图，也不是患者所见），不溶成清晰照片。
   camera:
     move: slow dolly-in
     lens_mm: 50
@@ -3683,7 +3683,7 @@ shots:
   style: infographic
   style_why: 做不到的范围用两格，不再叙述实验。
   transition_in: cut
-  visual: 左格小鼠恐惧实验，右格人体记忆：无对应结果。
+  visual: 左格小鼠恐惧实验，右格「人体记忆：本研究不涉及」。
   camera:
     move: locked-off
     lens_mm: 35

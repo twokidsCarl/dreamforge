@@ -28,7 +28,7 @@
 | 画面语言 | 每镜的 `style` 和 `style_why` 跟分镜一致，不连续四镜同风格 |
 | 中文标注 | Blender 文字读不了 SC 字面。需要中文标注的 3D 镜头在 registry 写 `raw: true`，帧先写到 `<质量>_raw/`，由 mograph 里同 id 的后处理叠字（与 A0_04a 相同）。3D 镜头的 `overlays` 由 `edit_film.py` 统一贴在右上角 |
 | 道具 | 小鼠、笼子、光纤、护目镜、实验台是参数化低细节示意（`build_props.py`，标 `TODO(prop)`）。以后可换 Tripo / Meshy，换之前在 `research/visual/assets.yaml` 记录 |
-| 画面核查 | `research/visual/audit_C.yaml` 已写（两条 unsourced 待补，见文件头）；A、B、D 的 `audit_<段>.yaml` 还没写（P6）。场景代码文件头写了几何依据和简化点，进最终渲染前要补核查表 |
+| 画面核查 | A0、A、B、C、D 五段 `research/visual/audit_<段>.yaml` 都已写（P6，2026-10-21），每个镜头都有条目。C_06a、C_10a 已改掉（F9 / F11）。还剩 4 条 unsourced：A_02b「损毁」、B_06a「加上视黄醛」、B_18a / B_18b「ChrimsonR 长波长」，改法见各文件头；C_10a 旁白改了字，已录音频要重录 |
 
 ## 第一批 GPU 渲染之前
 

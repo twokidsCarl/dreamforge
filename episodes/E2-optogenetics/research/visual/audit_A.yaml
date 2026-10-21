@@ -1,0 +1,124 @@
+# E2 视觉事实核查表，A 第一幕（锋电位 → 相关与因果 → 缺一枚开关 → 食欲素与觉醒）。每行是画面里出现的一项结构、文字或数字（旁白的论断在 research/facts.yaml）。
+# status: sourced / wrong / unsourced / simplified / artistic（WORKFLOW 2.3）。几何依据见 blender/shots/a_scenes.py 和各 builder 文件头
+#   （build_bilayer、build_opsin、build_brain、build_props）。
+# 规则：本段还有 wrong 或 unsourced 时不能出成片。
+# 2026-10-21 首版（P6）。3D 镜头按 a_scenes.py 核；2D 镜头（mograph: a）还没写，按分镜 visual 核，写代码时照此对字。
+# 现有 unsourced：A_02b「损毁」图标（facts.yaml 没有「损毁组织看行为」这一条，F2 只写记录与因果）。改法写在 note 里。
+# 锋电位的离子机制（A_01a/01b）是教科书通识，facts.yaml 没有单独条目；画面只画示意、不上文字和数字，记 simplified。
+A_01a:
+  - item: 参数化脂质双层剖面（亲水头朝外、疏水尾朝里），上面三个通用离子孔
+    status: simplified
+    source: build_bilayer 文件头（双层厚约 4 nm，Alberts《Molecular Biology of the Cell》第 10 章）；build_opsin 文件头（通用离子孔，n 根桶板）
+    note: 孔不对应任何具体电压门控通道；离子画成放大很多倍的发光小球
+  - item: 静息时膜外一排「+」、膜内一排「−」，锋电位时阳离子穿孔进入、两侧符号翻过来再翻回
+    status: simplified
+    source: 教科书通识（Kandel《Principles of Neural Science》锋电位一章的通用示意）
+    note: facts.yaml 没有锋电位离子机制的条目；画面不标离子名、不标电压数值。符号个数不代表电荷量
+  - item: 前上方一条膜电位曲线猛地翻上去再回来，无刻度
+    status: simplified
+    source: F6（锋电位是毫秒尺度的事件）
+    note: 曲线形状是 e2_shot.spike_shape 的示意，不是实测记录；不带时间轴和毫伏刻度
+A_01b:
+  - item: 同一场景近景，膜内侧发光板在锋电位时亮起再熄灭
+    status: artistic
+    note: 「电位光」是能量图的叙事表现，不是任何可测量的光；蓝是全片「打开」约定色
+A_02a:
+  - item: 暗室实验台上一块浅米灰风格化组织块，一根记录电极下探，后面显示器上慢慢画出一串锋电位痕迹；无人物、无血
+    status: simplified
+    source: F2（20 世纪方法是被动记录脑活动）；build_props（electrode、screen、bench，参数化低细节示意）
+    note: 组织块不是真组织；痕迹是 S.spike_train 的示意，不对应任何真实记录，不带刻度
+  - item: 组织上一圈细环标出一小块（分镜：「一块组织示意被标记」）
+    status: simplified
+    source: F2
+    note: 只读作「这一块在被研究」。若 A_02b 的「损毁」补不到出处，这圈细环也不要读成损毁部位
+A_02b:
+  - item: 图标「记录」
+    status: sourced
+    source: F2（被动记录脑活动）
+  - item: 图标「损毁」（旁白：「也能损毁一块组织，看行为缺了什么」）
+    status: unsourced
+    note: facts.yaml 里 F2 只写「从被动记录转到主动控制」和「20 世纪的方法证明不了因果」，没有损毁 / 毁损研究。
+      改法二选一：回读诺奖新闻稿和科学背景，若有 lesion 一类的原句就补进 F2 notes，改记 sourced；没有就屏幕只留「记录」一个图标，
+      旁白的「损毁」交 Luna 决定（改旁白要重录）
+  - item: 底下同一行「证明不了因果」
+    status: sourced
+    source: F2（新闻稿：20 世纪的方法证明不了因果关系）
+A_03a:
+  - item: 左栏「同时亮着」，右栏问号「是它造成的吗」；没有统计图
+    status: sourced
+    source: F2（建立因果）；F10（论文要回答：放电足以驱动觉醒，还是仅仅与觉醒相关）
+    note: 不画伪造的相关系数或散点图
+A_03b:
+  - item: 一小群参数化神经元，三个被蓝光束点亮，随后琥珀光束打上，蓝色光晕被按暗；其余不亮
+    status: simplified
+    source: F3（只打开或关掉某一类神经元）；F8（蓝光开、黄光关的双向光控）
+    note: 神经元形态通用（e2_shot.neuron_cluster），不对应具体脑区；个数是示意。蓝 / 琥珀是全片开 / 关约定色
+A_04a:
+  - item: HUD 两个计时器，一个跳在毫秒、一个慢走到分钟；只有毫秒那只被圈为可用
+    status: simplified
+    source: F6（毫秒尺度驱动锋电位）；F16（早期方案达不到毫秒级）；F3（只动一类细胞）
+    note: 「分钟」只是对照用的慢计时器，F16 没有给出早期方案的具体时间尺度。慢计时器上不要出现读数，只写单位或不写
+A_04b:
+  - item: 蓝图标题「只动一类、可开可关、毫秒」
+    status: sourced
+    source: F3（只打开或关掉某一类神经元，其余大体不动）；F6（毫秒尺度）
+A_05a:
+  - item: 白模工作台上四个抽象零件用箭头串成多步接力（依次亮起），最后一个带孔的环旁夹着一个外加的「化学开关」小件
+    status: simplified
+    source: F16（诺奖科学背景：多步信号的遗传方案、外加化学光开关的通道）
+    note: 零件是抽象白模，不对应任何具体系统、不画分子式；不点名 chARGe（F16 notes）
+  - item: 前面一条计时条，填充停在刻度「ms」之前（全程 62% 处）
+    status: simplified
+    source: F16（达不到毫秒级编码所需的时间分辨率）
+    note: 62% 只是「没走到」的示意，不是任何测得的比例；刻度没有数字
+A_05b:
+  - item: 多步箭头末端打叉，旁边写「达不到毫秒」
+    status: sourced
+    source: F16
+A_06a:
+  - item: 双层里一个七次跨膜通道蛋白；一束蓝光打上，视黄醛闪一下，TM1/TM2/TM7 让开、孔打开，几个阳离子穿过
+    status: simplified
+    source: build_opsin 文件头（7 螺旋：Henderson & Unwin 1975；ChR 孔在 TM1/2/3/7 之间：Kato et al. 2012）；F5（蛋白本身就是光控通道，ChR2 放阳离子）；F1（蓝光打开通道）
+    note: 开孔动作不是实测构象变化；画的是单体（真实 ChR 是二聚体）；不用生成网格
+A_06b:
+  - item: 白模桌上其他零件让开，只留台座上的一个七次跨膜蛋白
+    status: artistic
+    source: build_opsin（同 A_06a 的结构）
+    note: 「零件让开」是叙事动作，表示不需要多步帮手（F5）
+A_07a:
+  - item: 风格化小鼠脑冠状剖面，切面过下丘脑外侧区（LH）
+    status: simplified
+    source: build_brain 文件头（Allen Mouse Brain CCFv3 大体分区，Wang et al. 2020 Cell 181:936：下丘脑在腹侧，LH 在下丘脑外侧部）；F10
+    note: 部件都是椭球，比例不是毫米真值
+  - item: LH 一小团（14 个）细胞亮蓝光，一圈细环标出
+    status: simplified
+    source: F10（下丘脑外侧的食欲素神经元）
+    note: 14 个是示意，不是细胞数；细环是标注符号。亮起只表示「这一群」，此刻还没有光刺激（旁白在讲放电够不够）
+A_07b:
+  - item: 左「和清醒有关」，右「放电够不够」，右列被圈出
+    status: sourced
+    source: F10（足以驱动觉醒，还是仅仅与觉醒相关）
+A_08a:
+  - item: 风格化实验台上一只风格化小鼠（无写实脸、无毛发特写），头顶一个示意光纤植入件
+    status: simplified
+    source: F10（经光纤光刺激）；build_props（mouse、fiber_implant，参数化低细节示意）
+    note: 植入件不标直径、功率、波长（F8 notes：定稿不报这些数字）
+  - item: 蓝光只在光纤尖端，按脉冲闪；后段头部微微抬起、胡须轻动
+    status: simplified
+    source: F10（光刺激提高转入清醒的概率）
+    note: 闪的节奏是示意（代码每 4 帧一闪），不对应论文里的任何频率档；抬头只是「醒来」的符号，不是论文里的行为指标
+A_08b:
+  - item: HUD「5–30 Hz 潜伏期缩短」「1 Hz 不缩短」
+    status: sourced
+    source: F10（5–30 Hz 缩短转入清醒的潜伏期，1 Hz 没有）
+    note: 只用这两个档，不加别的频率或潜伏期数值
+A_91:
+  - item: 同 A_06a 的通道蛋白，开灯前孔关着，显微风格只看结构
+    status: simplified
+    source: build_opsin 文件头；F5
+    note: 分镜里这镜 facts 为空，按结构补上。显微灰度是风格，不是真实电镜图
+A_92:
+  - item: 暗笼里的风格化小鼠，光纤是一根从上方垂下的细线，尖端一点蓝光；胡须轻动；不血腥
+    status: artistic
+    source: build_props（cage、mouse、fiber_implant）
+    note: 分镜里这镜 facts 为空；光纤的意思同 F8 / F10（用光纤把光送进啮齿动物脑），笼箱和小鼠不对应真实装置

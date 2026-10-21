@@ -1,6 +1,6 @@
 # E2 视觉调研题目
 
-A0 的视觉报告已写：`a0_cold_open.md`，核查表 `audit_A0.yaml`。C 段核查表 `audit_C.yaml` 已写（报告还没写，两条 unsourced 见文件头）。其余段落的报告和核查表还没写。
+A0 的视觉报告已写：`a0_cold_open.md`，核查表 `audit_A0.yaml`。A、B、C、D 四段核查表 `audit_A.yaml`、`audit_B.yaml`、`audit_C.yaml`、`audit_D.yaml` 已写（2026-10-21 P6）；C_06a、C_10a 两条 unsourced 已改掉。A–D 的视觉调研报告（membrane / opsin / brain / retina 等 .md）还没写，剩下的 unsourced 见各文件头。
 
 下面只是制作计划里点过名的题目，方便下一轮按主题拆开查。没有引语，没有尺寸。
 
@@ -8,7 +8,7 @@ A0 的视觉报告已写：`a0_cold_open.md`，核查表 `audit_A0.yaml`。C 段
 - 神经元膜与离子流（energy）
 - 光纤植入的示意
 - 视网膜剖面与载体递送的示意
-- 护目镜脉冲：第一人称高对比轮廓，不把清晰度画满
+- 护目镜脉冲：护目镜把亮度变化译成光脉冲（F11）。第一人称画面用稀疏线框和光点，是叙事符号（artistic），不说成患者看到「高对比轮廓」，不把清晰度画满
 - 时间轴 1971–2026（轴上的每一年都要回到 `facts.yaml` 里已经核实的条目）
 - 工具箱：开 / 关 / 红移。具体蛋白名上屏之前先补事实
 - 人物：只有逆光剪影或抽象
