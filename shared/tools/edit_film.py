@@ -172,8 +172,9 @@ def sound(shots, seg_files, dur, voice, out_wav, tail=0.0):
         filters.append("[fx][vokey2]sidechaincompress=threshold=0.04:ratio=3:attack=20:release=350[fxd]")
         mixes.append("[fxd]")
     end_fade = f"afade=t=out:st={dur:.3f}:d={tail:.3f}," if tail else ""
+    # TP -2.0 in the wav: the AAC encode adds ~0.2-0.4 dB of true peak, the delivered mp4 must stay <= -1.5 dBTP
     filters.append("[vo]" + "".join(mixes) + f"amix=inputs={1 + len(mixes)}:normalize=0,"
-                   f"atrim=0:{total:.3f},{end_fade}loudnorm=I=-16:TP=-1.5:LRA=11[out]")
+                   f"atrim=0:{total:.3f},{end_fade}loudnorm=I=-16:TP=-2.0:LRA=11[out]")
     cmd = ["ffmpeg", "-loglevel", "error", "-y", *inputs, "-filter_complex", ";".join(filters), "-map", "[out]",
            "-ar", "48000", out_wav]
     subprocess.run(cmd, check=True)

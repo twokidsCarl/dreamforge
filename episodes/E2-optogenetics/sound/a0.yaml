@@ -1,20 +1,122 @@
-# A0 冷开场的声音设计。每条音效：镜头、镜头内第几秒（at）、音效提示词、长度、增益（dB）。
-# 用 ElevenLabs 音效生成（shared/tools/eleven.py），由 shared/tools/edit_film.py 混音（旁白侧链压缩）。
-# 时间点按定时后的旁白对齐（shared/tools/review_words.py，2026-10-21）。冲击都放在旁白的空档里。
-# 配乐 v2：eleven.music(prompt=…, ms=68000)，2026-10-21 生成，无人声。最后的和弦从 56 秒起持续，约 58–66 秒自然衰减；
-# 推后 3 秒进（冷开场先只有房间底噪），让衰减落在样片结尾的淡出里，不在 0:57 切到紫膜时掉空（v1 审片）。
+# A0 冷开场的声音设计（P9）。成片标准段：配乐 + 音效，无嗓音。
+#
+# 复现：
+#   DREAMFORGE_EPISODE=E2-optogenetics .venv/bin/python shared/tools/sound_gen.py A0 --dry-run   # 只看哪些请求要花钱
+#   DREAMFORGE_EPISODE=E2-optogenetics .venv/bin/python shared/tools/sound_gen.py A0             # 生成（已缓存的不再请求）
+#   DREAMFORGE_EPISODE=E2-optogenetics .venv/bin/python shared/tools/sound_gen.py A0 --check     # 每条音效落在旁白空档还是压在词上
+# 生成物按请求哈希缓存在 episodes/E2-optogenetics/audio/eleven/{music,sfx}/（不入库）。
+# 混音：shared/tools/edit_film.py（配乐侧链 0.03/6，音效侧链 0.04/3，loudnorm I=-16 TP=-1.5，见 WORKFLOW 第 7 节）。
+#
+# 时间轴（全局秒 = A0 起点 0；镜头起点见 storyboard.timed.yaml）。
+# 词级时间戳：review_words.py audio/vo/Andre/vo_track.wav 0 61.12（2026-10-21，float32）；
+# 旁白空档：ffmpeg silencedetect n=-40dB d=0.25。≥ 0.6 秒的空档：
+#   0.00–1.29   冷开场，只有室内底噪
+#   3.45–5.60   「……也许是光」之后（A0_01b 引文停一拍）
+#   7.62–8.37   「随即停住」之后
+#  10.01–12.17  「相当牵强」之后（A0_02b）
+#  17.15–18.15  「或者关掉」之后
+#  21.17–23.32  「而且要快」之后（A0_03b 白模放电）
+#  28.66–29.46  「Karl Deisseroth」之后
+#  38.13–40.28  「光遗传学」（理由句）之后（A0_04b 三个名字）
+#  48.80–51.00  「能用光拨动的开关」之后（A0_05b 光走到一半熄灭）
+#  54.86–61.12  片名「《光遗传学》」之后到段尾（A0_06a 停顿、A0_06b、A0_91、A0_92）
+#
+# 关键词（不许被盖住）：光（3.18）、相当牵强（8.92–10.00）、打开（15.62–16.04）、关掉（16.66–17.12）、
+#   要快（20.52–21.12）、2026 年 10 月 5 日（23.08–24.82）、三个名字（27.80–31.58）、光控离子通道（33.96–35.32）、
+#   光遗传学（37.32–38.08）、开关（48.38–48.76 / 52.10–52.46）、片名《光遗传学》（53.72–54.84）。
+# 规则：冲击音（放电、落定、片名）只放在上面的空档里。和画面动作同步、不得不压在词上的提示音（打字、开 / 关、
+#   三个光点）写明 over_vo 理由，增益不高于 -22 dB，且时长短于所在的词组；成片用 review_asr.py 核对，转写要与纯旁白一致。
+
+# ---- 配乐 -------------------------------------------------------------------------------------------
+# v3（P9）：eleven.music(plan=…)，composition_plan 按旁白段落写结构，全局排除人声和鼓。
+# 在「光」字之后的空档进（3.4 s，冷开场前 3 秒只有室内底噪）。各段时长对准旁白的段落边界：
+#   quote 3.4–11.8 | method 11.8–23.0 | prize 23.0–39.9 | missing 39.9–50.6 | title 50.6–56.8 | decay 56.8–66.0
+# 片名「光遗传学」53.7 s 落在 title 段（和弦解决），之后 decay 段只留长音自然衰减，落进 edit_film --tail 的淡出。
+# 旧版：v2 = music/ef5d21f9c2443180.mp3（prompt 生成，68 s，at 3.0, -9 dB），A0_sample_v2 用的就是它。
 music:
-  - {at: 3.0, file: music/ef5d21f9c2443180.mp3, gain: -9, fade_out: 1.5}
+  - at: 3.4
+    gain: -15                     # 120 Hz 高通后 -30.1 LUFS（sound_gen.py --check），与已通过的 v2（-9 dB 时 -29.7）持平
+    fade_out: 1.5
+    file: music/4d4c6b60fb70c3bd.mp3   # = eleven.music_path(plan)，sound_gen.py 核对
+    plan:
+      positive_global_styles:
+        - instrumental underscore
+        - science documentary cold open
+        - quiet, sparse, restrained
+        - cool and dark, glassy, precise
+        - soft analog synth pad, felt piano, distant celesta, high soft strings
+        - slow, around 66 bpm, no beat
+        - even dynamics, leaves room for narration
+      negative_global_styles: [vocals, voice, singing, choir, humming, spoken word, vocal chops, lyrics, whisper,
+                               drums, percussion, heavy bass, sub bass, "808", distortion, aggressive, epic, trailer,
+                               big build-up, risers]
+      sections:
+        - section_name: quote
+          positive_local_styles: [single low sustained synth pad, a few isolated felt piano notes, dark, almost still]
+          negative_local_styles: [loud, melody, vocals]
+          duration_ms: 8400
+          lines: []
+        - section_name: method
+          positive_local_styles: [a soft muted pulsing synth arpeggio enters, slight forward motion, still quiet, precise]
+          negative_local_styles: [loud, drums, vocals]
+          duration_ms: 11200
+          lines: []
+        - section_name: prize
+          positive_local_styles: [warm soft high strings join the pad, gently brighter, dignified, steady, restrained]
+          negative_local_styles: [loud, triumphant fanfare, brass, drums, vocals]
+          duration_ms: 16900
+          lines: []
+        - section_name: missing
+          positive_local_styles: [thinning out, suspended unresolved chord, quiet tension, a lone celesta note, near silence at the end]
+          negative_local_styles: [loud, resolution, drums, vocals]
+          duration_ms: 10700
+          lines: []
+        - section_name: title
+          positive_local_styles: [gentle warm resolving chord on soft pad and strings, a single soft celesta shimmer, calm arrival]
+          negative_local_styles: [loud, impact, drums, vocals]
+          duration_ms: 6200
+          lines: []
+        - section_name: decay
+          positive_local_styles: [the final chord sustains and fades naturally to silence, no new notes]
+          negative_local_styles: [new melody, drums, vocals, abrupt ending]
+          duration_ms: 9200
+          lines: []
+
+# ---- 音效 -------------------------------------------------------------------------------------------
+# shot / at（镜头内秒）/ len（生成长度，秒）/ gain（dB）/ text（提示词，改了就是新请求、新文件）。
+# 全局秒写在注释里，方便对照上面的空档表。over_vo：有意压在旁白上的理由（sound_gen.py --check 会放行并列出）。
 cues:
-  - {shot: A0_01a, at: 0.0, len: 4.0, gain: -20, text: "quiet dark room tone, faint dust drifting in still air, very soft low hum, clean"}
-  - {shot: A0_02a, at: 2.9, len: 1.2, gain: -22, text: "four slow soft muffled typewriter key strikes, quiet room"}
-  - {shot: A0_03a, at: 3.75, len: 1.2, gain: -22, text: "soft gentle electric blip rising, subtle bioelectric zap, clean"}
-  - {shot: A0_03a, at: 4.85, len: 1.0, gain: -24, text: "soft muted low click as power switches off, quiet"}
-  - {shot: A0_04a, at: 4.9, len: 1.6, gain: -22, text: "single soft glassy chime with airy shimmer, delicate, clean"}
-  - {shot: A0_04a, at: 6.0, len: 1.6, gain: -22, text: "single soft glassy chime with airy shimmer, delicate, clean"}
-  - {shot: A0_04a, at: 7.8, len: 1.6, gain: -22, text: "single soft glassy chime with airy shimmer, delicate, clean"}
-  - {shot: A0_05b, at: 0.0, len: 1.35, gain: -18, text: "thin electric light beam sweeping, faint hum that cuts off abruptly halfway"}
-  # v1 的这条源文件本身削波（峰值 +0.2 dBFS）、听起来像激光，换成更轻的提示词，源峰值 -4.4 dBFS
+  # 0.0–4.0  室内底噪，冷开场的「真东西」；「理想的信号，也许是光」压在底噪上，底噪无瞬态
+  - {shot: A0_01a, at: 0.0, len: 4.0, gain: -20, text: "quiet dark room tone, faint dust drifting in still air, very soft low hum, clean",
+     over_vo: "持续底噪，无瞬态"}
+  # 8.15–9.35  四下键声，对准画面里「相当牵强」逐字打出（打字 2.92–3.52 s，mograph a0_02a）；旁白此时在说「这个想法」，
+  #            「相当牵强」8.92 起只和最后一下余音重叠
+  - {shot: A0_02a, at: 2.9, len: 1.2, gain: -24, text: "four slow soft muffled typewriter key strikes, quiet room",
+     over_vo: "画面逐字打出，键声必须同步；落在「这个想法」上，-24 dB"}
+  # 15.57–16.77  通道打开：沿轴突的蓝色脉冲 3.75–4.85 s；「打开」15.62–16.04
+  - {shot: A0_03a, at: 3.75, len: 1.2, gain: -24, text: "soft gentle electric blip rising, subtle bioelectric zap, clean",
+     over_vo: "画面同步（脉冲起点）；柔和上扬、无冲击，-24 dB"}
+  # 16.67–17.67  关掉：蓝变琥珀 4.85 s；「关掉」16.66–17.12，咔哒声主体在「掉」之后的 17.15–17.86 空档
+  - {shot: A0_03a, at: 4.85, len: 1.0, gain: -24, text: "soft muted low click as power switches off, quiet",
+     over_vo: "画面同步（变琥珀）；低频软咔哒，-24 dB"}
+  # 21.77–22.97  新增：白模神经元放电（A0_03b），空档 21.17–23.32 内
+  - {shot: A0_03b, at: 0.15, len: 1.2, gain: -20, text: "single soft rounded bioelectric pop with a faint warm tail, clean, quiet, no distortion"}
+  # 27.87 / 28.97 / 30.77  三个光点依次亮（e2_common.A04_LIGHT_AT = 4.9 / 6.0 / 7.8，已渲染），对准三个名字的起点
+  - {shot: A0_04a, at: 4.9, len: 1.6, gain: -24, text: "single soft glassy chime with airy shimmer, delicate, clean",
+     over_vo: "光点 1 亮（Karl Deisseroth）；高频细铃，-24 dB"}
+  - {shot: A0_04a, at: 6.0, len: 1.6, gain: -24, text: "single soft glassy chime with airy shimmer, delicate, clean",
+     over_vo: "光点 2 亮（Peter Hegemann）"}
+  - {shot: A0_04a, at: 7.8, len: 1.6, gain: -24, text: "single soft glassy chime with airy shimmer, delicate, clean",
+     over_vo: "光点 3 亮（Georg Nagel）"}
+  # 38.68–39.88  新增：三个名字落定、没有第四行（A0_04b），空档 38.13–40.28 内
+  - {shot: A0_04b, at: 0.1, len: 1.2, gain: -24, text: "single soft muted low tone settling into place, warm, quiet, short, clean"}
+  # 49.25–50.60  光走到一半熄灭（A0_05b），空档 48.80–51.00 内。源文件很轻（峰值 -31 dBFS），v2 的 -18 dB 下几乎听不见，P9 提到 -6
+  - {shot: A0_05b, at: 0.0, len: 1.35, gain: -6, text: "thin electric light beam sweeping, faint hum that cuts off abruptly halfway"}
+  # 54.95–56.95  新增：片名落定，「学」54.84 说完之后（空档 54.86–61.12）。全段唯一的低频冲击
+  - {shot: A0_06a, at: 4.35, len: 2.0, gain: -18, text: "deep soft cinematic low boom with a slow warm swell and gentle decay, quiet, no distortion, no whoosh"}
+  # 56.77–58.17  片名下一条细光横过（A0_06b）。v1 的提示词源文件削波（+0.2 dBFS），v2 换成这条，源峰值 -4.4 dBFS
   - {shot: A0_06b, at: 0.0, len: 1.4, gain: -18, text: "very soft, gentle airy whoosh of a thin light beam passing left to right, quiet, smooth, no distortion, no laser zap"}
+  # 58.12–59.62  紫膜一闪（A0_91）
   - {shot: A0_91, at: 0.0, len: 1.5, gain: -24, text: "faint electron microscope ambience, very soft electronic hum"}
+  # 59.62–61.12  HUD 1999 → 2026 翻牌（A0_92）
   - {shot: A0_92, at: 0.0, len: 1.5, gain: -20, text: "fast soft digital counter ticking then a single soft stop click"}

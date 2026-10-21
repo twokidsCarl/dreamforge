@@ -55,24 +55,38 @@ def _path(kind, body):
     return os.path.join(AUDIO, "eleven", kind, f"{h}.mp3")
 
 
-def music(plan=None, prompt=None, ms=None, seed=None, take=0):
-    """Instrumental cue. plan: music_v1 composition plan (sections); or a prompt + length."""
+def _music_body(plan=None, prompt=None, ms=None, seed=None):
     if plan is not None:
         body = {"composition_plan": plan, "model_id": "music_v1"}
         if seed is not None:
             body["seed"] = seed
-    else:
-        body = {"prompt": prompt, "music_length_ms": ms, "force_instrumental": True, "model_id": "music_v1"}
-    out = _path("music", {**body, "take": take})
-    return _post("/music", body, out)
+        return body
+    return {"prompt": prompt, "music_length_ms": ms, "force_instrumental": True, "model_id": "music_v1"}
 
 
-def sfx(text, seconds=None, influence=0.45, take=0):
+def _sfx_body(text, seconds=None, influence=0.45):
     body = {"text": text, "model_id": "eleven_text_to_sound_v2", "prompt_influence": influence}
     if seconds:
         body["duration_seconds"] = seconds
-    out = _path("sfx", {**body, "take": take})
-    return _post("/sound-generation", body, out)
+    return body
+
+
+def music_path(plan=None, prompt=None, ms=None, seed=None, take=0):
+    """Cache path of a music request, without calling the API (to check whether it is already generated)."""
+    return _path("music", {**_music_body(plan, prompt, ms, seed), "take": take})
+
+
+def sfx_path(text, seconds=None, influence=0.45, take=0):
+    return _path("sfx", {**_sfx_body(text, seconds, influence), "take": take})
+
+
+def music(plan=None, prompt=None, ms=None, seed=None, take=0):
+    """Instrumental cue. plan: music_v1 composition plan (sections); or a prompt + length."""
+    return _post("/music", _music_body(plan, prompt, ms, seed), music_path(plan, prompt, ms, seed, take))
+
+
+def sfx(text, seconds=None, influence=0.45, take=0):
+    return _post("/sound-generation", _sfx_body(text, seconds, influence), sfx_path(text, seconds, influence, take))
 
 
 if __name__ == "__main__":

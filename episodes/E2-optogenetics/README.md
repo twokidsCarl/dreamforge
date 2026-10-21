@@ -16,6 +16,11 @@
 | 5 | 光学人工耳蜗只留一句「仍是临床前」，不加 NCT05110183 可行性研究 | 第三幕那句改成「光学人工耳蜗，按 2023 年的综述，仍是临床前。」 |
 | 6 | 按 126 镜分镜总览进入配音和渲染 | P4 起按 `storyboard/storyboard.yaml` |
 
+## P9 声音设计（A0 先做）
+
+A0 v3 已生成：composition_plan 配乐 + 14 条音效，预听 `renders/edit/A0_sample_v3_sound.mp4`（不入库）。
+复现命令、自审结果、待审项见 `sound/STATUS.md`；生成和检查用 `shared/tools/sound_gen.py`。
+
 ## 检查点②（全片动态分镜，2026-10-21 通过）
 
 通过的是 PR #13 / #14 的 animatic v2：A0 用成片样片段，其余镜头是定时分镜板 + 真实配音 + 临时配乐。从这里起按下面的约定做：
@@ -100,7 +105,7 @@ episodes/E2-optogenetics/
 ├── script/script_zh.md        定稿旁白
 ├── script/pronunciation.yaml  空词表，读音未猜
 ├── storyboard/                分镜、定时分镜（storyboard.timed.yaml）、总览页
-├── sound/                     临时配乐（P9 前）
+├── sound/                     a0.yaml（A0 成片声音设计，P9）、temp_music.yaml（其余段临时配乐）、STATUS.md
 ├── subs/                      zh.srt
 ├── blender/scripts/           参数化 builder：膜、通道、神经元、紫膜、脑、视网膜、耳蜗、细胞、道具；e2_shot 共用件
 ├── blender/shots/             各段场景模块（a0 / a / b / b_cell / c / d）和 registry.yaml（126 镜）
