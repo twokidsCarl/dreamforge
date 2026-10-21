@@ -27,6 +27,7 @@ import styles
 
 FRAMES = 300
 VIOLET = (0.62, 0.45, 1.0)
+EUV = (0.42, 0.16, 1.0)              # saturated violet: a strong pastel emitter clips to white in the energy look
 
 
 def _key(ob, f, **kw):
@@ -65,15 +66,12 @@ def _beam(name, a, b, radius, color, strength):
 def silver(sc, rnd):
     glass = M.principled("Silvered", (0.85, 0.86, 0.88), metallic=1.0, roughness=0.05)
     m = _cyl("PlainMirror", 2.0, 0.15, (0, 0, 0), glass, rot=(0, math.pi / 2, 0))
-    beam, bm = _beam("EUV", (12, 6, 0), (0.08, 0, 0), 0.06, VIOLET, 0.0)
-    for f, v in ((1, 0), (10, 0), (16, 10), (FRAMES, 10)):
+    beam, bm = _beam("EUV", (12, 6, 0), (0.08, 0, 0), 0.06, EUV, 0.0)
+    for f, v in ((1, 0), (10, 0), (16, 2.2), (FRAMES, 2.2)):
         M.set_emission_strength(bm, f, v)
+    # the absorbed energy ends up in the top ~0.1 um under the beam spot, not at the rim (audit_B4 B4_01)
     heat = M.emission("Heat", (1.0, 0.45, 0.15), 0.0)
-    bpy.ops.mesh.primitive_torus_add(major_radius=2.02, minor_radius=0.03, location=(0.08, 0, 0),
-                                     rotation=(0, math.pi / 2, 0))
-    ring = bpy.context.object
-    ring.data.materials.append(heat)
-    styles.tag(ring, "emitter")
+    spot = _cyl("HeatSpot", 0.15, 0.01, (0.081, 0, 0), heat, rot=(0, math.pi / 2, 0), role="emitter")
     for f, v in ((1, 0), (24, 0), (70, 1.5)):
         M.set_emission_strength(heat, f, v)
     bpy.ops.mesh.primitive_torus_add(major_radius=2.0, minor_radius=0.012, location=(-0.06, 0, 0),
@@ -93,7 +91,7 @@ def stack(sc, rnd):
 
 
 # ---- B4_04 / B4_05 -------------------------------------------------------------------------
-def _cap(name, radius=1.6, curv_r=9.0, segs=96, rings=32):
+def _cap(name, radius=0.5, curv_r=3.0, segs=96, rings=32, thickness=0.18):
     bm = bmesh.new()
     verts = [[None] * segs for _ in range(rings + 1)]
     centre = bm.verts.new((0, 0, 0))
@@ -117,40 +115,48 @@ def _cap(name, radius=1.6, curv_r=9.0, segs=96, rings=32):
     for p in ob.data.polygons:
         p.use_smooth = True
     sol = ob.modifiers.new("Solid", "SOLIDIFY")
-    sol.thickness = 0.25
+    sol.thickness = thickness                     # substrate at least 1/6 of the diameter
     return ob
 
 
 def mirror(sc, rnd, scan=False):
     BM.fab_hall(people=0)
-    cap = _cap("FreeformMirror")
-    cap.location = (0, 0, 0.9)
+    # the largest High-NA mirrors are "1 meter across" (ASML, Lenses & mirrors); aspheric, on a thick substrate
+    cap = _cap("AsphereMirror")
+    cap.location = (0, 0, -0.95)
     cap.rotation_euler = (math.radians(-35), 0, 0)
-    cap.data.materials.append(M.multilayer_mirror("BigMirror", r_max=1.6))
+    cap.data.materials.append(M.multilayer_mirror("BigMirror"))
     styles.tag(cap, "structure")
     steel = M.polished_steel("Stand", 0.3)
-    for x in (-0.9, 0.9):
-        _cyl(f"Leg{x}", 0.08, 2.6, (x, 0.5, -0.9), steel)
-    bpy.ops.mesh.primitive_cube_add(location=(0, 0.4, -2.0))
+    dark = M.dark_anodized("Fixture")
+    # a handling fixture: a ring cradle on a low pedestal, mirror face ~1.25 m above the floor (floor z = -2.2)
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.52, minor_radius=0.035, location=(0, 0.06, -0.95),
+                                     rotation=(math.radians(55), 0, 0))
+    cr = bpy.context.object
+    cr.data.materials.append(steel)
+    styles.tag(cr, "structure")
+    for x in (-0.38, 0.38):
+        _cyl(f"Leg{x}", 0.04, 0.9, (x, 0.25, -1.65), steel)
+    bpy.ops.mesh.primitive_cube_add(location=(0, 0.2, -2.13))
     base = bpy.context.object
-    base.scale = (1.6, 1.0, 0.15)
-    base.data.materials.append(steel)
+    base.scale = (0.7, 0.55, 0.07)
+    base.data.materials.append(dark)
     styles.tag(base, "structure")
     sweep = B._area("Sweep", (-6, -4, 5), (0.9, 0, -0.6), 3.0, 1500, (0.8, 0.88, 1.0))
     _key(sweep, 1, location=(-6, -4, 5))
     _key(sweep, 110, location=(6, -4, 5))
     if scan:
         mat = styles.dark_rim("ScanBand", color=(0.2, 0.85, 0.95), strength=3.0)
-        bpy.ops.mesh.primitive_plane_add(size=1, location=(-2.2, 0, 1.1))
+        bpy.ops.mesh.primitive_plane_add(size=1, location=(-0.7, 0, -0.9))
         band = bpy.context.object
-        band.scale = (0.06, 2.0, 2.0)
+        band.scale = (0.02, 0.7, 0.7)
         band.rotation_euler = (0, math.radians(90), 0)
         band.data.materials.append(M.emission("Band", (0.2, 0.85, 0.95), 6.0))
         styles.tag(band, "emitter")
-        _key(band, 1, location=(-2.2, 0, 1.1))
-        _key(band, 100, location=(2.2, 0, 1.1))
-    B._camera("CamB4_04", [(1, (0, 0, 0.8), (3.8, -4.6, 2.2), 40, 4.0), (96, (0, 0, 0.8), (2.6, -5.2, 1.8), 40, 4.0)])
-    B._camera("CamB4_05", [(1, (0, 0, 0.9), (0.4, -4.0, 3.4), 45, 5.6), (103, (0, 0, 0.9), (-0.4, -4.1, 3.3), 45, 5.6)])
+        _key(band, 1, location=(-0.7, 0, -0.9))
+        _key(band, 100, location=(0.7, 0, -0.9))
+    B._camera("CamB4_04", [(1, (0, 0, -1.0), (1.3, -1.6, -0.35), 40, 4.0), (96, (0, 0, -1.0), (0.9, -1.8, -0.5), 40, 4.0)])
+    B._camera("CamB4_05", [(1, (0, 0, -0.95), (0.15, -1.4, 0.15), 45, 5.6), (103, (0, 0, -0.95), (-0.15, -1.45, 0.12), 45, 5.6)])
 
 
 # ---- B4_07 / B4_08 -------------------------------------------------------------------------
@@ -163,7 +169,10 @@ def atoms(sc, rnd, n=80, spacing=0.235):
             x = (i - n / 2) * spacing + (j % 2) * spacing / 2
             y = (j - n / 2) * spacing * 0.866
             bump = 0.02 * math.exp(-((x - 0.3) ** 2 + (y + 0.2) ** 2) / 0.4)    # ~1/10 of an atom
-            pts.append((x, y, bump))
+            # no extended single crystal on an EUV mirror (Ru capping, polycrystalline Mo): jitter, keep mean spacing
+            x += rnd.gauss(0, 0.035)
+            y += rnd.gauss(0, 0.035)
+            pts.append((x, y, bump + rnd.gauss(0, 0.004)))
     me.from_pydata(pts, [], [])
     host = bpy.data.objects.new("Lattice", me)
     sc.collection.objects.link(host)
@@ -309,6 +318,7 @@ def _moon_terrain(rnd, loc=(0, 0, -500)):
 
 
 def space(sc, rnd):
+    C.set_world(top=(0, 0, 0), horizon=(0, 0, 0), bottom=(0, 0, 0))   # no atmosphere: a black sky (audit_B4 B4_11)
     _earth((0, 0, 0), 6.0)
     moon = M.principled("MoonMat", (0.4, 0.39, 0.38), roughness=0.95)
     bpy.ops.mesh.primitive_uv_sphere_add(radius=1.64, segments=64, ring_count=32, location=(360, 0, 0))
@@ -344,10 +354,12 @@ def hall(sc, rnd):
     beam.scale = (6.5, 1.6, 0.2)
     beam.data.materials.append(steel)
     styles.tag(beam, "structure")
-    m = _cyl("HungMirror", 1.0, 0.18, (8.0, 1.2, 4.6), M.multilayer_mirror("HungMirrorMat", r_max=1.0),
+    m = _cyl("HungMirror", 0.5, 0.17, (8.0, 4.0, 4.6), M.multilayer_mirror("HungMirrorMat"),
              rot=(0, math.pi / 2, 0))
-    _key(m, 1, location=(8.0, 1.2, 4.6))
-    _key(m, 127, location=(8.0, 1.2, 1.6))
+    _key(m, 1, location=(8.0, 4.0, 4.6))                  # lowered to the open door, then carried in
+    _key(m, 80, location=(8.0, 4.0, 0.4))
+    _key(m, 127, location=(5.5, 4.0, 0.4))
+    door.location = (7.6, 1.0, 0.4)                       # the door stands open beside the chamber
     cable = _cyl("Cable", 0.02, 4.0, (0, 0, 2.0), steel, verts=8)
     cable.parent = m
     cable.rotation_euler = (0, -math.pi / 2, 0)
@@ -359,72 +371,84 @@ def hall(sc, rnd):
 
 # ---- B4_14 ---------------------------------------------------------------------------------
 def explode(sc, rnd):
-    """A stacked barrel of 6 sections: it separates along its axis, mirrors slide out sideways,
-    struts move radially, then everything returns home in reverse order. Calm, readable order."""
+    """High-NA projection optics as ZEISS shows it (EUVL Workshop 2024 s.8 render; 2019 s.14-15 photos "POB frames",
+    "force frame & module integration", "sensor frame & interferometer assembly"): a wide angular frame block about
+    1.6x wider than tall. It opens into the force frame (top, bottom, corner posts), the sensor frame and six mirror
+    modules laid out as in the published design example (BM.PO_MIRRORS, M5/M6 holed), then closes again.
+    Outer shape 示意; the module layout follows the design example, scaled into the block."""
     mat = M.principled("PO", (0.7, 0.7, 0.7))
-    n = 6
-    groups = []                                    # (objects, home z, section index)
-    for k in range(n):
-        z = -1.5 + 0.6 * k
-        bpy.ops.mesh.primitive_cylinder_add(radius=1.25, depth=0.56, vertices=96, end_fill_type="NOTHING",
-                                            location=(0, 0, z))
-        ring = bpy.context.object
-        ring.name = f"Section{k}"
-        sol = ring.modifiers.new("Wall", "SOLIDIFY")
-        sol.thickness = 0.12
-        for p in ring.data.polygons:
-            p.use_smooth = True
-        ring.data.materials.append(mat)
-        styles.tag(ring, "structure")
-        bpy.ops.mesh.primitive_torus_add(major_radius=1.33, minor_radius=0.05, location=(0, 0, z + 0.28))
-        fl = bpy.context.object
-        fl.data.materials.append(mat)
-        styles.tag(fl, "structure")
-        fl.parent = ring
-        fl.location = (0, 0, 0.28)
-        for j in range(12):                        # bolts ride on their flange
-            th = 2 * math.pi * (j + 0.5 * (k % 2)) / 12
-            bpy.ops.mesh.primitive_cylinder_add(radius=0.035, depth=0.1, vertices=8)
-            bo = bpy.context.object
-            bo.data.materials.append(mat)
-            styles.tag(bo, "structure")
-            bo.parent = ring
-            bo.location = (1.33 * math.cos(th), 1.33 * math.sin(th), 0.34)
-        mir = _cyl(f"Mir{k}", 0.8, 0.1, (0, 0, z), mat, rot=(0.35 * (-1) ** k, 0, 0))
-        groups.append((ring, mir, z, k))
-    struts = []
-    for j in range(8):
-        th = 2 * math.pi * j / 8 + math.pi / 8
-        struts.append((_cyl(f"Strut{j}", 0.045, 3.8, (1.55 * math.cos(th), 1.55 * math.sin(th), 0.0), mat, verts=12),
-                       th))
-    spread = 2.1
-    for ring, mir, z, k in groups:
-        d = abs(k - (n - 1) / 2)                   # centre sections open first
-        f0, f1 = 18 + int(4 * d), 46 + int(4 * d)
-        zo = z * spread
-        side = 1 if k % 2 == 0 else -1
-        _key(ring, f0, location=(0, 0, z))
-        _key(ring, f1, location=(0, 0, zo))
-        _key(mir, f0, location=(0, 0, z))
-        _key(mir, f1, location=(0, 0, zo))
-        lat = Vector((0.81, 0.59, 0)) * side * 2.4       # screen-lateral for this camera
-        _key(mir, f1 + 10, location=(lat.x, lat.y, zo))
-        _key(mir, 92, location=(lat.x, lat.y, zo))
-        _key(mir, 102, location=(0, 0, zo))
-        r0 = 100 + int(3 * (2.5 - d))
-        _key(ring, r0, location=(0, 0, zo))
-        _key(ring, r0 + 18, location=(0, 0, z))
-        _key(mir, r0, location=(0, 0, zo))
-        _key(mir, r0 + 18, location=(0, 0, z))
-    for s_, th in struts:
-        home = s_.location.copy()
-        out = home + Vector((math.cos(th), math.sin(th), 0)) * 1.4
-        _key(s_, 12, location=home)
-        _key(s_, 30, location=out)
-        _key(s_, 112, location=out)
-        _key(s_, 126, location=home)
+    W, D, H = 3.4, 2.2, 2.1
+    parts = []                                       # (object, direction, distance, open frame, close frame)
+
+    def box(name, loc, size, bevel=0.04):
+        bpy.ops.mesh.primitive_cube_add(location=loc)
+        ob = bpy.context.object
+        ob.name = name
+        ob.scale = (size[0] / 2, size[1] / 2, size[2] / 2)
+        bv = ob.modifiers.new("Bevel", "BEVEL")
+        bv.width, bv.segments = bevel, 2
+        ob.data.materials.append(mat)
+        styles.tag(ob, "structure")
+        return ob
+    # force frame: top and bottom plates with chamfered corners, four angular corner posts
+    for k, z in enumerate((H / 2, -H / 2)):
+        pl = box(f"ForcePlate{k}", (0, 0, z), (W, D, 0.22), bevel=0.25)
+        parts.append((pl, Vector((0, 0, 1 if k == 0 else -1)), 1.6, 20, 104))
+    for k, (sx, sy) in enumerate(((-1, -1), (1, -1), (1, 1), (-1, 1))):
+        po = box(f"ForcePost{k}", (sx * (W / 2 - 0.2), sy * (D / 2 - 0.2), 0), (0.32, 0.32, H - 0.2), bevel=0.06)
+        po.rotation_euler = (0, 0, math.radians(45))
+        parts.append((po, Vector((sx, sy, 0)).normalized(), 1.5, 26, 100))
+    # side walls close it into a block (the render's angular panels); they open first
+    for k, (loc, size, d) in enumerate((((0, -D / 2, 0), (W - 0.5, 0.08, H - 0.3), (0, -1, 0)),
+                                         ((0, D / 2, 0), (W - 0.5, 0.08, H - 0.3), (0, 1, 0)),
+                                         ((-W / 2, 0, 0), (0.08, D - 0.5, H - 0.3), (-1, 0, 0)),
+                                         ((W / 2, 0, 0), (0.08, D - 0.5, H - 0.3), (1, 0, 0)))):
+        wl = box(f"ForceWall{k}", loc, size, bevel=0.03)
+        parts.append((wl, Vector(d), 2.6 if k == 0 else 1.8, 14, 108))
+    # sensor frame: a lighter inner rectangle of bars at mid height (interferometer reference)
+    sf = []
+    for k, (loc, size) in enumerate((((0, -0.9, 0.1), (3.0, 0.1, 0.1)), ((0, 0.9, 0.1), (3.0, 0.1, 0.1)),
+                                      ((-1.5, 0, 0.1), (0.1, 1.9, 0.1)), ((1.5, 0, 0.1), (0.1, 1.9, 0.1)))):
+        sf.append(box(f"SensorBar{k}", loc, size, bevel=0.01))
+    for ob in sf:
+        parts.append((ob, Vector((0, -1, 0.15)).normalized(), 2.2, 34, 96))
+    # six mirror modules at the design-example positions, scaled to fit the block
+    pm = [Vector(p) for p in BM.PO_MIRRORS]
+    c = sum(pm, Vector()) / len(pm)
+    sc_ = (H - 0.6) / (max(p.z for p in pm) - min(p.z for p in pm))
+    radii = (0.2, 0.3, 0.4, 0.2, BM.M5_R, BM.M6_R)
+    for k, (p, r) in enumerate(zip(pm, radii)):
+        q = (p - c) * sc_
+        q.y = 0.0
+        if k < 4:
+            r *= 1.5                                 # the small mirrors drawn a little larger so they read (示意)
+        mount = box(f"Module{k}", (q.x, 0.0, q.z - 0.1), (r * sc_ * 2.4, 0.9, 0.16), bevel=0.02)
+        if k >= 4:                                   # M5 and M6 have central holes
+            bpy.ops.mesh.primitive_cylinder_add(radius=r * sc_, depth=0.06, vertices=96, location=(q.x, 0, q.z))
+            mir = bpy.context.object
+            hole = mir.modifiers.new("Hole", "BOOLEAN")
+            bpy.ops.mesh.primitive_cylinder_add(radius=r * sc_ * 0.22, depth=0.5, vertices=48, location=(q.x, 0, q.z))
+            cutter = bpy.context.object
+            cutter.hide_render = cutter.hide_viewport = True
+            hole.object = cutter
+            mir.data.materials.append(mat)
+            styles.tag(mir, "structure")
+            for pl in mir.data.polygons:
+                pl.use_smooth = True
+        else:
+            mir = _cyl(f"ModMirror{k}", r * sc_, 0.06, (q.x, 0, q.z), mat)
+        mir.parent = mount
+        mir.matrix_parent_inverse = mount.matrix_world.inverted()
+        d = Vector((q.x, -0.6, q.z)).normalized()
+        parts.append((mount, d, 1.1, 40 + 3 * k, 92 - 3 * k))
+    for ob, d, dist, f_open, f_close in parts:
+        home = ob.location.copy()
+        _key(ob, f_open, location=home)
+        _key(ob, f_open + 22, location=home + d * dist)
+        _key(ob, f_close, location=home + d * dist)
+        _key(ob, f_close + 22, location=home)
     B._area("ClayKey", (5, -6, 7), (0.9, 0, 0.6), 8, 1800, (1.0, 0.98, 0.95))
-    B._camera("CamB4_14", [(1, (0, 0, 0.0), (8.0, -11.0, 3.2), 35, 11.0), (136, (0, 0, 0.0), (10.0, -9.0, 3.8), 35, 11.0)])
+    B._camera("CamB4_14", [(1, (0, 0, 0.0), (6.4, -9.0, 3.2), 35, 11.0), (136, (0, 0, 0.0), (8.0, -7.8, 3.6), 35, 11.0)])
 
 
 # ---- B4_15 / B4_16 -------------------------------------------------------------------------
@@ -443,9 +467,9 @@ def bounce(sc, rnd):
         h = _cyl(f"Halo{k}", 0.62, 0.02, tuple(pts[k]), heat)
         h.rotation_euler = m.rotation_euler
         styles.tag(h, "emitter")
-    level = 10.0
+    level = 2.4
     for k in range(11):
-        beam, bm = _beam(f"Leg{k}", pts[k], pts[k + 1], 0.06 * max(0.35, 0.7 ** k) + 0.02, VIOLET, 0.0)
+        beam, bm = _beam(f"Leg{k}", pts[k], pts[k + 1], 0.06 * max(0.35, 0.7 ** k) + 0.02, EUV, 0.0)
         f0 = 8 + 9 * k
         M.set_emission_strength(bm, f0 - 1, 0.0)
         M.set_emission_strength(bm, f0 + 3, level)
@@ -455,7 +479,28 @@ def bounce(sc, rnd):
         s.default_value = v
         s.keyframe_insert("default_value", frame=f)
     B._camera("CamB4_15", [(1, tuple(pts[1]), (-9.0, -4.0, 1.4), 45, 11.0), (134, tuple(pts[1]), (-8.0, -4.4, 1.6), 45, 11.0)])
-    B._camera("CamB4_16", [(1, (-6.0, 0, 1.2), (-8.0, -14.0, 3.0), 30, 11.0), (120, (1.0, 0, 1.2), (1.0, -36.0, 6.0), 30, 11.0)])
+    # B4_16: the sourced High-NA train (BM.PATH, set off at y = +40): plasma -> collector -> IF -> fold -> field facet
+    # -> pupil facet -> mask -> M1-M4 -> (focus) -> M5 -> M6 -> wafer. 11 reflections, each keeping ~66 %, so the
+    # beam ends near 1 % as B4_17 says (0.66^11 = 1.0 %). IF and the PO focus are foci, not mirrors.
+    off = Vector((0, 40.0, 0))
+    train = [Vector(BM.PLASMA) + off] + [Vector(p) + off for p in BM.PATH]
+    focus_idx = {2, 11}                                  # IF and PO_FOCUS in train
+    level = 2.4
+    for k in range(len(train) - 1):
+        beam, bm = _beam(f"Train{k}", train[k], train[k + 1], 0.05 * max(0.4, level / 2.4) + 0.012, EUV, 0.0)
+        f0 = 6 + 9 * k
+        M.set_emission_strength(bm, f0 - 1, 0.0)
+        M.set_emission_strength(bm, f0 + 3, level)
+        end = k + 1
+        if end < len(train) - 1 and end not in focus_idx:
+            a_ = (train[end - 1] - train[end]).normalized()
+            b_ = (train[end + 1] - train[end]).normalized()
+            m = _cyl(f"TrainMirror{end}", 0.16, 0.03, tuple(train[end]), mir)
+            m.rotation_euler = (a_ + b_).normalized().to_track_quat("Z", "Y").to_euler()
+            level *= 0.66
+    cx = BM.CENTER[0]
+    B._camera("CamB4_16", [(1, (cx - 0.3, 40.0, 1.0), (cx + 0.4, 40.0 - 8.6, 1.5), 30, 11.0),
+                           (120, (cx - 0.4, 40.0, 0.9), (cx - 0.4, 40.0 - 9.4, 1.4), 30, 11.0)])
 
 
 def build(variant="silver", seed=41):

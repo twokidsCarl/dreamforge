@@ -1,0 +1,415 @@
+# Visual fact audit, segment B8 (wafer and reticle stages, scanning, alignment, overlay, throughput, data). One row per
+# engineering / structural / optical / numeric detail the PICTURE, on-screen text or narration shows. Checked 2026-10-21
+# against storyboard.timed.yaml (B8_01-B8_20, identical to parts/p3_B7-D.yaml), blender/shots/b8_scenes.py,
+# blender/scripts/build_machine.py (B8_10), mograph/b8.py (+ b6._fields) and the preview frames.
+# Previews: every renders/shots/B8_*/preview was made on 2026-10-17 (04:15-05:19). Code changed afterwards:
+#   build_machine.py (10-21, High-NA relayout -> B8_10), shared/blender/styles.py (10-21), materials.py (10-19),
+#   shared/tools/mograph.py (10-21, strips fact IDs from screen text). All B8 previews are therefore stale; frames that
+#   show "F15b", "F41", "F42 · F60", "F44", "F45", "F46" will lose them on re-render. Contact sheets:
+#   renders/review/refs/B8B9/sheets/.
+# status: sourced | wrong | unsourced | simplified | artistic   (see docs/WORKFLOW.md 2.3)
+# Sources (quotes, URLs, page/slide): research/visual/B8B9_sources.md. HNA [tag] = research/visual/high_na_optics.md.
+#   S1  ASML Wilton CT page (reticle stage >15 g, >3 m/s, >10,000 N, car, few pm, maglev)
+#       https://www.asml.com/en/company/about-asml/locations/wilton-ct
+#   S2  ASML "5 things about High NA" 2024 (4x/8x, half field, 2x exposures, 8 g / 32 g, >185 wph)
+#       https://www.asml.com/en/news/stories/2024/5-things-high-na-euv
+#   S3  ASML "Mechanics and mechatronics" (60 pm NXT, 20,000/s, maglev tables, opposite directions, nm + ns sync)
+#       https://www.asml.com/en/technology/lithography-principles/mechanics-and-mechatronics
+#   S4  ASML EUV systems page (wafer positioned to 1/4 nm, adjusted 20,000 times per second)
+#       https://www.asml.com/en/products/euv-lithography-systems
+#   S5  ASML "Measuring accuracy" (31 TB/week, 3x Hubble a year)
+#       https://www.asml.com/en/technology/lithography-principles/measuring-accuracy
+#   S6  ASML Mathijssen story 2021 (80 um ~ hair; alignment marks are gratings; TENS of alignment marks; >1,000 = overlay metrology)
+#       https://www.asml.com/en/company/stories/2021/fellow-simon-mathijssen-aligning-lithography-nanometer
+#   S7  ASML "TWINSCAN 20 years" 2021 (two wafer stages, expose / align+map, swap)
+#       https://www.asml.com/en/news/stories/2021/twinscan-20-years-innovation
+#   S8  ASML EXE:5000 / EXE:5200B product pages (dual-stage, half field, wph "At dose: 50 mJ/cm²")
+#       https://www.asml.com/en/products/euv-lithography-systems/twinscan-exe-5000
+#   S9  Maas et al. (ASML), EUVL Workshop 2023 P62 (NXE:3800E >=220 wph, 96 full fields, 30 mJ/cm², >500 W at IF, reticle clamp)
+#       https://euvlitho.com/2023/P62.pdf
+#   S10 Intel Foundry blog Dec 2025 (EXE:5200B acceptance test: 175 wph, overlay 0.7 nm)
+#       https://community.intel.com/t5/Blogs/Intel-Foundry/Systems-Foundry-for-the-AI-Era/How-Collaboration-in-High-NA-EUV-and-Transistor-R-D-Are-Shaping/post/1730050
+#   S11 Stoeldraijer et al. (ASML), EUVL Symposium 2009, slide 7 (wafer stage "Dual planar stage + balance mass; E-clamp"; reticle stage "E-clamp", "REMA (X and Y)")
+#       https://euvlsymposium.lbl.gov/pdf/2009/pres/O_ET-01_Stoeldraijer_ASML.pdf
+#   S12 ZEISS patents US8717541B2 / US7126137B2 (arc-shaped field facets; curved slit = ring-field segment); HNA [Z21] s.11 slit 26 x 1.6 mm² arc
+#       https://patents.google.com/patent/US8717541B2/en  https://patents.google.com/patent/US7126137B2/en
+#   S13 US5831716A slit-scanning exposure (reticle and wafer scanned in opposite directions at constant speed)
+#       https://patents.google.com/patent/US5831716A/en
+#   S14 Ruzic group, SPIE ebook ch.18 "Tin Mitigation in EUV Sources" p.751 (68 % max reflectivity; hypothetical 100 W in -> 1 W at wafer; ~10 mirrors; ~1 %)
+#       https://cpmi.illinois.edu/files/2023/10/Ch18-1.pdf
+#   S15 imec Magazine Jul 2019 "sailing along the stochastic cliffs" (microbridges, broken lines; higher dose does not move the broken-line cliff)
+#       https://www.imec-int.com/en/imec-magazine/imec-magazine-july-2019/euv-lithography-sailing-along-the-stochastic-cliffs
+#   S16 ASML AR2025 story "1,000-watt ... path to higher productivity"; Hummler et al. SPIE 12953 (2024) ">500W" for "+60 WPH"
+#       https://investor.asml.com/annual-reports/2025/strategy-and-stories  https://doi.org/10.1117/12.3010463
+#   S17 NIST/CODATA hc = 1239.84198 eV nm; Si a = 543.102 pm; derived Si [110] geometry (dumbbell 135.8 pm, cell 384.0 x 543.1 pm)
+#       https://physics.nist.gov/cgi-bin/cuu/Value?hcev  https://www.physics.nist.gov/cuu/pdf/xray_2014.pdf
+#   S18 SVMI 300 mm wafer datasheet SV029 citing the SEMI standard (775 um thick; notch 1.0 mm deep, 90°; 3 mm edge exclusion)
+#       https://svmi.com/wp-content/uploads/2021/01/SV029.pdf
+# Machine depicted = High-NA EXE:5000. NXE numbers (96 fields, 220 wph, 4x, >15 g stage, 10,000 N) must be labelled NXE.
+# Glyphs: every non-ASCII character in the B8/B9 mograph text, overlays and VO was rendered in STHeiti (overlay_labels.FONT);
+#   none falls back to the .notdef box (nm², mJ/cm², µ/μ, ≈, ≤, →, −, × are all fine; ₂ and ⁰⁶⁻ would fail but are not used).
+
+B8_01:
+- item: chapter card 章节 · 工件台：比战斗机更猛，比原子更稳
+  status: sourced
+  source: S1 ("more than three times the g-force experienced by a fighter jet pilot at takeoff"); S3 ("accelerate faster
+    than a fighter jet"; "60 picometers (less than the size of a silicon atom)")
+- item: 'rainbow on the wafer: thin-film interference whose thickness is mapped linearly across the wafer''s Y axis (wafer_material:
+    thin_film 520 nm, Map Range Y -> 260-980 nm), drawn as one smooth pastel smear'
+  status: wrong
+  source: 'docs/WORKFLOW.md s.9 (lesson: 芯片表面整片是平滑的彩虹渐变 -> per-die gratings, colour from the diffraction equation)'
+  note: this is exactly the forbidden smooth-rainbow look; preview frames show a blotchy rainbow patch that moves with the
+    light rather than block-wise diffraction colours
+  fix: 'b8_scenes.wafer_material: drop the thin-film / Y-gradient nodes; reuse the per-die grating (diffraction) shader
+    used for the chip shots, each die block with its own pitch and orientation, or render a neutral specular die grid with
+    no iridescence'
+- item: wafer thickness 0.03 units with r = 1.5 units = 150 mm, i.e. 3 mm thick
+  status: wrong
+  source: S18 (300 mm wafer "Thickness µm 775±25")
+  note: the low glide along the edge shows a slab about 4x too thick
+  fix: 'b8_scenes._wafer: depth 0.00775 (0.775 mm) for the 300 mm wafer, with a small edge bevel; scale the notch and DOF
+    accordingly'
+- item: 'notch: 45-deg rotated box (scale 0.035 x 0.05) cut from the rim, about 6-7 mm wide and deep, reads as a square
+    step in the frames'
+  status: wrong
+  source: S18 ("Notch depth mm 1.0 + 0.25 – 0.00", "Notch angle 90°")
+  fix: notch cutter scale about (0.0071, 0.0071) rotated 45 deg (1 mm deep, 90-deg V); it will be tiny, so keep the camera
+    move but let focus land on it
+- item: die grid (brick texture, aligned rows) printed to the very edge
+  status: artistic
+  note: die size not specified; real wafers keep a ~3 mm edge exclusion (S18) and carry partial edge dies. No claim made
+B8_02:
+- item: 'narration / caption: light is shaped into a narrow slit, not the whole wafer at once; label 狭缝（示意）'
+  status: sourced
+  source: S3 ("the reticle moves smoothly through a narrow slit of light, exposing only a small part of the pattern at a
+    time"); S13; F57
+- item: slit formed by two dark knife blades closing over the wafer and squeezing a wide violet glow into a strip
+  status: wrong
+  source: 'S12 (ZEISS US8717541: "a part ring or arc shape of the field facets can allow well adapted illumination of a
+    correspondingly part ring-shaped or arcuate object field"); S11 (masking blades "new REMA (X and Y)" belong to the reticle
+    stage / illuminator side)'
+  note: the slit shape is made in the illuminator (field facets imaged onto the reticle); the blades frame the field near
+    the reticle. Nothing pinches the light above the wafer, and light reaches the wafer only as the converging cone from
+    the projection optics
+  fix: 'b8_scenes.slit: remove the two blades above the wafer; let the beam arrive from above already slit-shaped (narrow
+    converging fan), or move the ''blades'' to a labelled reticle-level plane with caption 照明系统把光整形成弧形狭缝（示意）'
+- item: slit drawn as a straight rectangle
+  status: simplified
+  source: 'S12 (US7126137: "the curved slit is typically represented by a segment of a ring field"); HNA [Z21] s.11 (High-NA
+    slit at wafer "26 × 1.6 mm²", drawn as an arc)'
+  note: EUV scanners expose through an arc-shaped slit; a straight bar is acceptable only with 示意
+  fix: bend SlitLine/SlitBeam into an arc segment (chord = field width), or extend the label to 狭缝（实为弧形 · 示意）
+- item: slit length on the wafer 1.0 unit = 100 mm (wafer radius 1.5 units = 150 mm), width 0.12 units = 12 mm
+  status: wrong
+  source: HNA [Z21] s.11 (26 x 1.6 mm² at the wafer); HNA [C11] s.20 (NXE "Slit width 26mm")
+  fix: SlitLine y-length 0.26, x-width 0.016-0.03 (exaggerate the narrow side if needed for legibility, but not the 26 mm
+    length); beam keyframe 100 scale (0.008-0.015, 0.13, 2.0)
+- item: glitch
+  status: artistic
+  glitch: frames 1-60 show a hard-edged translucent violet cube that reads as a glass box, not light; the dark blades are
+    invisible on black; the final slit runs vertically in frame although the storyboard asks for 光缝最终水平横贯画面; the wafer edge
+    reads as a bent eyebrow line with the notch at its centre. Re-frame CamB8_02 or rotate the slit 90 deg
+B8_03:
+- item: reticle stage above and wafer stage below move in opposite directions under a fixed slit; caption 步进扫描 · 示意
+  status: sourced
+  source: S3 ("the wafer moves smoothly in the opposite direction"); S13; HNA [A21] s.34 (wafer moves antiparallel to the
+    reticle)
+- item: reticle-stage travel = 4 x wafer-stage travel (ret = -4 * x0)
+  status: wrong
+  source: S2 ("demagnify it by 4x in one direction and 8x in the other"); HNA [Z24] s.9 ("8× reduction in scan direction");
+    HNA [A22] s.27 ("Y=8x mag")
+  note: the machine in the film is the EXE:5000; along the scan direction the reticle must move 8x as far and 8x as fast
+    as the wafer. 4x is the NXE case. B7 has just told the viewer that 8x is in the scan direction
+  fix: 'b8_scenes.scan: ret keys -8 * x0 (and -8 * (x0 + 0.5*dir)), or label the whole clay scene NXE (4x) in the caption'
+- item: reticle 0.6 units long rides under a stage that travels 2.0 units per field past a fixed slit
+  status: wrong
+  source: 'HNA [A22] s.27 (half-field mask 104 x 132 mm for a 26 x 16.5 mm field: reticle image field = magnification x
+    wafer field)'
+  note: as drawn, the slit runs off the reticle after a fraction of the stroke, so the pattern being 'scanned' does not
+    exist
+  fix: make the patterned reticle area as long in x as the reticle travel (8 x field length for EXE, 4x for NXE); e.g. field
+    0.25 -> reticle pattern 2.0 units; keep the reticle under the stage, pattern down
+- item: exposure fields painted as 0.5 x 0.5 squares on a 2.6-unit wafer (about 58 mm on 300 mm)
+  status: simplified
+  source: HNA [A22] s.12 (High-NA half field 26 mm x 16.5 mm)
+  fix: strip size 0.225 (cross-scan, y) x 0.143 (scan, x) units, or add 非比例 to the caption
+- item: after each field the wafer stage steps and the next field is scanned in the opposite direction
+  status: unsourced
+  note: stepping is sourced (F57, S9 'step & scan speeds'); the alternating (meander) scan direction is standard practice
+    but no primary text was found
+  fix: cite a scanner paper/patent for meander scanning in research/visual/B8B9_sources.md, or scan every field in the same
+    direction
+- item: slit narrow in x (scan) and long in y (cross-scan), fixed in space
+  status: sourced
+  source: S12 / HNA [Z21] s.11 (26 mm across, 1.6 mm along scan)
+- item: stages as clay slabs; wafer stage on two floor rails
+  status: simplified
+  source: S1 ("completely magnetically levitated stage"); S3 ("magnetically levitating wafer tables")
+  note: clay abstraction is fine; contact rails suggest a guided carriage
+  fix: 'optional: leave a visible air gap under both stages and drop the rails'
+- item: latent-image strips painted in pale violet
+  status: artistic
+B8_04:
+- item: narration 缩小 4 倍，就意味着掩模要跑得比晶圆快 4 倍; overlay 掩模速度 = 4 × 晶圆速度
+  status: wrong
+  source: S2; HNA [Z24] s.9; HNA [A22] s.27
+  note: true for NXE (4x isotropic, F11/F57) but the segment depicts and names High-NA, whose scan direction is 8x; B7 already
+    says so, and B8_05 continues with 'High-NA'
+  fix: narration e.g. 在扫描方向缩小 8 倍，掩模就要跑得比晶圆快 8 倍。(re-voice; script_zh.md and parts/p3_B7-D.yaml) or 在 NXE 上缩小 4 倍…; overlay
+    掩模速度 = 8 × 晶圆速度（High-NA 扫描方向）; add the EXE value to F57
+- item: 'speed arrows 2.4 : 0.6 (4:1), stage moves -4.0 vs 1.0, motion trails 4:1'
+  status: wrong
+  source: as above
+  fix: 'b8_scenes.scan B8_04 part: RetArrow 2.4 with WafArrow 0.3, ret key -8.0 vs ws 1.0 (or shorten both moves so the
+    reticle stage stays in frame)'
+- item: glitch
+  status: artistic
+  glitch: the orange arrow floats above and detached from the reticle stage (parented 0.45 above its centre) and reads as
+    a separate bar; the slit appears to lean as the camera trucks
+B8_05:
+- item: overlay 晶圆台 8 g · 掩模台 32 g（High-NA）; gauges reach 8 g and 32 g
+  status: sourced
+  source: S2 ("The wafer stage in an EXE system accelerates at 8g ... the EXE's reticle stage ... – 32g")
+- item: grey reference tick NXE 掩模台 >15 g
+  status: sourced
+  source: S1 ("accelerates at more than 15 g"); F15b
+- item: gauge faces 0-40 g, needles, blurred dark stage plate
+  status: artistic
+  glitch: preview (10-17) shows "F15b" at bottom centre; stale (mograph.py now strips IDs)
+B8_06:
+- item: needle slams to 32 g, ring turns orange, big 32 g
+  status: sourced
+  source: S2
+  glitch: the full-screen "32 g" is drawn over the gauge's own "32 g" readout, giving a doubled, offset 32 g in frames ~27-36;
+    hide the gauge readout while the big number is up
+B8_07:
+- item: narration 掩模台的电机推力超过 1 万牛——ASML 形容，就像每次加速，都有一辆车砸在台面上; overlay 掩模台推力 > 10,000 N
+  status: wrong
+  source: S1 ("The motors that propel the reticle stage generate more than 10,000 newton (N) of thrust force, which would
+    be like dropping a car onto the reticle stage every time it accelerates.")
+  note: the wording is ASML's, but the paragraph describes the stage that "accelerates at more than 15 g", the NXE value
+    (F15b). Spoken straight after 'High-NA ... 32 g' it is heard as the EXE stage's force. EXE thrust is not public
+  fix: overlay 掩模台推力 > 10,000 N（NXE 一代 · >15 g 时）; narration ideally 上一代 NXE 的掩模台，电机推力就超过 1 万牛——…; add 'NXE reticle stage
+    (>15 g)' to F41
+- item: reticle lying pattern-up on top of a chuck on the stage, open to the room above
+  status: wrong
+  source: S11 (reticle stage "E-clamp from Alpha"); HNA [C11] s.5 ("reticle (top, facing down)"); S9 p.16 ("Reticle Clamp");
+    build_machine.py already hangs the reticle under the stage
+  note: an EUV reticle is held on its backside by an electrostatic clamp under the stage, pattern side facing down, and
+    lit from below
+  fix: 'b8_scenes.car: put the clamp under the stage block and hang the mask below it, pattern down; low camera sees the
+    pattern face; car lands on the stage top'
+- item: stage on two polished steel rails
+  status: simplified
+  source: S1 ("The completely magnetically levitated stage")
+  fix: make the rails dark magnet tracks with a visible gap under the stage (as BM RetMagnet) rather than contact rails
+- item: translucent ghost car drops, squashes and shatters into light; stage unmoved
+  status: artistic
+  source: S1 (the car metaphor is ASML's)
+- item: stage size and shape, dark chamber
+  status: artistic
+  glitch: for the first ~104 frames only a thin dark sliver of stage fills the bottom 15 % of an otherwise black frame;
+    the mask is a grey frame with a black centre (no pattern)
+B8_08:
+- item: orange stress ring through the stage frame that stops at the mask edge; mask 'does not move'
+  status: artistic
+  source: S1 ("without distorting or allowing it to move by more than a few picometers")
+  note: physically the clamped reticle accelerates with the stage at full g; the requirement is no slip or distortion relative
+    to the stage. The ring stopping at the mask edge is a metaphor
+  fix: keep, with 示意 in the edit
+- item: mask pattern-up on top of the stage
+  status: wrong
+  source: as B8_07
+  fix: as B8_07
+- item: glitch
+  status: artistic
+  glitch: the storyboard's 掩模上的电路图形 is absent; the macro shows a plain black square in a grey border; the out-of-focus car
+    wireframe covers the left third
+B8_09:
+- item: overlay 掩模位移/变形 ≤ 几 pm; narration 移动或变形都不能超过几皮米
+  status: sourced
+  source: S1
+- item: thrust trace drawn as a continuous noisy sine (orange)
+  status: wrong
+  source: S1 ("accelerates at more than 15 g ... up to a constant velocity of more than three meters per second"); S3 ("the
+    reticle moves smoothly through a narrow slit"); S13 ("scanned ... at the same constant speeds")
+  note: 'a scan is accelerate, constant-velocity exposure, decelerate: thrust comes in alternating-sign pulses and is about
+    zero while the slit exposes'
+  fix: 'mograph/b8.py pm_still: piecewise trapezoid +F (accelerate), ~0 (shaded 曝光 · 匀速), -F (decelerate), sign alternating
+    per field; keep the flat displacement line'
+- item: displacement trace flat within ±5 pm, scan line over a blurred mask
+  status: artistic
+  note: labelled 示意曲线
+  glitch: the label 推力（N） sits under the start of the orange curve; preview shows "F41" (stale)
+B8_10:
+- item: overlay 同步：纳米 · 纳秒; narration 两张台子反向冲刺
+  status: sourced
+  source: S3 ("synchronize the motion of wafer and reticle to the nanometer and nanosecond as they accelerate at 5 g and
+    15 g in opposite directions")
+  note: F51 lists the Wilton page, which does not contain this sentence
+  fix: 'research/facts.yaml F51: source -> https://www.asml.com/en/technology/lithography-principles/mechanics-and-mechatronics'
+- item: reticle stage amplitude 0.8, wafer stage 0.2 (4:1), opposite
+  status: wrong
+  source: S2; HNA [Z24] s.9 (8x in scan direction)
+  fix: 'b8_scenes.sync: rs/rt amp 0.8, ws/wf amp -0.1 (8:1); the BM scan axis is x (plane of incidence), which is right'
+- item: xray High-NA machine with violet light path
+  status: sourced
+  source: audit_A0.yaml A0_05; build_machine.py header (van Schoot 2021/2022, ZEISS 2024)
+- item: cyan clock-tick rings that flash when aligned
+  status: artistic
+  glitch: preview (10-17) predates the build_machine High-NA relayout (10-19/10-21) and shows a tall zig-zag of about eight
+    reflections between reticle and wafer, the 'wrong mirror count' look; re-render and check each turn is a mirror and
+    the PO is the 6-mirror design. The tick rings float in mid-air, not on the stages
+B8_11:
+- item: narration / overlay 位置传感器精度 ≈ 60 pm，比一个硅原子还小
+  status: simplified
+  source: S3 ("sensors that are accurate to around 60 picometers – that's less than the size of a silicon atom")
+  note: ASML states it in the NXT (2008, DUV) paragraph and in a generic intro; it is not an EXE spec. The line does not
+    say EXE, so it can stay as an ASML-generic figure
+  fix: keep wording generic (ASML 的位置传感器); add 'NXT context' to F42 notes
+- item: ruler icon 相邻硅原子 ≈ 235 pm
+  status: sourced
+  source: F60; S17 (a·√3/4 = 235.2 pm)
+- item: 'TEM-style lattice: horizontal atom pairs 0.32 s apart, horizontal repeat s, rows 0.82 s apart, where s = 235 pm
+    (tem_lattice)'
+  status: wrong
+  source: 'S17 (Si along [110]: dumbbells along [001] 135.8 pm apart; centred cell 384.0 x 543.1 pm, i.e. repeat 384.0 pm
+    along a row, rows 271.6 pm apart shifted by 192.0 pm)'
+  note: as drawn the nearest atoms are 75 pm apart, which contradicts the 235 pm ruler on the same frame, and the dumbbells
+    point the wrong way; every lattice distance is off by about 1.6x
+  fix: 'mograph/b8.py tem_lattice: work in px per pm; dumbbell = two blobs at ±67.9 pm vertically; dumbbells every 384 pm
+    horizontally; rows every 271.6 pm, alternate rows shifted 192 pm; blob radius ~50-60 pm; then draw the 60 pm bar on
+    that scale'
+- item: cyan grating that dissolves into the lattice (sensor scale)
+  status: simplified
+  source: S9 p.17 (NXE:3800E wafer stages "running under interferometer ... control")
+  note: the EXE position-sensor type is not public; an encoder grating is plausible for ASML stages but not sourced for
+    EUV
+  fix: keep as abstract texture and say 示意 in the corner, or drop the grating and start on a generic sensor head
+- item: glitch
+  status: artistic
+  glitch: preview shows "TEM 风格示意 · F42 · F60" (stale IDs); corner texts at 18-20 px are unreadable at 1080p
+B8_12:
+- item: narration / overlay 初始定位 ≈ 80 μm（约一根头发丝）; hair width = error circle = 80 μm scale bar (230 px each)
+  status: sourced
+  source: S6 ("initially positioned with a precision of around 80 micrometers – about the diameter of an average human hair")
+- item: bright plus-sign alignment mark (arms about 12 um wide, 210 um long) under the hair
+  status: wrong
+  source: S6 ("Alignment marks are specially designed gratings that are created on the wafer alongside each layer's pattern")
+  fix: 'mograph/b8.py hair_sem: replace the cross with a grating mark (two short line-gratings, x and y) in a scribe-lane
+    strip'
+- item: SEM-style hair with cuticle scales
+  status: artistic
+  glitch: around frame 37 the shrinking lattice aliases into a full-screen fine-line moiré; cross-fade earlier or low-pass
+    the lattice
+B8_13:
+- item: narration 随后，机器读取超过 1000 个套刻标记，把它修正到亚纳米; overlay 读取 1000+ 套刻标记 → 亚纳米; counter 已读取套刻标记 1,040
+  status: wrong
+  source: S6 ("For wafer positioning, there are tens of alignment markers. For overlay, there could be over 1,000")
+  note: the scanner positions the wafer with tens of alignment marks; 'over 1,000' refers to overlay metrology (measuring
+    layers on top of each other), a different step. F44 itself conflates the two
+  fix: 'narration 随后，对准传感器读取几十个对准标记，把位置修正到亚纳米。(re-voice); overlay 读取几十个对准标记 → 亚纳米; counter 已读取对准标记 n (to ~40); research/facts.yaml
+    F44 claim and values (overlay_marks belongs to metrology, add alignment_marks: tens)'
+- item: 1040 crosses scattered uniformly at random over the wafer
+  status: wrong
+  source: S6 (marks are gratings made "alongside each layer's pattern")
+  fix: place ~20-40 grating icons in scribe lanes at field corners on the real 26 x 33 mm (or 26 x 16.5 mm) grid; read them
+    in a sampling pattern
+- item: error circle shrinking from hair size to a point
+  status: artistic
+  glitch: preview shows "F44 · 示意" (stale)
+B8_14:
+- item: overlay 定位 < 0.25 nm · 每秒校正 20,000 次; narration 每次曝光…四分之一纳米以内，每秒校正 2 万次
+  status: sourced
+  source: S4 ("positions the wafer to within a quarter of a nanometer for each exposure, checking and adjusting 20,000 times
+    per second")
+- item: row of 22 dark actuator boxes under a moving steel plate, each with two cyan indicator lamps flickering
+  status: unsourced
+  source: contradicted in spirit by S3 ("magnetically levitating wafer tables") and S11 ("Dual planar stage + balance mass")
+  note: invented hardware; lithography stages have no indicator lamps and the wafer table floats on a planar maglev stage.
+    A hostile viewer will read this as a server rack
+  fix: 'b8_scenes.actuator: show a wafer table hovering over a planar-motor magnet plate with a visible gap (moving, motion
+    blur), no lamps; carry the 20,000/s idea with the overlay counter only'
+- item: glitch
+  status: artistic
+  glitch: preview is a dark row of boxes with bright window-like rectangles; nothing identifies a wafer stage
+B8_15:
+- item: narration 英特尔的验收测试做到了 0.7 纳米; overlay 层间套刻误差 0.7 nm（英特尔验收测试）
+  status: simplified
+  source: 'S10 (Intel: "acceptance testing" on the TWINSCAN EXE:5200B ... "improving overlay (accurate alignment of different
+    lithography layers) to 0.7 nanometers")'
+  note: grade B (customer first-party), so it may stay; but it is the second-generation EXE:5200B, not the EXE:5000 the
+    film shows, and F43b is still grade C (Bits&Chips) with narration 据报道
+  fix: 'overlay 层间套刻 0.7 nm（EXE:5200B · 英特尔验收测试）; research/facts.yaml F43b: grade B, source = Intel Foundry blog (S10),
+    drop 据报道 from its narration field'
+- item: a vertical cyan bar at the seam between the top two layers; the top layer lands with zero lateral offset
+  status: wrong
+  source: S6 ("line up one pattern with the previous one"); S10 ("accurate alignment of different lithography layers")
+  note: overlay error is an in-plane (lateral) shift, so a vertical bar reads as a gap between layers
+  fix: 'b8_scenes.layers: land the last layer with a small x offset and mark it with a short horizontal bar between the
+    two layers'' edges; label 放大示意'
+- item: eight identical clay slabs with line grooves dropping and stacking
+  status: artistic
+  note: real layers are deposited and patterned in place on the wafer; the stack-of-plates image is a metaphor
+B8_16:
+- item: two wafer stages, one exposing under the slit while the other is measured, then they swap; overlay 双工件台：曝光 | 测量
+    · 示意
+  status: sourced
+  source: S7 ("When the wafer on table one is being exposed, another wafer is loaded on table two and then aligned and mapped.
+    The tables then swap position"); S3; S8 (EXE:5000 "dual-stage")
+- item: measurement drawn as a 6 x 6 cyan dot grid over the wafer
+  status: simplified
+  source: S11 ("Alignment/Level sensor")
+  note: alignment (marks) plus level sensing (height map); the dot grid is a stand-in
+- item: 'swap path: the stages arc around each other through the centre'
+  status: artistic
+B8_17:
+- item: narration 一片晶圆约 96 个曝光场，一小时 220 片——每小时两万多次曝光; overlays 96 个曝光场/片 · 220 片/小时, ≈ 21,120 次曝光/小时（推算）
+  status: wrong
+  source: 'S9 p.16 ("NXE:3800E throughput ≥220 wph" ... "(96 full fields, 30mJ/cm2)"); S2 (EXE: half fields, "twice as many
+    exposures", "more than 185 wafers per hour"); HNA [A22] s.14 ("188 half fields per wafer")'
+  note: the numbers are right for the NXE:3800E but the segment is about High-NA and nothing on screen says NXE; for the
+    EXE:5000 it would be 188 fields x >185 wph = about 34,800 exposures per hour (derived), and B7 has just said 188
+  fix: 'either tag NXE: narration 以 NXE:3800E 为例，一片晶圆约 96 个曝光场…; overlays …（NXE:3800E） — or switch to EXE: 188 个半场/片 · 185
+    片/小时 · ≈ 3.5 万次曝光/小时（推算）; update F45 notes'
+- item: fields drawn about 21 x 28 mm (60 x 80 px against R = 430 px = 150 mm), all 96 wholly inside the wafer
+  status: wrong
+  source: S9 (96 full fields of 26 x 33 mm, HNA [C11] s.20); S18 (300 mm)
+  note: 96 x 26 x 33 mm = 82,400 mm², more than the 70,700 mm² wafer, so the spec counts edge fields overhanging the edge.
+    With true 26 x 33 mm fields, the grid offset half a field in y, and fields touching the 294 mm usable disc counted,
+    there are exactly 96 (computed). The drawing shrinks the fields about 19 % to squeeze 96 inside
+  fix: 'mograph/b6.py _fields: fw = 26/300 * 2R, fh = 33/300 * 2R, y offset fh/2, keep every field that intersects radius
+    0.98R, clip drawing to the wafer circle (also fixes B8_13 and B8_18 backgrounds)'
+- item: stack of 220 wafer icons, counter
+  status: artistic
+  glitch: preview shows "（推算 · F45）" (stale)
+B8_18:
+- item: slit drawn as a vertical line spanning each field's 33 mm side
+  status: wrong
+  source: HNA [C11] s.20 ("Slit width 26mm"); HNA [Z21] s.11 (26 x 1.6 mm² slit); S3
+  note: the slit spans the 26 mm cross-scan width and sweeps along the 33 mm (scan) length; here it is turned 90 deg and
+    sits at the field edge
+  fix: 'mograph/b8.py metronome: draw the slit as a horizontal line across the field width (fw) and move it down the field
+    (fh) while the field lights'
+- item: one wafer every 0.8 s
+  status: artistic
+  note: time-lapse; real 3600/220 = 16.4 s per wafer (NXE:3800E)
+  fix: add 加速示意 to the overlay '96'
+- item: field grid (b6._fields at R 430 px)
+  status: wrong
+  source: as B8_17
+  fix: as B8_17
+B8_19:
+- item: narration 这台机器每周光是传感器就产生最多 31 TB 数据，是哈勃望远镜一年数据量的 3 倍; overlays; bar 3x the Hubble pile
+  status: simplified
+  source: S5 ("A single lithography system can generate up 31 terabytes of data per week from its sensors alone – that's
+    three times more than the Hubble Space Telescope gathers in a year.")
+  note: ASML does not name a model; 这台机器 implies the EXE
+  fix: narration/overlay 一台光刻机… (or leave, and note in F46 that the figure is model-generic)
+- item: flat Hubble icon (body plus two blue panels), falling 0/1 digits
+  status: artistic
+  glitch: preview shows "F46" (stale)
+B8_20:
+- item: week after week of 31 TB bars, Hubble shrinking to a dot
+  status: artistic
+  source: S5

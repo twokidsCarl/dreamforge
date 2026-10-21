@@ -1,0 +1,273 @@
+# Visual fact audit, segment B4 (multilayer coating, mirror precision, light loss). One row per engineering /
+# structural / optical / numeric detail the PICTURE, the on-screen text or the narration shows. Checked 2026-10-21
+# against storyboard.timed.yaml, blender/shots/b4_scenes.py (+ b2_scenes.multilayer, build_machine), mograph/b4.py,
+# and the preview frames in renders/shots/B4_* (3x3 contact sheets in renders/review/refs/B4B5/sheets/).
+# status: sourced | wrong | unsourced | simplified | artistic   (see docs/WORKFLOW.md 2.3)
+# Quotes for every S-number: research/visual/B4B5_sources.md. HNO = high_na_optics.md, ES = euv_source.md.
+# Sources:
+#   S1  ZEISS SMT "EUV lithography" page (A) https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
+#   S2  ZEISS SMT "High-NA-EUV lithography" (A) https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/high-na-euv-lithography.html
+#   S3  ZEISS SMT magazine "High-NA-EUV lithography" (A) https://www.zeiss.com/semiconductor-manufacturing-technology/smt-magazine/high-na-euv-lithography.html
+#   S4  ASML "Lenses & mirrors" (A) https://www.asml.com/en/technology/lithography-principles/lenses-and-mirrors
+#   S5  ZEISS Bihr et al., EUVL Workshop 2022 (A) https://euvlitho.com/2022/P53.pdf
+#   S6  ZEISS/ASML Wischmeier et al., EUVL Workshop 2021 (A) https://euvlitho.com/2021/P52.pdf
+#   S7  ZEISS Kaumanns et al., EUVL Workshop 2024 (A) https://euvlitho.com/2024/P22.pdf
+#   S8  ZEISS/ASML Liddle et al., EUVL Workshop 2017 (A) https://www.euvlitho.com/2017/P23.pdf
+#   S9  ASML van Schoot, EUVL Workshop 2022 (A) https://euvlitho.com/2022/P3.pdf
+#   S10 ZEISS Kaiser, VLSI-TSA 2019 (A) https://www.euvlitho.com/2019/P24.pdf
+#   S11 Panici & Ruzic, SPIE book ch. 18 (B) https://cpmi.illinois.edu/files/2023/10/Ch18-1.pdf
+#   S12 CXRO mirror reflectivity (B) https://henke.lbl.gov/cgi-bin/mirror.pl
+#   S13 Liu et al., Micromachines 14 (2023) 526 (B) https://pmc.ncbi.nlm.nih.gov/articles/PMC10055843/
+#   S14 ASML van de Kerkhof et al., EUVL Workshop 2019 slide 2 (A) https://www.euvlitho.com/2019/P23.pdf
+#   S15 NASA NSSDC Moon fact sheet (A) https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html
+# Stale previews: every B4 3D preview is dated 10-17 and every 2D preview 10-16; b4_scenes.py (10-16 23:24) has not
+# changed since, but mograph.screen_text (strips fact IDs), b2_scenes.multilayer (capping layer, 10-21) and
+# figures.person (10-21) have. Fact IDs seen in the 2D previews are therefore stale, not code bugs.
+# Generation mixing to watch: B4_02 layer count (0.33 NA page), B4_06 Germany (both generations), B4_10 golf ball
+# (0.33 NA slide) and B4_17 (NXE-era textbook) are not High-NA statements; see each row.
+
+B4_01:
+  - item: a plain silvered mirror swallows the EUV beam; narration 普通镜子，几乎反射不了极紫外光; overlay 普通镜子 · 几乎不反射（示意）
+    status: sourced
+    source: "S12 CXRO at 13.5 nm: Ag 0.51 % at normal incidence, 0.56 % at the 27 deg incidence coded here; Al 0.022 %; glass (SiO2) 0.015 %. A household mirror is back-silvered, so the EUV is absorbed in the front glass within ~0.1 um (A3 S5) and never reaches the silver."
+  - item: angle of incidence (code - beam from (12,6,0) to the mirror centre, 27 deg from the normal; storyboard camera note 镜面与入射光成小角度)
+    status: sourced
+    source: S12 (Ru reflects 94 % at 5 deg grazing - metals DO reflect EUV at grazing incidence)
+    note: the code is near-normal and therefore right; the storyboard note, read as grazing incidence, would contradict the narration
+    fix: storyboard p2_B2-B6.yaml B4_01 camera.notes → 光束接近垂直入射（与镜面法线约 25°），反射方向留空
+  - item: warm glow ring around the mirror rim (Heat torus, major radius 2.02, at the frame edge)
+    status: wrong
+    source: A3 S5 (SiO2 attenuation length 0.0997 um at 13.5 nm) - the absorbed energy is deposited where the beam lands, in the top ~0.1 um
+    note: nothing heats the rim first; the storyboard text 镜框边缘只微微泛起一圈暗橙色的热 is the same mistake
+    fix: b4_scenes.silver() - replace the Heat torus with a small emissive disc (radius ~0.15) on the mirror face at the impact point (0.08, 0, 0), fading in from frame 24; edit the storyboard visual to 光斑处微微泛起暗橙色的热
+  - item: beam colour
+    status: artistic
+    glitch: emission strength 10 with bloom renders the beam white with a lavender halo, not the film's EUV violet (preview frames 13-100); lower to ~3-4 or saturate VIOLET
+  - glitch: the MirrorEdge torus shows gaps (top and lower left, frames 1-25) - it intersects the mirror body; offset it in front of the face or make it a curve
+
+B4_02:
+  - item: zoom into the mirror face, grey cross-section with dark Mo and light Si layers under a cap (b2_scenes.multilayer)
+    status: sourced
+    source: S1 (Mo and Si layers vapor-deposited on the glass surface); S10 slide 23 (Mo/Si Bragg sketch on a substrate and a dark/light banded cross-section micrograph); S14 and S11 p.750 (Ru cap on top)
+    note: dark Mo / light Si is the TEM bright-field look (S10 s.23 inset); in an SEM back-scatter image Mo would be the brighter layer, so never caption the picture "SEM"
+  - item: narration 最多约 100 层 and overlay 钼 / 硅 交替 · 最多约 100 层 · 每层几 nm
+    status: wrong
+    source: S2 (High-NA mirrors "consisting of more than a hundred layers"); S10 s.23 (Starlith 3400 "> 50 Bi Layers"); S1 says "up to 100 layers" but is the older 0.33 NA page
+    note: 最多 (at most) is contradicted by ZEISS's own High-NA and Starlith 3400 statements; the film's machine is High-NA
+    fix: overlay → 钼 / 硅 交替 · 上百层 · 每层几 nm; narration in script_zh.md and p2_B2-B6.yaml → 蔡司的办法，是在镜面上交替镀钼和硅，多达上百层，每层只有几纳米厚。 then tts / vo_align / retime / asr_check; add S2 and S10 s.23 to F8
+  - item: Mo and Si layers equally thick (t = 0.11 each)
+    status: wrong
+    source: S13 Table 3 (Mo 2.14 nm, Si 3.72 nm, interlayers 0.80 / 0.41 nm, period ~7.07 nm); S10 s.23 sketch (Mo thinner than Si); A3 S6 (CXRO design Gamma = 0.4 - Mo 2.8 nm, Si 4.1 nm of 6.9 nm)
+    note: answers the open item in audit_B2.yaml B2_05
+    fix: b2_scenes.multilayer() - Mo layer thickness 0.8*t, Si 1.2*t (Gamma 0.4); the same change fixes B2_05 and B2_08
+  - item: 40 layers drawn (n_pairs=20); storyboard counter rolls to 约 100
+    status: simplified
+    note: the counter is a post overlay (not in b4_scenes) and is missing from the preview; it must end at 100+ to match the corrected text
+  - item: layer thickness 每层几 nm
+    status: sourced
+    source: S1 ("The layer thicknesses are only a few nanometers thin"); S13
+  - glitch: the 10-17 preview is a static crop of horizontal stripes - no zoom-through from the mirror face, no scan line, no counter, and it predates the capping layer added to b2_scenes.multilayer on 10-21; re-render
+
+B4_03:
+  - item: text 单层 ≈ 1% / 叠加后 最高约 70%; caption 每层反射的弱光波步调一致、同相叠加（示意）
+    status: sourced
+    source: S1 ("A single layer would only reflect a good one percent of the light"; "up to 70 percent"; "constructive interference ... the individual radiation waves are perfectly superimposed"); S11 p.749
+  - item: angle of incidence about 62 deg from the normal (incoming rays 28 deg above the layers)
+    status: wrong
+    source: S10 s.23 (ZEISS Bragg sketch - incident ray a few degrees from the normal); HNO §1.5 (chief-ray angle at the mask 5.4 deg); A3 S6 (a 6.9 nm Mo/Si stack reflects ~1 % already at 25 deg incidence)
+    note: an imaging Mo/Si mirror for 13.5 nm does not reflect at 62 deg; the picture teaches the wrong geometry
+    fix: mograph/b4.py bragg() - incident beam at most ~10 deg from the normal, drawn as in S10 s.23
+  - item: reflected wavelets leave at 62 deg above the layers while the incident beam arrives at 28 deg below; the summed beam is drawn at ~30 deg
+    status: wrong
+    note: breaks the law of reflection, and the wavelets do not point the same way as the beam they are supposed to add up to
+    fix: every wavelet and the summed beam parallel, mirror-symmetric to the incident beam about the normal
+  - item: incoming rays fan out from one point (x0, y0) and bend sharply at the top surface (28 deg → 62 deg below the horizontal)
+    status: wrong
+    source: S10 s.23 (incident ray drawn straight through the stack, parallel reflected rays); CXRO index of Mo and Si at 13.5 nm differs from 1 by only a few per cent (A3 S5/S6 database)
+    fix: a plane wave - parallel incident rays (or wavefront lines) straight through the stack; draw crests on the wavelets so that 步调一致 / 同相 is visible
+  - item: 14 interfaces
+    status: simplified
+    note: real stacks have >50 bilayers (S10 s.23, S11 p.749); fine for a diagram
+  - glitch: the summed beam starts at y = 300, above the top interface (y = 330), so it floats free of the stack and runs off the top edge; stale "（示意，F8）" in the 10-16 preview
+
+B4_04:
+  - item: rainbow thin-film colours on the mirror (materials.multilayer_mirror; storyboard 镜面泛着与收集镜同样的钼硅虹彩)
+    status: wrong
+    source: S10 s.18 (finished EUV mirror - plain silvery); S6 s.19 (High-NA mirror photo - plain mirror reflecting the room); S9 s.39 ("Coated mirror" - plain); A3 S6 (7 nm period gives no visible colour)
+    note: same error already fixed in A3_04 and listed in B1_15; clearly visible in the preview (violet/green bands, frames 1-96)
+    fix: materials.multilayer_mirror() - drop thin_film and the tint bands (metallic 1, roughness ~0.03, faint neutral-warm tint), which fixes every user (b4_scenes mirror/hall, b5_scenes module/facets, build_machine MachMirror/WaferFilm); edit the storyboard B4_04 and B5_04 visual text
+  - item: mirror 3.2 units across (cap radius 1.6) on 2.6-unit legs in the metre-scale fab hall
+    status: wrong
+    source: S4 (EXE "largest mirrors are 1 meter across"); S6 s.19 (scale factor ~1 million to Germany's 850 km → ~0.85 m, derived)
+    fix: b4_scenes._cap(radius=0.5, curv_r≈3) and a stand about 0.9 m high
+  - item: thin spherical cap (thickness 0.25 for 3.2 width); storyboard calls it 自由曲面镜
+    status: simplified
+    source: HNO §1.3 (A21 s.35 "Extreme aspheres"); S2 ("larger mirror surfaces with even more extreme curvatures"); S3 ("weigh several hundred kilograms"); S6 s.19 photo (thick disc)
+    note: '"freeform" appears in no source; the substrate is thick'
+    fix: storyboard wording 自由曲面镜 → 非球面镜; substrate thickness at least 1/6 of the diameter
+  - item: mirror balanced on two thin chrome rods
+    status: simplified
+    source: S10 s.18, S9 s.39 (mirrors shown in mounts / handling fixtures in clean rooms)
+    fix: a ring-shaped handling fixture or mount around the rim
+  - glitch: a long specular streak of a leg reads as a bent handle across the mirror face (frames 1-96)
+
+B4_05:
+  - item: cyan scan band over the mirror; overlay 面形测量（示意）
+    status: simplified
+    source: S6 s.16 and s.18 ("Surface Figure Metrology", "Micro Interferometer"); S10 s.19 ("Interferometric Surface Metrology", iterative loops); S2 (High-NA mirrors "measured in vacuum chambers")
+    note: real figure metrology is interferometric and, for High-NA, in vacuum; 示意 covers the band
+  - item: interference fringes, false-colour height map, profile UI promised by the storyboard
+    status: artistic
+    glitch: not built - b4_scenes.mirror(scan=True) adds only an emissive plane, which in the preview is a cyan bar crossing behind the mirror; the registry renders B4_05 photoreal / cycles although the storyboard says hud / eevee; rainbow material as B4_04
+
+B4_06:
+  - item: narration and overlay 镜子放大到德国 → 最大偏差 0.1 mm
+    status: sourced
+    source: S1 (Zugspitze "a whole 0.1 millimeters high"); S3 (High-NA - "the deviation would be only a tenth of a millimeter"); S2 ("measure accurately to 100 micrometers"); S5 s.5; S10 s.22 (50 pm ↔ 100 um)
+    note: 0.1 mm is a peak value; ZEISS 2021 (S6 s.19) gives ~20 um for the High-NA RMS of 20 pm - keep the two apart (F9/F29)
+  - item: Germany outline (58-point polygon, data/germany.json) with an east-west profile line
+    status: simplified
+    note: coarse but recognisable; Germany's north-south extent 850 km (S6 s.19)
+  - item: magnification counter 放大 ×1 → ×1,000 that makes the 0.1 mm ripple visible on the profile
+    status: wrong
+    note: the 720-px profile spans ~640 km (1 px ≈ 0.9 km); a 0.1 mm ripple drawn ~10 px tall is a vertical exaggeration of ~10^8, not 10^3 - the number is off by five orders of magnitude
+    fix: mograph/b4.py germany() - label the final state 纵向放大约 1 亿倍 (compute from the drawn amplitude) or drop the number
+  - glitch: stale "（ZEISS · F9）" in the 10-16 preview
+
+B4_07:
+  - item: one continuous zoom, polished surface → um roughness → Mo/Si layers → atomic lattice; overlay 比例尺 mm → μm → nm → pm
+    status: wrong
+    note: not built as claimed - b4_scenes.atoms() has only the lattice and a fading plane; CamB4_07 travels from 40 units to ~1 unit above the atoms (at 100 pm per unit, ~4 nm down to ~0.1 nm); the mm and um stages and the multilayer section are missing, so the overlay's scale would be false
+    fix: build the chain (mirror_blank → roughness → multilayer_section → lattice, one rig) or change the overlay to 比例尺 nm → pm
+  - item: top surface as a perfect hexagonal close-packed crystal, atom spacing 235 pm
+    status: wrong
+    source: S14 and S11 p.750 (scanner mirrors are Ru-capped); S13 Table 4 (Mo forms ~2 nm crystallites)
+    note: there is no extended single-crystal sheet on an EUV mirror; a perfect lattice tells the viewer the mirror is a crystal
+    fix: jitter the atom positions (amorphous look, keep the mean spacing) and add 示意 · 原子放大
+  - glitch: early frames show the lattice as a finite square floating in black, edges and corners in view (frames 1-54); atoms render as hollow translucent shells in the sem look
+
+B4_08:
+  - item: narration 蔡司要求镜面误差控制在约 20 皮米——大约十分之一个原子; overlay High-NA 镜面误差 ≈ 20 pm ≈ 1/10 个原子
+    status: simplified
+    source: S6 s.19 ("High-NA mirror ... RMS ~ 20 pm", "Atomic level figuring required"); S7 s.8 ("< 1 Å mirror surface figure control"); S4 ("smooth down to tens of picometers"); F60 (Si-Si 235 pm, 20/235 = 0.085)
+    note: the number is ZEISS's; it is an RMS value, which the overlay drops
+    fix: overlay → High-NA 镜面误差 RMS ≈ 20 pm ≈ 1/10 个原子间距
+  - item: the error drawn as one Gaussian bump 20 pm high and ~0.6 nm wide in the lattice
+    status: simplified
+    source: S6 s.18 (figure errors span "6 Decades" of spatial frequency); S6 s.19 (scaled to the whole mirror); S7 s.8 (<1 Å figure)
+    note: figure error is a shape deviation over mm to ~1 m, and with 20 pm RMS the peak is several times larger; needs 示意 · 横向不按比例 on screen
+  - item: cyan silicon-atom ruler (sphere 235 pm) and a 1/10 bar; overlay 相邻硅原子间距 ≈ 235 pm
+    status: sourced
+    source: F60 (NIST lattice constant 543.1 pm, a·√3/4 = 235 pm)
+    glitch: the "1/10" bar is a flat 60 x 60 x 23.5 pm tile floating beside the sphere at mid-height; it does not stand on the bump and reads as a brick, and the 20 pm bump is invisible in every frame - draw a vertical tick from the surface at the bump with a dimension line
+
+B4_09:
+  - item: overlay and narration 倾角误差 < 0.1 nrad
+    status: sourced
+    source: S7 s.8 ("< 0.1 nrad mirror tilt control", High-NA projection optics)
+  - item: angle mark ∠ placed between the mirror normal and the reflected ray
+    status: wrong
+    note: that marks the angle of reflection (~27 deg), not a tilt error. A tilt error rotates the mirror and its normal by a tiny angle and swings the reflected ray by twice that angle
+    fix: mograph/b4.py tilt() - add a ghost mirror and normal rotated by an exaggerated small angle (label 夸大示意) and a ghost reflected ray deflected by 2x; put the dimension arc between the two normals
+  - glitch: the mirror line leans 2.6 deg (from (mx-10, my-220) to (mx+10, my+220)) while the normal is exactly horizontal, so the drawn normal is not perpendicular to the mirror; stale "（ZEISS · F30）" in the preview
+
+B4_10:
+  - item: narration 相当于从地球射一束激光到月球，能落在一颗高尔夫球上; overlay < 0.1 nrad ≈ 从地球打中月球上的一颗高尔夫球
+    status: simplified
+    source: S5 s.6 ("you would hit a golf ball on the surface of the moon with the deflected laser beam" - 0.33 NA section, "sub nrad"); S1 ("ping pong ball"); S10 s.24 ("less than 20cm"); S7 s.8 (<0.1 nrad is the High-NA spec); S15 (384,400 km)
+    note: "a mirror tilt δ deflects the reflected beam by 2δ: 2 x 0.1 nrad x 384,400 km = 7.7 cm, about 1.8 golf-ball diameters (42.67 mm). ZEISS's analogy fits only to order of magnitude, and it was made for the 0.33 NA optics. F9b's note (0.1 nrad x 38.4万 km = 3.8 cm) leaves out the factor 2."
+    fix: overlay → 蔡司的类比：像从地球把激光打到月球上的一颗高尔夫球 (no ≈ between the number and the ball); correct the F9b note in facts.yaml
+  - item: Earth radius 6, Moon radius 1.64 at 360 units
+    status: sourced
+    source: S15 (6371 / 1737.4 km, ratio 0.273 - drawn 0.273; 384,400 km = 60.3 Earth radii - drawn 60)
+  - item: laser as a 32 km-wide (radius 0.015 units) glowing rod with no divergence
+    status: artistic
+  - glitch: Earth's continents are procedural noise with no real geography and the storyboard's night side is not shown (preview frame 1 is a day-lit globe); the Moon is a featureless grey ball with a dark crack-like line where the beam ends (frame 162)
+
+B4_11:
+  - item: golf ball on the lunar surface under a low sun, small Earth on the horizon
+    status: artistic
+  - item: sky colour dark navy (world top colour (0.01, 0.012, 0.02))
+    status: wrong
+    source: S15 (lunar surface pressure 3 x 10^-15 bar - no atmosphere, black sky)
+    fix: b4_scenes.space() - C.set_world(...) black for the lunar shots (keep only the stars)
+  - glitch: the dimples do not read (voronoi bump gives lumps); the terrain looks like smooth sand dunes with no craters or rocks; the laser spot on the ball and the small Earth are not visible in any preview frame; Earth's angular size from (−60, 220, −470) is ~1.0 deg, real ~1.9 deg (S15 derived)
+
+B4_12:
+  - item: narration and overlays 尺寸 ≈ 2× · 重量 ≈ 10× · 约 1 年 / 面
+    status: sourced
+    source: S2 ("about twice as large and ten times as heavy as current EUV mirrors"; "take around a year to manufacture"); S3 ("weigh several hundred kilograms", "machined for months")
+  - item: circles r 120 → 240 (diameter doubled); footnote 剪影示意，具体尺寸未公开
+    status: simplified
+    note: ZEISS does not say whether "twice as large" means diameter; ASML gives the largest EXE mirror as 1 m (S4), so 具体尺寸未公开 is only half true - optional footnote 剪影示意 · High-NA 最大镜子约 1 m（ASML）
+  - glitch: stale "（ZEISS · F31）" in the 10-17 preview
+
+B4_13:
+  - item: narration 测量设备本身就重约 150 吨; overlay 测量设备 ≈ 150 吨 · 5 × 10 m 真空腔
+    status: sourced
+    source: S2 ("The measuring device – located in the five by ten meter vacuum chamber – weighs about 150 tons"); S3 ("more than 150 tons")
+  - item: horizontal cylindrical chamber, radius 2.6 (5.2 m) x 10 m, with an end door
+    status: sourced
+    source: S2 ("vacuum chambers with a diameter of five meters"); S7 s.8 photo (horizontal cylinder with a large round end door, people for scale)
+  - item: hung mirror 2 m across (radius 1.0)
+    status: wrong
+    source: S4 (largest EXE mirror 1 m)
+    fix: b4_scenes.hall() HungMirror radius 0.5, thicker substrate
+  - item: hung mirror with rainbow multilayer material
+    status: wrong
+    note: as B4_04
+  - item: mirror lowered by a crane gantry next to the chamber
+    status: artistic
+    note: how mirrors are loaded is not public; the code lowers it beside the door (x 8.0 vs door x 7.2) - it never enters, unlike the storyboard 降入真空测量舱
+  - glitch: the "people" render as black bollards with ball heads (stale - figures.person was replaced on 10-21); the chamber shows no door or ports and reads as a fuel tank; re-render and look again
+
+B4_14:
+  - item: narration and overlay 整套 High-NA 投影光学重 12 吨，零件超过 4 万个
+    status: sourced
+    source: S2, S3, S7 s.8 ("> 40.000 individual parts, ~ 12 t weight")
+  - item: module drawn as a stacked cylindrical barrel of six ring sections with six tilted disc mirrors stacked on one axis and eight vertical struts
+    status: wrong
+    source: S7 s.8 (render of the High-NA projection optics - a wide, flat, angular frame block, ~1.6x wider than tall, with cable looms); S5 s.14 ("POB frames after integration test"); S9 s.39 ("Projection optics – Frame integration"); S6 s.15 (force frame, sensor frame, mirror modules); HNO §1.3 (mirrors in a folded off-axis zig-zag plus the holed M5/M6 pair, never stacked on one axis)
+    note: a stacked lens barrel is the refractive DUV look; 外形示意 does not excuse a wrong architecture
+    fix: b4_scenes.explode() - a wide angular frame block (proportions from S7 s.8); explode into the force frame, the sensor frame and six mirror modules placed at BM.PO_MIRRORS (M5/M6 holed), white clay; keep 外形示意
+  - item: exploded view of "thousands" of parts, counter to 40,000
+    status: artistic
+    glitch: only ~200 parts; the counter and the lifting hook are not built; the top section flies out of frame (frames 51-102)
+
+B4_15:
+  - item: overlay 每次反射 · 至少丢掉三成; narration 每反射一次，仍会丢掉三成以上的光
+    status: sourced
+    source: S1 ("up to 70 percent"); S11 p.751 ("up to 68%"); S10 s.23 (">67%")
+  - item: absorbed light shown as a dark-orange heat halo on the mirror
+    status: sourced
+    source: S11 p.750 ("Active cooling of the mirrors is a necessity")
+    note: physics only; the glow itself is artistic
+  - glitch: incoming (emission 10) and reflected (7) beams both saturate to white, so the 30 % loss cannot be seen and the beams are not EUV violet; the mirror itself is invisible (only the orange disc shows); the light-ledger bar is not in the preview
+
+B4_16:
+  - item: narration 从光源到晶圆，要经过大约 10 面镜子; overlay 约 10 面反射镜
+    status: sourced
+    source: S11 p.751 ("10 mirrors total"); consistent with the EXE train used in build_machine - collector, fold mirror, field facet, pupil facet + 6 projection mirrors = 10 mirrors, plus the reflective mask (HNO §1.4, §2; S7 s.13)
+  - item: regular zig-zag of 10 identical flat mirrors (b4_scenes.bounce, overlay 布局示意)
+    status: unsourced
+    note: WORKFLOW §9 row 1 (light paths come from source drawings); the sourced EXE path already exists as BM.PATH
+    fix: b4_scenes.bounce() for B4_16 - lay the 11 reflections along BM.PATH (collector, FOLD, FACET1, FACET2, RETICLE, M1-M6) in the energy look, dimming at each bounce; overlay 约 10 面反射镜 + 掩模（示意）
+  - item: beam dimmed by 0.7 per bounce
+    status: simplified
+    note: 0.7^10 = 2.8 % at the end, while B4_17 says ~1 % - the two shots disagree
+    fix: factor 0.66 per reflection over the 11 reflections of BM.PATH (0.66^11 ≈ 1 %), so the ledger lands on B4_17's 1 %
+  - glitch: frame 1 shows stray dark-cyan slivers (mirrors edge-on); beams render white, not violet
+
+B4_17:
+  - item: narration 进去 100 瓦，到晶圆上，最多只剩约 1 瓦; overlay 进入扫描仪 100 W → 到晶圆 ≈ 1 W; caption 约 10 面反射镜之后
+    status: simplified
+    source: S11 p.751 ("If 100 W ... make it into the scanner, the wafer will see 1.0 W at best since there are 10 mirrors total"; grade B)
+    note: "with ZEISS's ≤70 % per mirror (S1), 10 reflections leave ≤2.8 % and 11 (with the mask) ≤2.0 %; S11's own 68 % gives 2.1 % for ten. 最多约 1 瓦 (at most) understates that bound; ~1 W is typical only with real reflectivities (~65 %) and other losses. No ASML/ZEISS end-to-end transmission number exists for the EXE (B4B5_sources not-public 2), and this textbook figure is NXE-era."
+    fix: narration (script + storyboard, re-voice) → 进去 100 瓦，到晶圆上，只剩大约 1 瓦; overlay → 进入扫描仪 100 W → 到晶圆 约 1 W（约 1%）; record the arithmetic in F33's notes
+  - glitch: stale "（F33）" in the 10-16 preview
+
+B4_18:
+  - item: big 1% card
+    status: simplified
+    source: S11 p.751 ("Only 1% of the light that exits the source reaches the wafer")
+    note: same caveat as B4_17 (order of magnitude; ZEISS's ≤70 % per mirror alone would leave ~2-3 %)

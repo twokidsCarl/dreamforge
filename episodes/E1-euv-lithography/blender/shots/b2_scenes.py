@@ -186,14 +186,16 @@ def multilayer(sc, n_pairs=10, width=6.0, depth=2.0, t=0.18):
     cl["sem_tone"] = 0.75
     z = -t * 0.7
     for k in range(2 * n_pairs):
-        bpy.ops.mesh.primitive_cube_add(location=(0, 0, z - t / 2))
+        # Mo thinner than Si: measured ~2.1 nm Mo / ~3.7 nm Si (Liu 2023; Gamma ~0.4, research/visual/B4B5_sources.md)
+        tk = t * (0.8 if k % 2 == 0 else 1.2)
+        bpy.ops.mesh.primitive_cube_add(location=(0, 0, z - tk / 2))
         lay = bpy.context.object
         lay.name = f"{'Mo' if k % 2 == 0 else 'Si'}Layer{k}"
-        lay.scale = (width / 2, depth / 2, t / 2 * 0.98)
+        lay.scale = (width / 2, depth / 2, tk / 2 * 0.98)
         lay.data.materials.append(mo if k % 2 == 0 else si)
         styles.tag(lay, "structure")
         lay["sem_tone"] = 0.45 if k % 2 == 0 else 1.0
-        z -= t
+        z -= tk
 
 
 def micro(sc, rnd):

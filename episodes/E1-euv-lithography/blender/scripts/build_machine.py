@@ -61,7 +61,10 @@ PLASMA = tuple(i + 2.2 * a for i, a in zip(IF, SRC_AXIS))
 COLLECTOR = tuple(p + 0.55 * a for p, a in zip(PLASMA, SRC_AXIS))             # behind the plasma, facing the IF
 ILLUM = [FOLD, FACET1, FACET2]
 M6_HIT = (M6_R * 0.62, 0.0, PO_MIRRORS[5][2])        # where the drawn ray meets M6 after M5 (off-axis, outside the hole)
-PATH = ([COLLECTOR, IF] + ILLUM + [RETICLE] + PO_MIRRORS[:4] + [PO_FOCUS, PO_MIRRORS[4], M6_HIT, WAFER])
+# M5 is holed too: the ray must reflect off its annulus, not at its centre (the hole). From PO_FOCUS it passes M6's hole
+# (x ~0.16 < 0.193), reflects on M5 at x = 0.20 (> hole 0.079), goes up to M6_HIT and down through M5's hole (x ~0.06)
+M5_HIT = (0.20, 0.0, PO_MIRRORS[4][2])
+PATH = ([COLLECTOR, IF] + ILLUM + [RETICLE] + PO_MIRRORS[:4] + [PO_FOCUS, M5_HIT, M6_HIT, WAFER])
 CENTER = (2.9, 0.0, 0.8)                            # middle of scanner + source, for cameras
 
 
@@ -269,7 +272,8 @@ def machine(with_path=True):
         _box(f"RetRail{y}", (RETICLE[0], y, rz + 0.07), (4.6, 0.16, 0.14), dark)
         for k in range(13):
             _box(f"RetMagnet{y}{k}", (RETICLE[0] - 2.1 + 0.35 * k, y, rz + 0.15), (0.26, 0.17, 0.03), steel, bevel=0.005)
-    _box("Reticle", (RETICLE[0], 0, RETICLE[2] + 0.05), (0.6, 0.6, 0.06), mirror, bevel=0.005)
+    _box("Reticle", (RETICLE[0], 0, RETICLE[2] + 0.05), (0.6, 0.6, 0.06),          # dark plate, as ASML draws it
+         M.principled("ReticlePlate", (0.08, 0.085, 0.09), metallic=0.6, roughness=0.15), bevel=0.005)
     _panel_box("MaskHandler", (-2.6, 0, rz + 0.3), (1.4, 1.6, 0.9), dark, seam, nx=2, nz=1)
     # ---- projection optics: a narrow upper column for M1-M4 with a step where the illuminator reaches in,
     #      a wide lower drum around the holed M6 / M5 pair
@@ -298,7 +302,7 @@ def machine(with_path=True):
         for j in range(6):
             _box(f"Tile{i}{j}", (-1.25 + 0.5 * i, -1.25 + 0.5 * j, -1.56), (0.46, 0.46, 0.04), tile, bevel=0.01)
     _disc("Chuck", (WAFER[0], 0, WAFER[2] - 0.04), 0.5, 0.05, steel)
-    _disc("Wafer", WAFER, 0.45, 0.02, M.multilayer_mirror("WaferFilm", r_max=0.45))
+    _disc("Wafer", WAFER, 0.45, 0.02, M.principled("WaferSi", (0.30, 0.31, 0.36), metallic=0.7, roughness=0.12))
     _panel_box("WaferHandler", (-2.7, 0, -1.4), (1.2, 1.6, 1.6), dark, seam, nx=2, nz=1)
     # ---- base frame on vibration isolators, under the scanner (the source stands on its own)
     MODULE = "base"

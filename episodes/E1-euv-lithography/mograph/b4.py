@@ -12,36 +12,57 @@ HERE = os.path.dirname(__file__)
 
 @shot("B4_03")
 def bragg(t, dur, W, H):
+    """Near-normal incidence on the Mo/Si stack, drawn as in ZEISS's figure (Kaiser, VLSI-TSA 2019 s.23): the beam
+    comes in ~8 deg from the normal, every interface reflects a weak wavelet in the mirror direction, all wavelets are
+    parallel and their crests line up on common wavefronts (in phase), so they add up to one strong reflected beam."""
     c = Canvas(W, H)
     a = fade(t, 0.0, dur, dur, 0.3)
-    n = 14
-    top, gap = 330, 34
-    for k in range(n):                                  # glowing layer boundaries
-        y = top + k * gap
-        col = (120, 110, 160) if k % 2 == 0 else (80, 84, 110)
-        c.line((260, y), (1660, y), col, 2, a * 0.9)
-    c.text((260, top - 40), "钼 / 硅 层界面", 24, INK2, a)
-    # incoming wave (angled), wavelets peeling off at each interface, summing into one reflected beam
-    inc = ease_out(seg(t, 0.4, 2.0))
-    x0, y0 = 360, 140
-    ang = math.radians(28)
-    hit_x = 720
-    for k in range(int(n * inc)):
-        y = top + k * gap
-        x = hit_x + (y - top) * math.tan(ang)
-        c.line((x0 + (x - x0) * 0, y0), (x, y), VIOLET, 3, a * 0.5)
-        # reflected wavelet
-        r = ease_out(seg(t, 1.2 + 0.18 * k, 2.4 + 0.18 * k))
-        rx = x + 420 * r
-        ry = y - 420 * r * math.tan(math.radians(62))
-        c.line((x, y), (rx, ry), VIOLET, 2, a * 0.35 * r)
-    # single-layer readout, then the sum
-    s1 = ease(seg(t, 1.6, 2.4))
-    c.text((1180, 230), "单层 ≈ 1%", 36, INK, a * s1 * (1 - ease(seg(t, 5.0, 5.6))))
+    n, top = 5, 470
+    mo_t, si_t = 30, 50                                   # Mo thinner than Si (Gamma ~0.4)
+    ys, y = [], top
+    for k in range(n):
+        c.rect((240, y, 1680, y + mo_t), fill=(70, 66, 96), a=a * 0.9)
+        c.rect((240, y + mo_t, 1680, y + mo_t + si_t), fill=(34, 36, 50), a=a * 0.9)
+        ys.append(y)
+        y += mo_t + si_t
+    c.text((240, top - 34), "钼（深） / 硅（浅）交替", 24, INK2, a)
+    th = math.radians(10)
+    dx, dy = math.sin(th), math.cos(th)                   # incoming direction (screen y down)
+    hit_x = 700
+    inc = ease_out(seg(t, 0.3, 1.6))
+    x_top = hit_x - (top - 90) * dx / dy
+    c.line((x_top, 90), (x_top + (hit_x - x_top) * inc, 90 + (top - 90) * inc), VIOLET, 4, a)
+    ylast = ys[-1]
+    if inc >= 1:
+        p2 = ease(seg(t, 1.4, 2.4))
+        c.line((hit_x, top), (hit_x + (ylast - top) * dx / dy * p2, top + (ylast - top) * p2), VIOLET, 3, a * 0.5)
+    rx, ry = math.sin(th), -math.cos(th)                  # reflected direction, mirror-symmetric about the normal
+    lam = 50.0
+    L = 360
+    for k, yk in enumerate(ys):
+        hx = hit_x + (yk - top) * dx / dy
+        r = ease_out(seg(t, 1.5 + 0.22 * k, 2.5 + 0.22 * k))
+        if r <= 0:
+            continue
+        ex, ey = hx + rx * L * r, yk + ry * L * r
+        c.line((hx, yk), (ex, ey), VIOLET, 2, a * 0.45 * r)
+        proj0 = hx * rx + yk * ry                           # crests where p.r = m * lam (one shared set of wavefronts)
+        s0 = (-proj0) % lam
+        sv = s0
+        while sv < L * r:
+            px, py = hx + rx * sv, yk + ry * sv
+            c.line((px - 17 * ry, py + 17 * rx), (px + 17 * ry, py - 17 * rx), (230, 210, 255), 2, a * r)
+            sv += lam
+    s1 = ease(seg(t, 1.8, 2.6))
+    c.text((1180, 250), "单层 ≈ 1%", 36, INK, a * s1 * (1 - ease(seg(t, 5.0, 5.6))))
+    wf = ease(seg(t, 3.6, 4.6))                             # the shared wavefronts across all wavelets
+    # (the crest ticks of neighbouring wavelets join into shared wavefronts)
+    c.text((1180, 300), "波峰对齐 · 同相叠加", 28, INK2, a * wf)
     sm = ease(seg(t, 5.4, 6.8))
-    c.line((900, 300), (1500, -40), (230, 210, 255), 10, a * sm, glow=True)
-    c.text((1180, 230), "叠加后 最高约 70%", 44, INK, a * sm, weight_glow=True)
-    c.text((960, 1010), "每层反射的弱光波步调一致、同相叠加（示意，F8）", 24, INK2, a, anchor="mm")
+    bx, by = hit_x + 60, top - 10
+    c.line((bx, by), (bx + rx * 520, by + ry * 520), (230, 210, 255), 12, a * sm, glow=True)
+    c.text((1180, 250), "叠加后 最高约 70%", 44, INK, a * sm, weight_glow=True)
+    c.text((960, 1010), "每层反射的弱光波步调一致、同相叠加（示意 · 层数少画）", 24, INK2, a, anchor="mm")
     return c.finish()
 
 
@@ -78,10 +99,12 @@ def germany(t, dur, W, H):
             for i in range(121)]
     for i in range(120):
         c.line(pts2[i], pts2[i + 1], ORANGE, 3, a * pl, glow=zoom > 0.5)
-    c.text((bx1, by - 120), f"放大 ×{int(1 + 999 * zoom ** 2):,}", 26, INK2, a * pl, anchor="rm")
+    # 0.1 mm drawn ~10 px tall on a ~640 km profile (1 px ~ 0.9 km): vertical exaggeration ~1e8 (audit_B4 B4_06)
+    c.text((bx1, by - 120), "纵向放大约 1 亿倍" if zoom > 0.5 else "", 26, INK2, a * pl * ease(seg(zoom, 0.5, 1.0)),
+           anchor="rm")
     lab = ease(seg(t, 5.0, 5.8))
     c.text((1340, 760), "最大偏差只有 0.1 mm", 46, INK, a * lab, anchor="mm", weight_glow=True)
-    c.text((1340, 820), "（ZEISS · F9）", 24, INK2, a * lab, anchor="mm")
+    c.text((1340, 820), "（ZEISS）", 24, INK2, a * lab, anchor="mm")
     return c.finish()
 
 
@@ -100,10 +123,21 @@ def tilt(t, dur, W, H):
     c.line((mx + 500, my - 260), (mx + 500 - 500 * inc, my - 260 + 260 * inc), LINE, 3, a)
     ref = ease_out(seg(t, 2.0, 3.6))
     c.line((mx, my), (mx + 1300 * ref, my + 676 * ref), LINE, 3, a)
+    # a tilt error turns the mirror and its normal by a tiny angle; the reflected ray swings by twice that (夸大示意)
     arc = ease(seg(t, 3.4, 4.2))
-    c.text((mx + 70, my + 60), "∠", 30, LINE, a * arc)
+    dg = math.radians(4) * arc
+    ca, sa = math.cos(dg), math.sin(dg)
+    def rot(px, py):                                                         # noqa: E306
+        return (mx + (px - mx) * ca - (py - my) * sa, my + (px - mx) * sa + (py - my) * ca)
+    c.line(rot(mx - 10, my - 220), rot(mx + 10, my + 220), CYAN, 4, a * arc * 0.8)
+    c.line((mx, my), rot(mx + 380, my), CYAN, 2, a * arc * 0.6)
+    ang_r = math.atan2(676, 1300) + 2 * dg
+    c.line((mx, my), (mx + 1400 * math.cos(ang_r), my + 1400 * math.sin(ang_r)), CYAN, 2, a * arc * 0.8)
+    c.text((mx + 400, my + 40), "δ", 30, CYAN, a * arc)
+    c.text((mx + 900, my + 640), "反射光偏转 2δ", 26, CYAN, a * arc)
+    c.text((mx - 40, my + 340), "转角已夸大示意", 22, CYAN, a * arc, anchor="mm")
     c.text((1280, 300), "倾角误差 < 0.1 nrad", 52, LINE, a * arc, anchor="mm", weight_glow=True)
-    c.text((1280, 360), "（ZEISS · F30）", 24, LINE, a * arc, anchor="mm")
+    c.text((1280, 360), "（ZEISS）", 24, LINE, a * arc, anchor="mm")
     return c.finish(glow_radius=8)
 
 

@@ -1,0 +1,267 @@
+# Visual fact audit, segment C (assembly long take: one droplet's light from the plasma to the resist). One row per
+# engineering / structural / optical / numeric detail the PICTURE, the on-screen text or the narration shows.
+# Checked 2026-10-21 against storyboard.timed.yaml, blender/shots/c_scenes.py, b1_source.py / sample_b1.py (C_02),
+# blender/scripts/build_machine.py, shared/blender/styles.py + materials.py, mograph/cd.py (C_07), and the previews.
+# status: sourced | wrong | unsourced | simplified | artistic   (see docs/WORKFLOW.md 2.3); `glitch:` = visual defect.
+# Sources (quotes in research/visual/CD_sources.md; HNA = high_na_optics.md, ES = euv_source.md, B1-Sn = B1_sources.md):
+#   S1  ASML Annual Report 2025 (SEC EDGAR)  https://www.sec.gov/Archives/edgar/data/937966/000162828026011377/asml-2025xannualxreportx.htm
+#   S2  ASML AR2025 story "60,000 times per second in our latest commercial sources" (= B1-S3)  https://investor.asml.com/annual-reports/2025/strategy-and-stories
+#   S3  Hummler et al. (ASML), Proc. SPIE 12953 (2024) >500 W; Umstadter et al. (ASML), Proc. SPIE 12494 (2023)  https://doi.org/10.1117/12.3010463
+#   S4  ZEISS, Kaumanns et al., EUVL Workshop 2024, slides 9 and 13  https://euvlitho.com/2024/P22.pdf
+#   S5  ZEISS/ASML, Wischmeier et al., EUVL Workshop 2021, slides 11 and 13  https://euvlitho.com/2021/P52.pdf
+#   S6  ASML, van Schoot, EUVL Workshop 2021, slides 34 and 35  https://www.euvlitho.com/2021/P3.pdf
+#   S7  ASML, van Schoot, EUVL Workshop 2022, slides 12, 32, 34  https://euvlitho.com/2022/P3.pdf
+#   S8  Davydova et al. (ASML), SPIE 11517 (2020); Heil et al. (ZEISS), EUVL Symposium 2015, slides 9/20  https://euvlsymposium.lbl.gov/pdf/2015/Oral_Wednesday/Session9_EUV%20Lithography%20Extendibility/S9.2_Heil.pdf
+#   S9  Nikon US 5,831,716 (KrF 248 nm DUV scanner; F57's source)  https://patents.google.com/patent/US5831716A/en
+#   S11 ASML "Light and lasers"  https://www.asml.com/en/technology/lithography-principles/light-and-lasers
+#   S12 ASML San Diego page  https://asml.com/company/about-asml/locations/san-diego
+#   S13 Univ. of Illinois textbook ch.18 (F7, F33)  https://cpmi.illinois.edu/files/2023/10/Ch18-1.pdf
+#   S14 Purvis (ASML) 2020 slide 11 far-field annulus (ES §6); Fomenkov et al. 2017 p.176  https://www.degruyterbrill.com/document/doi/10.1515/aot-2017-0029/pdf
+# Machine coordinates used below (build_machine.py): PLASMA ≈ (5.73, 0, 1.32), COLLECTOR ≈ (6.26, 0, 1.46), IF (3.6, 0, 0.75),
+# RETICLE ≈ (0.24, 0, 3.45), WAFER (0, 0, -1.05); optical platform to x ≈ 9.4, mask/wafer handlers to x ≈ -3.3; CENTER (2.9, 0, 0.8).
+# A 35 mm camera 15 m away sees ±7.7 m horizontally.
+# EVERY C preview is stale: C_01, C_03-C_06, C_08-C_10 were rendered 10-17 (before the High-NA re-layout of
+# build_machine.py on 10-19, so they show the OLD machine and light path); C_02 (10-18) predates the 10-21 B1 source
+# fixes; C_07 assembles frames from other stale previews. C_01 (187 of 193 frames) and C_03 (401 of 419) are also
+# shorter than their timed durations. Nothing below that depends on framing can be confirmed until re-render.
+# Global: build_machine.machine() gives every mirror (collector, fold, facets, PO mirrors), the reticle and the wafer
+# M.multilayer_mirror (thin-film rainbow bands). The xray style keeps structure materials, so C_03, C_08 and C_09 show
+# rainbow optics (visible in the C_03 preview, frames 1, 219, 256). See C_03.
+
+C_01:
+  - item: subsystems of the High-NA EXE:5000 (source unit beside the scanner on +x, illuminator, mask tier, six-mirror PO with holed M6/M5, wafer stage, base) assembled into a section without housing; overlay 整机示意
+    status: sourced
+    source: S7 slide 34 (module tiers, source beside the scanner), S4 slide 13 (optical train), S6 slide 35 (PO design example); audit_A0.yaml A0_05
+  - item: assembly animation flies every top-level mesh in on its own random path (bolt heads, 26 magnets, 36 motor tiles, isolators, cable trays, seam strips)
+    status: artistic
+    glitch: 'reads as a swarm of loose debris (preview frames 1-102: small pieces drifting), not "subsystems fly in and lock together"; BM.attach_small() exists for exactly this but assemble() does not call it'
+    fix: in c_scenes.assemble call hosts = BM.attach_small(new) and animate only the hosts (source, illum, reticle, po, wafer, base), ideally in the four ASML test modules (A0_10, S7 slide 34)
+  - item: camera ends pushed in to the source-module entrance (storyboard; last frame = first frame of C_02)
+    status: wrong
+    note: "CamC_01 last key aims at (-4.8, 0, 0) from (-9.5, -5.5, 1.6), i.e. at the mask-handler / wafer-handler end. In the High-NA layout the source is at +x (PLASMA ≈ 5.7); the camera ends looking away from it (keys were written for the old layout where the source sat on -x, as the stale preview shows)"
+    fix: "re-key CamC_01 on BM constants: start wide on BM.CENTER, orbit, end aimed at the source drum (≈ BM.PLASMA + (0.3, 0, 0)) from about (9.0, -4.5, 2.2), so the cut to C_02 (inside the vessel) is motivated"
+  - item: chapter card 章节 · 总装：跟着一滴锡走完全程
+    status: sourced
+    glitch: overlays with kind chapter are skipped by edit_film.py (label_for) and story_reel, and no mograph shot draws it, so the card never appears; draw it (as B1_01 does) or drop it from the storyboard
+  - item: white-model surfaces "grow" real metal as the long take begins (storyboard)
+    status: artistic
+    note: not implemented (whole shot is clay); no factual content
+
+C_02:
+  - item: same b1_source simulation as B1 (droplet 25 um at 70 m/s, 1.4 mm spacing, nozzle off-screen, pre-pulse 100 um / main pulse 400 um spots, thin sheet, plasma at the collector's first focus)
+    status: sourced
+    source: audit_B1.yaml B1_03-B1_13 (resolved 10-21), S11, S12; sample_b1.py spacing 11.2 units, beams 0.4 / 1.6
+    glitch: the preview (10-18 17:51) predates those fixes - it shows the thick blotchy lens-shaped sheet, the next droplet almost touching it, and the old 30 um pre-pulse. Re-render before judging.
+  - item: sheet drifts only along the laser axis (+x) before the main pulse
+    status: simplified
+    note: open item from audit_B1 B1_10 - the sheet keeps flying along the droplet path (~160-300 um before the main pulse) and the main pulse hits it downstream (ES §2-3; PUR20 slide 23). sample_b1.py still keys x only.
+    fix: as audit_B1 B1_10 (key the sheet +y by 1.6-2.4 units between T_PRE and T_MAIN, main-pulse axis at that point)
+  - item: overlays 锡滴 ≈ 25 μm (F3) / 单独成像 · 单独瞄准 (F22) / 13.5 nm (F1)
+    status: sourced
+    source: S11, S12, F1
+    glitch: edit_film shows one label (first overlay + two subs) for the first 5 s only, so "13.5 nm" disappears before the narration reaches 13.5 纳米 (7.45-11.1 s). Split C_02 overlays by cue, or drop 13.5 nm here (B1 already showed it)
+  - item: cyan lock box snapping onto the droplet (storyboard)
+    status: artistic
+    note: 'not implemented; if added, mark 示意 (B1_08: imaging/targeting system details not public)'
+  - item: orange pre-pulse and main pulse
+    status: artistic
+    note: CO2 light is infrared; B1_09 caption already says 橙色为示意
+  - item: violet-white plasma, debris sparks, slow motion
+    status: artistic
+    note: as audit_B1 B1_13/B1_14 (no calibrated visible colour is public, ES not-public 8)
+  - item: camera turns to the collector, whole mirror lit violet by the plasma (end of shot)
+    status: sourced (collector look)
+    source: build_source.collector now a plain mirror (no rainbow), per audit_B1 B1_15 / FOM17 Fig.16
+    glitch: in the preview the shot ends on purple plasma fog and an unexplained round port with a horizontal bar; the collector is not seen. Check CamC_02's last key (aim (-2.2, 1.5, 0.6)) after re-render
+  - item: '"long take without a cut" from C_02 (droplet scale, collector 1.6 mm across) into C_03 (machine scale, collector ~1.8 m)'
+    status: simplified
+    note: the scale jumps about 400x across a push-through; the real collector is ~650 mm (ES §5). Acceptable as a transition, but it is not one continuous camera path; see the audit_B1 B1_21 scale note
+    fix: keep the push-through, but end C_02 on the collector and start C_03 on the machine-scale collector from the same direction, so the scale jump reads as a deliberate transition (or add 非比例 to the C_02 label)
+
+C_03:
+  - item: optical train collector -> IF -> small fold mirror -> field facet mirror (top) -> pupil facet mirror -> reticle (top, face down)
+    status: sourced
+    source: S4 slide 13; WORKFLOW 2.5; build_machine.PATH
+  - item: no bend at the intermediate focus (collector, plasma, IF and the fold mirror direction are collinear)
+    status: sourced
+    note: SRC_AXIS is defined from FOLD through IF, so the path passes straight through the IF (WORKFLOW s.9 lesson)
+  - item: all optics, the reticle and the wafer rendered with materials.multilayer_mirror (radius-dependent thin film 250-900 nm plus a pastel colour ramp) - rainbow bands, kept by the xray style
+    status: wrong
+    note: "materials.py itself says the rainbow is \"an artistic cue ... not a physical EUV effect\". ASML/ZEISS photos show plain mirror-bright optics (FOM17 Fig.16 collector; audit_B1 B1_15 already fixed the B1 collector). ASML renders the reticle as a dark grey plate (S6 slide 34). The C_03 preview shows the rainbow on the collector (frame 1) and on mirror rims (frames 219, 256); the user has rejected rainbow EUV mirrors before."
+    fix: "build_machine.machine(): mirror = M.principled('MachMirror', (0.86, 0.85, 0.82), metallic=1.0, roughness=0.03) (same as build_source.collector); Reticle = dark absorber plate (e.g. principled (0.05, 0.05, 0.06), roughness 0.25); Wafer = one uniform resist-film tint, not radial bands. This also fixes C_08, C_09, B1_28, A3."
+  - item: the EUV light drawn as one solid line starting at the collector's centre
+    status: simplified
+    note: the collector centre is the drive-laser aperture (S14, FOM17 p.176), and the bundle is a hollow cone with a dark centre (S14, PUR20 slide 11). Acceptable as the film's "light path" convention; the B1_21 hollow-cone note applies if a cone is drawn instead
+    fix: optional - start the line at BM.PLASMA instead of BM.COLLECTOR (the light leaves the plasma, bounces off the collector annulus, and converges to the IF), or keep the convention and say once in B3 that the line stands for the whole beam
+  - item: picture-narration sync
+    status: simplified
+    fix: re-time the c_scenes._grow keys and camera keys to the cue times in storyboard.timed.yaml (see glitch)
+    glitch: "the path grows from 1/N at frame 120 to 4/N (pupil facet mirror) at frame 400. 照明系统… (4.1-6.4 s) plays while the light is still at the IF, and 掩模把电路图形反射出来 (6.8-9.4 s, sim 164-226) while it is at the fold mirror. The reticle is reached only in C_04 (~sim 461). Re-time _grow so the light reaches the facets by ~5 s and the reticle by ~8 s, and end CamC_03 on the reticle."
+  - item: storyboard - hundreds of facets flip at once, scatter the light and re-assemble it into a uniform arc
+    status: unsourced
+    note: "not built yet. ZEISS says only \"actuated facet mirrors\" that set the pupil (illumination shape) (S5 slide 13; F34); the facet count is not public (HNA not-public 10; F34 note). Homogenising comes from the facet arrangement itself (each field facet is imaged onto the slit), not from flipping; showing facets flipping while the light passes implies a per-pulse motion nobody has published."
+    fix: if built, keep the facets still while the light passes; show at most one switch of illumination shape labelled 可动分面镜 · 示意; never write a facet count; storyboard text to 分面镜把光分成许多小束、再叠加成均匀的弧形光带
+  - item: uniform arc-shaped band of light on the reticle (storyboard)
+    status: sourced (if drawn)
+    source: S5 slide 11 (slit at the reticle 104 x 12.8 mm², curved; at the wafer 26 x 1.6 mm² arc)
+    note: not built; the current picture has only the round rod
+  - item: pellicle flashing over the mask (storyboard)
+    status: sourced (existence)
+    source: S6 slide 34 ("Pellicle + mounting" on the pattern side; pellicle "unchanged vs 0.33NA")
+    note: not built; if drawn, put it a few mm below the face-down pattern, with the light passing through it on the way in and out
+  - item: circuit pattern (SKY130 lines) appearing in the reflected beam (storyboard)
+    status: simplified
+    note: not built; SKY130 is a 130 nm open PDK, not an EUV-layer layout - use generic lines labelled 示意 if shown
+    fix: if built, use a generic line/space pattern and keep the overlay 示意; do not label it as an EUV layer
+  - item: overlays 中间焦点 IF · 示意 (F56) / 可动分面镜 · 示意 (F34)
+    status: sourced
+    source: F56 (ellipsoid, IF at the second focus), F34, S5 slide 13
+    glitch: the single label shows only for 0-5 s, but the facets come into view at ~9-12 s; split the label by cue
+  - item: photoreal -> xray scan-band morph at the IF (storyboard)
+    status: artistic
+    note: not implemented (whole shot rendered xray)
+  - item: preview
+    glitch: stale (10-17, old machine); the rays render white in the preview (xray now forces saturated violet, styles.py) - re-render
+
+C_04:
+  - item: six-mirror projection optics, M1-M4 zig-zag under the reticle, beam down through the hole in M6 to M5, back to M6, down through M5's hole to the wafer
+    status: sourced
+    source: S6 slide 35 and Heil 2015 slides 9/19/20 ("design examples"), S8 (~20% obscuration); build_machine header
+  - item: narration 六面镜子把图形缩小
+    status: unsourced
+    note: "for the EXE, \"six\" exists only in drawings labelled \"design example\"; ZEISS 2024 gives no mirror count in text (HNA §1.1, [M]). audit_backlog ALL: \"do not state an EXE mirror count in narration (not public in text)\"; WORKFLOW 2.5. F7 (ZEISS, 6 mirrors) is the NXE page."
+    fix: "script_zh.md + parts yaml (both): 投影物镜把图形缩小，投向晶圆； (or 设计示例里，六面镜子把图形缩小) - then tts/vo_align/retime/asr_check"
+  - item: overlay 6 面镜 · 缩小 4×
+    status: wrong
+    note: "the machine is the EXE:5000, whose optics are anamorphic: \"4× reduction in non-scan direction, 8× reduction in scan direction\" (S4 slide 9; S5 slide 11 βscan = 1/8; S6 slide 34 4x/8y). F11 (4x) is the NXE."
+    fix: "storyboard overlay → 投影物镜 · 缩小 4×/8×（扫描方向 8×）· 示意 (facts F11 plus a new EXE fact from S4 slide 9); no mirror count on screen"
+  - item: drawn ray reflects at the centre of M5 (PATH point PO_MIRRORS[4] = (0, 0, -0.89)), where M5 has its hole (inner radius 0.22·M5_R = 0.079)
+    status: wrong
+    note: the centre of the pupil is the obscured part (S8); the line visibly bounces off empty space in the B7_15 / C_04 pass-through views
+    fix: "build_machine.PATH: bounce on M5 at (0.20, 0, PO_MIRRORS[4][2]) (on the annulus, 0.079 < r < 0.351). Checked: PO_FOCUS→that point crosses the M6 plane at x ≈ 0.16 (< hole 0.193) and M6_HIT→WAFER crosses the M5 plane at x ≈ 0.056 (< 0.079), so both hole passes stay valid"
+  - item: reticle stage and wafer stage race back and forth along x (the scan direction lies in the drawing plane, S4 slide 9), amplitudes 0.8 and 0.2 (4:1), opposite signs
+    status: wrong
+    note: "4:1 is the NXE ratio (F57 / F11). For the EXE the reticle moves 8x the wafer in the scan direction (S5 slide 11 βscan = 1/8; S6 slide 34). The opposite direction is unsourced for EUV: F57's sources are a 1998 Nikon KrF (248 nm, refractive) patent (S9) and Design News (C); ASML's High-NA slide draws double-headed arrows only (S6 slide 34). The B8 audit should carry the same correction."
+    fix: "c_scenes._stages_race: (rs, 0.8), (rt, 0.8), (ws, ±0.1), (wf, ±0.1); show both stages moving without asserting a relative direction until a primary EUV source is found (or cite one in F57 and keep the sign)"
+  - item: narration 狭缝扫过，掩模和晶圆反向飞驰
+    status: unsourced
+    note: as above - "反向" for an EUV mirror system has no primary source (S9 is DUV); F57 also states 4x as if universal
+    fix: "script + parts: 狭缝扫过，掩模和晶圆同步飞驰； and F57 notes: DUV source only, EXE ratio 8:1 in scan (S5)"
+  - item: the slit drawn as the same round rod; the latent image a bar 0.5 x 0.06 units on a wafer of radius 0.45
+    status: simplified
+    note: the real exposure slit at the wafer is a 26 x 1.6 mm² arc (S5 slide 11) and one EXE field is 26 x 16.5 mm (S7 slide 12), i.e. ~0.09 of the 300 mm wafer diameter; the bar is ~55% of it and reads as one huge line
+    fix: "make the slit a curved band ~0.078 x 0.005 units (26 x 1.6 mm at wafer radius 0.45 = 150 mm) and paint the latent image inside one 0.078 x 0.050 field; or label 示意 · 非比例"
+  - item: glowing latent circuit line in the resist; photon rain (storyboard)
+    status: artistic
+    note: a latent image is invisible; photon rain not implemented (B9_05 reuse)
+  - item: overlay 光的账本：到达晶圆约 1%
+    status: simplified
+    source: 'F33 / S13 (textbook: ~100 W into the scanner, ~1 W at the wafer)'
+    note: a generic 0.33-NA-era estimate shown on the EXE, whose obscured optics have "significantly higher optics transmission vs. 3300" (S8, Heil slide 20). Light-ledger bar itself not implemented
+    fix: overlay → 光的账本：到达晶圆只剩约 1%（教材估算 · 示意）, or 只剩百分之几
+  - item: picture-narration sync
+    status: simplified
+    fix: re-time the c_scenes._grow keys and camera keys to the cue times in storyboard.timed.yaml (see glitch)
+    glitch: "path grows linearly 4/N → 1.0 over sim 411-860: during 六面镜子 (sim 440-515) the light is only reaching the reticle/M1; during 光子落进光刻胶 (617-693) it is at M3/M4; it reaches the wafer at sim 860 (18.1 s), 6 s after the narration ends. Re-time _grow and CamC_04 keys to the cues."
+  - item: rays colour
+    glitch: in the energy style the path material (VIOLET at strength 8) clips to white (previews C_04/C_05/C_06/C_10); the EUV-violet convention is lost. Do in styles.energy what xray does (saturated violet, lower strength) or lower the strength in c_scenes
+  - item: preview
+    glitch: stale (10-17, old machine and old path)
+
+C_05:
+  - item: whole light path from the source to the wafer as one glowing polyline, structures as dark outlines
+    status: sourced (geometry)
+    source: build_machine.PATH (S4 slide 13, S6 slide 35)
+  - item: final side view of the whole machine (CamC_05 ends aimed at (-1.6, 0, 0.6) from (-1.6, -15.5, 1.2))
+    status: wrong
+    note: "framed for the old layout. Visible x ≈ -9.3..6.1: the collector (x 6.26), where the path starts, the source drum (to x ≈ 7.0) and the optical platform (to 9.4) fall outside the frame, so the \"path from the plasma to the wafer\" is cut at its start (audit_backlog ALL)"
+    fix: "aim at BM.CENTER (2.9, 0, 0.8) from about (2.9, -17, 1.5) (machine spans x -3.3..9.4; at 35 mm needs ≥ 12.4 m), and pull back along a path ending there"
+  - item: preview
+    glitch: stale (10-17) - shows the old path (straight, then a zig-zag of eight bounces), not the High-NA path
+
+C_06:
+  - item: narration 这一切，每秒最多发生 5 万次; overlay 最多 50,000 次 / 秒; counter to 50,000 / s
+    status: wrong
+    note: "ASML's newest figure is \"60,000 times per second in our latest commercial sources\" (S2); 50,000 is the older web figure (S11). F2 says explicitly: use 6 万 and do not say 最多 (same correction as audit_B1 B1_07). The EXE source rate is not public, so the number must be attributed."
+    fix: "script + parts: 这一切，每秒要重复几万次。 (or 最新的光源每秒 6 万次 with F2); overlay → 每秒 6 万次（ASML 最新商用光源）; counter to 60,000 / s; then tts/vo_align/retime/asr_check"
+  - item: '"这一切" (the whole chain ending in 一层电路就此写定) happening 50,000 times a second'
+    status: simplified
+    note: the rate is the droplet/pulse rate. Each point of the resist collects many pulses while the 1.6 mm slit passes it (S5 slide 11), so 5-6 万 layers are not written per second
+    fix: wording as above (从光源到晶圆的这一趟，每秒重复几万次) - not "一层电路" per pulse
+  - item: flash running along the path, faster and faster, fusing into one band
+    status: artistic
+    glitch: "the Pulse curve shows bevel 0-0.12 and then jumps to 0.88-1.0 (c_scenes.pulses), so each flash appears at the source and then at the wafer instead of running along the path (preview frames 13, 26, 51, 88)"
+    fix: key bevel_factor_start/end as a moving window (e.g. width 0.08, stepping over the gap) so the flash travels
+  - item: framing (CamC_06 aimed at (-1.6, 0, 0.6) from y -15.5)
+    status: wrong
+    note: same as C_05 - the source end of the path is cut off
+    fix: as C_05
+  - item: preview
+    glitch: stale (old path)
+
+C_07:
+  - item: four 1 s inserts cut from other shots' renders (mograph cd.py INSERTS - B1_13 f6, B2_01 f20, B8_04 f30, B8_03 f100), white flash on every cut
+    status: artistic
+    glitch: the storyboard asks for photoreal 100 mm macros; inserts 3 and 4 are clay white-model frames from B8 (preview frames 53-96). shot_frame() takes whatever render exists, so the inserts change with every re-render of those shots and are currently all stale previews (10-16/10-17)
+  - item: storyboard insert 2 "收集镜虹彩表面"
+    status: wrong
+    note: the collector is a plain mirror (audit_B1 B1_15; FOM17 Fig.16). The B2_01 frame used actually shows embers on a dark field, not the collector
+    fix: storyboard text → 收集镜被等离子体照亮; pick a frame where the (now plain) collector fills the screen (e.g. B1_15 or B2_01 after re-render)
+  - item: insert 3 (B8_04) speed arrows 4:1 and a violet slab straight from the reticle to the wafer; insert 4 (B8_03) clay stages
+    status: wrong
+    note: 4:1 is the NXE ratio; the film's machine is the EXE (8:1 in scan, S5 slide 11); the straight slab skips the projection optics. Unless B8 is corrected first, these frames carry B8's errors into the recap
+    fix: after B8 is fixed (8:1, beam through the PO), re-pick; or use C_04 frames (stage race and latent image) instead
+  - item: full-white flash frames at 1, 25, 49, 73 (four in 4 s)
+    status: artistic
+    note: 1 Hz, below the 3 Hz photosensitivity limit; fine
+
+C_08:
+  - item: source, mirrors, mask and stages light up in voice-over order, then one beam threads them
+    status: sourced (positions)
+    source: BM.PLASMA, FACET1/2, PO_MIRRORS, RETICLE, stage positions (build_machine header)
+  - item: mirror accent rings on FACET1, FACET2 and the six PO mirrors only (8 rings), radius 0.32, all facing the camera
+    status: simplified
+    note: the drawn path has 10 mirrors (collector, fold, two facet mirrors, M1-M6); the collector and the fold mirror get no ring, and the ring on M6 (radius 0.88) is a third of its size. D_03 then says 约 10 面镜子
+    fix: add rings at BM.COLLECTOR and BM.FOLD; scale ring radius to each mirror (M6_R, M5_R)
+  - item: storyboard says the mirrors light up 虹彩 (iridescent)
+    status: wrong
+    note: no rainbow on EUV optics (see C_03); the code already uses pale blue
+    fix: storyboard text → 镜子（银白）
+  - item: framing - the source lights up at sim 20-30 (光源造光, 0.5-4.5 s)
+    status: wrong
+    note: "CamC_08 aims at x = -5.0 (frame 1) moving to -1.6 (frame 70); the source is at x ≈ 5.7, so it is never in frame when it lights (keys from the old layout, where the source sat on -x)"
+    fix: "re-key: frame 1 aim BM.PLASMA from (5.9, -6.5, 2.0), truck to FACET1/FACET2 (frame 70), RETICLE (115), stages (160), end on BM.CENTER from y ≈ -16 (235)"
+  - item: accent spheres/rings before they light
+    glitch: an emitter at strength 0 renders as a black solid in the light xray studio (preview frame 1 - black disc at the source); hide until lit, or start at a low non-zero strength
+  - item: C_09's per-module axes are visible throughout C_08
+    glitch: hide_render is keyed on the parent Empty only; the 18 child bars stay visible (cyan fans in preview frames 44-235). Key hide_render on the bars too
+  - item: optics material
+    status: wrong
+    note: rainbow multilayer material in xray (see C_03)
+    fix: as C_03
+  - item: overlay 光源 · 镜子 · 掩模 · 工件台
+    status: sourced
+    note: no facts needed; label source line is empty
+
+C_09:
+  - item: each module's small axis jitters, then all snap to one origin and a shared grid appears
+    status: artistic
+    note: a metaphor for one shared coordinate system (no claim about ASML's metrology frame architecture)
+  - item: snap target and grid centred at x = -1.6; CamC_09 aimed at (-1.6, 0, 0.5)
+    status: simplified
+    glitch: framed on the old machine centre; the optical platform (x to 9.4) is cut at frame right. In the preview the snap never reads and the grid (emission 1.2 at y = +2) is washed out on the light xray studio
+    fix: centre the snap point and grid on BM.CENTER; darken the background or raise grid emission
+  - item: optics material
+    status: wrong
+    note: rainbow multilayer material in xray (see C_03)
+    fix: as C_03
+
+C_10:
+  - item: path beats like a heart and fades; a small violet ember stays at the plasma
+    status: artistic
+  - item: 'ember position vs D_08 (storyboard: "余烬位置与 D_08 锡滴位置一致")'
+    status: simplified
+    glitch: "CamC_10 aims at (-1.6, 0, 0.6) from y -15.2: the ember at x = 5.73 sits at the right frame edge (visible to x ≈ 6.1), while the D_08 droplet is centred; the match-cut does not work and the path's source end is cut"
+    fix: frame on BM.CENTER as in C_05, then a slow push toward BM.PLASMA so the ember ends near frame centre
+  - item: rays colour
+    glitch: path renders white, not violet (see C_04)
