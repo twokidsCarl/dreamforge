@@ -391,23 +391,11 @@ def goggles(sc, rnd, display="outline", **_):
 
 # ---- objects：C_09a ------------------------------------------------------------------------
 def _goggle_mask(name, cam, dist=0.03):
-    """第一人称护目镜框：相机前 dist 处一块黑板，挖出两个椭圆镜孔（挂在相机上）。"""
-    import bmesh
-    bm = bmesh.new()
-    W, H, nx, ny = 0.06, 0.04, 90, 60
+    """第一人称护目镜框：相机前 dist 处一块黑板，挖出两个椭圆镜孔（挂在相机上）。
+    镜孔是真椭圆（S.holed_plane，256 段；镜孔在画面上约 880 px 宽），不再按 90×60 方格挖格子（B0 校准：孔边成阶梯）。"""
+    W, H = 0.06, 0.04
     holes = ((-0.0078, 0.0, 0.0071, 0.0062), (0.0078, 0.0, 0.0071, 0.0062))
-    grid = [[bm.verts.new((-W / 2 + W * i / nx, -H / 2 + H * j / ny, -dist)) for j in range(ny + 1)] for i in range(nx + 1)]
-    for i in range(nx):
-        for j in range(ny):
-            cx = -W / 2 + W * (i + 0.5) / nx
-            cy = -H / 2 + H * (j + 0.5) / ny
-            if any(((cx - hx) / rx) ** 2 + ((cy - hy) / ry) ** 2 < 1 for hx, hy, rx, ry in holes):
-                continue
-            bm.faces.new((grid[i][j], grid[i + 1][j], grid[i + 1][j + 1], grid[i][j + 1]))
-    me = bpy.data.meshes.new(name)
-    bm.to_mesh(me)
-    bm.free()
-    ob = S.link(bpy.data.objects.new(name, me))
+    ob = S.holed_plane(name, W / 2, H / 2, -dist, holes, seg=256)
     ob.data.materials.append(S.matte(name + "Mat", (0.004, 0.004, 0.005), 0.9))
     ob.parent = cam
     _tagged(ob, "structure")
