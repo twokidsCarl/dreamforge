@@ -12,8 +12,8 @@
 #     按当前 timed 时长算出；retime 之后要重算（见各模块文件头）。
 #
 # 2D 镜头（shared/tools/mograph.py --shot <id>）：只写 mograph: <模块>（mograph/<模块>.py 里的 @shot），style、engine 照分镜。
-#   已写：mograph/a0.py、a.py（A 段全部 2D 镜头）、c.py（C 段全部 2D 镜头）；b.py 里暂时只有 raw 镜头的叠字后处理，b 的 2D 镜头和 d 模块还没写。
-#   engine: manim 的 2D 镜头本机没有 manim，按 Pillow mograph 实现（A_04b、A_05b、C_16a、C_19b、C_91 已改记 pillow；B_20a 仍记 manim、待写）。
+#   已写：mograph/a0.py、a.py、b.py、c.py、d.py——各段全部 2D 镜头（b.py、c.py 里还有 raw 镜头的叠字后处理）。
+#   engine: manim 的 2D 镜头本机没有 manim，按 Pillow mograph 实现（A_04b、A_05b、B_20a、C_16a、C_19b、C_91 已改记 pillow）。
 #
 # 镜头长度来自 storyboard.timed.yaml（没有时回退 storyboard.yaml 的 duration）。
 
@@ -93,7 +93,7 @@ B_18a: {scene: b_scenes, args: {variant: spectrum}, camera: CamB_18a, start: 1, 
 B_18b: {mograph: b, style: infographic, engine: pillow}
 B_19a: {mograph: b, style: infographic, engine: pillow}
 B_19b: {mograph: b, style: type, engine: pillow}
-B_20a: {mograph: b, style: blueprint, engine: manim}
+B_20a: {mograph: b, style: blueprint, engine: pillow}
 B_20b: {mograph: b, style: type, engine: pillow}
 B_91: {scene: b_scenes, args: {variant: dual}, camera: CamB_91, start: 1, style: xray, engine: eevee}
 B_92: {scene: b_scenes, args: {variant: pair, kinds: [channel, cl_pump]}, camera: CamB_92, start: 1, style: clay, engine: eevee}
