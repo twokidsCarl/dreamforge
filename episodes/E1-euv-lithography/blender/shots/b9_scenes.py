@@ -1,6 +1,7 @@
 """B9 — photon rain (F47). One variant, three shots on one timeline:
 
-  B9_04  (1-130)    one 1 nm x 1 nm cell above the dark resist; violet photons drop in one by one, ~20
+  B9_04  (1-130)    one 1 nm x 1 nm cell above the dark resist; violet photons drop in one by one, ~20; a corner
+                    counter stops at 20; neighbouring cells get photons too and glow faintly
   B9_05  (141-248)  ultra slow motion: the camera falls with one photon, ripples where photons land
   B9_06  (261-421)  rise to a 20 x 20 field of cells; Poisson counts make an uneven, flickering mosaic
 Counts are drawn from a Poisson distribution with mean 20 (illustrative).
@@ -40,7 +41,7 @@ def _poisson(rnd, lam):
 
 def _level(count):
     """Tile brightness for a photon count; the spread is exaggerated so a ±20% count reads (示意)."""
-    return 0.07 * max(0.0, count - 9) ** 1.1
+    return 0.04 * max(0.0, count - 9) ** 1.1
 
 
 def _photon(name, mat, loc, radius=0.045, stretch=3.0):
@@ -78,6 +79,41 @@ def _drop(ob, f_land, loc, height=6.0, dur=10, slow=False):
                 kp.interpolation = "BEZIER" if slow else "LINEAR"
 
 
+FONT = "/System/Library/Fonts/STHeiti Medium.ttc"
+
+
+def _counter(cam, land, f_end):
+    """Corner counter for B9_04: '这一格：n 个光子', stepping up as each photon lands in the centre cell, stops at 20.
+    One text object per value, parented to the camera (top left, inside the title-safe area, clear of the label)."""
+    mat = M.emission("CounterInk", (0.92, 0.93, 0.97), 1.2)
+    try:
+        fnt = bpy.data.fonts.load(FONT, check_existing=True)
+    except Exception:
+        fnt = None
+    d = 4.0                                                        # inside the depth of field
+    hw = d * 18.0 / 50.0                                           # half frame width at that distance (50 mm lens)
+    for n in range(len(land) + 1):
+        cu = bpy.data.curves.new(f"Count{n}", "FONT")
+        cu.body = f"这一格：{n} 个光子"
+        cu.size = hw * 0.075
+        cu.align_x, cu.align_y = "LEFT", "TOP"
+        if fnt:
+            cu.font = fnt
+        ob = bpy.data.objects.new(f"Count{n}", cu)
+        bpy.context.scene.collection.objects.link(ob)
+        ob.data.materials.append(mat)
+        styles.tag(ob, "emitter")
+        ob.parent = cam
+        ob.location = (-hw * 0.9, hw * 9 / 16 * 0.86, -d)
+        f_on = 1 if n == 0 else land[n - 1]
+        f_off = land[n] if n < len(land) else f_end
+        _key(ob, 1, hide_render=True)
+        if f_on > 1:
+            _key(ob, f_on - 1, hide_render=True)
+        _key(ob, f_on, hide_render=False)
+        _key(ob, f_off, hide_render=True)
+
+
 def rain(sc, rnd):
     C.set_world(top=(0, 0, 0), horizon=(0, 0, 0), bottom=(0, 0, 0))
     resist = M.principled("Resist", (0.03, 0.025, 0.04), roughness=0.5)
@@ -103,7 +139,7 @@ def rain(sc, rnd):
     tiles = {}
     for i in range(N):
         for j in range(N):
-            m = M.emission(f"Tile{i}_{j}", (0.42, 0.22, 1.0), 0.0)
+            m = M.emission(f"Tile{i}_{j}", (0.3, 0.1, 1.0), 0.0)
             bpy.ops.mesh.primitive_plane_add(size=0.96, location=(i - half + 0.5, j - half + 0.5, 0.0))
             t = bpy.context.object
             t.data.materials.append(m)
@@ -111,8 +147,8 @@ def rain(sc, rnd):
             tiles[(i, j)] = m
     centre = (int(half) - 1, int(half) - 1)                         # the cell spanning x, y in [-1, 0]
     cx, cy = centre[0] - half + 0.5, centre[1] - half + 0.5
-    pm = M.emission("PhotonMat", (0.78, 0.6, 1.0), 9.0)
-    rm = M.emission("RippleMat", (0.6, 0.42, 1.0), 2.0)
+    pm = M.emission("PhotonMat", (0.5, 0.26, 1.0), 5.0)           # saturated EUV violet, not clipped white
+    rm = M.emission("RippleMat", (0.42, 0.22, 1.0), 1.6)
     # ---- B9_04: ~20 photons into the centre cell
     n0 = 20
     for k in range(n0):
@@ -124,6 +160,24 @@ def rain(sc, rnd):
     for k in range(n0 + 1):
         s.default_value = 0.045 * k
         s.keyframe_insert("default_value", frame=14 + int(max(0, k - 1) * 5.2) + (1 if k else 0))
+    # photons fall on the neighbouring cells too (the dose is uniform): a sparser visible rain there, and their
+    # tiles glow faintly, so the shot does not imply that light lands in this one cell only
+    for di in (-1, 0, 1):
+        for dj in (-1, 0, 1):
+            if di == dj == 0:
+                continue
+            key = (centre[0] + di, centre[1] + dj)
+            nx, ny = cx + di, cy + dj
+            for k in range(7):
+                f = 18 + int(rnd.uniform(0, 100))
+                loc = (nx + rnd.uniform(-0.42, 0.42), ny + rnd.uniform(-0.42, 0.42), 0.0)
+                _drop(_photon(f"PN{key}_{k}", pm, loc), f, loc, height=7.0, dur=12)
+                _ripple(f"RN{key}_{k}", rm, loc, f, size=0.22)
+            st = tiles[key].node_tree.nodes["Emission"].inputs["Strength"]
+            for f, v in ((1, 0.0), (14, 0.0), (120, 0.2)):
+                st.default_value = v
+                st.keyframe_insert("default_value", frame=f)
+    land = [14 + int(k * 5.2) for k in range(n0)]
     # ---- B9_05: one hero photon falls with the camera; neighbours rain around it
     hero_loc = (cx + 0.1, cy - 0.15, 0.0)
     hero = _photon("Hero", pm, hero_loc, radius=0.06, stretch=2.0)
@@ -155,7 +209,9 @@ def rain(sc, rnd):
         loc = (rnd.uniform(-half, half), rnd.uniform(-half, half), 0.0)
         f = 270 + int(rnd.uniform(0, 120))
         _drop(_photon(f"P6_{k}", pm, loc, radius=0.06, stretch=4.0), f, loc, height=9.0, dur=10)
-    B._camera("CamB9_04", [(1, (cx, cy, 0.0), (cx, cy - 4.2, 3.2), 50, 11.0), (130, (cx, cy, 0.0), (cx, cy - 3.0, 2.0), 50, 11.0)])
+    cam4 = B._camera("CamB9_04", [(1, (cx, cy, 0.0), (cx, cy - 4.2, 3.2), 50, 11.0),
+                                  (130, (cx, cy, 0.0), (cx, cy - 3.0, 2.0), 50, 11.0)])
+    _counter(cam4, land, 140)
     B._camera("CamB9_05", [(141, (hero_loc[0], hero_loc[1] + 0.4, 5.2), (hero_loc[0] - 0.4, hero_loc[1] - 1.2, 6.4), 35, 11.0),
                            (230, (hero_loc[0], hero_loc[1] + 0.4, 0.2), (hero_loc[0] - 0.4, hero_loc[1] - 1.2, 1.1), 35, 11.0),
                            (248, (hero_loc[0], hero_loc[1] + 0.2, 0.0), (hero_loc[0] - 0.4, hero_loc[1] - 1.3, 0.7), 35, 11.0)])

@@ -71,7 +71,7 @@ def build(vessel=False, rays=False):
         + [(150, (0.2, 0, 0), (2.4, 3.6, 0.6), 40, 2.8), (192, (0.3, 0, 0), (3.6, 5.2, 0.9), 40, 3.2),
            (300, (-2.2, 1.5, 0.6), (4.5, 3.5, 1.6), 35, 4.0)])
     # D_09 — the last shot: tight on the droplet, the orange pre-pulse closing in; cut before the hit
-    cam("CamD_09", B._follow_keys(hero, 40, B.T_ARRIVE, (0.8, 0.55, 0.12), (0.75, 0.5, 0.1), 100, 1.4))
+    cam("CamD_09", B._follow_keys(hero, 86, B.T_ARRIVE, (1.9, -1.1, 0.35), (1.8, -1.05, 0.33), 100, 4.0))
     # ---- B2 reuses the same simulation ---------------------------------------------------
     # B2_01 — after the flash: the collector's iridescent face, embers drifting toward it
     cam("CamB2_01", [(205, (-2.2, 3.4, 1.4), (6.0, 2.0, 2.2), 45, 2.8),
@@ -159,6 +159,40 @@ def _endless_chain():
     lt["keep_light"] = True
 
 
+def _closing_droplet(shot_id):
+    """D_08 / D_09, the last droplet: pure black, no bokeh blobs beside it (they read as a second droplet at the
+    end). D_09: the camera sits outside the pre-pulse beam on the far side of the flight line, and the pulse front is
+    re-keyed so a sharp orange front closes in from frame left over the whole shot (sim 88-99, registry start 90,
+    step 0.155), the cut to black coming just before it reaches the droplet (beam axis: world x = local z - 20)."""
+    for ob in bpy.data.objects:
+        if ob.name.startswith("BokehLED"):
+            ob.hide_render = True
+    # D_08 flies the droplet past y = -10, right through the SoftBack card (12 x 4 m at (-3, -10, 1)): close up its dark,
+    # falling-off edge filled half the tin as a black disc (the "crescent"), and the camera crossed the card (the bar)
+    hide = ("SoftBack",) + (("MainPulse", "PrePulse") if shot_id == "D_08" else ("MainPulse",))
+    for nm in hide:
+        if bpy.data.objects.get(nm):
+            bpy.data.objects[nm].hide_render = True
+    if shot_id != "D_09":
+        return
+    mat = bpy.data.materials.get("PrePulseMat")
+    if not mat:
+        return
+    nt = mat.node_tree
+    nt.animation_data_clear()
+    fr = nt.nodes["Front"]
+    sc_in = nt.nodes["EmissionScale"].inputs[1]
+    half = 20.0                                                    # beam from x = -40 to 0: local z = x + 20
+    for f, x in ((88, -0.95), (99, -0.13)):                        # droplet edge at x = -0.1
+        fr.inputs["From Min"].default_value = x + half
+        fr.inputs["From Max"].default_value = x + half - 0.09        # a crisp leading edge at this scale
+        fr.inputs["From Min"].keyframe_insert("default_value", frame=f)
+        fr.inputs["From Max"].keyframe_insert("default_value", frame=f)
+    for f, v in ((88, 3.5), (99, 3.5)):
+        sc_in.default_value = v
+        sc_in.keyframe_insert("default_value", frame=f)
+
+
 def after_style(style, shot_id):
     if shot_id == "B1_07":
         _endless_chain()
@@ -166,5 +200,7 @@ def after_style(style, shot_id):
         _shadowgraph()
     elif shot_id in ("A0_01", "D_08", "D_09"):
         _cold_open()
+        if shot_id in ("D_08", "D_09"):
+            _closing_droplet(shot_id)
     elif shot_id in ("B1_10", "B1_12", "B1_13", "C_02"):
         _satin_sheet()

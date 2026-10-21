@@ -118,7 +118,7 @@ def setup_render(engine, preset, motion_blur=True):
         raise ValueError(engine)
 
 
-def setup_compositor(glare_strength=0.6, glare_size=7, dispersion=0.012):
+def setup_compositor(glare_strength=0.6, glare_size=7, dispersion=0.004):   # 0.012 fringed thin violet beams
     """Bloom + subtle chromatic dispersion. Blender 5.x uses a scene-level node group."""
     sc = bpy.context.scene
     ng = bpy.data.node_groups.new("Compositing", "CompositorNodeTree")

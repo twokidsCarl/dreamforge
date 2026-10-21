@@ -681,7 +681,7 @@ shots:
   segment: B4
   duration: 8.5
   vo:
-  - 蔡司的办法，是在镜面上交替镀钼和硅，最多约 100 层，每层只有几纳米厚。
+  - 蔡司的办法，是在镜面上交替镀钼和硅，多达上百层，每层只有几纳米厚。
   facts:
   - F8
   style: sem
@@ -1144,7 +1144,7 @@ shots:
   segment: B4
   duration: 6.0
   vo:
-  - 进去 100 瓦，到晶圆上，最多只剩约 1 瓦。
+  - 进去的光，到了晶圆上，只剩大约百分之一。
   facts:
   - F33
   style: infographic
@@ -1457,20 +1457,19 @@ shots:
   - 下一站：掩模，也就是芯片的设计底片。
   facts: []
   style: photoreal
-  style_why: 新角色登场，先以真实的样子见面：掩模的图案在光下泛着虹彩。
+  style_why: 新角色登场，先以真实的样子见面：掩模的图形区在光下呈现明暗不一的功能块。
   transition_in: dissolve
-  visual: 掩模在暗色支架里缓缓转入画面，表面的电路图案在侧光下折射出彩虹般的衍射色带，浅景深只清晰一小块图形区。
+  visual: 掩模在暗色支架里缓缓转入画面，镜面般的图形区在侧光下显出一块块明暗不同的功能区和芯片之间的切割道（没有彩虹：EUV 掩模的图形周期太细，看不到可见光衍射色），浅景深只清晰一小块图形区。
   camera:
     move: slide-rotate
     lens_mm: 85
     fstop: 2.0
-    notes: 低角度横移，掩模微微转动带出衍射色
+    notes: 低角度横移，掩模微微转动带出镜面高光
   builders:
   - build_mask.reticle
   - build_mask.absorber_pattern
   - pdk_patterns.sky130_metal
   fx:
-  - diffraction_iridescence
   - dof
   - bloom
   overlays:
@@ -1535,7 +1534,7 @@ shots:
   - bloom
   - additive_blend
   overlays:
-  - text: 反射 = 亮 · 吸收 = 关
+  - text: 开口 = 反射 · 吸收层 = 关
     facts:
     - F14
   engine: eevee
@@ -1566,7 +1565,7 @@ shots:
   - line_draw_on
   - dimension_lines
   overlays:
-  - text: 入射角 ≈ 6°
+  - text: NXE：入射角 ≈ 6°
     facts:
     - F40
   engine: eevee
@@ -1706,7 +1705,7 @@ shots:
   - strobe_fill
   - hud_markers
   overlays:
-  - text: 1 颗颗粒 → 每一颗芯片 · 良率损失 100%
+  - text: 1 颗颗粒 → 每一颗芯片 · 满场芯片良率损失 100%
     facts:
     - F35
   engine: eevee
@@ -1738,6 +1737,8 @@ shots:
   - counter
   overlays:
   - text: 每 100 万次搬运 · 最多 1 个颗粒
+    facts: []
+  - text: 机械手外形示意
     facts:
     - F37
   engine: eevee
@@ -1771,14 +1772,14 @@ shots:
   segment: B6
   duration: 7.5
   vo:
-  - 掩模上方还罩着一层保护膜，叫 pellicle，只有 13 纳米厚，
+  - 掩模的图形面前还罩着一层保护膜，叫 pellicle，只有 13 纳米厚，
   facts:
   - F36
   - F1
   style: xray
   style_why: “它装在哪里”——透明剖视同时看到掩模、支架和悬在上方的膜。
   transition_in: scan-wipe
-  visual: 透明剖视：掩模上方一圈边框撑起一张近乎看不见的薄膜，只在掠射角泛出淡淡的虹彩；侧面插入一个小尺寸对照——13 nm 的膜厚旁画一段 13.5 nm 的 EUV 波长，几乎一样长。
+  visual: 透明剖视：掩模图形区前方，四个小支座托起一圈低矮的框架（与掩模之间留一道细缝），框上绷着一张近乎看不见的矩形薄膜，只在掠射角泛出一层淡淡的反光；侧面插入一个小尺寸对照——13 nm 的膜厚旁画一段 13.5 nm 的 EUV 波长，几乎一样长。
   camera:
     move: orbit
     lens_mm: 40
@@ -1790,7 +1791,6 @@ shots:
   - styles.apply_style
   fx:
   - ghost_glass
-  - thin_film_iridescence
   overlays:
   - text: pellicle 厚 13 nm
     facts:
@@ -1831,6 +1831,8 @@ shots:
   - bloom
   overlays:
   - text: 真空中 最高 500 °C
+    facts: []
+  - text: 暗红辉光为示意（500 °C 时肉眼几乎看不到）
     facts:
     - F36
   engine: cycles
@@ -1846,7 +1848,7 @@ shots:
   style: photoreal
   style_why: 纯画面节拍（本段震撼时刻）：掠射特写，让发光的薄膜在画面里完整呼吸一次。
   transition_in: cut
-  visual: 掠射角特写：发着暗红光的薄膜微微起伏，干涉色带缓缓流过表面，热浪让背景轻轻扭曲；一行小字浮现又淡去。
+  visual: 掠射角特写：发着暗红光的薄膜微微起伏，微弱的暗红辉光缓缓起伏，镜面高光沿膜面滑过，热浪让背景轻轻扭曲；一行小字浮现又淡去。
   camera:
     move: slide
     lens_mm: 100
@@ -1857,10 +1859,9 @@ shots:
   fx:
   - emission_heat
   - heat_shimmer
-  - thin_film_iridescence
   - dof
   overlays:
-  - text: 13 nm · 500 °C
+  - text: 13 nm · 500 °C（发光示意）
     facts:
     - F36
   engine: cycles
@@ -1870,7 +1871,7 @@ shots:
   segment: B6
   duration: 5.5
   vo:
-  - 灰尘落在膜上，离开了焦点，就印不出来。
+  - 小颗粒落在膜上，离开了焦点，就印不出来。
   facts: []
   style: energy
   style_why: 离焦是光学现象，能量图里能直接看到光线在像面上散开。
@@ -1891,7 +1892,7 @@ shots:
   - defocus_blur
   - light_trails
   overlays:
-  - text: 离焦 → 印不出来（示意）
+  - text: 小颗粒离焦 → 印不出来（示意）
     facts: []
   engine: eevee
   sfx:
@@ -1920,7 +1921,7 @@ shots:
   - text: “与魔法无异”
     facts:
     - F36
-  - text: The EUV pellicle — indistinguishable from magic · ASML, 2022
+  - text: 'Indistinguishable from magic: the EUV pellicle · ASML, 2022'
     facts:
     - F36
   engine: manim
@@ -1934,7 +1935,7 @@ shots:
   style: xray
   style_why: 纯画面节拍：退回整机剖视，带着图形的光离开掩模射向投影物镜，交给 B7。
   transition_in: dissolve
-  visual: 引语淡出，透明剖视中带着条纹的紫色光从掩模反射而下，射进下方投影物镜的幽灵玻璃外壳里。
+  visual: 引语淡出，透明剖视中带着条纹的紫色光从掩模反射而下，从光瞳分面镜射上掩模、再反射进下方投影物镜的 M1、M2（High-NA 光路）。
   camera:
     move: tilt-down
     lens_mm: 35

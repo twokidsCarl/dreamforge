@@ -3545,7 +3545,7 @@ shots:
   segment: B4
   duration: 7.56
   vo:
-  - 蔡司的办法，是在镜面上交替镀钼和硅，最多约 100 层，每层只有几纳米厚。
+  - 蔡司的办法，是在镜面上交替镀钼和硅，多达上百层，每层只有几纳米厚。
   facts:
   - F8
   style: sem
@@ -3574,7 +3574,7 @@ shots:
   - 计数器滚动
   duration_design: 8.5
   cues:
-  - text: 蔡司的办法，是在镜面上交替镀钼和硅，最多约 100 层，每层只有几纳米厚。
+  - text: 蔡司的办法，是在镜面上交替镀钼和硅，多达上百层，每层只有几纳米厚。
     start: 0.3
     end: 7.15
   start: 515.94
@@ -4167,7 +4167,7 @@ shots:
   segment: B4
   duration: 4.99
   vo:
-  - 进去 100 瓦，到晶圆上，最多只剩约 1 瓦。
+  - 进去的光，到了晶圆上，只剩大约百分之一。
   facts:
   - F33
   style: infographic
@@ -4192,7 +4192,7 @@ shots:
   - 坠落的下滑音，落底一声闷响
   duration_design: 6.0
   cues:
-  - text: 进去 100 瓦，到晶圆上，最多只剩约 1 瓦。
+  - text: 进去的光，到了晶圆上，只剩大约百分之一。
     start: 0.471
     end: 3.891
   start: 607.14
@@ -4566,20 +4566,19 @@ shots:
   - 下一站：掩模，也就是芯片的设计底片。
   facts: []
   style: photoreal
-  style_why: 新角色登场，先以真实的样子见面：掩模的图案在光下泛着虹彩。
+  style_why: 新角色登场，先以真实的样子见面：掩模的图形区在光下呈现明暗不一的功能块。
   transition_in: dissolve
-  visual: 掩模在暗色支架里缓缓转入画面，表面的电路图案在侧光下折射出彩虹般的衍射色带，浅景深只清晰一小块图形区。
+  visual: 掩模在暗色支架里缓缓转入画面，镜面般的图形区在侧光下显出一块块明暗不同的功能区和芯片之间的切割道（没有彩虹：EUV 掩模的图形周期太细，看不到可见光衍射色），浅景深只清晰一小块图形区。
   camera:
     move: slide-rotate
     lens_mm: 85
     fstop: 2.0
-    notes: 低角度横移，掩模微微转动带出衍射色
+    notes: 低角度横移，掩模微微转动带出镜面高光
   builders:
   - build_mask.reticle
   - build_mask.absorber_pattern
   - pdk_patterns.sky130_metal
   fx:
-  - diffraction_iridescence
   - dof
   - bloom
   overlays:
@@ -4667,7 +4666,7 @@ shots:
   - bloom
   - additive_blend
   overlays:
-  - text: 反射 = 亮 · 吸收 = 关
+  - text: 开口 = 反射 · 吸收层 = 关
     facts:
     - F14
   engine: eevee
@@ -4711,7 +4710,7 @@ shots:
   - line_draw_on
   - dimension_lines
   overlays:
-  - text: 入射角 ≈ 6°
+  - text: NXE：入射角 ≈ 6°
     facts:
     - F40
   engine: eevee
@@ -4901,7 +4900,7 @@ shots:
   - strobe_fill
   - hud_markers
   overlays:
-  - text: 1 颗颗粒 → 每一颗芯片 · 良率损失 100%
+  - text: 1 颗颗粒 → 每一颗芯片 · 满场芯片良率损失 100%
     facts:
     - F35
   engine: eevee
@@ -4946,6 +4945,8 @@ shots:
   - counter
   overlays:
   - text: 每 100 万次搬运 · 最多 1 个颗粒
+    facts: []
+  - text: 机械手外形示意
     facts:
     - F37
   engine: eevee
@@ -4993,14 +4994,14 @@ shots:
   segment: B6
   duration: 6.06
   vo:
-  - 掩模上方还罩着一层保护膜，叫 pellicle，只有 13 纳米厚，
+  - 掩模的图形面前还罩着一层保护膜，叫 pellicle，只有 13 纳米厚，
   facts:
   - F36
   - F1
   style: xray
   style_why: “它装在哪里”——透明剖视同时看到掩模、支架和悬在上方的膜。
   transition_in: scan-wipe
-  visual: 透明剖视：掩模上方一圈边框撑起一张近乎看不见的薄膜，只在掠射角泛出淡淡的虹彩；侧面插入一个小尺寸对照——13 nm 的膜厚旁画一段 13.5 nm 的 EUV 波长，几乎一样长。
+  visual: 透明剖视：掩模图形区前方，四个小支座托起一圈低矮的框架（与掩模之间留一道细缝），框上绷着一张近乎看不见的矩形薄膜，只在掠射角泛出一层淡淡的反光；侧面插入一个小尺寸对照——13 nm 的膜厚旁画一段 13.5 nm 的 EUV 波长，几乎一样长。
   camera:
     move: orbit
     lens_mm: 40
@@ -5012,7 +5013,6 @@ shots:
   - styles.apply_style
   fx:
   - ghost_glass
-  - thin_film_iridescence
   overlays:
   - text: pellicle 厚 13 nm
     facts:
@@ -5028,7 +5028,7 @@ shots:
   - 薄膜轻颤的极高频音
   duration_design: 7.5
   cues:
-  - text: 掩模上方还罩着一层保护膜，叫 pellicle，只有 13 纳米厚，
+  - text: 掩模的图形面前还罩着一层保护膜，叫 pellicle，只有 13 纳米厚，
     start: 0.3
     end: 5.662
   start: 724.66
@@ -5066,6 +5066,8 @@ shots:
   - bloom
   overlays:
   - text: 真空中 最高 500 °C
+    facts: []
+  - text: 暗红辉光为示意（500 °C 时肉眼几乎看不到）
     facts:
     - F36
   engine: cycles
@@ -5091,7 +5093,7 @@ shots:
   style: photoreal
   style_why: 纯画面节拍（本段震撼时刻）：掠射特写，让发光的薄膜在画面里完整呼吸一次。
   transition_in: cut
-  visual: 掠射角特写：发着暗红光的薄膜微微起伏，干涉色带缓缓流过表面，热浪让背景轻轻扭曲；一行小字浮现又淡去。
+  visual: 掠射角特写：发着暗红光的薄膜微微起伏，微弱的暗红辉光缓缓起伏，镜面高光沿膜面滑过，热浪让背景轻轻扭曲；一行小字浮现又淡去。
   camera:
     move: slide
     lens_mm: 100
@@ -5102,10 +5104,9 @@ shots:
   fx:
   - emission_heat
   - heat_shimmer
-  - thin_film_iridescence
   - dof
   overlays:
-  - text: 13 nm · 500 °C
+  - text: 13 nm · 500 °C（发光示意）
     facts:
     - F36
   engine: cycles
@@ -5116,7 +5117,7 @@ shots:
   segment: B6
   duration: 4.66
   vo:
-  - 灰尘落在膜上，离开了焦点，就印不出来。
+  - 小颗粒落在膜上，离开了焦点，就印不出来。
   facts: []
   style: energy
   style_why: 离焦是光学现象，能量图里能直接看到光线在像面上散开。
@@ -5137,14 +5138,14 @@ shots:
   - defocus_blur
   - light_trails
   overlays:
-  - text: 离焦 → 印不出来（示意）
+  - text: 小颗粒离焦 → 印不出来（示意）
     facts: []
   engine: eevee
   sfx:
   - 声音随虚化变闷、消失
   duration_design: 5.5
   cues:
-  - text: 灰尘落在膜上，离开了焦点，就印不出来。
+  - text: 小颗粒落在膜上，离开了焦点，就印不出来。
     start: 0.393
     end: 3.743
   start: 739.13
@@ -5176,7 +5177,7 @@ shots:
   - text: “与魔法无异”
     facts:
     - F36
-  - text: The EUV pellicle — indistinguishable from magic · ASML, 2022
+  - text: 'Indistinguishable from magic: the EUV pellicle · ASML, 2022'
     facts:
     - F36
   engine: manim
@@ -5203,7 +5204,7 @@ shots:
   style: xray
   style_why: 纯画面节拍：退回整机剖视，带着图形的光离开掩模射向投影物镜，交给 B7。
   transition_in: dissolve
-  visual: 引语淡出，透明剖视中带着条纹的紫色光从掩模反射而下，射进下方投影物镜的幽灵玻璃外壳里。
+  visual: 引语淡出，透明剖视中带着条纹的紫色光从掩模反射而下，从光瞳分面镜射上掩模、再反射进下方投影物镜的 M1、M2（High-NA 光路）。
   camera:
     move: tilt-down
     lens_mm: 35
@@ -5226,18 +5227,18 @@ shots:
   segment: B7
   duration: 6.53
   vo:
-  - 从掩模反射出的光，进入投影物镜——由六面反射镜组成。
+  - 从掩模反射出的光，进入投影物镜——一组弯曲的反射镜。
   facts:
   - F7
   style: xray
-  style_why: 观众第一次进入投影物镜内部，问题是“里面怎么排布”，幽灵玻璃外壳让六面镜和光路同时可见
+  style_why: 观众第一次进入投影物镜内部，问题是“里面怎么排布”，幽灵玻璃外壳让镜组和光路同时可见
   transition_in: dissolve
-  visual: 承接 B6 的掩模：一束 EUV 紫光从掩模反射向下，镜头跟着光束钻进一只浅灰棚拍背景下的幽灵玻璃箱体。箱内六面镜（M1–M6）沿折线排布，光束每到一面，那面镜子的 Mo/Si 膜就亮起一圈虹彩，编号依次浮现。最终光束出箱、朝画面下方的晶圆收拢。
+  visual: 承接 B6 的掩模：一束 EUV 紫光从掩模反射向下，镜头跟着光束钻进一只浅灰棚拍背景下的幽灵玻璃箱体。上半部 M1–M4 在窄柱里折返，光束穿过大末镜 M6 中心的孔落到贴近晶圆的小镜 M5，再反射回 M6，最后一只宽光锥穿过 M5 的孔汇聚到晶圆；光每到一面镜子，镜缘亮起一圈紫光（外壳示意）。
   camera:
     move: follow-dolly
     lens_mm: 35
     fstop: 5.6
-    notes: 沿光路样条跟随，速度随光束；结尾升高到 3/4 俯视全景让六面镜同框
+    notes: 沿光路样条跟随，速度随光束；结尾升高到 3/4 俯视全景让镜组同框
   builders:
   - build_mask.reflective_mask
   - build_optics.projection_box
@@ -5251,10 +5252,9 @@ shots:
   - text: 章节 · 投影物镜与 High-NA：在镜子上开一个洞
     facts: []
     kind: chapter
-  - text: 投影物镜：6 面反射镜
     facts:
     - F7
-  - text: M1–M6 排布示意（非真实设计）
+  - text: 按 ASML / ZEISS 公开设计示例绘制（示意）
     facts:
     - F7
   engine: eevee
@@ -5263,7 +5263,7 @@ shots:
   - 每面镜子亮起时一声玻璃铃音（音高递升）
   duration_design: 7.5
   cues:
-  - text: 从掩模反射出的光，进入投影物镜——由六面反射镜组成。
+  - text: 从掩模反射出的光，进入投影物镜——一组弯曲的反射镜。
     start: 0.561
     end: 5.221
   start: 752.93
@@ -5278,13 +5278,13 @@ shots:
   segment: B7
   duration: 4.47
   vo:
-  - 它把图形缩小 4 倍，投向晶圆。
+  - 现役 NXE 把图形缩小 4 倍，投向晶圆。
   facts:
   - F11
   style: blueprint
   style_why: “缩小 4 倍”是几何关系，蓝图正交侧视能把掩模尺寸和晶圆尺寸并排标注
   transition_in: scan-wipe
-  visual: 一条扫描光带自上而下扫过，玻璃箱体变成蓝底白线的正交侧视图。顶部掩模上的一段电路图形（SKY130 版图片段）用白色线稿画出，沿光路虚线投到底部，落成同形但缩小的图形，两端各拉出尺寸线。
+  visual: 蓝图并排画出两份公开设计示例：左 NXE（NA 0.33），右 High-NA EXE（NA 0.55），掩模在上、晶圆在下，紫色半透明光束逐段画出；NXE 一侧，掩模上的一段图形以 1/4 大小落到晶圆，标“缩小 4×”。
   camera:
     move: locked-ortho
     lens_mm: 0
@@ -5298,16 +5298,18 @@ shots:
   - freestyle_lines
   - dimension_draw_on
   overlays:
-  - text: 缩小 4×
+  - text: NXE：缩小 4×
+    facts: []
+  - text: 设计示例 · ASML / ZEISS
     facts:
     - F11
-  engine: eevee
+  engine: mograph
   sfx:
   - 笔尖划线声
   - 尺寸线咔哒定位
   duration_design: 5.0
   cues:
-  - text: 它把图形缩小 4 倍，投向晶圆。
+  - text: 现役 NXE 把图形缩小 4 倍，投向晶圆。
     start: 0.531
     end: 3.231
   start: 759.46
@@ -5409,12 +5411,12 @@ shots:
   style: documentary
   style_why: 回答“它在真实世界的哪里”：交付是一个真实事件，回到开场 A0 的板条箱母题
   transition_in: whip
-  visual: 夜色里一座风格化的厂房装货口，叉车把一只印着“EXE 示意”字样的白色板条箱推进集装箱；冷白顶灯，地面有水迹反光。日期字样在箱体侧面打出。不仿制任何真实厂区或 ASML 标识。
+  visual: 夜色停机坪：一台平板挂车载着一只白色铝框、倒角顶的运输箱缓缓驶过，箱体侧面印着“2023.12”；背景里一架货机抬起机头、剪叉式升降平台车停在机头下，湿地面反着灯光。不出现任何标志和涂装。
   camera:
     move: slow-push
     lens_mm: 50
     fstop: 2.0
-    notes: 低机位、浅景深，前景虚化的集装箱门边
+    notes: 低机位、浅景深，前景虚化的挂车边缘
   builders:
   - build_machine.shipping_crates
   - build_machine.dock_environment
@@ -5428,8 +5430,8 @@ shots:
     - F20
   engine: cycles
   sfx:
-  - 叉车液压声
-  - 集装箱门关闭的金属回响
+  - 卡车低速驶过的柴油声
+  - 远处货机 APU 的嗡鸣
   duration_design: 5.0
   cues:
   - text: 第一台在 2023 年底发往英特尔。
@@ -5447,25 +5449,24 @@ shots:
   facts:
   - F18
   style: clay
-  style_why: 无旁白的呼吸镜头：B4_14 已经炸开过同一模块，这里改用白模转台加一个人形比例尺，安静地交代它有多大，避免重复
+  style_why: 无旁白的呼吸镜头：B4_14 已经炸开过同一模块，这里改用白模转台，安静地交代它的外形，避免重复
   transition_in: dissolve
-  visual: 纯白哑光的 High-NA 投影光学模块（示意外形）立在浅灰无缝棚里缓缓转动，旁边站着一个同样白模的人形比例尺，只到模块腰部；顶光在模块的层层框架上留下柔和的 AO 阴影。
+  visual: 纯白哑光的 High-NA 投影物镜模块（照 ZEISS 公开渲染图的外形：宽而矮的棱角框架、下部斜面、窄底座、顶部线缆）在浅灰棚里缓缓转动，顶光留下柔和的 AO 阴影。
   camera:
     move: orbit
     lens_mm: 65
     fstop: 4.0
-    notes: 环绕 60°，爆炸峰值时正好转到 3/4 侧面
+    notes: 环绕约 50°，停在 3/4 侧面
   builders:
   - build_optics.po_module_exploded
   - styles.clay
   fx:
   - ambient_occlusion
-  - explode_stagger
   overlays:
-  - text: High-NA 投影光学（外形示意，人形为比例参考）
+  - text: High-NA 投影物镜（外形示意 · 尺寸未公开）
     facts:
     - F18
-  - text: 外形示意
+  - text: 约 12 吨 · 4 万多个零件（ZEISS）
     facts: []
   engine: eevee
   sfx:
@@ -5579,7 +5580,6 @@ shots:
   - volumetric_cone
   - interference_ripple
   - bloom
-  - chromatic_dispersion
   overlays:
   - text: 示意
     facts: []
@@ -5632,7 +5632,7 @@ shots:
   segment: B7
   duration: 5.28
   vo:
-  - 入射角从 6 度降到 5.4 度，两只光锥恰好错开；
+  - 扫描方向的光锥细了一半，入射角还能从 6 度降到 5.4 度，两只光锥恰好错开；
   facts:
   - F40
   style: energy
@@ -5651,7 +5651,9 @@ shots:
   - volumetric_cone
   - bloom
   overlays:
-  - text: 入射角 6° → 5.4°
+  - text: 扫描方向光锥减半（≈3.9°）· 入射角 6° → 5.4°
+    facts: []
+  - text: 角度放大示意
     facts:
     - F40
   engine: eevee
@@ -5659,7 +5661,7 @@ shots:
   - 啸叫消失，一声干净的长音
   duration_design: 6.0
   cues:
-  - text: 入射角从 6 度降到 5.4 度，两只光锥恰好错开；
+  - text: 扫描方向的光锥细了一半，入射角还能从 6 度降到 5.4 度，两只光锥恰好错开；
     start: 0.327
     end: 4.517
   start: 807.74
@@ -5757,7 +5759,7 @@ shots:
   style: photoreal
   style_why: 回答“它真的长这样吗”：一面原子级抛光的镜子中间开孔，只有真实材质才有冲击力
   transition_in: dissolve
-  visual: 真空腔幽暗环境中，一面巨大的凹面镜从黑暗里浮现，Mo/Si 膜层泛着淡淡的虹彩，表面倒映着另一面镜子；镜头绕到正面，镜心是一个黑洞般的圆孔，孔缘倒角闪着一线高光。孔的另一侧隐约能看到第二面同样开孔的镜子。
+  visual: 真空腔幽暗环境中，上方一面巨大的凹面镜（M6）镜面朝下、中心开孔；下方贴近晶圆处一面小镜（M5）镜面朝上、也开孔。镜头从侧面绕到下方，沿光轴仰望：两面镜子的孔对成一线。
   camera:
     move: arc-to-front
     lens_mm: 40
@@ -5768,7 +5770,6 @@ shots:
   - build_vacuum.chamber
   - materials.multilayer_mirror
   fx:
-  - thin_film_iridescence
   - depth_of_field
   - bloom
   overlays:
@@ -5800,7 +5801,7 @@ shots:
   style: photoreal
   style_why: 本段的震撼时刻：镜头像飞船穿过星门一样钻过末镜中央的孔，让观众亲身经历“在镜子上开洞”
   transition_in: push-through
-  visual: 镜头加速冲向孔洞，孔壁一闪而过；穿出瞬间，EUV 紫色光锥从四周的镜面反射汇聚过来、擦着镜头穿过孔洞，在前方收束成一个点——那是晶圆。回望：两面开孔镜前后对齐，像两道环形门。
+  visual: 镜头顺着从 M4 来的细光束下降，穿过 M6 中心的孔；光落到 M5 的镜环、反射回 M6，再从 M6 的整圈镜面汇成一只宽光锥（半角约 33°，中心空心），穿过 M5 的孔收束到晶圆上的一点。最后在下方仰望：两道环形镜对齐。
   camera:
     move: fly-through
     lens_mm: 24
@@ -5825,7 +5826,7 @@ shots:
   segment: B7
   duration: 11.07
   vo:
-  - 这样能让更多光通过，却也让描述镜头误差的标准数学工具失效了——蔡司和 ASML 只好换用另一套多项式。
+  - 这样能让更多光通过，却也让描述镜头误差的标准数学工具不再适用——蔡司和 ASML 只好换用另一套多项式。
   facts:
   - F39
   style: blueprint
@@ -5852,7 +5853,7 @@ shots:
   - 新公式写出时轻快的笔触声
   duration_design: 13.0
   cues:
-  - text: 这样能让更多光通过，却也让描述镜头误差的标准数学工具失效了——蔡司和 ASML 只好换用另一套多项式。
+  - text: 这样能让更多光通过，却也让描述镜头误差的标准数学工具不再适用——蔡司和 ASML 只好换用另一套多项式。
     start: 0.555
     end: 9.775
   start: 838.45
@@ -5860,7 +5861,7 @@ shots:
   - text: 这样能让更多光通过
     start: 0.555
     end: 2.399
-  - text: 却也让描述镜头误差的标准数学工具失效了——
+  - text: 却也让描述镜头误差的标准数学工具不再适用——
     start: 2.399
     end: 6.292
   - text: 蔡司和 ASML 只好换用另一套多项式

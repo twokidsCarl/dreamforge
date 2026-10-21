@@ -30,18 +30,18 @@ shots:
   segment: B7
   duration: 7.5
   vo:
-  - 从掩模反射出的光，进入投影物镜——由六面反射镜组成。
+  - 从掩模反射出的光，进入投影物镜——一组弯曲的反射镜。
   facts:
   - F7
   style: xray
-  style_why: 观众第一次进入投影物镜内部，问题是“里面怎么排布”，幽灵玻璃外壳让六面镜和光路同时可见
+  style_why: 观众第一次进入投影物镜内部，问题是“里面怎么排布”，幽灵玻璃外壳让镜组和光路同时可见
   transition_in: dissolve
-  visual: 承接 B6 的掩模：一束 EUV 紫光从掩模反射向下，镜头跟着光束钻进一只浅灰棚拍背景下的幽灵玻璃箱体。箱内六面镜（M1–M6）沿折线排布，光束每到一面，那面镜子的 Mo/Si 膜就亮起一圈虹彩，编号依次浮现。最终光束出箱、朝画面下方的晶圆收拢。
+  visual: 承接 B6 的掩模：一束 EUV 紫光从掩模反射向下，镜头跟着光束钻进一只浅灰棚拍背景下的幽灵玻璃箱体。上半部 M1–M4 在窄柱里折返，光束穿过大末镜 M6 中心的孔落到贴近晶圆的小镜 M5，再反射回 M6，最后一只宽光锥穿过 M5 的孔汇聚到晶圆；光每到一面镜子，镜缘亮起一圈紫光（外壳示意）。
   camera:
     move: follow-dolly
     lens_mm: 35
     fstop: 5.6
-    notes: 沿光路样条跟随，速度随光束；结尾升高到 3/4 俯视全景让六面镜同框
+    notes: 沿光路样条跟随，速度随光束；结尾升高到 3/4 俯视全景让镜组同框
   builders:
   - build_mask.reflective_mask
   - build_optics.projection_box
@@ -55,10 +55,9 @@ shots:
   - text: 章节 · 投影物镜与 High-NA：在镜子上开一个洞
     facts: []
     kind: chapter
-  - text: 投影物镜：6 面反射镜
     facts:
     - F7
-  - text: M1–M6 排布示意（非真实设计）
+  - text: 按 ASML / ZEISS 公开设计示例绘制（示意）
     facts:
     - F7
   engine: eevee
@@ -69,13 +68,13 @@ shots:
   segment: B7
   duration: 5.0
   vo:
-  - 它把图形缩小 4 倍，投向晶圆。
+  - 现役 NXE 把图形缩小 4 倍，投向晶圆。
   facts:
   - F11
   style: blueprint
   style_why: “缩小 4 倍”是几何关系，蓝图正交侧视能把掩模尺寸和晶圆尺寸并排标注
   transition_in: scan-wipe
-  visual: 一条扫描光带自上而下扫过，玻璃箱体变成蓝底白线的正交侧视图。顶部掩模上的一段电路图形（SKY130 版图片段）用白色线稿画出，沿光路虚线投到底部，落成同形但缩小的图形，两端各拉出尺寸线。
+  visual: 蓝图并排画出两份公开设计示例：左 NXE（NA 0.33），右 High-NA EXE（NA 0.55），掩模在上、晶圆在下，紫色半透明光束逐段画出；NXE 一侧，掩模上的一段图形以 1/4 大小落到晶圆，标“缩小 4×”。
   camera:
     move: locked-ortho
     lens_mm: 0
@@ -89,10 +88,12 @@ shots:
   - freestyle_lines
   - dimension_draw_on
   overlays:
-  - text: 缩小 4×
+  - text: NXE：缩小 4×
+    facts: []
+  - text: 设计示例 · ASML / ZEISS
     facts:
     - F11
-  engine: eevee
+  engine: mograph
   sfx:
   - 笔尖划线声
   - 尺寸线咔哒定位
@@ -164,12 +165,12 @@ shots:
   style: documentary
   style_why: 回答“它在真实世界的哪里”：交付是一个真实事件，回到开场 A0 的板条箱母题
   transition_in: whip
-  visual: 夜色里一座风格化的厂房装货口，叉车把一只印着“EXE 示意”字样的白色板条箱推进集装箱；冷白顶灯，地面有水迹反光。日期字样在箱体侧面打出。不仿制任何真实厂区或 ASML 标识。
+  visual: 夜色停机坪：一台平板挂车载着一只白色铝框、倒角顶的运输箱缓缓驶过，箱体侧面印着“2023.12”；背景里一架货机抬起机头、剪叉式升降平台车停在机头下，湿地面反着灯光。不出现任何标志和涂装。
   camera:
     move: slow-push
     lens_mm: 50
     fstop: 2.0
-    notes: 低机位、浅景深，前景虚化的集装箱门边
+    notes: 低机位、浅景深，前景虚化的挂车边缘
   builders:
   - build_machine.shipping_crates
   - build_machine.dock_environment
@@ -192,25 +193,24 @@ shots:
   facts:
   - F18
   style: clay
-  style_why: 无旁白的呼吸镜头：B4_14 已经炸开过同一模块，这里改用白模转台加一个人形比例尺，安静地交代它有多大，避免重复
+  style_why: 无旁白的呼吸镜头：B4_14 已经炸开过同一模块，这里改用白模转台，安静地交代它的外形，避免重复
   transition_in: dissolve
-  visual: 纯白哑光的 High-NA 投影光学模块（示意外形）立在浅灰无缝棚里缓缓转动，旁边站着一个同样白模的人形比例尺，只到模块腰部；顶光在模块的层层框架上留下柔和的 AO 阴影。
+  visual: 纯白哑光的 High-NA 投影物镜模块（照 ZEISS 公开渲染图的外形：宽而矮的棱角框架、下部斜面、窄底座、顶部线缆）在浅灰棚里缓缓转动，顶光留下柔和的 AO 阴影。
   camera:
     move: orbit
     lens_mm: 65
     fstop: 4.0
-    notes: 环绕 60°，爆炸峰值时正好转到 3/4 侧面
+    notes: 环绕约 50°，停在 3/4 侧面
   builders:
   - build_optics.po_module_exploded
   - styles.clay
   fx:
   - ambient_occlusion
-  - explode_stagger
   overlays:
-  - text: High-NA 投影光学（外形示意，人形为比例参考）
+  - text: High-NA 投影物镜（外形示意 · 尺寸未公开）
     facts:
     - F18
-  - text: 外形示意
+  - text: 约 12 吨 · 4 万多个零件（ZEISS）
     facts: []
   engine: eevee
   sfx:
@@ -297,7 +297,6 @@ shots:
   - volumetric_cone
   - interference_ripple
   - bloom
-  - chromatic_dispersion
   overlays:
   - text: 示意
     facts: []
@@ -336,7 +335,7 @@ shots:
   segment: B7
   duration: 6.0
   vo:
-  - 入射角从 6 度降到 5.4 度，两只光锥恰好错开；
+  - 扫描方向的光锥细了一半，入射角还能从 6 度降到 5.4 度，两只光锥恰好错开；
   facts:
   - F40
   style: energy
@@ -355,7 +354,9 @@ shots:
   - volumetric_cone
   - bloom
   overlays:
-  - text: 入射角 6° → 5.4°
+  - text: 扫描方向光锥减半（≈3.9°）· 入射角 6° → 5.4°
+    facts: []
+  - text: 角度放大示意
     facts:
     - F40
   engine: eevee
@@ -431,7 +432,7 @@ shots:
   style: photoreal
   style_why: 回答“它真的长这样吗”：一面原子级抛光的镜子中间开孔，只有真实材质才有冲击力
   transition_in: dissolve
-  visual: 真空腔幽暗环境中，一面巨大的凹面镜从黑暗里浮现，Mo/Si 膜层泛着淡淡的虹彩，表面倒映着另一面镜子；镜头绕到正面，镜心是一个黑洞般的圆孔，孔缘倒角闪着一线高光。孔的另一侧隐约能看到第二面同样开孔的镜子。
+  visual: 真空腔幽暗环境中，上方一面巨大的凹面镜（M6）镜面朝下、中心开孔；下方贴近晶圆处一面小镜（M5）镜面朝上、也开孔。镜头从侧面绕到下方，沿光轴仰望：两面镜子的孔对成一线。
   camera:
     move: arc-to-front
     lens_mm: 40
@@ -442,7 +443,6 @@ shots:
   - build_vacuum.chamber
   - materials.multilayer_mirror
   fx:
-  - thin_film_iridescence
   - depth_of_field
   - bloom
   overlays:
@@ -461,7 +461,7 @@ shots:
   style: photoreal
   style_why: 本段的震撼时刻：镜头像飞船穿过星门一样钻过末镜中央的孔，让观众亲身经历“在镜子上开洞”
   transition_in: push-through
-  visual: 镜头加速冲向孔洞，孔壁一闪而过；穿出瞬间，EUV 紫色光锥从四周的镜面反射汇聚过来、擦着镜头穿过孔洞，在前方收束成一个点——那是晶圆。回望：两面开孔镜前后对齐，像两道环形门。
+  visual: 镜头顺着从 M4 来的细光束下降，穿过 M6 中心的孔；光落到 M5 的镜环、反射回 M6，再从 M6 的整圈镜面汇成一只宽光锥（半角约 33°，中心空心），穿过 M5 的孔收束到晶圆上的一点。最后在下方仰望：两道环形镜对齐。
   camera:
     move: fly-through
     lens_mm: 24
@@ -485,7 +485,7 @@ shots:
   segment: B7
   duration: 13.0
   vo:
-  - 这样能让更多光通过，却也让描述镜头误差的标准数学工具失效了——蔡司和 ASML 只好换用另一套多项式。
+  - 这样能让更多光通过，却也让描述镜头误差的标准数学工具不再适用——蔡司和 ASML 只好换用另一套多项式。
   facts:
   - F39
   style: blueprint

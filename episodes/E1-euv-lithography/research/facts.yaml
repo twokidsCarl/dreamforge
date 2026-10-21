@@ -104,16 +104,21 @@ F7:
   sources:
     - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
     - https://cpmi.illinois.edu/files/2023/10/Ch18-1.pdf
-  notes: 6 面为 A 级（ZEISS）；“约 10 面”为教材（B），旁白用“约 10 面”，不写死精确总数。
-  segments: [B4, B7]
+  notes: >-
+    6 面为 A 级（ZEISS），但只是 NXE（0.33 NA）的公开数字；EXE 没有文字来源，旁白不得把 6 面用于 High-NA（WORKFLOW 2.5）。
+    “约 10 面”为教材（B），旁白用“约 10 面”，不写死精确总数。
+  segments: [B4]
 
 F8:
-  claim: 钼硅交替镀膜，最多约 100 层，每层几纳米；单层反射约 1%，叠加后最高约 70%
-  values: {layers: 100, single_pct: 1, stack_pct: 70}
+  claim: 钼硅交替镀膜，High-NA 镜子上百层，每层几纳米；单层反射约 1%，叠加后最高约 70%
+  values: {layers: 100+, single_pct: 1, stack_pct: 70}
   status: verified
   grade: A
   sources:
+    - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/high-na-euv-lithography.html
     - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
+  quote: "Manufactured to atomic precision and consisting of more than a hundred layers, the mirrors are at the heart of High-NA-EUV technology."
+  notes: 0.33 NA 页面写 "up to 100 layers"；片中是 High-NA，用“上百层”，不说“最多”（research/visual/B4B5_sources.md 冲突 1）。
   segments: [B4]
 
 F9:
@@ -179,6 +184,11 @@ F14:
   grade: A
   sources:
     - https://www.asml.com/en/products/euv-lithography-systems
+    - https://euvlitho.com/2021/P11.pdf
+  notes: >-
+    多层膜部分 A 级（ASML："reticles are multilayer reflectors that use interference to reflect light from the
+    pattern"）。吸收层部分 B 级：imec Philipsen et al., EUVL Workshop 2021, 第 2 页 "Ru cap / Mo/Si ML mirror / Absorber"，
+    第 8 页参考 TaBN 吸收层 "Thickness ~ 60nm"。
   segments: [B6]
 
 F15:
@@ -234,7 +244,10 @@ F18:
   sources:
     - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
     - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/high-na-euv-lithography.html
-  notes: “整机约 10 万个零件”只见媒体，不用。
+    - https://euvlitho.com/2024/P22.pdf
+  notes: >-
+    “整机约 10 万个零件”只见媒体，不用。ZEISS EUVL Workshop 2024 第 8 页："> 40.000 individual parts ~ 12 t weight"
+    （投影光学），"> 25.000 individual parts, ~ 6 t weight"（照明系统）。
   segments: [B4, B7]
 
 F19:
@@ -383,13 +396,14 @@ F32:
   segments: [B4]
 
 F33:
-  claim: 经过约 10 面反射镜，进入扫描仪的 100 W EUV 到晶圆时最多只剩约 1 W
-  values: {in_w: 100, out_w: 1}
+  claim: 经过约 10 面反射镜，到晶圆时只剩约 1% 的光（教材以 100 W → 1 W 为例）
+  values: {out_share_pct: 1}
   status: verified
   grade: B
   sources:
     - https://cpmi.illinois.edu/files/2023/10/Ch18-1.pdf
   narration: 到达晶圆的光只剩约 1%
+  notes: 100 W 是教材的假设例子，不是某台机器的数值；ASML 的光源功率在中间焦点处标定（NXE:3800E >500 W，F4c）。每面约 66–70%，约 11 次反射（含掩模）→ 约 1–2%。
   segments: [B4, B9, C]
 
 F34:
@@ -417,7 +431,9 @@ F36:
   grade: A
   sources:
     - https://www.asml.com/en/news/stories/2022/the-euv-pellicle-indistinguishable-from-magic
-  notes: ASML 文章标题意为“与魔法无异”。旧代 50 nm 多晶硅数据不用。
+  notes: >-
+    ASML 文章原题 "Indistinguishable from magic: the EUV pellicle"（意为“与魔法无异”）；位置原文 "positioned inside the
+    lithography machine just below the reticle"（掩模在机器里图形面朝下，膜在图形面前）。旧代 50 nm 多晶硅数据不用。
   segments: [B6]
 
 F37:
@@ -453,6 +469,10 @@ F40:
   sources:
     - https://euvlitho.com/2024/P22.pdf
     - https://euvlitho.com/2022/P53.pdf
+    - https://www.euvlitho.com/2021/P3.pdf
+  notes: >-
+    van Schoot 2021 第 34 页："Exposure Chief Ray Angle (~5.3°)"，"Image field size at reticle level (104 x 132 mm)"（与 0.33 NA
+    相同，掩模和图形区尺寸不变）。光锥分开靠的是扫描方向 8× 让光锥半角减半（asin(0.55/8)=3.94°）；降低入射角本身会让缝变窄。
   segments: [B6, B7]
 
 # ---- new: mechatronics & system ----------------------------------------------------------
@@ -577,7 +597,7 @@ F52:
   claim: High-NA 曝光场减半，每片晶圆 188 个半场
   values: {half_fields: 188}
   status: verified
-  grade: B
+  grade: A
   sources:
     - https://euvlitho.com/2022/P3.pdf
   segments: [B7, B8]
