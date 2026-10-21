@@ -72,10 +72,8 @@ def a04_camera(t, dur=A04_DUR):
     return (0.0 + 0.25 * u, -12.6 + 2.6 * u, 0.0), (0.05 + 0.1 * u, 0.0, 0.0)
 
 
-def a04_project(i_or_pos, t, W, H, dur=A04_DUR):
-    """把世界点投影到画面像素（与 Blender 的 TRACK_TO 相机一致：50 mm、36 mm 传感器、水平适配）。"""
-    p = a04_orb(i_or_pos, t) if isinstance(i_or_pos, int) else i_or_pos
-    loc, aim = a04_camera(t, dur)
+def project_point(p, loc, aim, W, H, focal=A04_FOCAL_MM, sensor=A04_SENSOR_MM):
+    """把世界点 p 投影到画面像素（与 Blender 的 TRACK_TO 相机一致：-Z 朝 aim、Y 朝上，传感器水平适配）。"""
     fwd = [aim[k] - loc[k] for k in range(3)]
     n = math.sqrt(sum(v * v for v in fwd))
     fwd = [v / n for v in fwd]
@@ -88,8 +86,15 @@ def a04_project(i_or_pos, t, W, H, dur=A04_DUR):
     z = sum(d[k] * fwd[k] for k in range(3))
     x = sum(d[k] * right[k] for k in range(3))
     y = sum(d[k] * up[k] for k in range(3))
-    s = A04_FOCAL_MM / A04_SENSOR_MM * W / z
+    s = focal / sensor * W / z
     return W / 2 + x * s, H / 2 - y * s
+
+
+def a04_project(i_or_pos, t, W, H, dur=A04_DUR):
+    """A0_04a：光点（或世界点）在 t 秒的画面像素。"""
+    p = a04_orb(i_or_pos, t) if isinstance(i_or_pos, int) else i_or_pos
+    loc, aim = a04_camera(t, dur)
+    return project_point(p, loc, aim, W, H)
 
 
 # ---- 纸页镜头（A0_01a / A0_02b）--------------------------------------------------------------
