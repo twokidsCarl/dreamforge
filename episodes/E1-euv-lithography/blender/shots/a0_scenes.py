@@ -845,8 +845,8 @@ def assemble(sc, rnd):
         home = o.location.copy()
         k = i % nt
         start = Vector((BM.CENTER[0] - 9.0 + 3.6 * k, -7.5, -1.0))
-        f0 = 1 + 8 * i                                             # the first module is already rising at the cut
-        _key(o, 1, location=start, scale=(0.3, 0.3, 0.3))
+        f0 = -18 + 7 * i                                           # several modules are already in the air at the cut
+        _key(o, min(f0, 1) - 1, location=start, scale=(0.3, 0.3, 0.3))
         _key(o, f0, location=start, scale=(0.3, 0.3, 0.3))
         _key(o, f0 + 14, location=Vector((home.x, home.y - 3.0, home.z + 2.2)), scale=(1, 1, 1))
         _key(o, f0 + 28, location=home)
