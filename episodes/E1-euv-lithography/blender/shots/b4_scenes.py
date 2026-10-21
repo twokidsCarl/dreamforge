@@ -211,47 +211,49 @@ def atoms(sc, rnd, n=80, spacing=0.235):
 
 # ---- B4_10 / B4_11 -------------------------------------------------------------------------
 def _earth(loc, r):
+    """Earth from the equirectangular land mask (blender/textures/worldmap_land.png, Natural Earth via
+    make_worldmap.py): real continents, ocean blue, a little cloud noise, thin atmosphere rim."""
+    import os
     m = bpy.data.materials.new("Earth")
     m.use_nodes = True
     nt = m.node_tree
     b = nt.nodes["Principled BSDF"]
+    tex = nt.nodes.new("ShaderNodeTexImage")
+    tex.image = bpy.data.images.load(os.path.join(os.path.dirname(__file__), "..", "textures", "worldmap_land.png"),
+                                     check_existing=True)
+    tex.image.colorspace_settings.name = "Non-Color"
     tc = nt.nodes.new("ShaderNodeTexCoord")
-    noise = nt.nodes.new("ShaderNodeTexNoise")
-    noise.inputs["Scale"].default_value = 1.1
-    noise.inputs["Detail"].default_value = 5.0
-    ramp = nt.nodes.new("ShaderNodeValToRGB")
-    e = ramp.color_ramp.elements
-    e[0].position, e[0].color = 0.52, (0.01, 0.04, 0.16, 1)
-    e[1].position, e[1].color = 0.56, (0.12, 0.2, 0.08, 1)
-    e2 = ramp.color_ramp.elements.new(0.66)
-    e2.color = (0.32, 0.26, 0.14, 1)
+    nt.links.new(tc.outputs["UV"], tex.inputs["Vector"])
+    land = nt.nodes.new("ShaderNodeMixRGB")
+    nt.links.new(tex.outputs["Color"], land.inputs["Fac"])
+    land.inputs["Color1"].default_value = (0.01, 0.035, 0.12, 1)       # ocean
+    land.inputs["Color2"].default_value = (0.16, 0.2, 0.09, 1)         # land
     clouds = nt.nodes.new("ShaderNodeTexNoise")
-    clouds.inputs["Scale"].default_value = 3.0
-    clouds.inputs["Detail"].default_value = 6.0
+    clouds.inputs["Scale"].default_value = 4.0
+    clouds.inputs["Detail"].default_value = 8.0
     cr = nt.nodes.new("ShaderNodeValToRGB")
-    cr.color_ramp.elements[0].position = 0.62
+    cr.color_ramp.elements[0].position = 0.66
     cr.color_ramp.elements[0].color = (0, 0, 0, 1)
-    cr.color_ramp.elements[1].position = 0.82
+    cr.color_ramp.elements[1].position = 0.8
     cr.color_ramp.elements[1].color = (1, 1, 1, 1)
     mix = nt.nodes.new("ShaderNodeMixRGB")
-    nt.links.new(tc.outputs["Object"], noise.inputs["Vector"])
     nt.links.new(tc.outputs["Object"], clouds.inputs["Vector"])
-    nt.links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
     nt.links.new(clouds.outputs["Fac"], cr.inputs["Fac"])
     nt.links.new(cr.outputs["Color"], mix.inputs["Fac"])
-    nt.links.new(ramp.outputs["Color"], mix.inputs["Color1"])
-    mix.inputs["Color2"].default_value = (0.9, 0.92, 0.95, 1)
+    nt.links.new(land.outputs["Color"], mix.inputs["Color1"])
+    mix.inputs["Color2"].default_value = (0.85, 0.87, 0.9, 1)
     nt.links.new(mix.outputs["Color"], b.inputs["Base Color"])
     b.inputs["Roughness"].default_value = 0.6
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=r, segments=96, ring_count=48, location=loc)
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=r, segments=128, ring_count=64, location=loc)
     ob = bpy.context.object
     ob.name = "EarthBody"
+    ob.rotation_euler = (0, 0, math.radians(200))                     # Eurasia / Africa toward the camera
     for p in ob.data.polygons:
         p.use_smooth = True
     ob.data.materials.append(m)
     styles.tag(ob, "structure")
     atm = styles.dark_rim("Atmosphere", color=(0.3, 0.55, 1.0), strength=2.5)
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=r * 1.025, segments=96, ring_count=48, location=loc)
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=r * 1.02, segments=96, ring_count=48, location=loc)
     a = bpy.context.object
     for p in a.data.polygons:
         p.use_smooth = True
@@ -265,35 +267,56 @@ def _moon_terrain(rnd, loc=(0, 0, -500)):
     t = bpy.context.object
     t.name = "MoonTerrain"
     tex = bpy.data.textures.new("Craters", "VORONOI")
-    tex.noise_scale = 1.6
+    tex.noise_scale = 0.9
     d = t.modifiers.new("Craters", "DISPLACE")
     d.texture = tex
-    d.strength = -0.35
+    d.strength = -0.12
     tex2 = bpy.data.textures.new("Regolith", "CLOUDS")
-    tex2.noise_scale = 0.3
+    tex2.noise_scale = 0.12
     d2 = t.modifiers.new("Regolith", "DISPLACE")
     d2.texture = tex2
-    d2.strength = 0.08
+    d2.strength = 0.025
     for p in t.data.polygons:
         p.use_smooth = True
-    t.data.materials.append(M.principled("Regolith", (0.16, 0.155, 0.15), roughness=0.95))
+    reg = M.principled("Regolith", (0.2, 0.195, 0.19), roughness=0.97)
+    rn = reg.node_tree
+    grain = rn.nodes.new("ShaderNodeTexNoise")                       # fine granular regolith
+    grain.inputs["Scale"].default_value = 260.0
+    grain.inputs["Detail"].default_value = 6.0
+    gb = rn.nodes.new("ShaderNodeBump")
+    gb.inputs["Strength"].default_value = 0.6
+    gb.inputs["Distance"].default_value = 0.004
+    rn.links.new(grain.outputs["Fac"], gb.inputs["Height"])
+    rn.links.new(gb.outputs["Normal"], rn.nodes["Principled BSDF"].inputs["Normal"])
+    t.data.materials.append(reg)
     styles.tag(t, "structure")
     # golf ball with dimples (voronoi bump)
     gm = bpy.data.materials.new("Golf")
     gm.use_nodes = True
     nt = gm.node_tree
-    vor = nt.nodes.new("ShaderNodeTexVoronoi")
-    vor.inputs["Scale"].default_value = 22.0
+    gtc = nt.nodes.new("ShaderNodeTexCoord")
+    vor = nt.nodes.new("ShaderNodeTexVoronoi")                      # ~300-400 round dimples over the ball
+    vor.inputs["Scale"].default_value = 38.0
+    vor.inputs["Randomness"].default_value = 0.12
     vor.feature = "F1"
+    nt.links.new(gtc.outputs["Object"], vor.inputs["Vector"])
+    dimple = nt.nodes.new("ShaderNodeMapRange")                    # flat land between, a smooth cup in each cell
+    dimple.inputs["From Min"].default_value = 0.0
+    dimple.inputs["From Max"].default_value = 0.5
+    nt.links.new(vor.outputs["Distance"], dimple.inputs["Value"])
     bump = nt.nodes.new("ShaderNodeBump")
-    bump.inputs["Strength"].default_value = 1.0
-    bump.invert = True
-    nt.links.new(vor.outputs["Distance"], bump.inputs["Height"])
+    bump.inputs["Strength"].default_value = 0.8
+    bump.inputs["Distance"].default_value = 0.004
+    nt.links.new(dimple.outputs["Result"], bump.inputs["Height"])
     nt.links.new(bump.outputs["Normal"], nt.nodes["Principled BSDF"].inputs["Normal"])
-    nt.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.7, 0.7, 0.68, 1)
-    nt.nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.35
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.21, segments=64, ring_count=32,
-                                         location=(loc[0], loc[1], loc[2] + 0.12))
+    nt.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.82, 0.82, 0.8, 1)
+    nt.nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.3
+    # rest the ball on the displaced ground: find the surface height under it
+    dg = bpy.context.evaluated_depsgraph_get()
+    hit = bpy.context.scene.ray_cast(dg, Vector((loc[0], loc[1], loc[2] + 5)), Vector((0, 0, -1)))
+    gz = hit[1].z if hit[0] else loc[2]
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.21, segments=96, ring_count=48,
+                                         location=(loc[0], loc[1], gz + 0.2))
     ball = bpy.context.object
     ball.name = "GolfBall"
     for p in ball.data.polygons:
@@ -301,7 +324,7 @@ def _moon_terrain(rnd, loc=(0, 0, -500)):
     ball.data.materials.append(gm)
     styles.tag(ball, "structure")
     spot = bpy.data.lights.new("LaserSpot", "SPOT")              # the laser's faint footprint
-    spot.energy = 40.0
+    spot.energy = 260.0
     spot.color = (0.75, 0.85, 1.0)
     spot.spot_size = math.radians(14)
     spot.spot_blend = 0.6

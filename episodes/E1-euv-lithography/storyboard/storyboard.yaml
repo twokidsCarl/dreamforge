@@ -453,7 +453,7 @@ shots:
   fx:
   - ambient_occlusion
   overlays:
-  - text: 显影 · 刻蚀 · 沉积
+  - text: 显影 · 刻蚀 · 去胶 · 沉积 · 抛光
     facts: []
   engine: eevee
   sfx:
@@ -1249,7 +1249,7 @@ shots:
   - bloom
   - shallow_dof
   overlays:
-  - text: 射流经双重调制，在飞行中合并（ASML 专利 · 示意）
+  - text: 约 100 颗小液滴在飞行中合成 1 颗（ASML/Cymer 2017 示例 · 示意）
     facts:
     - F21
   - text: 慢动作
@@ -1319,7 +1319,7 @@ shots:
   - text: 最新光源每秒 6 万颗
     facts:
     - F2
-  - text: 间距约 1.4 mm（推算：70 m/s × 20 μs）
+  - text: 间距约 1–1.5 mm（随频率与速度）
     facts:
     - F2
     - F3
@@ -1771,7 +1771,7 @@ shots:
   style: blueprint
   style_why: 镜头逆着激光往回追，进入“它是怎么设计的”：蓝图线稿逐笔画出放大链。
   transition_in: whip
-  visual: 镜头顺着激光入射方向甩回去，落在蓝底网格上：白色线稿逐笔画出一条长长的激光放大链：种子激光盒、前置放大器、四个串联的放大级、光束传输管，尺寸线和虚线隐藏线随之出现。
+  visual: 镜头顺着激光入射方向甩回去，落在蓝底网格上：白色线稿逐笔画出一条长长的激光放大链：种子模块（两台种子激光：预脉冲、主脉冲）、前置放大器、四个串联的放大级、光束传输管。
   camera:
     move: orthographic slow track
     lens_mm: null
@@ -1859,7 +1859,7 @@ shots:
   style: documentary
   style_why: 回答“它在真实世界里有多大”：厂房尺度只能用纪实氛围和人影来交代。
   transition_in: cut
-  visual: 广角低机位，风格化的厂房（不仿制具体工厂）：一根粗光束管从地面下方穿过，连接隔壁的激光间和光刻机；管道观察窗里一道橙色光点高速掠过（示意），几个工程师剪影站在旁边给出尺度。
+  visual: 两层楼的剖面（风格化，不仿制具体工厂）：楼下辅助层里是一排激光放大柜、射频电源和换热器，光束管沿楼下走，经转向镜竖直穿过华夫板楼板，送到楼上光刻机旁的光源；一道橙色光点沿管道掠过（示意），两层都有人影给出尺度。
   camera:
     move: low-angle slow pan
     lens_mm: 20
@@ -1875,6 +1875,11 @@ shots:
   - text: 光路最长约 30 m
     facts:
     - F6
+  - text: 激光在楼下辅助层，光束穿过楼板送上来
+    facts:
+    - F62
+  - text: 示意 · 橙色光点为示意
+    facts: []
   engine: cycles
   sfx:
   - 厂房空调与设备底噪
@@ -1914,7 +1919,7 @@ shots:
   segment: B1
   duration: 12.4
   vo:
-  - 最新的 NXE:3800E，光源功率超过 500 瓦；2025 年，ASML 演示了第一台 1000 瓦的 EUV 光源。
+  - 最新一代 NXE 光源，功率已超过 500 瓦；2025 年，ASML 演示了第一台 1000 瓦的 EUV 光源。
   facts:
   - F6
   - F4c

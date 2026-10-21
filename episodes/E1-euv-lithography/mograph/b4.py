@@ -164,7 +164,7 @@ def mirror_scale(t, dur, W, H):
         c.circle((1550 + 120 * math.cos(ang), 800 + 120 * math.sin(ang)), 14,
                  fill=CYAN if on else None, outline=INK2, width=2, a=a * (0.4 + 0.6 * on))
     c.text((1550, 800), "约 1 年 / 面", 28, INK, a * ease(seg(t, 3.8, 4.4)), anchor="mm")
-    c.text((960, 1010), "剪影示意，具体尺寸未公开（ZEISS · F31）", 22, INK2, a, anchor="mm")
+    c.text((960, 1010), "剪影示意 · 最大的镜子约 1 米宽（ASML）", 22, INK2, a, anchor="mm")
     return c.finish()
 
 
@@ -178,10 +178,12 @@ def ledger_100w(t, dur, W, H):
     level = top + (bot - top - 12) * (1 - (1 - drop) ** 0.4) if drop > 0 else top
     level = top + (bot - top - 12) * drop
     c.rect((x + 6, level, x + w - 6, bot - 6), fill=VIOLET, a=a * 0.8, glow=True, radius=6)
-    c.text((x - 40, top + 10), "进入扫描仪 100 W", 40, INK, a, anchor="rm")
-    c.text((x - 40, bot - 20), "到晶圆 ≈ 1 W", 44, INK, a * ease(seg(t, 3.0, 3.8)), anchor="rm",
+    # in shares, not watts: the source power is specified at the intermediate focus (>500 W, NXE:3800E); a fixed
+    # "100 W in" was a textbook example (audit_B8B9 B9_01). ~66 % per reflection, 11 reflections -> ~1 %
+    c.text((x - 40, top + 10), "进入光路 100%", 40, INK, a, anchor="rm")
+    c.text((x - 40, bot - 20), "到晶圆 ≈ 1%", 44, INK, a * ease(seg(t, 3.0, 3.8)), anchor="rm",
            weight_glow=True)
-    c.text((x + w + 40, bot - 20), "约 10 面反射镜之后（F33）", 26, INK2, a * ease(seg(t, 3.0, 3.8)), anchor="lm")
+    c.text((x + w + 40, bot - 20), "约 10 面反射镜 + 掩模之后", 26, INK2, a * ease(seg(t, 3.0, 3.8)), anchor="lm")
     return c.finish()
 
 

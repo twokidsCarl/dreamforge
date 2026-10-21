@@ -682,3 +682,13 @@ F62:
     and "Turning mirrors may be used to allow the beam to travel from the sub-fab to the fab through the waffle-slab
     floor" (Fomenkov et al., ASML/Cymer, Adv. Opt. Techn. 2017, p.176); Fig. 1 labels "Fab Floor" over "Sub-Fab Floor".
   segments: [B1]
+
+F63:
+  claim: High-NA（NA 0.55）机器里最大的镜子约 1 米宽，表面平整到几十皮米
+  values: {largest_mirror_m: 1.0}
+  status: verified
+  grade: A
+  sources:
+    - https://www.asml.com/en/technology/lithography-principles/lenses-and-mirrors
+  quote: "Our state-of-the-art EUV lithography machines, whose largest mirrors are 1 meter across and smooth down to tens of picometers, have an NA of 0.55."
+  segments: [B4]
