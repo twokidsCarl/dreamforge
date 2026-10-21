@@ -1124,7 +1124,7 @@ shots:
   builders:
   - parametric_blender
   fx: []
-  engine: manim
+  engine: eevee
   sfx:
   - 低噪室温
   duration_design: 12.64
@@ -1245,7 +1245,7 @@ shots:
   builders:
   - parametric_blender
   fx: []
-  engine: manim
+  engine: eevee
   sfx:
   - 低噪室温
   duration_design: 29.44
@@ -1976,7 +1976,7 @@ shots:
   builders:
   - parametric_blender
   fx: []
-  engine: manim
+  engine: eevee
   sfx: []
   start: 451.2
 - id: B_17a

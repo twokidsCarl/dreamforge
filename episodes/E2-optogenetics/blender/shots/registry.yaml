@@ -6,7 +6,7 @@
 #     后处理：A0_04a 在 mograph/a0.py；B_02a、B_03a、B_04a、B_16b、B_18a 在 mograph/b.py；C_01a、C_07a 在 mograph/c.py
 #     （共用件 mograph/raw_overlay.py；要叠的字和锚点空物体 LabelAnchor_* 写在 b_scenes.py / c_scenes.py 文件头）。
 #   documentary 不是 styles.py 里的风格：场景自带灯光和世界，不再套风格。
-#   B_04a、B_06a、B_16b：分镜 engine 写 manim，但画的是膜、通道和卵母细胞（builder: parametric_blender），
+#   B_04a、B_06a、B_16b：分镜原写 manim（已改记 eevee），画的是膜、通道和卵母细胞（builder: parametric_blender），
 #     WORKFLOW 6.4 要求核心结构用参数化 Blender，所以改在 Blender 里用 EEVEE + blueprint 风格做。
 #   起始帧不是 1 的镜头（A0_02b、A_01b、A_06b、B_03b、B_07b、B_09b、D_01b 等）是同一场景里另一段时间表，
 #     按当前 timed 时长算出；retime 之后要重算（见各模块文件头）。
