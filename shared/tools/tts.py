@@ -259,8 +259,24 @@ def build_paragraph(voice, segments, out_dir, attempts=3, asr=None):
     script = parse(os.path.join(EP, "script/script_zh.md"))
     manifest, report, ref_pitch = {}, [], None
     timing, t_global = {"voice": voice, "model": MODEL, "mode": "paragraph", "segments": []}, 0.0
+    # a partial run (--segments) must keep every other segment: carry its timing entry and sentence files over
+    # (rewriting timing.json / sentences.json with only the selected segments broke retime for the rest)
+    old = {}
+    tpath = os.path.join(vdir, "timing.json")
+    if segments and os.path.exists(tpath):
+        old = {sg["id"]: sg for sg in json.load(open(tpath, encoding="utf-8")).get("segments", [])}
     for seg in script:
         if segments and seg["id"] not in segments:
+            prev = old.get(seg["id"])
+            if prev is None:
+                raise SystemExit(f"{seg['id']} has no earlier timing entry; run tts.py for all segments once")
+            for row in prev["lines"]:
+                row["global_start"] = round(t_global + row["start"], 3)
+            for i, L in enumerate(seg["lines"]):
+                manifest[L["text"]] = os.path.join(sdir, f"{seg['id']}_{i:02d}.wav")
+            prev["start"] = round(t_global, 3)
+            timing["segments"].append(prev)
+            t_global += prev["duration"]
             continue
         spoken = [normalize(L["text"]) for L in seg["lines"]]
         weights = [spoken_len(sp) for sp in spoken]
