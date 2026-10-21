@@ -6,9 +6,10 @@
 # 2026-10-21 首版（P6）。3D 镜头按场景代码核；raw 镜头（B_02a、B_03a、B_04a、B_16b、B_18a）的叠字按 mograph/b.py 核；
 #   其余 2D 镜头（mograph: b）还没写，按分镜 visual 核，写代码时照此对字。
 # 同日顺手改了 b_scenes.py 文件头里过时的事实编号（ChR1 / ChR2 / 截短 → F5，NpHR → F8），只改注释，不影响渲染。
-# 现有 unsourced（3 条，改法写在 note 里）：
-#   B_06a「加上视黄醛」：F5 只写把 Channelopsin-1 表达在卵母细胞里得到光门控电导，没有「另加视黄醛」。
-#   B_18a / B_18b「ChrimsonR 敏感更长波长」：facts.yaml 没有 ChrimsonR 的光谱（Klapoetke et al. 2014 只出现在 b_scenes.py 文件头）。
+# 现有 unsourced：0（2026-10-21 补齐）。
+#   B_06a「加上视黄醛」→ sourced（F5 notes：Nagel 2002 摘要 in the presence of all-trans retinal；诺奖科学背景 introducing all-trans-retinal）；
+#     「细胞自己没有这套感光系统」拆出一条记 simplified。
+#   B_18a / B_18b「ChrimsonR 敏感更长波长」→ sourced（新增 F17：Klapoetke et al. 2014，Chrimson 红移约 45 nm，ChrimsonR 保留红移光谱）。
 B_01a:
   - item: 嗜盐古菌的杆状细胞表面，几块颜色更深的膜斑（紫膜），慢推到最大一块；电镜灰度风格
     status: simplified
@@ -76,11 +77,14 @@ B_06a:
     status: simplified
     source: F5（Nagel 等 2002：把衣藻 Channelopsin-1 表达在爪蟾卵母细胞里）；build_cell 文件头（VI 期卵母细胞外观，Dumont 1972）
     note: 位点个数不按真实表达密度
-  - item: 加上视黄醛（锯齿小分子示意）落到膜旁（旁白：「细胞自己没有这套感光系统。可是加上视黄醛、再给光」）
-    status: unsourced
-    note: F5 只写表达 Channelopsin-1 后得到对质子有选择性的光门控电导，没有「卵母细胞缺感光系统」「另加视黄醛」这两句。
-      改法：回读 Nagel 2002 Science 正文和方法（DOI 10.1126/science.1072068），若写明孵育时加了 all-trans retinal，就补进 F5 notes，
-      改记 sourced；补不到就把视黄醛这一步从画面拿掉，旁白交 Luna 决定（改旁白要重录）
+  - item: 旁白「细胞自己没有这套感光系统」（画面上卵母细胞膜旁原本没有视黄醛）
+    status: simplified
+    source: F5 notes
+    note: 叙事衔接：爪蟾卵母细胞不是衣藻的天然感光系统。不是论文原句
+  - item: 加上视黄醛（锯齿小分子示意）落到膜旁（旁白：「可是加上视黄醛、再给光」）
+    status: sourced
+    source: F5 notes（Nagel 2002 摘要：in the presence of all-trans retinal；诺奖科学背景：introducing all-trans-retinal）
+    note: 锯齿小分子是示意，不是 all-trans retinal 的真实构型；不标浓度。哺乳动物脑内常不必另加视黄醛见 F8，与此不冲突
   - item: 光线箭头打下，双电极接到一只风格化电流表，指针偏转；几颗标「H⁺」的小球经位点进入细胞
     status: simplified
     source: F5（ChR1 对质子有选择性的光门控电导）
@@ -207,10 +211,9 @@ B_18a:
     source: F11（2021 年用于人眼的是 ChrimsonR）；build_opsin
     note: 两个结构都是同一参数化模型，不假装是晶体结构；冷 / 暖灰只区分左右
   - item: 右侧代表「敏感更长波长」（旁白：「后来的工具把敏感的颜色往更长的波长推。ChrimsonR 就是其中一种」）
-    status: unsourced
-    note: facts.yaml 里 F11 只写 ChrimsonR 这个名字，没有它的作用光谱；Klapoetke et al. 2014 只出现在 b_scenes.py 文件头，没有进 facts。
-      改法：读 Klapoetke et al. 2014（Nat Methods，独立光激发两群神经元那篇）或 Sahel 2021 方法里对 ChrimsonR 光谱的描述，
-      补一条 F（或补进 F11 notes），改记 sourced；补之前屏幕不写「红移」「长波长」，不标波长数字
+    status: sourced
+    source: F17（Klapoetke et al. 2014：Chrimson 比此前通道视紫红质红移约 45 nm；ChrimsonR 保留红移光谱）
+    note: 屏幕不标波长数字；冷 / 暖灰的对比是 simplified 的区分，不是光谱色
   - item: 叠字「2021 用于人眼」（mograph/b.py，锚点 LabelAnchor_human）
     status: sourced
     source: F11
@@ -219,8 +222,9 @@ B_18a:
     source: F6（2005 用的是 ChR2）；F11（2021 用的是 ChrimsonR）
 B_18b:
   - item: 箭头从蓝光通道指向更长波长的 ChrimsonR
-    status: unsourced
-    note: 同 B_18a 第二条：「更长波长」没有进 facts.yaml。补上之前箭头只连两个名字，不画波长色带
+    status: sourced
+    source: F17；F6（2005 用的是蓝光 ChR2）
+    note: 箭头读作「敏感波长往长推」，不是谱系上的直接改造（ChrimsonR 来自 Chrimson，不是 ChR2 的突变体）。不画带纳米刻度的色带
 B_19a:
   - item: 2013 Brain Prize 六个名字排成一行：Bamberg、Boyden、Deisseroth、Hegemann、Miesenböck、Nagel；没有肖像
     status: sourced

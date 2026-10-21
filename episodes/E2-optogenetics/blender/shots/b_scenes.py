@@ -33,7 +33,7 @@
     这里用 build_opsin 的 cterm 表示；truncate 开头的「分开的感受器 + 分开的孔」是旁白里被否定的旧设想，画成抽象零件，
     不对应任何具体系统。
   - NpHR 是黄光驱动的氯离子泵，氯离子进入细胞，膜电位往负方向走（Zhang et al. 2007，F8）。
-  - ChrimsonR：长波长敏感的通道视紫红质变体（Klapoetke et al. 2014），2021 年用于人眼（Sahel et al. 2021，F11）。
+  - ChrimsonR：长波长敏感的通道视紫红质变体（Klapoetke et al. 2014，光谱见 F17），2021 年用于人眼（Sahel et al. 2021，F11）。
     sem 下用冷 / 暖两种灰调区分左右，两个蛋白是两个物体。
   - 离子大小放大很多倍，见 build_bilayer.py。
 

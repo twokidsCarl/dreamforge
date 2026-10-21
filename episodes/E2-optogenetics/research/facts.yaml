@@ -22,7 +22,13 @@ F2:
   sources:
     - https://www.nobelprize.org/uploads/2026/10/advanced-medicineprize2026.pdf
     - https://www.nobelprize.org/prizes/medicine/2026/press-release/
-  notes: 「从读到写」是对 recording → controlling 的转述，不是 PDF 里的原词。本轮没有给 PDF 编页码。
+  notes: |
+    「从读到写」是对 recording → controlling 的转述，不是 PDF 里的原词。本轮没有给 PDF 编页码。
+    2026-10-21 P6 补：科学背景 PDF 开篇原句 "Traditional methods like electrophysiology, lesion studies, pharmacology, and imaging
+    were powerful to establish correlations between neural activity and perception, movement, emotion, and cognition."
+    即：电生理、损毁研究（lesion studies）、药理和成像这些传统方法，能建立神经活动与知觉、运动、情绪、认知之间的相关。
+    A_02a 旁白「也能损毁一块组织，看行为缺了什么」和 A_02b「损毁」图标按此句记 sourced：损毁是传统方法之一，
+    看缺损推断相关；不得说损毁研究证明了因果（证明不了因果见新闻稿）。
   segments: [A]
 
 F3:
@@ -104,7 +110,14 @@ F5:
     - https://doi.org/10.1126/science.1072068
     - https://doi.org/10.1073/pnas.1936192100
     - https://www.nobelprize.org/uploads/2026/10/advanced-medicineprize2026.pdf
-  notes: ChR1 是质子通道；ChR2 是非选择性阳离子通道，持续光照下会脱敏到较小的稳态电导。不要把两种通道说成同一种离子选择性。
+  notes: |
+    ChR1 是质子通道；ChR2 是非选择性阳离子通道，持续光照下会脱敏到较小的稳态电导。不要把两种通道说成同一种离子选择性。
+    2026-10-21 P6 补（视黄醛）：Nagel 2002 摘要写明，Channelopsin-1（或只有疏水核心）在爪蟾卵母细胞里
+    "in the presence of all-trans retinal" 表达，才得到光门控电导。诺奖科学背景同一段："By introducing all-trans-retinal
+    and using two-electrode voltage-clamp recordings, he showed that green-light illumination induced inward photocurrents
+    carried primarily by protons (Nagel et al., 2002)."
+    B_06a「加上视黄醛、再给光」按此记 sourced。同句「细胞自己没有这套感光系统」是叙事衔接（卵母细胞不是衣藻的天然感光系统），
+    不是论文原句，记 simplified。与 F8 不冲突：哺乳动物脑内常常不必另加视黄醛，那是 2007 活体的情况。
   segments: [A, B]
 
 F6:
@@ -222,3 +235,21 @@ F16:
     - https://www.nobelprize.org/uploads/2026/10/advanced-medicineprize2026.pdf
   notes: 本轮不点名 chARGe。具体系统的原始论文没有逐篇打开，旁白停在科学背景这一层。
   segments: [A]
+
+F17:
+  claim: Klapoetke 等 2014 年在 Nature Methods 报告新的通道视紫红质 Chrimson（CnChR1），作用光谱峰值约 590 nm，比此前任何通道视紫红质红移约 45 nm，可用红光驱动。其 K176R 突变体 ChrimsonR 关闭动力学更快，红移的作用光谱不变。Sahel 2021 人眼试验用的就是 ChrimsonR（见 F11）。
+  grade: B
+  status: verified
+  sources:
+    - https://doi.org/10.1038/nmeth.2836
+    - https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3943671/
+    - https://www.nobelprize.org/uploads/2026/10/advanced-medicineprize2026.pdf
+  notes: |
+    2026-10-21 P6 核读 PMC 全文："With a spectral peak at 590 nm"；摘要 "Chrimson is 45 nm red-shifted relative to any previous channelrhodopsin"；
+    结果部分 "identified the K176R mutant, denoted as ChrimsonR, which sped up the off-kinetics ... without altering the red-shifted action spectrum"。
+    诺奖科学背景临床一段写的是 "Chrimson, a red-shifted channelrhodopsin"，并说 Roska 等把 Chrimson 递送到盲人的视网膜神经节细胞
+    （Sahel et al., 2021）；Sahel 2021 论文里的载体是 ChrimsonR。诺奖 PDF 用 Chrimson 泛称，本片旁白写 ChrimsonR，两者是母体与 K176R 突变体的关系；
+    不要说诺奖 PDF 原文写了 ChrimsonR。
+    屏幕和旁白可说「更长的波长」「红移工具」。不上具体纳米数，除非画面需要且与约 590 nm 一致；旁白不加纳米数。
+    B_18a 的冷灰 / 暖灰只区分左右，记 simplified。
+  segments: [B, C]
