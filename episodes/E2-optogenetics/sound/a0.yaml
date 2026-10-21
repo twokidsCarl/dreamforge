@@ -28,57 +28,62 @@
 #   三个光点）写明 over_vo 理由，增益不高于 -22 dB，且时长短于所在的词组；成片用 review_asr.py 核对，转写要与纯旁白一致。
 
 # ---- 配乐 -------------------------------------------------------------------------------------------
-# v3（P9）：eleven.music(plan=…)，composition_plan 按旁白段落写结构，全局排除人声和鼓。
+# v4（P9 修复）：eleven.music(plan=…)，composition_plan 按旁白段落写结构，全局排除人声、鼓和低音。
 # 在「光」字之后的空档进（3.4 s，冷开场前 3 秒只有室内底噪）。各段时长对准旁白的段落边界：
-#   quote 3.4–11.8 | method 11.8–23.0 | prize 23.0–39.9 | missing 39.9–50.6 | title 50.6–56.8 | decay 56.8–66.0
-# 片名「光遗传学」53.7 s 落在 title 段（和弦解决），之后 decay 段只留长音自然衰减，落进 edit_film --tail 的淡出。
+#   quote 3.4–11.8 | method 11.8–23.0 | prize 23.0–39.9 | missing 39.9–50.6 | title 50.6–56.8 | ring 56.8–66.0
+# 片名「光遗传学」53.7 s 落在 title 段（和弦解决），之后 ring 段的和弦一直响到 edit_film --tail 的淡出。
+# 为什么有 v4：v3（music/4d4c6b60fb70c3bd.mp3，同结构、-15 dB）能量几乎全在 40–300 Hz（模型给了低音长音），
+#   500 Hz 以上只有很淡的泛音；笔记本 / 手机喇叭放不出来，审片「听不到任何配乐」。且源文件 56 s 就收完，
+#   时间轴 60 s 以后是空的。v4 把所有声部写在中高音区（celesta、钢琴、高弦），明确排除低音和低频长音。
 # 旧版：v2 = music/ef5d21f9c2443180.mp3（prompt 生成，68 s，at 3.0, -9 dB），A0_sample_v2 用的就是它。
 music:
   - at: 3.4
-    gain: -15                     # 120 Hz 高通后 -30.1 LUFS（sound_gen.py --check），与已通过的 v2（-9 dB 时 -29.7）持平
+    gain: -9                      # 与 v2 同增益。120 Hz 高通后 -24.8 LUFS；旁白侧链压缩后，旁白下的床轨比人声低约 13 dB
+                                  # （v2 约 21 dB）。review_lines.py：被盖住的字 0（2026-10-21）
     fade_out: 1.5
-    file: music/4d4c6b60fb70c3bd.mp3   # = eleven.music_path(plan)，sound_gen.py 核对
+    file: music/63484de1d0822eb9.mp3   # = eleven.music_path(plan)，sound_gen.py 核对
     plan:
       positive_global_styles:
         - instrumental underscore
         - science documentary cold open
-        - quiet, sparse, restrained
-        - cool and dark, glassy, precise
-        - soft analog synth pad, felt piano, distant celesta, high soft strings
+        - quiet but clearly audible, sparse, restrained
+        - cool, glassy, precise
+        - mid and high register only, felt piano melody, celesta, glockenspiel, soft high strings, airy high synth pad
+        - a simple recognisable piano motif that recurs
         - slow, around 66 bpm, no beat
         - even dynamics, leaves room for narration
       negative_global_styles: [vocals, voice, singing, choir, humming, spoken word, vocal chops, lyrics, whisper,
-                               drums, percussion, heavy bass, sub bass, "808", distortion, aggressive, epic, trailer,
-                               big build-up, risers]
+                               drums, percussion, bass, bass line, sub bass, low drone, low synth pad, cello, double bass,
+                               "808", rumble, distortion, aggressive, epic, trailer, big build-up, risers]
       sections:
         - section_name: quote
-          positive_local_styles: [single low sustained synth pad, a few isolated felt piano notes, dark, almost still]
-          negative_local_styles: [loud, melody, vocals]
+          positive_local_styles: [a few isolated felt piano notes in the middle register, faint airy high pad, almost still]
+          negative_local_styles: [loud, bass, low drone, vocals]
           duration_ms: 8400
           lines: []
         - section_name: method
-          positive_local_styles: [a soft muted pulsing synth arpeggio enters, slight forward motion, still quiet, precise]
-          negative_local_styles: [loud, drums, vocals]
+          positive_local_styles: [a soft celesta arpeggio in the high register enters, the piano motif returns, slight forward motion, precise]
+          negative_local_styles: [loud, drums, bass, vocals]
           duration_ms: 11200
           lines: []
         - section_name: prize
-          positive_local_styles: [warm soft high strings join the pad, gently brighter, dignified, steady, restrained]
-          negative_local_styles: [loud, triumphant fanfare, brass, drums, vocals]
+          positive_local_styles: [soft high strings join, piano motif a little warmer, gently brighter, dignified, steady]
+          negative_local_styles: [loud, triumphant fanfare, brass, drums, bass, vocals]
           duration_ms: 16900
           lines: []
         - section_name: missing
-          positive_local_styles: [thinning out, suspended unresolved chord, quiet tension, a lone celesta note, near silence at the end]
-          negative_local_styles: [loud, resolution, drums, vocals]
+          positive_local_styles: [thinning out to a suspended unresolved high string chord and a lone celesta note, quiet tension]
+          negative_local_styles: [loud, resolution, drums, bass, vocals]
           duration_ms: 10700
           lines: []
         - section_name: title
-          positive_local_styles: [gentle warm resolving chord on soft pad and strings, a single soft celesta shimmer, calm arrival]
-          negative_local_styles: [loud, impact, drums, vocals]
+          positive_local_styles: [gentle resolving chord on piano and high strings, a soft glockenspiel shimmer, calm arrival]
+          negative_local_styles: [loud, impact, drums, bass, vocals]
           duration_ms: 6200
           lines: []
-        - section_name: decay
-          positive_local_styles: [the final chord sustains and fades naturally to silence, no new notes]
-          negative_local_styles: [new melody, drums, vocals, abrupt ending]
+        - section_name: ring
+          positive_local_styles: [the final high string and piano chord keeps ringing softly through the whole section, still audible at the very end]
+          negative_local_styles: [new melody, silence, drums, bass, vocals, abrupt ending]
           duration_ms: 9200
           lines: []
 

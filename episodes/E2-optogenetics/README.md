@@ -18,8 +18,8 @@
 
 ## P9 声音设计（A0 先做）
 
-A0 v3 已生成：composition_plan 配乐 + 14 条音效，预听 `renders/edit/A0_sample_v3_sound.mp4`（不入库）。
-复现命令、自审结果、待审项见 `sound/STATUS.md`；生成和检查用 `shared/tools/sound_gen.py`。
+A0 v4（修复 v3「听不到配乐」）：composition_plan 配乐，声部在中高音区，-9 dB，加 14 条音效。预听 `renders/edit/A0_sample_v4_sound.mp4`（不入库），备份在 `/workspace/e2-a0-sample/p9/`。
+复现命令、空档 RMS 对比、自审结果、待审项见 `sound/STATUS.md`。生成和检查用 `shared/tools/sound_gen.py`，逐句压词核对用 `shared/tools/review_lines.py`。
 
 ## 检查点②（全片动态分镜，2026-10-21 通过）
 
