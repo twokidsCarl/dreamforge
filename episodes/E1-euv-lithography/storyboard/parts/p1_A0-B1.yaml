@@ -1719,7 +1719,7 @@ shots:
   style: energy
   style_why: 延续同一张织网，让它在能量图里收拢成一道光，画面本身就是“解释被改写”。
   transition_in: cut
-  visual: 织网中的跃迁线开始弯曲、汇聚，向同一方向收拢，最终拧成一道明亮的紫色光束；画面一侧，一页“教科书”插图（单电子跃迁示意）被这道紫光划过，标题改写为“多重激发态”。
+  visual: 织网中的跃迁线开始弯曲、汇聚，向同一方向收拢，最终拧成一道明亮的紫色光束；画面一侧，一页“教科书”插图（旧解释：单激发态 → 基态）被这道紫光划过，标题改写为“多重激发态之间的跃迁”（Torretti et al. 2020，Nature Communications）。
   camera:
     move: arc around converging beam
     lens_mm: 35

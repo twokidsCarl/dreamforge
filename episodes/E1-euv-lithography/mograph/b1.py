@@ -114,7 +114,7 @@ def why_prepulse(t, dur, W, H):
         else:
             c.rect((cx - 190, cy - 24, cx + 190, cy + 24), outline=LINE, width=3, a=a * draw, radius=24)
             c.rect((cx - 186 * heat, cy - 20, cx + 186 * heat, cy + 20), fill=ORANGE, a=a * heat, glow=True, radius=20)
-            c.text((cx, cy - 110), "薄盘接住整个光斑，受热均匀", 26, LINE, a * heat, anchor="mm")
+            c.text((cx, cy - 110), "薄盘面积大、密度低，正好接住整个光斑", 26, LINE, a * heat, anchor="mm")
     arrow = ease_out(seg(t, 4.2, 5.4))
     c.line((700, 920), (700 + 520 * arrow, 920), LINE, 3, a * arrow)
     c.text((960, 975), "更多能量 → 变成 13.5 nm 的光（示意）", 32, LINE, a * arrow, anchor="mm")
