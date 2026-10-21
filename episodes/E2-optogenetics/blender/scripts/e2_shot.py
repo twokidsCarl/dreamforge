@@ -170,6 +170,34 @@ def link(ob):
     return ob
 
 
+def holed_plane(name, half_w, half_h, z, holes, seg=96, center=(0.0, 0.0)):
+    """平板（法线 +z），在 holes=[(cx, cy, rx, ry)] 处挖出真正的椭圆孔：孔边是 seg 段的多边形，
+    外框和孔边用 triangle_fill 一次三角化。替代「方格网按格心挖格子」那种孔边成阶梯的做法。
+    孔必须两两不相交，且整个落在外框里（越界的孔会断言失败）。"""
+    import bmesh
+    bm = bmesh.new()
+    ox, oy = center
+    edges = []
+
+    def loop(pts):
+        vs = [bm.verts.new((x, y, z)) for x, y in pts]
+        for k in range(len(vs)):
+            edges.append(bm.edges.new((vs[k], vs[(k + 1) % len(vs)])))
+
+    loop([(ox - half_w, oy - half_h), (ox + half_w, oy - half_h), (ox + half_w, oy + half_h), (ox - half_w, oy + half_h)])
+    for hx, hy, rx, ry in holes:
+        assert abs(hx - ox) + rx < half_w and abs(hy - oy) + ry < half_h, (name, hx, hy)
+        loop([(hx + rx * math.cos(2 * math.pi * k / seg), hy + ry * math.sin(2 * math.pi * k / seg)) for k in range(seg)])
+    bmesh.ops.triangle_fill(bm, use_beauty=True, use_dissolve=False, edges=edges, normal=(0.0, 0.0, 1.0))
+    for f in bm.faces:
+        if f.normal.z < 0:
+            f.normal_flip()
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    return link(bpy.data.objects.new(name, me))
+
+
 def sphere(name, r, loc, mat=None, role="structure", seg=24, rings=14, scale=(1, 1, 1)):
     bpy.ops.mesh.primitive_uv_sphere_add(radius=r, segments=seg, ring_count=rings, location=loc)
     ob = bpy.context.object

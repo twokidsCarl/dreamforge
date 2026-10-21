@@ -319,7 +319,16 @@ TRI_R = 17.0                       # 单体中心到三重轴，Å（缩小后�
 
 def _lipid_plane(name, half_w, half_d, holes, z_top, step=2.0, thick=0.3):
     """平的脂质面（顶面 z_top，Å 网格），holes=[(x, y, r)] Å 处挖空，向下加厚 thick BU。紫膜里脂质只占少数面积，
-    头基小球在这个尺度上会盖住三聚体图案，所以这里照 A0_91 用一块面（simplified）。"""
+    头基小球在这个尺度上会盖住三聚体图案，所以这里照 A0_91 用一块面（simplified）。
+    有孔时孔边是真圆（S.holed_plane，96 段），不再按格心挖方格——推近时方格台阶会露出来（B0 校准）。"""
+    if holes:
+        ob = S.holed_plane(name, half_w * U, half_d * U, z_top, [(hx * U, hy * U, hr * U, hr * U) for hx, hy, hr in holes],
+                           seg=96)
+        sol = ob.modifiers.new("Thick", "SOLIDIFY")
+        sol.thickness = thick
+        sol.offset = -1.0
+        styles.tag(ob, "structure")
+        return ob
     import bmesh
     bm = bmesh.new()
     nx, ny = int(2 * half_w / step), int(2 * half_d / step)
