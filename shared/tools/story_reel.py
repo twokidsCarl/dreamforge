@@ -185,7 +185,7 @@ def mograph_ids():
     import re
     ids = set()
     for p in glob.glob(os.path.join(EP, "mograph", "*.py")):
-        ids |= set(re.findall(r'@shot\("([A-Z0-9_]+)"\)', open(p, encoding="utf-8").read()))
+        ids |= set(re.findall(r'@shot\("([A-Za-z0-9_]+)"\)', open(p, encoding="utf-8").read()))
     return ids
 
 

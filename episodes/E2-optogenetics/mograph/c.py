@@ -626,7 +626,9 @@ def c_15a(t, dur, W, H):
     # 一条细分隔线
     c.line((260, 470), (1660, 470), HUD_LINE, 2, a=0.5 * fa, progress=ease_out(seg(s, 0.2, 1.4)))
     x_lab, x_dots = 260, 1140
-    rows = ((350, 5.9, 7.4, C15_ROW1, 10, 6), (600, 14.2, 16.0, C15_ROW2, 8, 4))
+    # v7 N15: 第一行（带空心分母点）提前到 1.2 s 出现，分子仍按旁白 7.4 s 填实；开头不再空 2.5 s
+    rows = ((350, 1.2, 7.4, C15_ROW1, 10, 6), (600, 14.2, 16.0, C15_ROW2, 8, 4))
+    c.text((260, 215), "数据出自公司公告", 40, _scale(INK, 0.6), ease(seg(s, 2.6, 3.2)) * fa, anchor="lm")
     for y, at, fill_at, (lab, frac), n, k in rows:
         a = ease(seg(s, at, at + 0.6))
         fl = font(int(c.px(60)))
