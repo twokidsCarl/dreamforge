@@ -5,6 +5,13 @@ music:
   fade_in: 0.3
   fade_out: 0.5
   overlap: 6.0
+# v7 N13: 主配乐在 body 62 s 后自然收尾（文件只有 68 s），片名卡下面会空掉：本地合成的低频 pad 垫住，1.2 s 淡入、5 s 尾音
+- at: 60.5
+  file: music/title_bed_v7.wav
+  gain: -6
+  fade_in: 0.0
+  fade_out: 0.0
+  overlap: 6.0
 - at: 0.0
   file: music/ef5d21f9c2443180.mp3
   gain: -9
