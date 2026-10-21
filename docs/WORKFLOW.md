@@ -294,7 +294,7 @@ eigenlens/
 2. 设置 `DREAMFORGE_EPISODE=E<n>-<短名>`。
 3. 从 P1 调研开始，按第 3 节逐个阶段推进，第 1、2 节的规则同样适用。
 
-E2《光遗传学》在 `episodes/E2-optogenetics/`。检查点①、检查点②（全片动态分镜）都已于 2026-10-21 通过，见该期 README。P7 建模与镜头已完成；下一步是 P8 第一批试渲：Carl 按 [RUNPOD.md](RUNPOD.md) 开 GPU，镜头和命令见该期 `FIRST_BATCH.md`。
+E2《光遗传学》在 `episodes/E2-optogenetics/`。检查点①、检查点②（全片动态分镜）都已于 2026-10-21 通过，见该期 README。P7 建模与镜头已完成；下一步是 P8 第一批试渲：按 [RUNPOD.md](RUNPOD.md) 用 API 开 GPU，镜头和命令见该期 `FIRST_BATCH.md`。
 
 ## 12. 拉取请求审查
 

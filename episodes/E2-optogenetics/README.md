@@ -1,7 +1,7 @@
 # E2《光遗传学》
 
 状态：**检查点②已通过**（Carl 2026-10-21 对全片动态分镜说「继续吧」，按通过处理）。检查点①已于同日 01:07 UTC+8 通过（六条决定见下）。
-**P7 建模与镜头已完成**（PR #17）：126 镜全部登记，67 个 3D 镜头 build 通过。下一步是 **P8 第一批试渲**：15 个镜头和命令见 [FIRST_BATCH.md](FIRST_BATCH.md)，等 Carl 按 [docs/RUNPOD.md](../../docs/RUNPOD.md) 开 GPU，Luna 协调和看片。
+**P7 建模与镜头已完成**（PR #17）：126 镜全部登记，67 个 3D 镜头 build 通过。下一步是 **P8 第一批试渲**：15 个镜头和命令见 [FIRST_BATCH.md](FIRST_BATCH.md)，按 [docs/RUNPOD.md](../../docs/RUNPOD.md) 用 API 开 GPU，Luna 协调和看片。
 
 目录名是 `episodes/E<n>-<短名>/`。这一期是 `episodes/E2-optogenetics/`。
 
@@ -33,7 +33,7 @@
 ## 第一批 GPU 渲染之前
 
 1. 第一批镜头已定：15 个，见 [FIRST_BATCH.md](FIRST_BATCH.md)（首 / 中 / 尾帧 preview 试渲，再渲 6 个短镜全长）。
-2. Carl 开 RunPod，步骤见 [docs/RUNPOD.md](../../docs/RUNPOD.md)（预算 $15/天、$80/周；agent 不租 GPU）。
+2. agent 用 API 开 RunPod（CA-MTL-1 + 卷 `eigenlens-cache`），步骤见 [docs/RUNPOD.md](../../docs/RUNPOD.md)（预算 $15/天、$80/周）。
 3. 渲染：`FRAMES=1,mid,last shared/tools/render_batch.sh preview <id>...`，环境变量见 FIRST_BATCH.md。
 4. 不开 GPU 的检查：`DREAMFORGE_EPISODE=E2-optogenetics blender -b --factory-startup -P shared/tools/build_check.py`（逐镜 build + 套风格，不渲染）。
 

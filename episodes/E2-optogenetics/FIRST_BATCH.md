@@ -1,11 +1,11 @@
 # E2 P8 第一批试渲（交接包）
 
-目的：Carl 一开 GPU 就能渲。这一批只做 **preview 试渲**，看 GPU 上的 EEVEE / Cycles 是否和本机 CPU 预览一致、各段代表镜头的画面是否成立。不是成片渲染。
+目的：一开 GPU 就能渲。这一批只做 **preview 试渲**，看 GPU 上的 EEVEE / Cycles 是否和本机 CPU 预览一致、各段代表镜头的画面是否成立。不是成片渲染。
 
-- 开卡步骤：[docs/RUNPOD.md](../../docs/RUNPOD.md)（Carl 自己开，agent 不租 GPU）
+- 开卡步骤：[docs/RUNPOD.md](../../docs/RUNPOD.md)（agent 用 API 起停；Network Volume `eigenlens-cache`，机房 CA-MTL-1）
 - 预算：$15/天、$80/周。这一批预计 GPU 用时 1–2 小时，费用约 $1–2
 - 放在本目录而不是 `renders/`，因为 `renders/` 不入库（`.gitignore`）
-- 协调：Luna 定批次和看片；Carl 开卡、跑命令、拉回结果、Terminate
+- 协调：Luna 定批次和看片；agent 开卡、跑命令、拉回 box、Terminate
 
 ## 选了哪些镜头
 
@@ -48,7 +48,7 @@
 | 变量 | 值 | 说明 |
 |---|---|---|
 | `DREAMFORGE_EPISODE` | `E2-optogenetics` | 必设。默认是 E1 |
-| `DREAMFORGE_RENDER_DIR` | `/workspace/renders` | 渲染根目录。Pod 上放 `/workspace`（Volume 盘）；不设就写到 `episodes/E2-optogenetics/renders/` |
+| `DREAMFORGE_RENDER_DIR` | `/workspace/renders` | 渲染根目录。Pod 上放 `/workspace`（Network Volume；拉回 box 后清掉）；不设就写到 `episodes/E2-optogenetics/renders/` |
 | `DREAMFORGE_CYCLES_DEVICE` | `OPTIX` | **必设**。Linux 默认是 CPU，不设 Cycles 会在 CPU 上慢渲。OPTIX 不行就用 `CUDA` |
 | `BLENDER` | `/workspace/blender-5.2.2-linux-x64/blender` | `render_batch.sh` 用它找 Blender。仓库按 Blender 5.2 写 |
 | `FRAMES` | `1,mid,last` | 可选。`render_batch.sh` 只渲这几帧；不设就渲全长 |
@@ -114,7 +114,7 @@ $DREAMFORGE_RENDER_DIR/
 └── times.csv                        每帧耗时：timestamp, shot, engine, preset, frame, seconds
 ```
 
-拉回 Mac 后放到 `episodes/E2-optogenetics/renders/`（不入库）。A0_04a 的叠字在 Mac 上做，不占 GPU 时间：
+拉回 box 后放到 `episodes/E2-optogenetics/renders/`（不入库）。A0_04a 的叠字在 box 上做，不占 GPU 时间：
 
 ```bash
 DREAMFORGE_EPISODE=E2-optogenetics python3 shared/tools/mograph.py --shot A0_04a --quality preview --frames 1,188,375
@@ -130,7 +130,7 @@ DREAMFORGE_EPISODE=E2-optogenetics python3 shared/tools/mograph.py --shot A0_04a
 2. **偶发错误**（CUDA / OptiX 报错、显存不足、进程被杀）：同一条命令只对这个镜头重跑 **一次**。Cycles 在 GPU 报错时会自动改用 CPU 重试那一帧，日志里有 `retrying ... on CPU`；看到这句说明那一帧是 CPU 渲的，记下来。
 3. **代码错误**（日志里是场景模块的 Python Traceback）：不重试，**不要在 Pod 上改脚本**（WORKFLOW 8.1：渲染中改脚本会让同一批用的不是同一版代码）。记下镜头 id 和 Traceback，跳过，交给 Luna 走 PR 修。
 4. 同一镜头重试后仍失败：标记为阻塞，继续其他镜头。
-5. **EEVEE 镜头全部失败**、日志里有 EGL / display / OpenGL 字样：是容器没开图形能力。见 [docs/RUNPOD.md](../../docs/RUNPOD.md) 的「EEVEE 起不来」。不要花超过 15 分钟排查，先 Terminate，换配置重开。
+5. **EEVEE 镜头全部失败**、日志里有 EGL / display / OpenGL 字样：是容器没开图形能力。见 [docs/RUNPOD.md](../../docs/RUNPOD.md) 的「EEVEE 起不来」。不要花超过 15 分钟排查，先 Terminate，换配置重开（仍是 CA-MTL-1 + 同一个卷）。
 6. Cycles 镜头日志里没有 GPU 设备、或每帧明显慢（preview 一帧超过 30 秒）：检查 `DREAMFORGE_CYCLES_DEVICE`。
 
 ## 看片要看什么
