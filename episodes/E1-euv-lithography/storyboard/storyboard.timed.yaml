@@ -5918,7 +5918,7 @@ shots:
   style: energy
   style_why: 光的形状是“看不见的物理”，黑底上只留光，才能看清它被整形成一条缝
   transition_in: fade-to-energy
-  visual: 晶圆结构淡成暗色描边。上方一团 EUV 紫光先试图铺满整片晶圆（虚影），随即被两片刀口收拢，压成一条窄窄的光带，横跨一个曝光场，边缘锐利。
+  visual: 晶圆结构淡成暗色描边。上方一团 EUV 紫光先试图铺满整片晶圆（虚影），虚影散去；投影物镜送来的是一束会聚的光（NA 0.55），落在晶圆上是一条弧形窄缝，长 26 mm，正好横跨一个曝光场（狭缝由照明系统的场分面镜整形，不是晶圆上方的刀片）。
   camera:
     move: tilt-down
     lens_mm: 35
@@ -5932,11 +5932,11 @@ shots:
   - volumetric_beam
   - bloom
   overlays:
-  - text: 狭缝（示意）
+  - text: 弧形狭缝 26 mm（示意）
     facts: []
   engine: eevee
   sfx:
-  - 刀口合拢的轻响
+  - 光束成形的轻响
   - 光带持续的嗡鸣
   duration_design: 6.6
   cues:
@@ -5961,7 +5961,7 @@ shots:
   style: clay
   style_why: 回答“机构怎么运动”：白模去掉一切干扰，只看两张台子的相对运动
   transition_in: match-cut
-  visual: 光缝保留为唯一的紫色元素，其余变成哑光白模：上方掩模台向左滑、下方晶圆台向右滑，光缝原地不动；晶圆上的曝光场被一条一条“刷”出浅紫色的潜像。扫完一场，晶圆台步进到下一场，再反向扫回来。
+  visual: 光缝保留为唯一的紫色元素，其余变成哑光白模：上方掩模台向左滑、下方晶圆台向右滑，光缝原地不动；晶圆上的曝光场被一条一条“刷”出浅紫色的潜像。掩模台的行程是晶圆台的 8 倍（High-NA 扫描方向）；曝光场按真实尺寸 26 × 16.5 mm；扫完一场步进一格，下一场反向扫（扫描方向交替，ASML 专利 US8711329B2）。
   camera:
     move: static-3q
     lens_mm: 50
@@ -6004,9 +6004,9 @@ shots:
   - F57
   - F11
   style: clay
-  style_why: 同一白模机位，加上速度矢量，就能看清“快 4 倍”
+  style_why: 同一白模机位，加上速度矢量，就能看清“快 8 倍”
   transition_in: cut
-  visual: 同一白模场景，两台各拉出一根速度箭头：掩模台的激光橙箭头是晶圆台计量青箭头的 4 倍长。两台同时启动，掩模台一闪而过，晶圆台慢条斯理；运动残影长度也正好 4:1。
+  visual: 同一白模场景，两台各拉出一根速度箭头：掩模台的激光橙箭头是晶圆台计量青箭头的 8 倍长。两台同时启动，掩模台一闪而过，晶圆台慢条斯理；运动残影长度也正好 8:1。
   camera:
     move: slow-truck
     lens_mm: 50
@@ -6019,7 +6019,7 @@ shots:
   - motion_trail
   - ambient_occlusion
   overlays:
-  - text: 掩模速度 = 4 × 晶圆速度
+  - text: 掩模速度 = 8 × 晶圆速度（High-NA 扫描方向）
     facts:
     - F57
   engine: eevee
@@ -6127,7 +6127,7 @@ shots:
   style: photoreal
   style_why: “暴力与温柔”的暴力一面必须是真实质感：金属台面、真实光，才能和一辆车的重量感对撞
   transition_in: cut
-  visual: 真实渲染的掩模台（风格化外形）在幽暗腔体里蓄势；推力读数涨到 1 万牛的同时，一辆半透明的幽灵轿车（线框 + 玻璃材质）从画面上方砸下，正正落在台面上，车身被冲击压得变形、碎成光点。台面本身纹丝不动，只有一圈冲击波纹在幽灵车上荡开。
+  visual: 磁悬浮掩模台在两条直线电机轨道之间往复（不接触，有间隙），掩模由静电吸盘吸在台子下方、图形面朝下；推力读数涨到 1 万牛的同时，一辆半透明的幽灵轿车（线框 + 玻璃材质）从画面上方砸下，正正落在台面上，车身被冲击压得变形、碎成光点。台面本身纹丝不动，只有一圈冲击波纹在幽灵车上荡开。
   camera:
     move: low-angle-static
     lens_mm: 28
@@ -6143,7 +6143,7 @@ shots:
   - particle_shatter
   - motion_blur
   overlays:
-  - text: 掩模台推力 > 10,000 N
+  - text: 掩模台推力 > 10,000 N（NXE · >15 g）
     facts:
     - F41
   engine: cycles
@@ -6175,12 +6175,12 @@ shots:
   style: photoreal
   style_why: 震撼时刻的慢动作回放：同一画面换一个角度再看一次“车砸下来、掩模不动”
   transition_in: cut
-  visual: 侧面机位慢动作回放：幽灵车的冲击在台面框架里传成一圈橙色应力波，却在掩模边缘戛然而止；掩模上的电路图形在微距下纹丝不动，焦点一直锁在它身上。
+  visual: 从台子下方仰拍掩模的图形面（微距，慢放）：橙色应力波沿台子底面收缩，停在吸盘和掩模的边缘；掩模上的电路图形纹丝不动。
   camera:
     move: slow-dolly
     lens_mm: 100
     fstop: 1.8
-    notes: 0.1× 慢放；焦点锁掩模，幽灵车在前景大虚化
+    notes: 0.1× 慢放；焦点锁掩模图形面
   builders:
   - build_stage.reticle_stage
   - build_stage.ghost_car
@@ -6189,7 +6189,9 @@ shots:
   - stress_wave_shader
   - depth_of_field
   - motion_blur
-  overlays: []
+  overlays:
+  - text: 慢放 · 示意
+    facts: []
   engine: cycles
   sfx:
   - 拉长变调的撞击回声
@@ -6247,7 +6249,7 @@ shots:
   style: xray
   style_why: 要同时看见上面的掩模台和下面的晶圆台以及中间的光路，需要透明剖视
   transition_in: dissolve
-  visual: 幽灵玻璃整机剖面（示意）里，上方掩模台和下方晶圆台反向冲刺，中间一束紫色光路把两者连起来；两台各带一个计量青的时钟刻度，刻度每次对齐就闪一下白光。
+  visual: High-NA 整机剖面（光源在右侧，示意）里，上方掩模台和下方晶圆台反向往复，行程 8:1；光路固定不动，每个转折点都落在镜面或掩模上；两台各带一个计量青的时钟刻度，刻度每次对齐就闪一下白光。
   camera:
     move: slow-pull-back
     lens_mm: 35
@@ -6382,7 +6384,7 @@ shots:
   style: hud
   style_why: 回答“控制怎么实时发生”：标记被逐个读取、误差圈实时收缩，就是一段遥测
   transition_in: dissolve
-  visual: 俯视整片晶圆（真实渲染底图），上千个十字标记被计量青扫描点逐个“读”亮，计数器飞速上涨；画面中心的误差圈随之从头发丝粗细一路收缩，最后缩成一个几乎看不见的亮点。
+  visual: 俯视整片晶圆（真实渲染底图），划片槽里几十个光栅对准标记被逐个读亮（画在真实的 26 × 16.5 mm 曝光场网格上），计数器飞速上涨；画面中心的误差圈随之从头发丝粗细一路收缩，最后缩成一个几乎看不见的亮点。
   camera:
     move: slow-push
     lens_mm: 50
@@ -6396,7 +6398,7 @@ shots:
   - hud_glow
   - point_scan
   overlays:
-  - text: 读取 1000+ 套刻标记 → 亚纳米
+  - text: 读取几十个对准标记 → 亚纳米
     facts:
     - F44
   engine: eevee
@@ -6426,7 +6428,7 @@ shots:
   style: photoreal
   style_why: 回到真实的晶圆台：校正发生在一台真实的、高速运动的机器上，不是抽象图表
   transition_in: match-cut
-  visual: 那个亮点放大成晶圆台下方的一排促动器微距：金属台面在运动中，促动器表面的指示灯以肉眼几乎分辨不清的频率闪烁成一片青色微光；角落一个计数器飞速跳动。
+  visual: 磁悬浮晶圆台浮在平面电机的磁铁阵列上方，台面下有可见间隙（放大示意）；台子往复扫描，背景运动模糊；角落一个计数器飞速跳动。
   camera:
     move: track-macro
     lens_mm: 100
@@ -6434,11 +6436,10 @@ shots:
     notes: 跟拍运动中的台面边缘，背景运动模糊
   builders:
   - build_stage.wafer_stage
-  - build_stage.actuator_array
+  - build_stage.planar_maglev
   fx:
   - motion_blur
   - depth_of_field
-  - led_flicker
   overlays:
   - text: 定位 < 0.25 nm · 每秒校正 20,000 次
     facts:
@@ -6473,7 +6474,7 @@ shots:
   style: clay
   style_why: 回答“怎么组装”：层层图形像白模楼板一样叠落，对准误差就是楼板之间的错位
   transition_in: dissolve
-  visual: 哑光白模的芯片截面：一层层薄板（每层刻着不同的线条图形）从上方依次落下，精确叠在下一层上。最后一层落下时镜头推到两层交界，边缘几乎完全重合，一根计量青的极细标尺标出 0.7 nm 的错位。
+  visual: 哑光白模的芯片截面：一层层薄板（每层刻着不同的线条图形）从上方依次落下，精确叠在下一层上。最后一层落下时镜头推到两层交界，最后一层带着一点横向错位落下；层间缝上一根水平的计量青短标尺，标出这段水平错位（放大示意）。
   camera:
     move: crane-down
     lens_mm: 65
@@ -6486,9 +6487,10 @@ shots:
   - ambient_occlusion
   - drop_settle
   overlays:
-  - text: 层间套刻误差 0.7 nm（英特尔验收测试）
+  - text: 层间套刻误差 0.7 nm（EXE:5200B · 英特尔验收测试）
     facts:
     - F43b
+  - text: 错位放大示意
   engine: eevee
   sfx:
   - 每层落下的柔和‘嗒’声，一层比一层轻
@@ -6556,9 +6558,9 @@ shots:
   facts:
   - F45
   style: infographic
-  style_why: 回答“多少”：96、220、2 万多，三个数用格子图和计数器一次交代清楚
+  style_why: 回答“多少”：188、185、3 万多，三个数用格子图和计数器一次交代清楚
   transition_in: cut
-  visual: 扁平俯视晶圆，96 个曝光场格子依次频闪点亮；右侧一摞晶圆图标快速叠高到 220；底部计数器滚到 21,120。
+  visual: 扁平俯视晶圆，188 个半场（26 × 16.5 mm，真实比例，边缘场被晶圆边缘裁掉）依次频闪点亮；右侧一摞晶圆图标快速叠高到 185；底部计数器滚过 3.4 万。
   camera:
     move: static
     lens_mm: 0
@@ -6570,10 +6572,10 @@ shots:
   fx:
   - strobe
   overlays:
-  - text: 96 个曝光场/片 · 220 片/小时
+  - text: 188 个曝光场/片 · 185 片以上/小时（EXE:5000）
     facts:
     - F45
-  - text: ≈ 21,120 次曝光/小时（推算）
+  - text: 超过 3.4 万次曝光/小时（推算）
     facts:
     - F45
   engine: manim
@@ -6599,9 +6601,9 @@ shots:
   facts:
   - F45
   style: energy
-  style_why: 本段视觉高潮之一：把 96 次曝光变成一片晶圆上真实节奏的光的闪烁
+  style_why: 本段视觉高潮之一：把 188 次曝光变成一片晶圆上真实节奏的光的闪烁
   transition_in: cut
-  visual: 黑底中一片暗色晶圆，紫色光缝像节拍器一样沿蛇形路径扫过 96 个场，每场亮一下留下潜像余辉；一片扫满，晶圆被瞬间换走、下一片又开始——四五片之后连成一片持续的紫色脉动。
+  visual: 黑底中一片暗色晶圆，光缝横跨每个场 26 mm 的宽度，沿 16.5 mm 方向扫下去，逐场扫过 188 个场（加速示意），每场亮一下留下潜像余辉；一片扫满，晶圆被瞬间换走、下一片又开始——四五片之后连成一片持续的紫色脉动。
   camera:
     move: top-down-drift
     lens_mm: 50
@@ -6616,7 +6618,7 @@ shots:
   - afterglow
   - bloom
   overlays:
-  - text: '96'
+  - text: '188'
     facts:
     - F45
   engine: eevee
@@ -6704,7 +6706,7 @@ shots:
   style: infographic
   style_why: 光的账本计量条一直在画面右侧，此刻它被请到画面中央，回答“还剩多少”
   transition_in: whip
-  visual: 一直挂在右侧的“光的账本”竖条滑到画面中央并放大：上方一格格已经熄灭的刻度记录着每一道损耗，底部只剩最后一小截紫色还亮着，像沙漏最后几粒沙。
+  visual: 一直挂在右侧的“光的账本”竖条滑到画面中央并放大：上方一格格已经熄灭的刻度记录着每一道损耗（以 NXE:3800E 为例：电力 1.26 MW → 驱动激光 40 kW → EUV 进入扫描仪 500 W 以上 → 十多面反射镜 → 到达晶圆约 1%），底部只剩最后一小截紫色还亮着，像沙漏最后几粒沙。
   camera:
     move: static
     lens_mm: 0
@@ -6850,7 +6852,7 @@ shots:
   - bloom
   - particle_streaks
   overlays:
-  - text: 30 mJ/cm² 剂量下：每 nm² ≈ 20 个光子（推算）
+  - text: 按 NXE 标定剂量 30 mJ/cm²：每 nm² ≈ 20 个入射光子（推算）
     facts:
     - F47
     - F45
@@ -6956,7 +6958,7 @@ shots:
     move: slow-truck
     lens_mm: 0
     fstop: 0
-    notes: SEM 视野横移，带比例尺（无具体数值）
+    notes: SEM 视野横移，比例尺 20 nm（线距约 28 nm）
   builders:
   - build_photon_rain.rough_lines
   - styles.sem
@@ -6998,7 +7000,7 @@ shots:
   style: energy
   style_why: 用同一场光子雨的“加密”直接展示功率提高的意义，比一张功率表更有说服力
   transition_in: cut
-  visual: 画面左右分屏：左边是刚才的稀疏光子雨和毛糙线条；右边光源功率读数从 600 W 往 1000 W 爬升，光子雨明显更密，下方的线条边缘随之变平滑、断线消失。分屏中线是一条计量青细线。
+  visual: 画面左右分屏：左边是刚才的稀疏光子雨和毛糙线条；右边光源功率读数从 500 W 爬升到 1000 W，光子雨加倍，线边缘粗糙度降到约 0.71 倍；桥连消失，断线仍在（提高剂量只推回桥连，imec）。分屏中线是一条计量青细线。
   camera:
     move: static-split
     lens_mm: 35
@@ -7012,7 +7014,7 @@ shots:
   - bloom
   - edge_smooth_morph
   overlays:
-  - text: 量产约 600 W → 1000 W 原理样机
+  - text: NXE:3800E 超过 500 W → 2025 年演示 1000 W（ASML）
     facts:
     - F4c
   - text: 示意
@@ -7050,7 +7052,7 @@ shots:
   style: infographic
   style_why: 光的账本的总结算：一条从左到右的损耗链，是全片主线一的收尾
   transition_in: dissolve
-  visual: 账本摊开成横向的一整页：电力 → 驱动激光 → EUV → 到达晶圆 1% → 每 nm² 20 个光子。每一格依次亮起，宽度按比例急剧收窄，最后一格只剩一个小小的紫点。
+  visual: 账本摊开成横向的一整页：电力 → 驱动激光 → EUV → 到达晶圆 1% → 每 nm² 20 个光子。每一格依次亮起，高度依次收窄（示意，不按比例），最后一格只剩一个小小的紫点。
   camera:
     move: slow-truck
     lens_mm: 0
@@ -7067,7 +7069,7 @@ shots:
   - text: 驱动激光：最高 40 kW
     facts:
     - F6
-  - text: 进入扫描仪约 100 W → 晶圆约 1 W（约 1%）
+  - text: EUV 进入扫描仪：500 W 以上（NXE:3800E）→ 到达晶圆约 1%（推算）
     facts:
     - F33
   - text: 每 nm² ≈ 20 个光子

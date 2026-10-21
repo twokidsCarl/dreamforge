@@ -490,6 +490,7 @@ F41:
   grade: A
   sources:
     - https://www.asml.com/en/company/about-asml/locations/wilton-ct
+  notes: 1 万牛和“一辆车”出自 Wilton 页面上加速度 >15 g 的那台掩模台，即 NXE 一代；EXE 的掩模台推力未公开。旁白须写明 NXE。
   segments: [B8]
 
 F42:
@@ -499,6 +500,7 @@ F42:
   grade: A
   sources:
     - https://www.asml.com/en/technology/lithography-principles/mechanics-and-mechatronics
+  notes: 60 pm 出现在 ASML 介绍 NXT（DUV）的段落和一段泛指的导语里，不是 EXE 的规格；旁白只说“传感器”，不点机型。
   segments: [B8]
 
 F43:
@@ -514,16 +516,25 @@ F43:
 F43b:
   claim: High-NA EXE:5200B 在英特尔验收测试中套刻精度达到 0.7 nm（产能 175 片/小时）
   values: {exe_overlay_nm: 0.7}
-  status: reported
-  grade: C
-  narration: 据报道，英特尔的验收测试做到了 0.7 纳米
+  status: verified
+  grade: B
+  narration: 英特尔的验收测试做到了 0.7 纳米
+  quote: >-
+    "Intel and ASML have reached the milestone of "acceptance testing" on the TWINSCAN EXE:5200B. This High NA EUV tool
+    maintains the high resolution of the first-generation EXE:5000, while expanding output to 175 wafers per hour and
+    improving overlay (accurate alignment of different lithography layers) to 0.7 nanometers." (Intel Foundry blog, Dec 2025)
   sources:
-    - https://bits-chips.com/?p=231162
+    - https://community.intel.com/t5/Blogs/Intel-Foundry/Systems-Foundry-for-the-AI-Era/How-Collaboration-in-High-NA-EUV-and-Transistor-R-D-Are-Shaping/post/1730050
+    - https://x.com/theaustinlyons/status/2000623709120536712
+  notes: 客户一手资料（B 级）；原链接现已跳转，原文据转帖逐字保存（research/visual/B8B9_sources.md S10）。数字属于 EXE:5200B（第二代），不是片中画的 EXE:5000，标签写明 EXE:5200B。
   segments: [B8]
 
 F44:
-  claim: 晶圆刚放进机器时的定位精度约 80 μm（约一根头发丝），随后用几十个对准标记和超过 1000 个套刻标记修正到亚纳米；一颗芯片最多约 100 层图形
-  values: {initial_um: 80, overlay_marks: 1000, layers_max: 100}
+  claim: 晶圆刚放进机器时的定位精度约 80 μm（约一根头发丝）；对准传感器读取几十个对准标记（专门设计的光栅），把位置修正到亚纳米；套刻量测时标记可多达 1000 个以上（另一道工序）。一颗芯片最多约 100 层图形
+  values: {initial_um: 80, alignment_marks: tens, overlay_metrology_marks: 1000, layers_max: 100}
+  quote: >-
+    "Alignment marks are specially designed gratings that are created on the wafer alongside each layer's pattern." /
+    "For wafer positioning, there are tens of alignment markers. For overlay, there could be over 1,000"
   status: verified
   grade: A
   sources:
@@ -532,14 +543,18 @@ F44:
   segments: [A1, B8]
 
 F45:
-  claim: NXE:3800E 产能 220 片/小时（30 mJ/cm²，每片 96 个满场）；推算每小时约 2.1 万次曝光，每秒约 6 次
-  values: {wph: 220, fields: 96, dose_mj_cm2: 30, exposures_per_h: 21120}
+  claim: High-NA EXE:5000 每片 188 个半场，产能超过 185 片/小时，推算每小时 3.4 万次以上曝光
+  values: {fields_exe: 188, wph_exe: 185, exposures_per_h_exe: 34780}
   status: verified
   grade: A
   sources:
+    - https://www.asml.com/en/news/stories/2024/5-things-high-na-euv
+    - https://euvlitho.com/2022/P3.pdf
     - https://euvlitho.com/2023/P62.pdf
-    - https://www.sec.gov/Archives/edgar/data/937966/000162828026011377/asml-2025xannualxreportx.htm
-  notes: 曝光次数为推算（220 × 96）。
+  quote: '"more than 185 wafers per hour" (ASML, 5 things about High NA, 2024); "188 half fields per wafer" (van Schoot, EUVL Workshop 2022, slide 14)'
+  notes: >-
+    曝光次数为推算（188 × 185 = 34,780）。NXE:3800E 的对照数字：≥220 片/小时，30 mJ/cm²，96 个满场（Maas et al., ASML, EUVL
+    Workshop 2023 P62 第 16 页）；96 个满场包括伸出晶圆边缘的边缘场。
   segments: [B8]
 
 F46:
@@ -549,6 +564,7 @@ F46:
   grade: A
   sources:
     - https://www.asml.com/en/technology/lithography-principles/measuring-accuracy
+  notes: ASML 原文是 "A single lithography system"，没有指定机型；旁白说“一台光刻机”。
   segments: [B8]
 
 F47:
@@ -559,7 +575,10 @@ F47:
   sources:
     - https://semiengineering.com/searching-for-euv-defects
     - https://semiengineering.com/euvs-new-problem-areas
-  notes: 92 eV = hc/λ（1240 eV·nm ÷ 13.5 nm）；30 mJ/cm² = 3×10⁻¹⁶ J/nm²，除以 1.47×10⁻¹⁷ J ≈ 20 个。
+  notes: >-
+    92 eV = hc/λ（1240 eV·nm ÷ 13.5 nm）；30 mJ/cm² = 3×10⁻¹⁶ J/nm²，除以 1.47×10⁻¹⁷ J ≈ 20 个。30 mJ/cm² 是 NXE:3800E 标定
+    产能用的剂量（ASML EUVL Workshop 2023 P62 第 16 页）；EXE 产能标注的剂量是 50 mJ/cm²，约 34 个/nm²。这里算的是入射光子数，
+    光刻胶只吸收其中一部分。
   segments: [B9]
 
 F48:
@@ -596,7 +615,10 @@ F51:
   status: verified
   grade: A
   sources:
-    - https://www.asml.com/en/company/about-asml/locations/wilton-ct
+    - https://www.asml.com/en/technology/lithography-principles/mechanics-and-mechatronics
+  quote: >-
+    "The ability to synchronize the motion of wafer and reticle to the nanometer and nanosecond as they accelerate at 5 g
+    and 15 g in opposite directions"
   segments: [B8, C]
 
 F52:
@@ -650,21 +672,23 @@ F56:
   segments: [B3, C]
 
 F57:
-  claim: 步进扫描：光被整形成一条狭缝，掩模台与晶圆台同步扫描；NXE（4 倍缩小）掩模速度是晶圆的 4 倍，EXE 扫描方向是 8 倍；扫完一个曝光场再步进到下一个
+  claim: 步进扫描：照明系统把光整形成一条（弧形）狭缝，掩模台与晶圆台反向同步扫描；NXE（4 倍缩小）掩模速度是晶圆的 4 倍，EXE 扫描方向是 8 倍；扫完一个曝光场再步进到下一场，相邻场反向扫描
   values: {reticle_to_wafer_speed_nxe: 4, reticle_to_wafer_speed_exe_scan: 8}
   status: verified
   grade: B
   sources:
     - https://euvlitho.com/2021/P52.pdf
-    - https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/5831716
+    - https://www.asml.com/en/technology/lithography-principles/mechanics-and-mechatronics
+    - https://www.asml.com/en/news/stories/2024/5-things-high-na-euv
+    - https://patents.google.com/patent/US8711329B2
   notes: >-
-    Wischmeier et al.（ZEISS/ASML, EUVL Workshop 2021）第 11 页 "βscan = 1/8, βx-scan = 1/4"。“反向”只见于 DUV 专利（Nikon
-    US 5,831,716，KrF 248 nm 折射式）；EUV/EXE 的相对扫描方向没有公开原文（ASML van Schoot 2021 第 34 页两个双向箭头）。
-    旁白说“同步”，不说“反向”。Design News 为 C 级，已删除。
+    Wischmeier et al.（ZEISS/ASML, EUVL Workshop 2021）第 11 页 "βscan = 1/8, βx-scan = 1/4"；ASML："demagnify it by 4x in one
+    direction and 8x in the other"。反向：ASML 机电页 "accelerate at 5 g and 15 g in opposite directions"（F51，泛指 ASML 扫描机）。
+    相邻场反向扫描：ASML 专利 US8711329B2 "sequence: +Y, −Y, +Y, −Y"。Design News（C 级）与 Nikon DUV 专利已不再作为来源。
   segments: [B8, C]
 
 F58:
-  claim: 双工件台（TWINSCAN）：一片晶圆在曝光的同时，另一片在第二个台上完成测量和对准；ASML 于 2000 年推出，是唯一拥有两套完整晶圆台的光刻平台
+  claim: 双工件台（TWINSCAN）：一片晶圆在曝光的同时，另一片在第二个台上完成测量和对准；首台于 2001 年发货，是唯一拥有两套完整晶圆台的光刻平台
   status: verified
   grade: A
   sources:
