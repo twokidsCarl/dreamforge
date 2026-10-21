@@ -111,7 +111,7 @@ def build_cochlea(name, loc=(0, 0, 0), mat=None, array_color=(0.55, 0.69, 1.0), 
     bm = bmesh.new()
     for t0, t1 in rngs:
         _ribbon_into(bm, t0, t1, (lambda t: trough) if open_top else (lambda t: circ), n=nseg, closed=not open_top)
-    wall = obj(f"{name}_Wall", bm, mat, "shell")
+    wall = obj(f"{name}_Wall", bm, mat, "structure" if open_top else "shell")   # 开顶：骨管槽做实体，阵列看得出躺在槽里
     s = wall.modifiers.new("Solid", "SOLIDIFY")
     s.thickness = 0.12
     s.offset = 1
