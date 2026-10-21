@@ -1,8 +1,11 @@
 """E2 C 段（第三幕）的 2D 镜头和 Blender raw 帧的叠字后处理（Pillow）。
 
+C_01a：整脑示意（c_scenes.brain，energy 暗底）+「小鼠」。只标对象是小鼠（F9：Ramirez 等 2013 的实验对象），
+不标脑区名、不写「记忆」。字在齿状回那一簇细胞亮起之后进来，位置跟着锚点 LabelAnchor_Mouse 投影。
 C_07a：视网膜剖面（c_scenes.retina phase=rp，xray 浅灰底）+「可转导」。只标神经节细胞（F11：感光细胞死去、神经节细胞留着；
 builder 里通道装在神经节细胞上），不写疗效、不写视力数字。字在神经节细胞套上蓝色光晕之后进来，位置跟着锚点
 LabelAnchor_Transducible 投影（与 Blender 相机同一套数学，e2_common.project_point）。
+读帧、相机和标签的共用件在 raw_overlay.py。
 """
 import os
 import sys
@@ -10,33 +13,39 @@ import sys
 from PIL import Image, ImageDraw, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), "blender", "scripts"))
 
 import build_retina as BR  # noqa: E402
 import e2_common as E  # noqa: E402
-from mograph import RENDERS, ease, seg, shot  # noqa: E402
+import raw_overlay as R  # noqa: E402
+from mograph import ease, seg, shot  # noqa: E402
 from overlay_labels import font  # noqa: E402
 
 FPS = 24
 
 
-def _raw_frame(sid, f, W):
-    q = {640: "preview", 960: "sample", 1920: "final"}[W]
-    p = os.path.join(RENDERS, "shots", sid, q + "_raw", f"{f:04d}.png")
-    if not os.path.exists(p):
-        raise FileNotFoundError(f"{p} 不存在：先渲 {sid}（registry 里 raw: true，写到 {q}_raw）")
-    return Image.open(p).convert("RGB")
+# ---- C_01a：整脑示意 +「小鼠」 ----------------------------------------------------------------
+C01_LABEL = "小鼠"
+C01_ANCHOR = (0.75, 0.0, 0.75)                         # c_scenes.brain：LabelAnchor_Mouse（脑的前上方）
+C01_AIM = (-0.1, 0.1, 0.0)
+C01_LOC0 = (-0.5, -4.6, 1.9)
+C01_LOC1 = tuple(C01_LOC0[i] + (C01_AIM[i] - C01_LOC0[i]) * 0.22 for i in range(3))   # S.toward(loc0, aim, 0.22)
 
 
-def _lerp(a, b, s):
-    return tuple(a[i] + (b[i] - a[i]) * s for i in range(3))
-
-
-def _dolly(f, n, aim0, loc0, loc1, aim1):
-    """e2_shot.dolly 的两个关键帧（Blender 默认贝塞尔，端点切线水平 = smoothstep）→ 第 f 帧的 (loc, aim)。"""
-    u = min(1.0, max(0.0, (f - 1) / max(1, n - 1)))
-    s = u * u * (3 - 2 * u)
-    return _lerp(loc0, loc1, s), _lerp(aim0, aim1, s)
+@shot("C_01a")
+def c_01a(t, dur, W, H):
+    """齿状回一簇细胞在 u=0.22 起亮（c_scenes），字幕「这里只深讲一件事，而且只讲小鼠」从 6.4 s（u≈0.65）起：
+    字在 0.62→0.72 淡入，停到结尾。镜头推近后锚点投影会出到画面上沿，字的纵向限制在 0.12H 以下。"""
+    f, n, u = R.frame_of(t, dur)
+    base = R.raw_frame("C_01a", f, W).resize((W, H), Image.LANCZOS)
+    a = ease(seg(u, 0.62, 0.72))
+    if a <= 0:
+        return base
+    k = H / 1080
+    loc, aim = R.dolly(f, n, C01_AIM, C01_LOC0, C01_LOC1)
+    x, y = E.project_point(C01_ANCHOR, loc, aim, W, H)
+    return R.tag(base, C01_LABEL, (x, max(0.12 * H, y)), k, a=a, size=48, edge=E.CHANNEL, halo=E.CHANNEL_DEEP)
 
 
 # ---- C_07a：视网膜剖面 + 「可转导」 ------------------------------------------------------------
@@ -52,14 +61,14 @@ def c_07a(t, dur, W, H):
     引线先画出（0.64→0.70），字随后淡入（0.66→0.76）并停到结尾。"""
     n = max(1, round(dur * FPS))
     f = int(round(t * FPS)) + 1
-    base = _raw_frame("C_07a", f, W).resize((W, H), Image.LANCZOS)
+    base = R.raw_frame("C_07a", f, W).resize((W, H), Image.LANCZOS)
     u = (f - 1) / max(1, n - 1)                        # 与 c_scenes._f 同一套比例
     lead = ease(seg(u, 0.64, 0.70))
     a = ease(seg(u, 0.66, 0.76))
     if lead <= 0:
         return base
     k = H / 1080
-    loc, aim = _dolly(f, n, (0.0, 0.0, 1.22), (-0.3, -9.4, 1.9), (0.6, -6.6, 1.4), (0.4, 0.0, 1.05))
+    loc, aim = R.dolly(f, n, (0.0, 0.0, 1.22), (-0.3, -9.4, 1.9), (0.6, -6.6, 1.4), (0.4, 0.0, 1.05))
     ax, ay = E.project_point(C07_ANCHOR, loc, aim, W, H)
     ay -= 40 * k                                       # 锚点在胞体中心偏下（y=-0.5 靠镜头）：点落在亮起的胞体上
     # 字放在神经节细胞行上方的内核层一带、锚点左上；下方约 18% 是字幕安全区，不往下放

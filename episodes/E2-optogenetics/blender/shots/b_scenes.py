@@ -33,7 +33,7 @@
     这里用 build_opsin 的 cterm 表示；truncate 开头的「分开的感受器 + 分开的孔」是旁白里被否定的旧设想，画成抽象零件，
     不对应任何具体系统。
   - NpHR 是黄光驱动的氯离子泵，氯离子进入细胞，膜电位往负方向走（Zhang et al. 2007，F9）。
-  - ChrimsonR：长波长敏感的通道视紫红质变体（Klapoetke et al. 2014），2021 年用于人眼（Sahel et al. 2021，F14）。
+  - ChrimsonR：长波长敏感的通道视紫红质变体（Klapoetke et al. 2014），2021 年用于人眼（Sahel et al. 2021，F11）。
     sem 下用冷 / 暖两种灰调区分左右，两个蛋白是两个物体。
   - 离子大小放大很多倍，见 build_bilayer.py。
 
@@ -411,7 +411,7 @@ def br_pump(sc, rnd):
         h = BB.ion(f"HPumped{k}", "h", (0, 0, -0.45))
         path = BO.pump_path(p, z_from=-0.45, z_to=0.45)
         _ion_story(h, path, fc + 3, 36, F, rnd)
-    _anchor("LabelAnchor_bR", (0.0, 0.0, 0.62))
+    _anchor("LabelAnchor_bR", (0.0, 0.0, 0.36))           # 0.62 在低机位下投影出画
     S.studio_lights(0.5)
     S.dolly("CamB_03a", (0.0, 0.0, 0.05), (0.35, -3.0, 0.55), (0.15, -2.15, 0.32), 1, F3)
     S.locked("CamB_03b", (0.0, 0.0, 0.0), (0.9, -2.6, 0.25), f=1, lens=35)
@@ -665,11 +665,11 @@ def nphr_plan(sc, rnd):
     for k in range(3):
         ion = BB.ion(f"ClPlan{k}", "cl", path[0], "structure")
         BB.through(ion, path, 4 + 9 * k, 4 + 9 * k + 18)
-    # 电压下降：右侧向下的箭头
-    S.arrow("VArrow", (0.72, -0.05, 0.35), (0.72, -0.05, -0.15), 0.014)
+    # 电压下降：膜右端外侧向下的箭头（放在膜上会被剖面挡住，只露出箭杆）
+    S.arrow("VArrow", (1.25, -0.05, 0.35), (1.25, -0.05, -0.15), 0.014)
     _anchor("LabelAnchor_light", (-0.45, 0, 0.92))
-    _anchor("LabelAnchor_cl", (0.18, -0.32, -0.45))
-    _anchor("LabelAnchor_v", (0.86, 0, 0.1))
+    _anchor("LabelAnchor_cl", (0.10, -0.32, -0.33))         # 箭头右侧、膜下方；再往下就进字幕安全区
+    _anchor("LabelAnchor_v", (1.25, -0.05, 0.47))
     S.locked("CamB_16b", (0.15, 0.0, 0.2), (0.15, -3.0, 0.35), lens=35)
 
 
