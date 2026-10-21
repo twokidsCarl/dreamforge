@@ -61,7 +61,10 @@ F4c:
   values: {nxe3800e_w: 500, demo_w: 1000}
   status: verified
   grade: A
-  quote: "In April 2025, ASML reached a historic milestone: demonstrating the first ever 1,000-watt light source for EUV lithography." (ASML Annual Report 2025, p.31); "an increase in EUV source power (to >500W)" for NXE:3800E (Hummler et al., ASML, Proc. SPIE 12953, 2024)
+  quote: >-
+    "In April 2025, ASML reached a historic milestone: demonstrating the first ever 1,000-watt light source for EUV
+    lithography." (ASML Annual Report 2025, p.31); "an increase in EUV source power (to >500W)" for NXE:3800E
+    (Hummler et al., ASML, Proc. SPIE 12953, 2024)
   sources:
     - https://www.asml.com/en/investors/annual-report/2025
     - https://doi.org/10.1117/12.3010463
