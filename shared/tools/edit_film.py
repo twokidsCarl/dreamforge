@@ -57,19 +57,68 @@ def subtitle(img, text, W, H, a=1.0):
     return Image.alpha_composite(img.convert("RGBA"), layer)
 
 
-def label_for(s, mg):
-    if s["id"] in mg or s.get("style") == "type":
-        return None
-    ovs = [o for o in s.get("overlays") or [] if o.get("kind") != "chapter"]
-    if not ovs:
-        return None
+def _lab(texts, facts, sub_extra=()):
     tr = str.maketrans("₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻", "01234567890123456789+-")
-    ovs = [dict(o, text=o["text"].translate(tr)) for o in ovs]
-    rest = [o["text"] for o in ovs[1:]]
+    texts = [t.translate(tr) for t in texts]
+    rest = list(sub_extra) + texts[1:]
     rest = (["示意"] if "示意" in rest else []) + [r for r in rest if r != "示意"]   # 示意 is never dropped
-    return {"text": ovs[0]["text"], "sub": " ｜ ".join(rest[:2]),
-            "source": SR.fact_orgs(sorted({f for o in ovs for f in o.get("facts") or []})), "facts": [],
+    return {"text": texts[0], "sub": " ｜ ".join(rest[:2]), "source": SR.fact_orgs(sorted(set(facts))), "facts": [],
             "pos": "upper_right"}
+
+
+def labels_for(s, mg):
+    """[(start_s, end_s, label)] for a 3D shot. Overlays without `at:` share one label from 0.4 s (or after the chapter
+    card); an overlay with `at: <s>` gets its own label from that second, until the next one or 5 s, so long takes
+    can follow the narration."""
+    if s["id"] in mg or s.get("style") == "type":
+        return []
+    dur = s["duration"]
+    ovs = [o for o in s.get("overlays") or [] if o.get("kind") != "chapter"]
+    timed = sorted((o for o in ovs if o.get("at") is not None), key=lambda o: o["at"])
+    plain = [o for o in ovs if o.get("at") is None]
+    out = []
+    t0 = 3.0 if chapter_of(s, mg) else 10 / FPS
+    if plain:
+        end = min(dur, t0 + 5.0, timed[0]["at"] if timed and timed[0]["at"] > t0 + 1.5 else dur)
+        out.append((t0, end, _lab([o["text"] for o in plain], [f for o in plain for f in o.get("facts") or []])))
+    for k, o in enumerate(timed):
+        nxt = timed[k + 1]["at"] if k + 1 < len(timed) else dur
+        out.append((o["at"], min(dur, nxt, o["at"] + 5.0), _lab([o["text"]], o.get("facts") or [])))
+    return out
+
+
+def chapter_of(s, mg):
+    """(title, subtitle) of a chapter overlay on a 3D shot (2D graphics draw their own chapter cards)."""
+    if s["id"] in mg:
+        return None
+    for o in s.get("overlays") or []:
+        if o.get("kind") == "chapter":
+            t = o["text"].split("·", 1)[-1].strip()
+            title, _, sub = t.partition("：")
+            return title.strip(), sub.strip()
+    return None
+
+
+def draw_chapter(img, title, sub, a, W, H):
+    """Chapter card over a 3D picture, lower left on a soft dark gradient: 章节 / title / subtitle / a growing rule."""
+    k = H / 1080
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    grad = Image.linear_gradient("L").rotate(90, expand=True).resize((W, H))      # dark at the left
+    shade = Image.new("RGBA", (W, H), (4, 5, 9, 0))
+    shade.putalpha(grad.point(lambda v: int(max(0.0, (255 - v) / 255 - 0.35) / 0.65 * 230 * a)))   # left 2/3
+    layer.alpha_composite(shade)
+    d = ImageDraw.Draw(layer)
+    d.text((160 * k, 470 * k), "章节", font=font(int(34 * k)), fill=(150, 158, 182, int(255 * a)))
+    ft = font(int(96 * k))
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(glow).text((160 * k, 520 * k), title, font=ft, fill=(164, 128, 255, int(160 * a)))
+    layer.alpha_composite(glow.filter(ImageFilter.GaussianBlur(14 * k)))
+    d.text((160 * k, 520 * k), title, font=ft, fill=(236, 238, 244, int(255 * a)))
+    tw = d.textlength(title, font=ft)
+    d.rectangle([160 * k, 640 * k, 160 * k + tw * a, 643 * k], fill=(164, 128, 255, int(255 * a)))
+    if sub:
+        d.text((164 * k, 662 * k), sub, font=font(int(34 * k)), fill=(190, 170, 255, int(255 * a)))
+    return Image.alpha_composite(img.convert("RGBA"), layer)
 
 
 def picture(shots, W, H, order, tmp):
@@ -80,7 +129,7 @@ def picture(shots, W, H, order, tmp):
     for s in shots:
         a = round((s["start"] - t_film0) * FPS)
         b = round((s["start"] + s["duration"] - t_film0) * FPS)
-        spans.append((s, a, b, best_frames(s["id"], order), label_for(s, mg)))
+        spans.append((s, a, b, best_frames(s["id"], order), (labels_for(s, mg), chapter_of(s, mg))))
     cache = {}
 
     def frame_of(span, f):
@@ -103,14 +152,18 @@ def picture(shots, W, H, order, tmp):
             prev = frame_of(spans[k - 1], f)
             img = Image.blend(prev, img, (f - a + 1) / (DISSOLVE + 1))
         img = img.convert("RGBA")
-        if lab:
-            end = min(b, a + 5 * FPS)                                # a label reads in 5 s; then get out of the way
-            la = max(0.0, min(1.0, (f - a - 10) / 8, (end - f - 4) / 8))
+        labs, chap = lab
+        t = (f - a) / FPS
+        if chap:                                                     # chapter card 0.2-2.8 s, 0.5 s fades
+            ca = max(0.0, min(1.0, (t - 0.2) / 0.5, (2.8 - t) / 0.5))
+            if ca > 0:
+                img = draw_chapter(img, chap[0], chap[1], ca, W, H)
+        for t0, t1, lb in labs:                                      # a label reads in 5 s; then gets out of the way
+            la = max(0.0, min(1.0, (t - t0) / 0.33, (t1 - t - 0.17) / 0.33))
             if la > 0:
                 layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-                draw_label(layer, lab, la, W, H)
+                draw_label(layer, lb, la, W, H)
                 img = Image.alpha_composite(img, layer)
-        t = (f - a) / FPS
         cue = next((c for c in s.get("subs") or [] if c["start"] <= t < c["end"]), None)
         if cue:
             ca = min(1.0, (t - cue["start"]) * 8, (cue["end"] - t) * 8)

@@ -61,16 +61,18 @@ F4b:
 
 F4c:
   claim: 光源功率：NXE:3800E 的光源超过 500 W；2025 年 4 月 ASML 演示了第一台 1000 W 的 EUV 光源
-  values: {nxe3800e_w: 500, demo_w: 1000}
+  values: {nxe3800e_w: 500, demo_w: 1000, customers_2023_w: 250}
   status: verified
   grade: A
   quote: >-
     "In April 2025, ASML reached a historic milestone: demonstrating the first ever 1,000-watt light source for EUV
     lithography." (ASML Annual Report 2025, p.31); "an increase in EUV source power (to >500W)" for NXE:3800E
-    (Hummler et al., ASML, Proc. SPIE 12953, 2024)
+    (Hummler et al., ASML, Proc. SPIE 12953, 2024); "Sources at customers operate at ~250 Watt power"
+    (Umstadter et al., ASML, Proc. SPIE 12494, 124940Z, 2023)
   sources:
     - https://www.asml.com/en/investors/annual-report/2025
     - https://doi.org/10.1117/12.3010463
+    - https://doi.org/10.1117/12.2657772
   notes: 1000 W 为 A 级；>500 W 为 B 级（ASML 作者的 SPIE 论文）。“量产 600 W”“原理样机/实验室”只见媒体，不用。
   segments: [B1, D]
 
@@ -105,7 +107,7 @@ F7:
     - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
     - https://cpmi.illinois.edu/files/2023/10/Ch18-1.pdf
   notes: >-
-    6 面为 A 级（ZEISS），但只是 NXE（0.33 NA）的公开数字；EXE 没有文字来源，旁白不得把 6 面用于 High-NA（WORKFLOW 2.5）。
+    D_03 的“约 10 面”按教材。6 面为 A 级（ZEISS），但只是 NXE（0.33 NA）的公开数字；EXE 没有文字来源，旁白不得把 6 面用于 High-NA（WORKFLOW 2.5）。
     “约 10 面”为教材（B），旁白用“约 10 面”，不写死精确总数。
   segments: [B4]
 
@@ -167,7 +169,11 @@ F12:
   sources:
     - https://euvlitho.com/2023/P21.pdf
     - https://www.asml.com/en/news/stories/2024/5-things-high-na-euv
-  segments: [B7]
+    - https://euvlitho.com/2024/P22.pdf
+  quote: >-
+    "Anamorphic lens design: 4× reduction in non-scan direction, 8× reduction in scan direction" (Kaumanns et al., ZEISS,
+    EUVL Workshop 2024, slide 9)
+  segments: [B7, C]
 
 F13:
   claim: NXE：NA 0.33，分辨率 13 nm
@@ -403,7 +409,7 @@ F33:
   sources:
     - https://cpmi.illinois.edu/files/2023/10/Ch18-1.pdf
   narration: 到达晶圆的光只剩约 1%
-  notes: 100 W 是教材的假设例子，不是某台机器的数值；ASML 的光源功率在中间焦点处标定（NXE:3800E >500 W，F4c）。每面约 66–70%，约 11 次反射（含掩模）→ 约 1–2%。
+  notes: 0.33 NA 时代的教材估算，High-NA 中心遮拦设计透过率更高（Heil et al., ZEISS, EUVL Symposium 2015, slide 20："significantly higher optics transmission vs. 3300"），屏幕写“教材估算”。100 W 是教材的假设例子，不是某台机器的数值；ASML 的光源功率在中间焦点处标定（NXE:3800E >500 W，F4c）。每面约 66–70%，约 11 次反射（含掩模）→ 约 1–2%。
   segments: [B4, B9, C]
 
 F34:
@@ -644,13 +650,17 @@ F56:
   segments: [B3, C]
 
 F57:
-  claim: 步进扫描：光被整形成一条狭缝，掩模台与晶圆台反向同步扫描；4 倍缩小时，掩模移动速度是晶圆的 4 倍；扫完一个曝光场再步进到下一个
-  values: {reticle_to_wafer_speed: 4}
+  claim: 步进扫描：光被整形成一条狭缝，掩模台与晶圆台同步扫描；NXE（4 倍缩小）掩模速度是晶圆的 4 倍，EXE 扫描方向是 8 倍；扫完一个曝光场再步进到下一个
+  values: {reticle_to_wafer_speed_nxe: 4, reticle_to_wafer_speed_exe_scan: 8}
   status: verified
   grade: B
   sources:
+    - https://euvlitho.com/2021/P52.pdf
     - https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/5831716
-    - https://www.designnews.com/industry/a-speedy-machine-for-wafer-makers
+  notes: >-
+    Wischmeier et al.（ZEISS/ASML, EUVL Workshop 2021）第 11 页 "βscan = 1/8, βx-scan = 1/4"。“反向”只见于 DUV 专利（Nikon
+    US 5,831,716，KrF 248 nm 折射式）；EUV/EXE 的相对扫描方向没有公开原文（ASML van Schoot 2021 第 34 页两个双向箭头）。
+    旁白说“同步”，不说“反向”。Design News 为 C 级，已删除。
   segments: [B8, C]
 
 F58:
