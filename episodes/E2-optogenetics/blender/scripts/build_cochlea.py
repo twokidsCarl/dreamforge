@@ -78,8 +78,10 @@ def _cut(ob, name):
     return cutter
 
 
-def build_cochlea(name, loc=(0, 0, 0), mat=None, array_color=(0.55, 0.69, 1.0), tag=None):
-    """建半个耳蜗：骨管壁（shell）、前庭膜和基底膜（structure）、蜗轴（shell，xray 里是玻璃，看得见里面的螺旋神经节）、螺旋神经节（structure 小球）、
+def build_cochlea(name, loc=(0, 0, 0), mat=None, array_color=(0.55, 0.69, 1.0), tag=None, open_top=False):
+    """open_top=True（v7 C_17a 俯视用）：不做 y 半剖，整 2.5 圈都扫出来，但骨管只留下半圈截面（顶盖剖掉、前庭膜不画、基底膜改成 shell），
+    沿蜗轴俯视时看得到一条连续的螺旋槽，阵列躺在槽里。
+    建半个耳蜗：骨管壁（shell）、前庭膜和基底膜（structure）、蜗轴（shell，xray 里是玻璃，看得见里面的螺旋神经节）、螺旋神经节（structure 小球）、
     光学阵列（emitter，发光细杆，可 reveal / 淡出）。返回 dict(root, wall, reissner, basilar, modiolus, ganglion,
     arrays, array_mat, cutter)。"""
     import bmesh
@@ -103,10 +105,12 @@ def build_cochlea(name, loc=(0, 0, 0), mat=None, array_color=(0.55, 0.69, 1.0), 
         return ob
 
     circ = _circle()
-    rngs = kept_ranges()
+    rngs = [(0.0, 1.0)] if open_top else kept_ranges()
+    nseg = 420 if open_top else 110
+    trough = [(math.cos(math.pi + math.pi * i / 16), math.sin(math.pi + math.pi * i / 16)) for i in range(17)]
     bm = bmesh.new()
     for t0, t1 in rngs:
-        _ribbon_into(bm, t0, t1, lambda t: circ, n=110, closed=True)
+        _ribbon_into(bm, t0, t1, (lambda t: trough) if open_top else (lambda t: circ), n=nseg, closed=not open_top)
     wall = obj(f"{name}_Wall", bm, mat, "shell")
     s = wall.modifiers.new("Solid", "SOLIDIFY")
     s.thickness = 0.12
@@ -114,11 +118,12 @@ def build_cochlea(name, loc=(0, 0, 0), mat=None, array_color=(0.55, 0.69, 1.0), 
     # 基底膜：从内侧骨螺旋板（蜗轴侧，u = -1）斜到外侧壁，略低于中线；前庭膜：从内侧斜向外上方。两者围出三角形的中阶。
     bm = bmesh.new()
     for t0, t1 in rngs:
-        _ribbon_into(bm, t0, t1, lambda t: [(-0.98, -0.08), (0.0, -0.12), (0.97, -0.16)], n=110)
-    basilar = obj(f"{name}_Basilar", bm, mat, "structure")
+        _ribbon_into(bm, t0, t1, lambda t: [(-0.98, -0.08), (0.0, -0.12), (0.97, -0.16)], n=nseg)
+    basilar = obj(f"{name}_Basilar", bm, mat, "shell" if open_top else "structure")   # 俯视：基底膜做成鬼影玻璃，透出下面鼓阶里的阵列
     bm = bmesh.new()
-    for t0, t1 in rngs:
-        _ribbon_into(bm, t0, t1, lambda t: [(-0.62, -0.06), (0.1, 0.34), (0.78, 0.6)], n=110)
+    if not open_top:
+        for t0, t1 in rngs:
+            _ribbon_into(bm, t0, t1, lambda t: [(-0.62, -0.06), (0.1, 0.34), (0.78, 0.6)], n=110)
     reissner = obj(f"{name}_Reissner", bm, mat, "structure")
     for m_ in (basilar, reissner):
         sm = m_.modifiers.new("Solid", "SOLIDIFY")
@@ -136,7 +141,7 @@ def build_cochlea(name, loc=(0, 0, 0), mat=None, array_color=(0.55, 0.69, 1.0), 
         t = i / 119 * 0.92
         c, rad, a = spiral(t)
         rr = math.hypot(c[0], c[1]) - rad * 1.45
-        if rr * math.sin(a) < 0.25:                 # 只放在剖切后留下的一半里（小球互相重叠，布尔切不干净）
+        if not open_top and rr * math.sin(a) < 0.25:                 # 只放在剖切后留下的一半里（小球互相重叠，布尔切不干净）
             continue
         m = bmesh.ops.create_icosphere(bm, subdivisions=1, radius=0.13 + 0.05 * (1 - t))
         for v in m["verts"]:
@@ -155,7 +160,7 @@ def build_cochlea(name, loc=(0, 0, 0), mat=None, array_color=(0.55, 0.69, 1.0), 
     # 只保留剖切后留下的那半边（y ≥ 0）里的段，每段一根管（曲线做不了布尔）
     segs, cur = [], []
     for p in pts:
-        if p[1] >= 0.0:
+        if open_top or p[1] >= 0.0:
             cur.append(p)
         elif cur:
             segs.append(cur)
@@ -167,7 +172,6 @@ def build_cochlea(name, loc=(0, 0, 0), mat=None, array_color=(0.55, 0.69, 1.0), 
         a_ = S.tube(f"{name}_OpticalArray{k}", sp, 0.16, amat, "emitter", res=3)
         a_.parent = root
         arrays.append(a_)
-    cutter = None
-    cutter = _cut(modiolus, name)                    # 蜗轴是简单的凸体，布尔可靠
+    cutter = None if open_top else _cut(modiolus, name)                    # 蜗轴是简单的凸体，布尔可靠
     return {"root": root, "wall": wall, "reissner": reissner, "basilar": basilar, "modiolus": modiolus,
             "ganglion": ganglion, "arrays": arrays, "array_mat": amat, "array_pts": pts, "cutter": cutter}

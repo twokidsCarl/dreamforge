@@ -546,7 +546,8 @@ def announce(sc, rnd, **_):
 def cochlea(sc, rnd, **_):
     sid = "C_17a"
     n = _n(sid)
-    co = BC.build_cochlea("Co", (0, 0, 0), S.matte("CochleaTissue", (0.82, 0.78, 0.74)), BLUE, tag=styles.tag)
+    co = BC.build_cochlea("Co", (0, 0, 0), S.matte("CochleaTissue", (0.82, 0.78, 0.74)), BLUE, tag=styles.tag,
+                          open_top=True)
     f_r0, f_r1 = _f(sid, 0.09), _f(sid, 0.27)
     arrays = co["arrays"]
     lens_ = [len(o.data.splines[0].points) for o in arrays]          # 点距相等，点数 ∝ 弧长
@@ -562,9 +563,14 @@ def cochlea(sc, rnd, **_):
     S.set_strength(m, f_r0 + 6, 6.0)
     S.set_strength(m, _f(sid, 0.45), 6.0)
     S.set_strength(m, _f(sid, 0.65), 0.0)                       # 随即淡出
+    for o in arrays:                                             # 熄灭后的阵列在 EEVEE 里是一圈黑管：直接隐藏
+        o.hide_render = False
+        o.keyframe_insert("hide_render", frame=_f(sid, 0.65))
+        o.hide_render = True
+        o.keyframe_insert("hide_render", frame=_f(sid, 0.65) + 1)
     S.studio_lights(1.4, (0, 0, 3.0))
-    # v6b: 沿蜗轴俯视，读得出 ≥2 圈螺旋（半剖 y≥0 仍可见整圈弧）
-    S.dolly("CamC_17a", (0.0, 0.0, 2.4), (0.8, -1.2, 16.5), (0.4, -0.8, 13.0), 1, n, lens=40, aim1=(0.0, 0.3, 2.4))
+    # v7 N12: 整 2.5 圈开顶螺旋槽，沿蜗轴略斜俯视；外径约 ±5 mm，整圈留边不裁切
+    S.dolly("CamC_17a", (0.0, 0.0, 2.0), (0.0, -5.2, 16.8), (0.0, -4.5, 14.8), 1, n, lens=40, aim1=(0.0, 0.2, 2.0))
 
 
 # ---- desens：C_18a -------------------------------------------------------------------------
