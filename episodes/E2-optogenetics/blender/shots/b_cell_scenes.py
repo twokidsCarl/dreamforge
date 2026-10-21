@@ -450,8 +450,9 @@ def journal(sc, rnd):
     n = S.shot_frames("B_13a", 636)
     sc["variant"] = "journal"
     S.dark_room()
+    sc["hdri_strength"] = 0.12   # v5 P1
     desk = S.box("Desk", (0, 0, -0.01), (1.6, 1.0, 0.02), _mat("DeskMat", (0.06, 0.04, 0.03), 0.55), "env")
-    paper = _mat("JournalPaper", (0.78, 0.76, 0.7), 0.7)
+    paper = _mat("JournalPaper", (0.44, 0.42, 0.39), 0.7)   # v5 P1: was 0.78 near-white, fills frame
     ink = _mat("JournalInk", (0.05, 0.05, 0.06), 0.6)
     accent = _mat("JournalAccent", (0.18, 0.26, 0.4), 0.5)
     W, H = 0.21, 0.28
@@ -497,7 +498,7 @@ def journal(sc, rnd):
     yr2 = _text("TOCYear", "2006", (W / 2 - 0.03, H / 2 - 0.016, 0.0033), 0.008, ink, rot=(0, 0, 0))
     yr2.parent = toc
     # 灯：左上低角度暖光 + 极弱的室内底光
-    S.area("Key", (-0.55, 0.45, 0.42), (0.06, -0.02, 0), 0.35, 26, color=(1.0, 0.88, 0.72), keep=True)
+    S.area("Key", (-0.55, 0.45, 0.42), (0.06, -0.02, 0), 0.35, 11, color=(1.0, 0.88, 0.72), keep=True)  # v4 P1 was 26
     S.area("Fill", (0.5, -0.6, 0.5), (0, 0, 0), 0.8, 1.2, color=(0.75, 0.82, 1.0), keep=True)
     tgt = (0.11 - 0.012, H / 2 - 0.035 - hi_row * 0.0125, 0.003)
     S.camera("CamB_13a", [(1, (0.0, 0.0, 0.0), (-0.02, -0.46, 0.42), 50, 4.0),

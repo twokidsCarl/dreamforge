@@ -4,7 +4,7 @@
 # 配乐 v2：eleven.music(prompt=…, ms=68000)，2026-10-21 生成，无人声。最后的和弦从 56 秒起持续，约 58–66 秒自然衰减；
 # 推后 3 秒进（冷开场先只有房间底噪），让衰减落在样片结尾的淡出里，不在 0:57 切到紫膜时掉空（v1 审片）。
 music:
-  - {at: 3.0, file: music/ef5d21f9c2443180.mp3, gain: -9, fade_out: 1.5}
+  - {at: 1.5, file: music/ef5d21f9c2443180.mp3, gain: -9, fade_out: 1.5}   # v5b: 源头 4s 渐起，提前 1.5s 补 7.3s 小洞
 cues:
   - {shot: A0_01a, at: 0.0, len: 4.0, gain: -20, text: "quiet dark room tone, faint dust drifting in still air, very soft low hum, clean"}
   - {shot: A0_02a, at: 2.9, len: 1.2, gain: -22, text: "four slow soft muffled typewriter key strikes, quiet room"}

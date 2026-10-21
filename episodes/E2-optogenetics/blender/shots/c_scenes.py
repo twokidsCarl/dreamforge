@@ -175,12 +175,13 @@ def slice_(sc, rnd, phase="tag", **_):
 # ---- cage：C_02b / C_03a / C_04a ----------------------------------------------------------
 def cage(sc, rnd, env="A", mouse="none", **_):
     S.dark_room()
-    P.bench("Bench", (1.8, 1.0), 0.0, tag=styles.tag, color=(0.09, 0.09, 0.1))
+    sc["hdri_strength"] = 0.12      # v5 P1: HDRI 反射是台面发灰发亮的主因（默认 0.35）
+    P.bench("Bench", (1.8, 1.0), 0.0, tag=styles.tag, color=(0.03, 0.03, 0.035))  # v5 P1 was 0.09
     tint = tuple(0.12 + 0.55 * c for c in S.lin(ENV_A if env == "A" else ENV_B))
     cg = P.cage("Cage", (0, 0, 0), (0.42, 0.26, 0.22), shock_marks=(env == "B"), floor_tint=tint, tag=styles.tag)
     wall = S.box("Backdrop", (0, 0.9, 0.6), (3.0, 0.02, 1.4), S.matte("BackdropMat", (0.02, 0.022, 0.026), 0.9), "env")
-    _keep_area("Key", (-0.5, -0.5, 0.9), (0, 0, 0.05), 0.8, 60)
-    _keep_area("Rim", (0.6, 0.6, 0.5), (0, 0, 0.08), 0.6, 25, color=(0.8, 0.88, 1.0))
+    _keep_area("Key", (-0.5, -0.5, 0.9), (0, 0, 0.05), 0.8, 36)  # v4 P1
+    _keep_area("Rim", (0.6, 0.6, 0.5), (0, 0, 0.08), 0.6, 14, color=(0.8, 0.88, 1.0))  # v4 P1
     if mouse == "freeze":
         sid = "C_04a"
         n = _n(sid)
@@ -315,9 +316,9 @@ def eye(sc, rnd, **_):
     S.set_gain(bm, f_in1 + 8, 2.0)
     S.set_gain(bm, f_out1 + 40, 0.0)
     # 神经节细胞获得新通道：视网膜内层带淡淡亮起
-    S.set_strength(e["rgc_mat"], 1, 0.0)
-    S.set_strength(e["rgc_mat"], _f(sid, 0.4), 0.0)
-    S.set_strength(e["rgc_mat"], _f(sid, 0.5), 1.2)
+    S.set_strength(e["rgc_mat"], 1, 0.18)          # v5: 不再是黑洞，先暗蓝
+    S.set_strength(e["rgc_mat"], _f(sid, 0.4), 0.18)
+    S.set_strength(e["rgc_mat"], _f(sid, 0.5), 0.42)  # v5b: 平涂淡蓝盘 → 暗蓝壁，闪时才亮
     # 护目镜（示意道具）在眼前，镜片朝眼睛（+X）
     g = P.goggles("Goggles", (-2.9, 0.15, 0.0), (0, 0, math.pi / 2), 5.0, tag=styles.tag, lens_color=BLUE)
     f_g = _f(sid, 0.55)
@@ -337,13 +338,28 @@ def eye(sc, rnd, **_):
         S.key(b, f + 14, location=dst)
         S.linear(b)
         S.show_between(b, f, f + 15)
-        S.set_strength(e["rgc_mat"], f + 13, 1.2)
-        S.set_strength(e["rgc_mat"], f + 15, 4.0)
-        S.set_strength(e["rgc_mat"], f + 22, 1.2)
+        S.set_strength(e["rgc_mat"], f + 13, 0.42)
+        S.set_strength(e["rgc_mat"], f + 15, 3.0)
+        S.set_strength(e["rgc_mat"], f + 22, 0.42)
         f += 14
         k += 1
-    S.studio_lights(0.6, (-0.8, 0, 0))
-    S.dolly("CamC_08a", (-0.8, 0.0, 0.0), (-0.8, -8.6, 0.8), (-0.5, -7.2, 0.5), 1, n, lens=50, aim1=(-0.5, 0.0, 0.0))
+    # v4 P0-6 min: vitreous 勿被 clay 换成实心块；机位改 3/4；护目镜拉近
+    # v5 P0-6 min: 玻璃体整块隐藏（clay 下会变成黑块 / 平涂蓝块），露出视网膜内壁和神经节细胞带；
+    # 机位抬高成 3/4 俯视，看进眼杯；护目镜拉近缩小
+    # v5 P0-6 min：补脉络膜（红棕带）、视盘（淡黄）、黄斑（暗琥珀）——clay 只换 structure/shell，emitter 保色
+    import bmesh as _bm
+    ch = BR._cap("Eye_Choroid", e["root"], S.glow("ChoroidMat", (0.32, 0.07, 0.04), 0.9), "emitter", styles.tag,
+                 BR.EYE_R - 0.03, 0.0, math.radians(146), 0.03)
+    S.sphere("Eye_OpticDisc", 0.1, (BR.EYE_R - 0.1, 0.02, -0.18), S.glow("OpticDiscMat", (1.0, 0.86, 0.55), 1.4), "emitter", seg=20, rings=12)
+    S.sphere("Eye_Macula", 0.075, (BR.EYE_R - 0.11, 0.02, 0.1), S.glow("MaculaMat", (0.55, 0.28, 0.06), 1.0), "emitter", seg=20, rings=12)
+    vit = e.get("vitreous")
+    if vit is not None:
+        vit.hide_render = vit.hide_viewport = True
+        styles.tag(vit, "rig")
+    g["root"].location = (-1.85, 0.2, 0.05)
+    g["root"].scale = (0.72, 0.72, 0.72)
+    S.studio_lights(0.55, (0.4, -0.6, 0.5))
+    S.dolly("CamC_08a", (-0.3, 0.0, 0.0), (0.4, -5.6, 3.0), (0.2, -4.4, 2.3), 1, n, lens=42, aim1=(-0.2, 0.0, 0.0))
 
 
 # ---- goggles：C_08b / C_92 ----------------------------------------------------------------

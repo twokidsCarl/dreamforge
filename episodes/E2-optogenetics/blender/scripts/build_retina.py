@@ -329,7 +329,7 @@ def eyeball_section(name, loc=(0, 0, 0), mat=None, retina_color=(0.55, 0.69, 1.0
     iris = _mesh_object(f"{name}_Iris", bm, root, mat, "structure", tag)
     s = iris.modifiers.new("Solid", "SOLIDIFY")
     s.thickness = 0.03
-    lens = _cap(f"{name}_Lens", root, mat, "structure", tag, 0.42, 0.0, math.pi, 0.0, c=(xi + 0.2, 0, 0), axis_scale=(0.42, 1, 1))
+    lens = _cap(f"{name}_Lens", root, mat, "structure", tag, 0.42, 0.0, math.pi, 0.0, c=(xi + 0.2, 0, 0), axis_scale=(0.62, 1, 1))  # v5: 双凸更厚
     vit = _cap(f"{name}_Vitreous", root, mat, "shell", tag, R - 0.12, 0.0, math.radians(125), 0.0)
     nerve = S.cylinder(f"{name}_OpticNerve", 0.17, 0.7, (R + 0.3, 0.0, -0.18), mat, "structure", rot=(0, math.pi / 2, 0))
     nerve.parent = root

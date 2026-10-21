@@ -1,8 +1,8 @@
-# Retime + flash compact + VO realign
+# v5: topic-turn holds 1.65 (gap~2.75s), intra 0.25 (gap~1.35s), F5 lecture line.
 shots:
 - id: A0_01a
   segment: A0
-  duration: 8.52
+  duration: 9.02
   lead: 1.2
   vo:
   - 1979 年，有人写下对研究脑的一个要求：要有办法只动某一类神经元，其余的大体不动。
@@ -46,9 +46,10 @@ shots:
   - text: 其余的大体不动
     start: 6.811
     end: 8.12
+  hold: 0.5
 - id: A0_01b
   segment: A0
-  duration: 7.23
+  duration: 7.73
   vo:
   - 接下来的那些年，微生物那边，能被光推动的膜蛋白正在被找到，线索越来越多。
   facts:
@@ -78,7 +79,7 @@ shots:
   - text: 接下来的那些年，微生物那边，能被光推动的膜蛋白正在被找到，线索越来越多。
     start: 0.3
     end: 6.83
-  start: 8.52
+  start: 9.02
   subs:
   - text: 接下来的那些年，微生物那边
     start: 0.3
@@ -89,11 +90,12 @@ shots:
   - text: 线索越来越多
     start: 5.606
     end: 6.83
+  hold: 0.5
 - id: A0_02a
   segment: A0
-  duration: 13.26
+  duration: 10.96
   vo:
-  - 后来在讲座里，他猜过：拨动这类细胞的信号，也许可以是光。
+  - 后来在讲座里，他猜过，可以用光。
   - 1999 年，他把它写进文章：理想的信号会是光。他也承认，这个想法相当牵强。
   facts: &id001
   - F3b
@@ -114,30 +116,27 @@ shots:
   - 低噪室温
   duration_design: 14.4
   cues:
-  - text: 后来在讲座里，他猜过：拨动这类细胞的信号，也许可以是光。
+  - text: 后来在讲座里，他猜过，可以用光。
     start: 0.3
-    end: 4.86
+    end: 3.26
   - text: 1999 年，他把它写进文章：理想的信号会是光。他也承认，这个想法相当牵强。
-    start: 5.11
-    end: 11.91
-  start: 15.75
+    start: 3.51
+    end: 10.31
+  start: 16.75
   subs:
-  - text: 后来在讲座里，他猜过：拨动这类细胞的信号
+  - text: 后来在讲座里，他猜过，可以用光
     start: 0.3
-    end: 3.72
-  - text: 也许可以是光
-    start: 3.72
-    end: 4.86
+    end: 3.26
   - text: 1999 年，他把它写进文章：
-    start: 5.11
-    end: 7.66
+    start: 3.51
+    end: 6.06
   - text: 理想的信号会是光。他也承认
-    start: 7.66
-    end: 10.21
+    start: 6.06
+    end: 8.61
   - text: 这个想法相当牵强
-    start: 10.21
-    end: 11.91
-  hold: 0.95
+    start: 8.61
+    end: 10.31
+  hold: 0.25
 - id: A0_02b
   segment: A0
   duration: 0.4
@@ -163,12 +162,12 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 29.01
+  start: 27.71
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: A0_03a
   segment: A0
-  duration: 8.21
+  duration: 8.91
   vo:
   - 他要的方法很具体。只让某一类神经元打开，或者关掉，旁边的细胞大体不动，而且要快。
   facts: &id002
@@ -193,7 +192,7 @@ shots:
   - text: 他要的方法很具体。只让某一类神经元打开，或者关掉，旁边的细胞大体不动，而且要快。
     start: 0.3
     end: 6.86
-  start: 29.41
+  start: 28.11
   subs:
   - text: 他要的方法很具体。只让某一类神经元打开
     start: 0.3
@@ -201,7 +200,7 @@ shots:
   - text: 或者关掉，旁边的细胞大体不动，而且要快
     start: 3.674
     end: 6.86
-  hold: 0.95
+  hold: 1.65
 - id: A0_03b
   segment: A0
   duration: 0.4
@@ -220,12 +219,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 37.62
+  start: 37.02
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: A0_04a
   segment: A0
-  duration: 11.37
+  duration: 10.67
   vo:
   - 2026 年 10 月 5 日，诺贝尔生理学或医学奖颁给三位研究者。理由写的是：他们发现了光控离子通道，并由此建立了光遗传学。
   facts: &id003
@@ -254,7 +253,7 @@ shots:
   - text: 2026 年 10 月 5 日，诺贝尔生理学或医学奖颁给三位研究者。理由写的是：他们发现了光控离子通道，并由此建立了光遗传学。
     start: 0.3
     end: 10.02
-  start: 38.02
+  start: 37.42
   subs:
   - text: 2026 年 10 月 5 日
     start: 0.3
@@ -268,7 +267,7 @@ shots:
   - text: 并由此建立了光遗传学
     start: 8.186
     end: 10.02
-  hold: 0.95
+  hold: 0.25
 - id: A0_04b
   segment: A0
   duration: 0.4
@@ -287,12 +286,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 49.39
+  start: 48.09
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: A0_05a
   segment: A0
-  duration: 8.55
+  duration: 9.25
   vo:
   - 从一句自认牵强的设想，走到一套能用的方法，中间缺的是一枚能用光拨动的开关。
   facts: &id004
@@ -318,7 +317,7 @@ shots:
   - text: 从一句自认牵强的设想，走到一套能用的方法，中间缺的是一枚能用光拨动的开关。
     start: 0.3
     end: 7.2
-  start: 49.79
+  start: 48.49
   subs:
   - text: 从一句自认牵强的设想
     start: 0.3
@@ -329,7 +328,7 @@ shots:
   - text: 中间缺的是一枚能用光拨动的开关
     start: 4.156
     end: 7.2
-  hold: 0.95
+  hold: 1.65
 - id: A0_05b
   segment: A0
   duration: 0.4
@@ -348,13 +347,13 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 58.34
+  start: 57.74
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: A0_06a
   segment: A0
-  duration: 6.77
-  hold: 1.1
+  duration: 7.17
+  hold: 1.5
   vo:
   - 这一期就讲这枚开关。片名是《光遗传学》。
   facts: &id005
@@ -378,7 +377,7 @@ shots:
   - text: 这一期就讲这枚开关。片名是《光遗传学》。
     start: 0.345
     end: 3.915
-  start: 58.74
+  start: 58.14
   subs:
   - text: 这一期就讲这枚开关。片名是《光遗传学》
     start: 0.345
@@ -401,7 +400,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 65.51
+  start: 65.31
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: A0_91
@@ -422,7 +421,7 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 65.91
+  start: 65.71
 - id: A0_92
   segment: A0
   duration: 2.0
@@ -446,10 +445,10 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 67.41
+  start: 67.21
 - id: A_01a
   segment: A
-  duration: 11.38
+  duration: 10.68
   vo:
   - 神经元靠细胞膜两侧的电压说话。一次锋电位，是离子在极短的时间里穿过膜，电压忽然翻过去，再恢复。
   facts: &id006
@@ -473,7 +472,7 @@ shots:
   - text: 神经元靠细胞膜两侧的电压说话。一次锋电位，是离子在极短的时间里穿过膜，电压忽然翻过去，再恢复。
     start: 0.3
     end: 10.03
-  start: 69.41
+  start: 69.21
   subs:
   - text: 神经元靠细胞膜两侧的电压说话
     start: 0.3
@@ -484,7 +483,7 @@ shots:
   - text: 电压忽然翻过去，再恢复
     start: 7.713
     end: 10.03
-  hold: 0.95
+  hold: 0.25
 - id: A_01b
   segment: A
   duration: 0.4
@@ -503,12 +502,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 80.79
+  start: 79.89
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: A_02a
   segment: A
-  duration: 13.74
+  duration: 13.04
   vo:
   - 二十世纪的研究者已经能记录哪里在活动，也能损毁一块组织，看行为缺了什么。诺奖新闻稿写明：这些方法证明不了因果关系。
   facts: &id007
@@ -533,21 +532,21 @@ shots:
   - text: 二十世纪的研究者已经能记录哪里在活动，也能损毁一块组织，看行为缺了什么。诺奖新闻稿写明：这些方法证明不了因果关系。
     start: 0.3
     end: 12.39
-  start: 81.19
+  start: 80.29
   subs:
   - text: 二十世纪的研究者已经能记录哪里在活动
     start: 0.3
     end: 4.485
   - text: 也能损毁一块组织，看行为缺了什么
     start: 4.485
-    end: 7.972
+    end: 7.973
   - text: 诺奖新闻稿写明：
-    start: 7.972
+    start: 7.973
     end: 9.6
   - text: 这些方法证明不了因果关系
     start: 9.6
     end: 12.39
-  hold: 0.95
+  hold: 0.25
 - id: A_02b
   segment: A
   duration: 0.4
@@ -566,12 +565,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 94.93
+  start: 93.33
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: A_03a
   segment: A
-  duration: 12.99
+  duration: 12.29
   vo:
   - 相关是：这一类细胞亮着的时候，动物醒了，或者怕了。因果要多问一句。是这些细胞的放电造成了行为，还是它们只是跟着行为一起亮。
   facts: &id008
@@ -595,7 +594,7 @@ shots:
   - text: 相关是：这一类细胞亮着的时候，动物醒了，或者怕了。因果要多问一句。是这些细胞的放电造成了行为，还是它们只是跟着行为一起亮。
     start: 0.3
     end: 11.64
-  start: 95.33
+  start: 93.73
   subs:
   - text: 相关是：这一类细胞亮着的时候，动物醒了
     start: 0.3
@@ -609,7 +608,7 @@ shots:
   - text: 还是它们只是跟着行为一起亮
     start: 8.91
     end: 11.64
-  hold: 0.95
+  hold: 0.25
 - id: A_03b
   segment: A
   duration: 0.4
@@ -628,12 +627,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 108.32
+  start: 106.02
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: A_04a
   segment: A
-  duration: 10.86
+  duration: 11.56
   vo:
   - 要回答这句，得能只推动那一类细胞，也能把它按住，时间尺度要跟锋电位一样，是毫秒，不是分钟。
   facts: &id009
@@ -658,7 +657,7 @@ shots:
   - text: 要回答这句，得能只推动那一类细胞，也能把它按住，时间尺度要跟锋电位一样，是毫秒，不是分钟。
     start: 0.3
     end: 9.51
-  start: 108.72
+  start: 106.42
   subs:
   - text: 要回答这句，得能只推动那一类细胞
     start: 0.3
@@ -669,7 +668,7 @@ shots:
   - text: 是毫秒，不是分钟
     start: 7.857
     end: 9.51
-  hold: 0.95
+  hold: 1.65
 - id: A_04b
   segment: A
   duration: 0.4
@@ -688,12 +687,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 119.58
+  start: 117.98
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: A_05a
   segment: A
-  duration: 16.38
+  duration: 15.68
   vo:
   - 更早的光控尝试已经有过。诺奖科学背景写明，有的方案要靠好几步信号接力，有的要在通道上再外加一种化学光开关。它们都达不到毫秒级编码所需要的速度。
   facts: &id010
@@ -717,7 +716,7 @@ shots:
   - text: 更早的光控尝试已经有过。诺奖科学背景写明，有的方案要靠好几步信号接力，有的要在通道上再外加一种化学光开关。它们都达不到毫秒级编码所需要的速度。
     start: 0.3
     end: 15.03
-  start: 119.98
+  start: 118.38
   subs:
   - text: 更早的光控尝试已经有过
     start: 0.3
@@ -734,7 +733,7 @@ shots:
   - text: 它们都达不到毫秒级编码所需要的速度
     start: 11.236
     end: 15.03
-  hold: 0.95
+  hold: 0.25
 - id: A_05b
   segment: A
   duration: 0.4
@@ -753,12 +752,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 136.36
+  start: 134.06
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: A_06a
   segment: A
-  duration: 7.05
+  duration: 7.75
   vo:
   - 缺的是一个蛋白。光打上去，它自己就开门，不必再请一套帮手。
   facts: &id011
@@ -783,7 +782,7 @@ shots:
   - text: 缺的是一个蛋白。光打上去，它自己就开门，不必再请一套帮手。
     start: 0.3
     end: 5.7
-  start: 136.76
+  start: 134.46
   subs:
   - text: 缺的是一个蛋白。光打上去，它自己就开门
     start: 0.3
@@ -791,7 +790,7 @@ shots:
   - text: 不必再请一套帮手
     start: 3.972
     end: 5.7
-  hold: 0.95
+  hold: 1.65
 - id: A_06b
   segment: A
   duration: 0.4
@@ -810,12 +809,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 143.81
+  start: 142.21
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: A_07a
   segment: A
-  duration: 15.76
+  duration: 15.06
   vo:
   - 这种问法后来做成过一次干净的实验。小鼠下丘脑外侧有一群分泌食欲素的神经元，人们早就知道它们和清醒有关，但不知道放电本身够不够。
   facts: &id012
@@ -839,7 +838,7 @@ shots:
   - text: 这种问法后来做成过一次干净的实验。小鼠下丘脑外侧有一群分泌食欲素的神经元，人们早就知道它们和清醒有关，但不知道放电本身够不够。
     start: 0.3
     end: 14.41
-  start: 144.21
+  start: 142.61
   subs:
   - text: 这种问法后来做成过一次干净的实验
     start: 0.3
@@ -856,7 +855,7 @@ shots:
   - text: 但不知道放电本身够不够
     start: 11.779
     end: 14.41
-  hold: 0.95
+  hold: 0.25
 - id: A_07b
   segment: A
   duration: 0.4
@@ -875,12 +874,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 159.97
+  start: 157.67
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: A_08a
   segment: A
-  duration: 19.68
+  duration: 18.98
   vo:
   - 2007 年，有研究组把一种光控通道放进这群细胞，用光纤把光送进去。光一开，动物从慢波睡眠或快速眼动睡眠转入清醒的概率升高。每秒五到三十次的脉冲能缩短这段等待，每秒一次则不能。
   facts: &id013
@@ -904,7 +903,7 @@ shots:
   - text: 2007 年，有研究组把一种光控通道放进这群细胞，用光纤把光送进去。光一开，动物从慢波睡眠或快速眼动睡眠转入清醒的概率升高。每秒五到三十次的脉冲能缩短这段等待，每秒一次则不能。
     start: 0.3
     end: 18.33
-  start: 160.37
+  start: 158.07
   subs:
   - text: 2007 年
     start: 0.3
@@ -927,7 +926,7 @@ shots:
   - text: 每秒一次则不能
     start: 16.752
     end: 18.33
-  hold: 0.95
+  hold: 0.25
 - id: A_08b
   segment: A
   duration: 0.4
@@ -946,7 +945,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 180.05
+  start: 177.05
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: A_91
@@ -967,7 +966,7 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 180.45
+  start: 177.45
 - id: A_92
   segment: A
   duration: 1.5
@@ -986,10 +985,10 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 181.95
+  start: 178.95
 - id: B_01a
   segment: B
-  duration: 7.59
+  duration: 6.89
   vo:
   - 这枚开关不是在神经科学里设计出来的。它先在微生物的膜上，干了别的活。
   facts: &id014
@@ -1013,7 +1012,7 @@ shots:
   - text: 这枚开关不是在神经科学里设计出来的。它先在微生物的膜上，干了别的活。
     start: 0.3
     end: 6.24
-  start: 183.45
+  start: 180.45
   subs:
   - text: 这枚开关不是在神经科学里设计出来的
     start: 0.3
@@ -1021,7 +1020,7 @@ shots:
   - text: 它先在微生物的膜上，干了别的活
     start: 3.557
     end: 6.24
-  hold: 0.95
+  hold: 0.25
 - id: B_01b
   segment: B
   duration: 0.4
@@ -1040,12 +1039,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 191.04
+  start: 187.34
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_02a
   segment: B
-  duration: 14.28
+  duration: 13.58
   vo:
   - 1971 年，一个研究组从一种嗜盐古菌里分离出紫膜。深紫色来自视黄醛，视黄醛绑在一种视紫红质样的蛋白上。这个膜片段里，蛋白只有这一种。
   facts: &id015
@@ -1069,24 +1068,24 @@ shots:
   - text: 1971 年，一个研究组从一种嗜盐古菌里分离出紫膜。深紫色来自视黄醛，视黄醛绑在一种视紫红质样的蛋白上。这个膜片段里，蛋白只有这一种。
     start: 0.3
     end: 12.93
-  start: 191.44
+  start: 187.74
   subs:
   - text: 1971 年
     start: 0.3
     end: 1.353
   - text: 一个研究组从一种嗜盐古菌里分离出紫膜
     start: 1.353
-    end: 5.142
+    end: 5.141
   - text: 深紫色来自视黄醛
-    start: 5.142
-    end: 6.826
+    start: 5.141
+    end: 6.825
   - text: 视黄醛绑在一种视紫红质样的蛋白上
-    start: 6.826
+    start: 6.825
     end: 10.193
   - text: 这个膜片段里，蛋白只有这一种
     start: 10.193
     end: 12.93
-  hold: 0.95
+  hold: 0.25
 - id: B_02b
   segment: B
   duration: 0.4
@@ -1105,12 +1104,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 205.72
+  start: 201.32
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_03a
   segment: B
-  duration: 16.67
+  duration: 17.37
   vo:
   - 1973 年，他们给这种蛋白起了后来通用的名字：细菌视紫红质。闪光让它的吸收峰移动，同时把质子放出去、再收回来。它是一台光驱动的质子泵，在膜上定向搬运质子。
   facts: &id016
@@ -1135,7 +1134,7 @@ shots:
   - text: 1973 年，他们给这种蛋白起了后来通用的名字：细菌视紫红质。闪光让它的吸收峰移动，同时把质子放出去、再收回来。它是一台光驱动的质子泵，在膜上定向搬运质子。
     start: 0.3
     end: 15.32
-  start: 206.12
+  start: 201.72
   subs:
   - text: 1973 年
     start: 0.3
@@ -1155,7 +1154,7 @@ shots:
   - text: 在膜上定向搬运质子
     start: 13.361
     end: 15.32
-  hold: 0.95
+  hold: 1.65
 - id: B_03b
   segment: B
   duration: 0.4
@@ -1174,12 +1173,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 222.79
+  start: 219.09
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_04a
   segment: B
-  duration: 21.2
+  duration: 21.9
   vo:
   - 泵和通道不是一回事。泵把离子往指定方向推，哪怕是逆着梯度，推一次走一趟。通道是一个孔。孔打开以后，离子顺着膜两侧本来就有的浓度差和电压差，自己涌过去。离子带着电荷，进来或者出去，膜两侧的电压就跟着变。神经元在意的，正是这个电压。
   facts: &id017
@@ -1205,7 +1204,7 @@ shots:
   - text: 泵和通道不是一回事。泵把离子往指定方向推，哪怕是逆着梯度，推一次走一趟。通道是一个孔。孔打开以后，离子顺着膜两侧本来就有的浓度差和电压差，自己涌过去。离子带着电荷，进来或者出去，膜两侧的电压就跟着变。神经元在意的，正是这个电压。
     start: 0.3
     end: 19.85
-  start: 223.19
+  start: 219.49
   subs:
   - text: 泵和通道不是一回事
     start: 0.3
@@ -1231,7 +1230,7 @@ shots:
   - text: 正是这个电压
     start: 18.689
     end: 19.85
-  hold: 0.95
+  hold: 1.65
 - id: B_04b
   segment: B
   duration: 0.4
@@ -1250,12 +1249,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 244.39
+  start: 241.39
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_05a
   segment: B
-  duration: 11.68
+  duration: 10.98
   vo:
   - 衣藻是单细胞绿藻，会朝光游。有人想知道：这么快的转向，感光的是谁。诺奖新闻稿把后来的故事从这里讲起。
   facts: &id018
@@ -1279,7 +1278,7 @@ shots:
   - text: 衣藻是单细胞绿藻，会朝光游。有人想知道：这么快的转向，感光的是谁。诺奖新闻稿把后来的故事从这里讲起。
     start: 0.3
     end: 10.33
-  start: 244.79
+  start: 241.79
   subs:
   - text: 衣藻是单细胞绿藻，会朝光游。有人想知道：
     start: 0.3
@@ -1290,7 +1289,7 @@ shots:
   - text: 诺奖新闻稿把后来的故事从这里讲起
     start: 6.683
     end: 10.33
-  hold: 0.95
+  hold: 0.25
 - id: B_05b
   segment: B
   duration: 0.4
@@ -1309,12 +1308,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 256.47
+  start: 252.77
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_06a
   segment: B
-  duration: 19.63
+  duration: 20.33
   vo:
   - 2002 年，一个合作组把衣藻的一种蛋白放进爪蟾的卵母细胞。细胞自己没有这套感光系统。可是加上视黄醛、再给光，膜上出现了一道电流，而且主要让质子通过。他们把加上视黄醛之后的蛋白称为通道视紫红质一。
   facts: &id019
@@ -1338,7 +1337,7 @@ shots:
   - text: 2002 年，一个合作组把衣藻的一种蛋白放进爪蟾的卵母细胞。细胞自己没有这套感光系统。可是加上视黄醛、再给光，膜上出现了一道电流，而且主要让质子通过。他们把加上视黄醛之后的蛋白称为通道视紫红质一。
     start: 0.3
     end: 18.28
-  start: 256.87
+  start: 253.17
   subs:
   - text: 2002 年
     start: 0.3
@@ -1364,7 +1363,7 @@ shots:
   - text: 蛋白称为通道视紫红质一
     start: 16.058
     end: 18.28
-  hold: 0.95
+  hold: 1.65
 - id: B_06b
   segment: B
   duration: 0.4
@@ -1383,12 +1382,12 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 276.5
+  start: 273.5
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_07a
   segment: B
-  duration: 30.16
+  duration: 29.46
   vo:
   - 关键的一句在这里。早先的方案要靠好几步信号接力：一个分子接住光，再一层层传话给别处的孔。这个蛋白不一样，接光的部分和放行离子的孔，在同一个分子里。光一到，门就动，中间不用传话。诺奖科学背景写明，哪怕只保留蛋白里形成通道的那一段，光仍然能打开电导。蛋白本身就够。所以要把开关装进别的细胞，送进这一个基因就行。
   facts: &id020
@@ -1414,7 +1413,7 @@ shots:
   - text: 关键的一句在这里。早先的方案要靠好几步信号接力：一个分子接住光，再一层层传话给别处的孔。这个蛋白不一样，接光的部分和放行离子的孔，在同一个分子里。光一到，门就动，中间不用传话。诺奖科学背景写明，哪怕只保留蛋白里形成通道的那一段，光仍然能打开电导。蛋白本身就够。所以要把开关装进别的细胞，送进这一个基因就行。
     start: 0.3
     end: 28.81
-  start: 276.9
+  start: 273.9
   subs:
   - text: 关键的一句在这里
     start: 0.3
@@ -1449,7 +1448,7 @@ shots:
   - text: 送进这一个基因就行
     start: 26.937
     end: 28.81
-  hold: 0.95
+  hold: 0.25
 - id: B_07b
   segment: B
   duration: 0.4
@@ -1468,12 +1467,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 307.06
+  start: 303.36
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_08a
   segment: B
-  duration: 17.34
+  duration: 18.04
   vo:
   - 2003 年，同一个合作组报告了第二种蛋白，通道视紫红质二。它在卵母细胞里能工作，在哺乳动物的培养细胞里也能工作。蓝光直接打开它。它放行的是阳离子，不限于质子。光一照，细胞去极化。
   facts: &id021
@@ -1498,7 +1497,7 @@ shots:
   - text: 2003 年，同一个合作组报告了第二种蛋白，通道视紫红质二。它在卵母细胞里能工作，在哺乳动物的培养细胞里也能工作。蓝光直接打开它。它放行的是阳离子，不限于质子。光一照，细胞去极化。
     start: 0.3
     end: 15.99
-  start: 307.46
+  start: 303.76
   subs:
   - text: 2003 年
     start: 0.3
@@ -1518,7 +1517,7 @@ shots:
   - text: 不限于质子。光一照，细胞去极化
     start: 13.408
     end: 15.99
-  hold: 0.95
+  hold: 1.65
 - id: B_08b
   segment: B
   duration: 0.4
@@ -1537,12 +1536,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 324.8
+  start: 321.8
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_09a
   segment: B
-  duration: 19.17
+  duration: 18.47
   vo:
   - 持续照着的时候，这道电流会从一开始的高峰落到一个较低的平台。通道会脱敏。所以它不是一盏永远开着的灯，而是一扇会疲劳的门。要让神经元一下一下地放电，实验里用的也是一串短脉冲，不是一直照着。
   facts: &id022
@@ -1567,7 +1566,7 @@ shots:
   - text: 持续照着的时候，这道电流会从一开始的高峰落到一个较低的平台。通道会脱敏。所以它不是一盏永远开着的灯，而是一扇会疲劳的门。要让神经元一下一下地放电，实验里用的也是一串短脉冲，不是一直照着。
     start: 0.3
     end: 17.82
-  start: 325.2
+  start: 322.2
   subs:
   - text: 持续照着的时候
     start: 0.3
@@ -1590,7 +1589,7 @@ shots:
   - text: 实验里用的也是一串短脉冲，不是一直照着
     start: 14.11
     end: 17.82
-  hold: 0.95
+  hold: 0.25
 - id: B_09b
   segment: B
   duration: 0.4
@@ -1609,12 +1608,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 344.37
+  start: 340.67
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_10a
   segment: B
-  duration: 22.07
+  duration: 22.77
   vo:
   - 去极化如果又快又够大，神经元就会打出自己的锋电位。2005 年的一次实验，把通道视紫红质二送进培养的哺乳动物神经元。短脉冲的蓝光可以在毫秒尺度上可靠地驱动锋电位，也可以控制突触传递。光的节拍，变成了神经元放电的节拍。
   facts: &id023
@@ -1638,7 +1637,7 @@ shots:
   - text: 去极化如果又快又够大，神经元就会打出自己的锋电位。2005 年的一次实验，把通道视紫红质二送进培养的哺乳动物神经元。短脉冲的蓝光可以在毫秒尺度上可靠地驱动锋电位，也可以控制突触传递。光的节拍，变成了神经元放电的节拍。
     start: 0.3
     end: 20.72
-  start: 344.77
+  start: 341.07
   subs:
   - text: 去极化如果又快又够大
     start: 0.3
@@ -1667,7 +1666,7 @@ shots:
   - text: 变成了神经元放电的节拍
     start: 18.451
     end: 20.72
-  hold: 0.95
+  hold: 1.65
 - id: B_10b
   segment: B
   duration: 0.4
@@ -1686,12 +1685,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 366.84
+  start: 363.84
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_11a
   segment: B
-  duration: 6.55
+  duration: 5.85
   vo:
   - 当年论文的署名，和后来的授奖名单，不是同一份。
   facts: &id024
@@ -1716,7 +1715,7 @@ shots:
   - text: 当年论文的署名，和后来的授奖名单，不是同一份。
     start: 0.3
     end: 5.2
-  start: 367.24
+  start: 364.24
   subs:
   - text: 当年论文的署名，和后来的授奖名单
     start: 0.3
@@ -1724,7 +1723,7 @@ shots:
   - text: 不是同一份
     start: 3.975
     end: 5.2
-  hold: 0.95
+  hold: 0.25
 - id: B_11b
   segment: B
   duration: 0.4
@@ -1743,12 +1742,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 373.79
+  start: 370.09
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_12a
   segment: B
-  duration: 3.95
+  duration: 3.25
   vo: []
   facts: &id025
   - F1
@@ -1766,8 +1765,8 @@ shots:
   engine: pillow
   sfx:
   - 低噪室温
-  start: 374.19
-  hold: 0.95
+  start: 370.49
+  hold: 0.25
 - id: B_12b
   segment: B
   duration: 0.4
@@ -1786,12 +1785,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 378.14
+  start: 373.74
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_13a
   segment: B
-  duration: 13.12
+  duration: 12.42
   vo:
   - 2006 年，光遗传学这个词被正式写进论文，指的是把光学和遗传靶向合在一起的做法：用基因决定哪一类细胞装上开关，用光决定什么时候拨。
   facts: &id026
@@ -1816,7 +1815,7 @@ shots:
   - text: 2006 年，光遗传学这个词被正式写进论文，指的是把光学和遗传靶向合在一起的做法：用基因决定哪一类细胞装上开关，用光决定什么时候拨。
     start: 0.3
     end: 11.77
-  start: 378.54
+  start: 374.14
   subs:
   - text: 2006 年
     start: 0.3
@@ -1833,7 +1832,7 @@ shots:
   - text: 用光决定什么时候拨
     start: 10.049
     end: 11.77
-  hold: 0.95
+  hold: 0.25
 - id: B_13b
   segment: B
   duration: 0.4
@@ -1852,12 +1851,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 391.66
+  start: 386.56
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_14a
   segment: B
-  duration: 17.94
+  duration: 17.24
   vo:
   - 培养皿里的光还不是活的脑。2007 年，又一项实验用光纤把蓝光送进啮齿动物的运动皮层，只驱动表达通道视紫红质二的兴奋性神经元。不另外添加视黄醛，光也足够让动物做出行为。
   facts: &id027
@@ -1881,7 +1880,7 @@ shots:
   - text: 培养皿里的光还不是活的脑。2007 年，又一项实验用光纤把蓝光送进啮齿动物的运动皮层，只驱动表达通道视紫红质二的兴奋性神经元。不另外添加视黄醛，光也足够让动物做出行为。
     start: 0.3
     end: 16.59
-  start: 392.06
+  start: 386.96
   subs:
   - text: 培养皿里的光还不是活的脑。2007 年
     start: 0.3
@@ -1904,7 +1903,7 @@ shots:
   - text: 光也足够让动物做出行为
     start: 14.263
     end: 16.59
-  hold: 0.95
+  hold: 0.25
 - id: B_14b
   segment: B
   duration: 0.4
@@ -1923,12 +1922,12 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 410.0
+  start: 404.2
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_15a
   segment: B
-  duration: 8.74
+  duration: 9.44
   vo:
   - 从培养皿到活体，前后大约两年：2005 年在神经元里，2007 年在动物的脑里。
   facts: &id028
@@ -1953,7 +1952,7 @@ shots:
   - text: 从培养皿到活体，前后大约两年：2005 年在神经元里，2007 年在动物的脑里。
     start: 0.3
     end: 7.39
-  start: 410.4
+  start: 404.6
   subs:
   - text: 从培养皿到活体，前后大约两年：
     start: 0.3
@@ -1964,7 +1963,7 @@ shots:
   - text: 2007 年在动物的脑里
     start: 5.096
     end: 7.39
-  hold: 0.95
+  hold: 1.65
 - id: B_15b
   segment: B
   duration: 0.4
@@ -1983,12 +1982,12 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 419.14
+  start: 414.04
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_16a
   segment: B
-  duration: 18.47
+  duration: 17.77
   vo:
   - 只有开还不够。同一年，另一篇论文报告了另一种古菌蛋白，NpHR。这一次用的是泵，不是通道。黄光照上去，带负电的氯离子被泵进细胞，膜电位往更负的方向走，离放电的门槛更远，锋电位被按住。
   facts: &id029
@@ -2013,7 +2012,7 @@ shots:
   - text: 只有开还不够。同一年，另一篇论文报告了另一种古菌蛋白，NpHR。这一次用的是泵，不是通道。黄光照上去，带负电的氯离子被泵进细胞，膜电位往更负的方向走，离放电的门槛更远，锋电位被按住。
     start: 0.3
     end: 17.12
-  start: 419.54
+  start: 414.44
   subs:
   - text: 只有开还不够。同一年
     start: 0.3
@@ -2029,11 +2028,11 @@ shots:
     end: 12.074
   - text: 膜电位往更负的方向走，离放电的门槛更远
     start: 12.074
-    end: 15.859
+    end: 15.858
   - text: 锋电位被按住
-    start: 15.859
+    start: 15.858
     end: 17.12
-  hold: 0.95
+  hold: 0.25
 - id: B_16b
   segment: B
   duration: 0.4
@@ -2052,12 +2051,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 438.01
+  start: 432.21
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_17a
   segment: B
-  duration: 16.35
+  duration: 17.05
   vo:
   - 黄光和蓝光的光谱分开。同一套细胞里可以放两种蛋白：蓝光负责打开，黄光负责关掉。这意味着同一个问题可以从两头问：把这类细胞推一把，行为会不会出现；把它按住，行为会不会消失。
   facts: &id030
@@ -2082,7 +2081,7 @@ shots:
   - text: 黄光和蓝光的光谱分开。同一套细胞里可以放两种蛋白：蓝光负责打开，黄光负责关掉。这意味着同一个问题可以从两头问：把这类细胞推一把，行为会不会出现；把它按住，行为会不会消失。
     start: 0.3
     end: 15.0
-  start: 438.41
+  start: 432.61
   subs:
   - text: 黄光和蓝光的光谱分开
     start: 0.3
@@ -2102,7 +2101,7 @@ shots:
   - text: 把它按住，行为会不会消失
     start: 12.872
     end: 15.0
-  hold: 0.95
+  hold: 1.65
 - id: B_17b
   segment: B
   duration: 0.4
@@ -2121,12 +2120,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 454.76
+  start: 449.66
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_18a
   segment: B
-  duration: 14.8
+  duration: 15.5
   vo:
   - 后来的工具把敏感的颜色往更长的波长推。2021 年用在人眼上的 ChrimsonR 就是其中一种，不是 2005 年那个蓝光通道的改名。
   facts: &id031
@@ -2152,7 +2151,7 @@ shots:
   - text: 后来的工具把敏感的颜色往更长的波长推。2021 年用在人眼上的 ChrimsonR 就是其中一种，不是 2005 年那个蓝光通道的改名。
     start: 0.3
     end: 13.45
-  start: 455.16
+  start: 450.06
   subs:
   - text: 后来的工具把敏感的颜色往更长的波长推
     start: 0.3
@@ -2166,7 +2165,7 @@ shots:
   - text: 不是 2005 年那个蓝光通道的改名
     start: 9.943
     end: 13.45
-  hold: 0.95
+  hold: 1.65
 - id: B_18b
   segment: B
   duration: 0.4
@@ -2185,12 +2184,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 469.96
+  start: 465.56
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_19a
   segment: B
-  duration: 9.04
+  duration: 8.34
   vo:
   - 荣誉也不止一份。早在 2013 年，另一个脑科学大奖就颁给过这一领域，那份名单是六个人。
   facts: &id032
@@ -2214,7 +2213,7 @@ shots:
   - text: 荣誉也不止一份。早在 2013 年，另一个脑科学大奖就颁给过这一领域，那份名单是六个人。
     start: 0.3
     end: 7.69
-  start: 470.36
+  start: 465.96
   subs:
   - text: 荣誉也不止一份。早在 2013 年
     start: 0.3
@@ -2225,7 +2224,7 @@ shots:
   - text: 那份名单是六个人
     start: 6.134
     end: 7.69
-  hold: 0.95
+  hold: 0.25
 - id: B_19b
   segment: B
   duration: 0.4
@@ -2244,12 +2243,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 479.4
+  start: 474.3
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_20a
   segment: B
-  duration: 7.76
+  duration: 7.06
   vo:
   - 那一份不是诺贝尔奖。六个人和后来的三个人，有重叠，但不能并成一份名单。
   facts: &id033
@@ -2274,7 +2273,7 @@ shots:
   - text: 那一份不是诺贝尔奖。六个人和后来的三个人，有重叠，但不能并成一份名单。
     start: 0.3
     end: 6.41
-  start: 479.8
+  start: 474.7
   subs:
   - text: 那一份不是诺贝尔奖
     start: 0.3
@@ -2285,7 +2284,7 @@ shots:
   - text: 但不能并成一份名单
     start: 4.636
     end: 6.41
-  hold: 0.95
+  hold: 0.25
 - id: B_20b
   segment: B
   duration: 0.4
@@ -2304,7 +2303,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 487.56
+  start: 481.76
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: B_91
@@ -2325,7 +2324,7 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 487.96
+  start: 482.16
 - id: B_92
   segment: B
   duration: 1.5
@@ -2344,10 +2343,10 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 489.46
+  start: 483.66
 - id: C_01a
   segment: C
-  duration: 11.05
+  duration: 10.35
   vo:
   - 开关一旦能在活体里只拨某一类细胞，就可以拿来问记忆存在哪里。这里只深讲一件事，而且只讲小鼠。
   facts: &id034
@@ -2372,7 +2371,7 @@ shots:
   - text: 开关一旦能在活体里只拨某一类细胞，就可以拿来问记忆存在哪里。这里只深讲一件事，而且只讲小鼠。
     start: 0.3
     end: 9.7
-  start: 490.96
+  start: 485.16
   subs:
   - text: 开关一旦能在活体里只拨某一类细胞
     start: 0.3
@@ -2383,7 +2382,7 @@ shots:
   - text: 这里只深讲一件事，而且只讲小鼠
     start: 6.567
     end: 9.7
-  hold: 0.95
+  hold: 0.25
 - id: C_01b
   segment: C
   duration: 0.4
@@ -2402,12 +2401,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 502.01
+  start: 495.51
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_02a
   segment: C
-  duration: 14.66
+  duration: 13.96
   vo:
   - 2013 年，有研究组在《科学》报告：小鼠待在环境甲的时候，海马齿状回里有一批神经元会活动。他们给这批当时活跃的细胞装上通道视紫红质二。
   facts: &id035
@@ -2431,7 +2430,7 @@ shots:
   - text: 2013 年，有研究组在《科学》报告：小鼠待在环境甲的时候，海马齿状回里有一批神经元会活动。他们给这批当时活跃的细胞装上通道视紫红质二。
     start: 0.3
     end: 13.31
-  start: 502.41
+  start: 495.91
   subs:
   - text: 2013 年，有研究组在《科学》报告：
     start: 0.3
@@ -2441,14 +2440,14 @@ shots:
     end: 5.504
   - text: 海马齿状回里有一批神经元会活动
     start: 5.504
-    end: 8.756
+    end: 8.757
   - text: 他们给这批当时活跃的
-    start: 8.756
+    start: 8.757
     end: 10.925
   - text: 细胞装上通道视紫红质二
     start: 10.925
     end: 13.31
-  hold: 0.95
+  hold: 0.25
 - id: C_02b
   segment: C
   duration: 0.4
@@ -2467,12 +2466,12 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 517.07
+  start: 509.87
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_03a
   segment: C
-  duration: 15.7
+  duration: 15.0
   vo:
   - 之后把小鼠放到环境乙。在乙里做恐惧条件化、给予足底电击的同时，用光重新打开那些在甲里活跃过的细胞。电击发生在乙，光却把甲的那批细胞叫了回来。
   facts: &id036
@@ -2496,7 +2495,7 @@ shots:
   - text: 之后把小鼠放到环境乙。在乙里做恐惧条件化、给予足底电击的同时，用光重新打开那些在甲里活跃过的细胞。电击发生在乙，光却把甲的那批细胞叫了回来。
     start: 0.3
     end: 14.35
-  start: 517.47
+  start: 510.27
   subs:
   - text: 之后把小鼠放到环境乙
     start: 0.3
@@ -2513,7 +2512,7 @@ shots:
   - text: 光却把甲的那批细胞叫了回来
     start: 11.496
     end: 14.35
-  hold: 0.95
+  hold: 0.25
 - id: C_03b
   segment: C
   duration: 0.4
@@ -2532,12 +2531,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 533.17
+  start: 525.27
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_04a
   segment: C
-  duration: 12.34
+  duration: 11.64
   vo:
   - 再把小鼠放回环境甲。甲里从来没有电击。实验组却在甲里冻结。作者的结论是：他们在小鼠海马里制造出了一段虚假的恐惧记忆。
   facts: &id037
@@ -2562,7 +2561,7 @@ shots:
   - text: 再把小鼠放回环境甲。甲里从来没有电击。实验组却在甲里冻结。作者的结论是：他们在小鼠海马里制造出了一段虚假的恐惧记忆。
     start: 0.3
     end: 10.99
-  start: 533.57
+  start: 525.67
   subs:
   - text: 再把小鼠放回环境甲。甲里从来没有电击
     start: 0.3
@@ -2576,7 +2575,7 @@ shots:
   - text: 一段虚假的恐惧记忆
     start: 9.175
     end: 10.99
-  hold: 0.95
+  hold: 0.25
 - id: C_04b
   segment: C
   duration: 0.4
@@ -2595,12 +2594,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 545.91
+  start: 537.31
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_05a
   segment: C
-  duration: 14.4
+  duration: 15.1
   vo:
   - 写进去的不是一句话，也不是一段人生。写进去的是一批选定细胞的活动。光再打开这批细胞时，动物把电击和环境甲绑在了一起。
   facts: &id038
@@ -2624,7 +2623,7 @@ shots:
   - text: 写进去的不是一句话，也不是一段人生。写进去的是一批选定细胞的活动。光再打开这批细胞时，动物把电击和环境甲绑在了一起。
     start: 0.3
     end: 13.049
-  start: 546.31
+  start: 537.71
   subs:
   - text: 写进去的不是一句话，也不是一段人生
     start: 0.3
@@ -2638,7 +2637,7 @@ shots:
   - text: 动物把电击和环境甲绑在了一起
     start: 9.681
     end: 13.049
-  hold: 0.95
+  hold: 1.65
 - id: C_05b
   segment: C
   duration: 0.4
@@ -2657,12 +2656,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 560.71
+  start: 552.81
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_06a
   segment: C
-  duration: 19.93
+  duration: 20.63
   vo:
   - 这是实验动物里的因果演示。相关只能说，这批细胞和恐惧一起出现；这里是先用光动了细胞，后来才有恐惧。它说明选定细胞的活动足以支撑一种恐惧行为。它没有说明，同样的操作已经用在人身上。
   facts: &id039
@@ -2687,7 +2686,7 @@ shots:
   - text: 这是实验动物里的因果演示。相关只能说，这批细胞和恐惧一起出现；这里是先用光动了细胞，后来才有恐惧。它说明选定细胞的活动足以支撑一种恐惧行为。它没有说明，同样的操作已经用在人身上。
     start: 0.3
     end: 18.58
-  start: 561.11
+  start: 553.21
   subs:
   - text: 这是实验动物里的因果演示。相关只能说
     start: 0.3
@@ -2707,7 +2706,7 @@ shots:
   - text: 它没有说明，同样的操作已经用在人身上
     start: 14.743
     end: 18.58
-  hold: 0.95
+  hold: 1.65
 - id: C_06b
   segment: C
   duration: 0.4
@@ -2726,12 +2725,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 581.04
+  start: 573.84
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_07a
   segment: C
-  duration: 16.93
+  duration: 16.23
   vo:
   - 眼睛走的是另一条路。视网膜色素变性里，感光细胞会逐渐死去，后面的视网膜神经节细胞还可以留着。若能让这些幸存的细胞自己感光，后面的视觉通路也许还能被点着。
   facts: &id040
@@ -2755,7 +2754,7 @@ shots:
   - text: 眼睛走的是另一条路。视网膜色素变性里，感光细胞会逐渐死去，后面的视网膜神经节细胞还可以留着。若能让这些幸存的细胞自己感光，后面的视觉通路也许还能被点着。
     start: 0.3
     end: 15.58
-  start: 581.44
+  start: 574.24
   subs:
   - text: 眼睛走的是另一条路。视网膜色素变性里
     start: 0.3
@@ -2772,7 +2771,7 @@ shots:
   - text: 后面的视觉通路也许还能被点着
     start: 12.524
     end: 15.58
-  hold: 0.95
+  hold: 0.25
 - id: C_07b
   segment: C
   duration: 0.4
@@ -2791,12 +2790,12 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 598.37
+  start: 590.47
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_08a
   segment: C
-  duration: 24.99
+  duration: 24.29
   vo:
   - 2021 年，一个研究组在《自然·医学》报告一名已经失明的患者。他们向一只眼睛的玻璃体注射腺相关病毒，病毒携带 ChrimsonR，主要转导视网膜神经节细胞。护目镜侦测外界亮度的变化，把光脉冲打到视网膜上，去打开这些新装的通道。
   facts: &id041
@@ -2820,7 +2819,7 @@ shots:
   - text: 2021 年，一个研究组在《自然·医学》报告一名已经失明的患者。他们向一只眼睛的玻璃体注射腺相关病毒，病毒携带 ChrimsonR，主要转导视网膜神经节细胞。护目镜侦测外界亮度的变化，把光脉冲打到视网膜上，去打开这些新装的通道。
     start: 0.3
     end: 23.64
-  start: 598.77
+  start: 590.87
   subs:
   - text: 2021 年
     start: 0.3
@@ -2849,7 +2848,7 @@ shots:
   - text: 去打开这些新装的通道
     start: 21.329
     end: 23.64
-  hold: 0.95
+  hold: 0.25
 - id: C_08b
   segment: C
   duration: 0.4
@@ -2868,12 +2867,12 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 623.76
+  start: 615.16
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_09a
   segment: C
-  duration: 17.53
+  duration: 16.83
   vo:
   - 这名患者只用接受治疗的那只眼，而且必须戴着护目镜，才能知觉物体、指出位置、数出个数，并伸手触到。注射前无论戴不戴护目镜，注射后只要摘掉护目镜，他都看不见这些物体。
   facts: &id042
@@ -2898,7 +2897,7 @@ shots:
   - text: 这名患者只用接受治疗的那只眼，而且必须戴着护目镜，才能知觉物体、指出位置、数出个数，并伸手触到。注射前无论戴不戴护目镜，注射后只要摘掉护目镜，他都看不见这些物体。
     start: 0.3
     end: 16.18
-  start: 624.16
+  start: 615.56
   subs:
   - text: 这名患者只用接受治疗的那只眼
     start: 0.3
@@ -2918,7 +2917,7 @@ shots:
   - text: 他都看不见这些物体
     start: 14.195
     end: 16.18
-  hold: 0.95
+  hold: 0.25
 - id: C_09b
   segment: C
   duration: 0.4
@@ -2937,12 +2936,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 641.69
+  start: 632.39
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_10a
   segment: C
-  duration: 28.6
+  duration: 29.3
   vo:
   - 论文称之为部分功能恢复，也是神经退行性疾病里光遗传治疗后第一次这样的报告。所见是护目镜把亮度变化译成的光脉冲：外面哪里的亮度变了，护目镜就往视网膜上对应的位置打一束光，打开那里新装的通道。这不是不依赖设备的日常视觉。诺奖新闻稿的措辞停在尝试恢复视力。
   facts: &id043
@@ -2968,7 +2967,7 @@ shots:
   - text: 论文称之为部分功能恢复，也是神经退行性疾病里光遗传治疗后第一次这样的报告。所见是护目镜把亮度变化译成的光脉冲：外面哪里的亮度变了，护目镜就往视网膜上对应的位置打一束光，打开那里新装的通道。这不是不依赖设备的日常视觉。诺奖新闻稿的措辞停在尝试恢复视力。
     start: 0.3
     end: 27.25
-  start: 642.09
+  start: 632.79
   subs:
   - text: 论文称之为部分功能恢复
     start: 0.3
@@ -2997,7 +2996,7 @@ shots:
   - text: 诺奖新闻稿的措辞停在尝试恢复视力
     start: 23.565
     end: 27.25
-  hold: 0.95
+  hold: 1.65
 - id: C_10b
   segment: C
   duration: 0.4
@@ -3016,12 +3015,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 670.69
+  start: 662.09
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_11a
   segment: C
-  duration: 19.06
+  duration: 18.36
   vo:
   - 2026 年 9 月 9 日，一家公司公告：美国食品药品监督管理局已经受理并立案它的一项生物制品许可申请，针对伴有严重视力丧失的视网膜色素变性。公告写的是如果获批，所以当时尚未获批。
   facts: &id044
@@ -3045,7 +3044,7 @@ shots:
   - text: 2026 年 9 月 9 日，一家公司公告：美国食品药品监督管理局已经受理并立案它的一项生物制品许可申请，针对伴有严重视力丧失的视网膜色素变性。公告写的是如果获批，所以当时尚未获批。
     start: 0.3
     end: 17.71
-  start: 671.09
+  start: 662.49
   subs:
   - text: 2026 年 9 月 9 日，一家公司公告：
     start: 0.3
@@ -3062,7 +3061,7 @@ shots:
   - text: 公告写的是如果获批，所以当时尚未获批
     start: 14.01
     end: 17.71
-  hold: 0.95
+  hold: 0.25
 - id: C_11b
   segment: C
   duration: 0.4
@@ -3081,12 +3080,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 690.15
+  start: 680.85
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_12a
   segment: C
-  duration: 18.2
+  duration: 17.5
   vo:
   - 同一篇公告写，试验在第五十二周和第七十六周达到了视力的主要终点和关键次要终点，并且没有治疗相关的严重不良事件。这是申请方的公告，不是已经生效的许可。
   facts: &id045
@@ -3110,7 +3109,7 @@ shots:
   - text: 同一篇公告写，试验在第五十二周和第七十六周达到了视力的主要终点和关键次要终点，并且没有治疗相关的严重不良事件。这是申请方的公告，不是已经生效的许可。
     start: 0.3
     end: 16.85
-  start: 690.55
+  start: 681.25
   subs:
   - text: 同一篇公告写
     start: 0.3
@@ -3127,7 +3126,7 @@ shots:
   - text: 这是申请方的公告，不是已经生效的许可
     start: 12.772
     end: 16.85
-  hold: 0.95
+  hold: 0.25
 - id: C_12b
   segment: C
   duration: 0.4
@@ -3146,12 +3145,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 708.75
+  start: 698.75
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_13a
   segment: C
-  duration: 12.29
+  duration: 11.59
   vo:
   - 2026 年 10 月 8 日，另一家公司与巴黎的一家医院公告：另一款疗法的一期二期试验，发表在当天的《新英格兰医学杂志》。
   facts: &id046
@@ -3176,7 +3175,7 @@ shots:
   - text: 2026 年 10 月 8 日，另一家公司与巴黎的一家医院公告：另一款疗法的一期二期试验，发表在当天的《新英格兰医学杂志》。
     start: 0.3
     end: 10.94
-  start: 709.15
+  start: 699.15
   subs:
   - text: 2026 年 10 月 8 日
     start: 0.3
@@ -3190,7 +3189,7 @@ shots:
   - text: 发表在当天的《新英格兰医学杂志》
     start: 8.019
     end: 10.94
-  hold: 0.95
+  hold: 0.25
 - id: C_13b
   segment: C
   duration: 0.4
@@ -3209,12 +3208,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 721.44
+  start: 710.74
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_14a
   segment: C
-  duration: 12.22
+  duration: 11.52
   vo:
   - 这项研究以安全性为主要目的，不是为了确证疗效而设计。公告引用研究者的原话：结果仍是探索性的，还需要进一步确认。
   facts: &id047
@@ -3238,7 +3237,7 @@ shots:
   - text: 这项研究以安全性为主要目的，不是为了确证疗效而设计。公告引用研究者的原话：结果仍是探索性的，还需要进一步确认。
     start: 0.3
     end: 10.87
-  start: 721.84
+  start: 711.14
   subs:
   - text: 这项研究以安全性为主要目的
     start: 0.3
@@ -3252,7 +3251,7 @@ shots:
   - text: 还需要进一步确认
     start: 9.179
     end: 10.87
-  hold: 0.95
+  hold: 0.25
 - id: C_14b
   segment: C
   duration: 0.4
@@ -3271,12 +3270,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 734.06
+  start: 722.66
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_15a
   segment: C
-  duration: 28.17
+  duration: 27.47
   vo:
   - 数字要连同分母一起说，而且下面的数字出自公司公告。十名参与者里有六人，在全视野光敏感测试上出现了该公司所称有临床意义的改善。公告还写，完成行为测试的八人里有四人，戴着光刺激护目镜时，在察觉、定位、触碰物体或判断条纹方向的部分任务上有正向变化。
   facts: &id048
@@ -3304,7 +3303,7 @@ shots:
   - text: 数字要连同分母一起说，而且下面的数字出自公司公告。十名参与者里有六人，在全视野光敏感测试上出现了该公司所称有临床意义的改善。公告还写，完成行为测试的八人里有四人，戴着光刺激护目镜时，在察觉、定位、触碰物体或判断条纹方向的部分任务上有正向变化。
     start: 0.3
     end: 26.82
-  start: 734.46
+  start: 723.06
   subs:
   - text: 数字要连同分母一起说
     start: 0.3
@@ -3333,7 +3332,7 @@ shots:
   - text: 部分任务上有正向变化
     start: 24.431
     end: 26.82
-  hold: 0.95
+  hold: 0.25
 - id: C_15b
   segment: C
   duration: 0.4
@@ -3352,12 +3351,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 762.63
+  start: 750.53
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_16a
   segment: C
-  duration: 6.52
+  duration: 6.82
   vo:
   - 公告脚注写明：这款疗法在任何司法辖区都没有上市许可。
   facts: &id049
@@ -3381,15 +3380,15 @@ shots:
   - text: 公告脚注写明：这款疗法在任何司法辖区都没有上市许可。
     start: 0.3
     end: 5.17
-  start: 763.03
+  start: 750.93
   subs:
   - text: 公告脚注写明：
     start: 0.3
-    end: 1.518
+    end: 1.517
   - text: 这款疗法在任何司法辖区都没有上市许可
-    start: 1.518
+    start: 1.517
     end: 5.17
-  hold: 0.95
+  hold: 1.25
 - id: C_16b
   segment: C
   duration: 0.4
@@ -3408,12 +3407,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 769.55
+  start: 757.75
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_17a
   segment: C
-  duration: 13.09
+  duration: 12.39
   vo:
   - 光学人工耳蜗，按 2023 年的综述，仍是临床前。
   facts: &id050
@@ -3437,7 +3436,7 @@ shots:
   - text: 光学人工耳蜗，按 2023 年的综述，仍是临床前。
     start: 1.2
     end: 5.13
-  start: 769.95
+  start: 758.15
   subs:
   - text: 光学人工耳蜗，按 2023 年的综述
     start: 1.2
@@ -3445,7 +3444,7 @@ shots:
   - text: 仍是临床前
     start: 4.148
     end: 5.13
-  hold: 0.95
+  hold: 0.25
 - id: C_17b
   segment: C
   duration: 0.4
@@ -3464,12 +3463,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 783.04
+  start: 770.54
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_18a
   segment: C
-  duration: 10.73
+  duration: 10.03
   vo:
   - 边界停在已发表的事实上。通道视紫红质二在持续光照下会脱敏，不能当成一扇永不疲劳的门。
   facts: &id051
@@ -3494,7 +3493,7 @@ shots:
   - text: 边界停在已发表的事实上。通道视紫红质二在持续光照下会脱敏，不能当成一扇永不疲劳的门。
     start: 0.3
     end: 9.38
-  start: 783.44
+  start: 770.94
   subs:
   - text: 边界停在已发表的事实上
     start: 0.3
@@ -3505,7 +3504,7 @@ shots:
   - text: 不能当成一扇永不疲劳的门
     start: 6.586
     end: 9.38
-  hold: 0.95
+  hold: 0.25
 - id: C_18b
   segment: C
   duration: 0.4
@@ -3524,12 +3523,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 794.17
+  start: 780.97
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_19a
   segment: C
-  duration: 10.75
+  duration: 10.05
   vo:
   - 光得送到细胞旁边。脑里 2007 年的做法是光纤。那名患者的眼睛里，没有护目镜，就没有那些物体。
   facts: &id052
@@ -3554,7 +3553,7 @@ shots:
   - text: 光得送到细胞旁边。脑里 2007 年的做法是光纤。那名患者的眼睛里，没有护目镜，就没有那些物体。
     start: 0.3
     end: 9.4
-  start: 794.57
+  start: 781.37
   subs:
   - text: 光得送到细胞旁边
     start: 0.3
@@ -3568,7 +3567,7 @@ shots:
   - text: 就没有那些物体
     start: 7.846
     end: 9.4
-  hold: 0.95
+  hold: 0.25
 - id: C_19b
   segment: C
   duration: 0.4
@@ -3587,12 +3586,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 805.32
+  start: 791.42
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_20a
   segment: C
-  duration: 14.15
+  duration: 13.45
   vo:
   - 人体视觉上已经发表的，是部分功能，而且绑在装置上。一条申请尚未获批，另一条没有上市许可，并且自己写明那项研究不是为了确证疗效。
   facts: &id053
@@ -3618,7 +3617,7 @@ shots:
   - text: 人体视觉上已经发表的，是部分功能，而且绑在装置上。一条申请尚未获批，另一条没有上市许可，并且自己写明那项研究不是为了确证疗效。
     start: 0.3
     end: 12.8
-  start: 805.72
+  start: 791.82
   subs:
   - text: 人体视觉上已经发表的，是部分功能
     start: 0.3
@@ -3632,7 +3631,7 @@ shots:
   - text: 并且自己写明那项研究不是为了确证疗效
     start: 8.853
     end: 12.8
-  hold: 0.95
+  hold: 0.25
 - id: C_20b
   segment: C
   duration: 0.4
@@ -3651,7 +3650,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 819.87
+  start: 805.27
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: C_91
@@ -3672,7 +3671,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 820.27
+  start: 805.67
 - id: C_92
   segment: C
   duration: 1.5
@@ -3691,10 +3690,10 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 821.77
+  start: 807.17
 - id: D_01a
   segment: D
-  duration: 9.95
+  duration: 9.25
   vo:
   - 这枚开关做得到的，是在实验里打开或关掉选定的细胞，把同时发生推进成是它造成的。
   facts: &id054
@@ -3720,7 +3719,7 @@ shots:
   - text: 这枚开关做得到的，是在实验里打开或关掉选定的细胞，把同时发生推进成是它造成的。
     start: 0.3
     end: 8.6
-  start: 823.27
+  start: 808.67
   subs:
   - text: 这枚开关做得到的
     start: 0.3
@@ -3731,7 +3730,7 @@ shots:
   - text: 把同时发生推进成是它造成的
     start: 5.603
     end: 8.6
-  hold: 0.95
+  hold: 0.25
 - id: D_01b
   segment: D
   duration: 0.4
@@ -3750,12 +3749,12 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 833.22
+  start: 817.92
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: D_02a
   segment: D
-  duration: 14.85
+  duration: 15.55
   vo:
   - 做不到的，是把小鼠海马里的一段恐惧，说成已经改写了某一个人的人生；也做不到把一次离不开装置的部分视觉报告，说成失明已经结束。
   facts: &id055
@@ -3780,7 +3779,7 @@ shots:
   - text: 做不到的，是把小鼠海马里的一段恐惧，说成已经改写了某一个人的人生；也做不到把一次离不开装置的部分视觉报告，说成失明已经结束。
     start: 0.3
     end: 13.498
-  start: 833.62
+  start: 818.32
   subs:
   - text: 做不到的，是把小鼠海马里的一段恐惧
     start: 0.3
@@ -3797,7 +3796,7 @@ shots:
   - text: 说成失明已经结束
     start: 11.646
     end: 13.498
-  hold: 0.95
+  hold: 1.65
 - id: D_02b
   segment: D
   duration: 0.4
@@ -3816,12 +3815,12 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 848.47
+  start: 833.87
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: D_03a
   segment: D
-  duration: 6.48
+  duration: 5.78
   vo:
   - 回到开场。有人曾经觉得，用光去拨动某一类神经元，相当牵强。
   facts: &id056
@@ -3846,7 +3845,7 @@ shots:
   - text: 回到开场。有人曾经觉得，用光去拨动某一类神经元，相当牵强。
     start: 0.3
     end: 5.13
-  start: 848.87
+  start: 834.27
   subs:
   - text: 回到开场。有人曾经觉得
     start: 0.3
@@ -3854,7 +3853,7 @@ shots:
   - text: 用光去拨动某一类神经元，相当牵强
     start: 2.232
     end: 5.13
-  hold: 0.95
+  hold: 0.25
 - id: D_03b
   segment: D
   duration: 0.4
@@ -3873,7 +3872,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 855.35
+  start: 840.05
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: D_04a
@@ -3904,7 +3903,7 @@ shots:
   - text: 牵强的是当年的工程。今天它是一套实验方法，也是几条仍在审查中的临床尝试。这一期在这里结束。
     start: 0.405
     end: 10.507
-  start: 855.75
+  start: 840.45
   subs:
   - text: 牵强的是当年的工程
     start: 0.405
@@ -3936,7 +3935,7 @@ shots:
   fx: []
   engine: eevee
   sfx: []
-  start: 869.45
+  start: 854.15
   duration_design: 1.35
   flash_compacted_from: 1.35
 - id: D_91
@@ -3957,7 +3956,7 @@ shots:
   fx: []
   engine: pillow
   sfx: []
-  start: 869.85
+  start: 854.55
 - id: D_92
   segment: D
   duration: 4.0
@@ -3976,8 +3975,10 @@ shots:
   fx: []
   engine: cycles
   sfx: []
-  start: 871.35
+  start: 856.05
 timing:
   voice: Andre
-  total: 875.35
+  total: 860.05
   design_total: 938.13
+  v4: hold0.25+F5
+  v5: turn2.75/intra1.35
