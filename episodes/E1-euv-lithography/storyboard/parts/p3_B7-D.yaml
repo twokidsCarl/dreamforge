@@ -1919,7 +1919,7 @@ shots:
   segment: D
   duration: 6.0
   vo:
-  - 下一代光源，已经在实验室里冲到了 1000 瓦。
+  - 下一代光源，已经冲到了 1000 瓦。
   facts:
   - F4c
   style: infographic

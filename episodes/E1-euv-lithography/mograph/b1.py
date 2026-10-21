@@ -169,17 +169,17 @@ def ledger_b1(t, dur, W, H):
     a = fade(t, 0.0, dur, dur, 0.3)
     entries = [(1e6, "电", "约 1.26 MW · ASML 2025 年报", CYAN),
                (4e4, "激光", "几十 kW", ORANGE),
-               (600, "EUV", "量产最高约 600 W", VIOLET)]
+               (500, "EUV", "超过 500 W · NXE:3800E", VIOLET)]
     reveal = 1 + 2 * ease(seg(t, 0.8, 5.5))
     # centred, larger version of the ledger
     draw_ledger(c, entries, reveal, x=1000, w=70, a=a)
     # dashed extension to the 1000 W prototype
     d = ease(seg(t, 6.0, 7.5))
-    y600, y1000 = ledger_y(600), ledger_y(1000)
+    y600, y1000 = ledger_y(500), ledger_y(1000)
     for k in range(6):
         y = y600 - (y600 - y1000) * k / 6
         c.line((1090, y), (1090, y - (y600 - y1000) / 12), VIOLET, 3, a * d)
-    c.text((1120, y1000), "1000 W 原理样机（实验室）", 28, VIOLET, a * d, anchor="lm")
+    c.text((1120, y1000), "1000 W · ASML 2025 年演示", 28, VIOLET, a * d, anchor="lm")
     c.text((960, 1010), "量级示意 · 对数刻度", 22, INK2, a, anchor="mm")
     return c.finish()
 

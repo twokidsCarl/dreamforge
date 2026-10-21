@@ -126,12 +126,12 @@ def power_curve(t, dur, W, H):
         c.line(pts[i], pts[i + 1], VIOLET, 4, a, glow=True)
     if n:
         c.circle(pts[n], 10, fill=(240, 230, 255), a=a, glow=True)
-    for w, lab in ((600, "量产约 600 W"), (1000, "1000 W 原理样机（实验室）")):
+    for w, lab in ((500, "NXE:3800E 超过 500 W"), (1000, "2025 年演示 1000 W")):
         y = Y(w)
         for x in range(160, 1760, 30):
             c.line((x, y), (x + 16, y), INK2, 2, a * 0.7)
         c.text((1780, y), lab, 26, INK, a, anchor="rm")
-    c.text((80, 1030), "F4c · 数据为媒体报道", 18, INK2, a, anchor="lm")
+    c.text((80, 1030), "来源：ASML 2025 年报 · ASML SPIE 2024", 18, INK2, a, anchor="lm")
     return c.finish(glow_radius=10, glow_gain=0.9)
 
 

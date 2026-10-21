@@ -1,5 +1,5 @@
 """B9 2D shots: the light ledger's last page (F33, F48, F6, F47), photon energy 92 eV vs 6.4 eV (F47),
-same dose -> 1/14 the photons, stochastic defects under the SEM (F59), 600 W -> 1000 W (F4c, reported),
+same dose -> 1/14 the photons, stochastic defects under the SEM (F59), >500 W -> 1000 W (ASML),
 and the closing "20 photons / nm²" card."""
 import math
 import random
@@ -159,7 +159,7 @@ def more_power(t, dur, W, H):
     c = Canvas(W, H, bg=(0, 0, 0))
     a = fade(t, 0.0, dur, dur, 0.3)
     p = ease(seg(t, 1.0, dur - 1.6))
-    watts = 600 + 400 * p
+    watts = 500 + 500 * p
     k = c.k
     for side, (x0, dens, rough) in enumerate(((0, 1.0, 1.0), (960, watts / 600, 1.0 - 0.75 * p))):
         rs = random.Random(int(t * 24) + side * 1000)
@@ -171,9 +171,9 @@ def more_power(t, dur, W, H):
         c.img.paste(im, (int((x0 + 10) * k), int(600 * k)))
     c.d = ImageDraw.Draw(c.img, "RGBA")
     c.line((960, 40), (960, 1040), CYAN, 2, a)
-    c.text((480, 1010), "约 600 W", 30, INK2, a, anchor="mm")
+    c.text((480, 1010), "超过 500 W", 30, INK2, a, anchor="mm")
     c.text((1440, 1010), f"{watts:,.0f} W", 40, INK, a, anchor="mm", weight_glow=True)
-    c.text((960, 40), "量产约 600 W → 1000 W 原理样机（F4c · 示意）", 24, INK2, a, anchor="mt")
+    c.text((960, 40), "NXE:3800E 超过 500 W → 2025 年演示 1000 W（ASML）· 画面示意", 24, INK2, a, anchor="mt")
     return c.finish(glow_radius=10, glow_gain=0.9)
 
 

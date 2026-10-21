@@ -1295,7 +1295,7 @@ shots:
   segment: B1
   duration: 4.5
   vo:
-  - 每秒最多 5 万颗。
+  - 最新的光源，每秒 6 万颗。
   facts:
   - F2
   - F3
@@ -1316,7 +1316,7 @@ shots:
   - shallow_dof
   - counter_roll
   overlays:
-  - text: 每秒最多 5 万颗 · 每 20 μs 一颗
+  - text: 最新光源每秒 6 万颗
     facts:
     - F2
   - text: 间距约 1.4 mm（推算：70 m/s × 20 μs）
@@ -1577,7 +1577,7 @@ shots:
   segment: B1
   duration: 8.5
   vo:
-  - 先拍扁再加热，薄饼受热更均匀，更多的能量才能变成我们要的那一种光。
+  - 先拍扁，薄饼的面积正好接住整束主脉冲，密度也更低，更多的能量才能变成我们要的那一种光。
   facts:
   - F4
   - F4b
@@ -1913,7 +1913,7 @@ shots:
   segment: B1
   duration: 11.0
   vo:
-  - 今天量产机器的光源最高约 600 瓦，ASML 已经在实验室演示了 1000 瓦的原理样机。
+  - 最新的 NXE:3800E，光源功率超过 500 瓦；2025 年，ASML 演示了第一台 1000 瓦的 EUV 光源。
   facts:
   - F6
   - F4c
@@ -5809,7 +5809,7 @@ shots:
   segment: D
   duration: 6.0
   vo:
-  - 下一代光源，已经在实验室里冲到了 1000 瓦。
+  - 下一代光源，已经冲到了 1000 瓦。
   facts:
   - F4c
   style: infographic

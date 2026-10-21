@@ -19,13 +19,15 @@ F1:
   segments: [A2, B1]
 
 F2:
-  claim: 锡滴每秒最多 50,000 个（每 20 μs 一滴，推算）
-  values: {droplets_per_s: 50000, interval_us: 20}
+  claim: 最新商用光源每秒 6 万次（锡滴）；早年的说法是 5 万次
+  values: {droplets_per_s: 60000}
   status: verified
   grade: A
+  quote: "this process is repeated thousands of times per second – 60,000 times per second in our latest commercial sources."
   sources:
+    - https://www.asml.com/en/investors/annual-report/2025
     - https://www.asml.com/en/products/euv-lithography-systems
-    - https://www.trumpf.com/en_US/solutions/applications/euv-lithography/euv-drive-laser/
+  notes: ASML 2025 年报故事栏目原文如上（research/visual/B1_sources.md）。旧页面写 50,000；以最新的 6 万为准，不说“最多”。
   segments: [B1, C, D]
 
 F3:
@@ -55,16 +57,15 @@ F4b:
   segments: [B1]
 
 F4c:
-  claim: 光源功率路线：量产最高约 600 W；1000 W 原理样机已演示（10 万滴/秒、每滴多一发整形脉冲，即每秒 30 万次激光脉冲）；ASML 称通往 1500 W 路径清晰，2000 W 没有根本障碍；商用约 2030 年或更晚
-  values: {production_w: 600, demo_w: 1000, droplets_per_s_next: 100000, pulses_per_s_next: 300000}
-  status: reported
-  grade: C
-  narration: 据报道，ASML 已演示 1000 瓦原理样机……
+  claim: 光源功率：NXE:3800E 的光源超过 500 W；2025 年 4 月 ASML 演示了第一台 1000 W 的 EUV 光源
+  values: {nxe3800e_w: 500, demo_w: 1000}
+  status: verified
+  grade: A
+  quote: "In April 2025, ASML reached a historic milestone: demonstrating the first ever 1,000-watt light source for EUV lithography." (ASML Annual Report 2025, p.31); "an increase in EUV source power (to >500W)" for NXE:3800E (Hummler et al., ASML, Proc. SPIE 12953, 2024)
   sources:
-    - https://bits-chips.com/article/asml-hits-1000-w-in-euv-source-proof-of-concept/
-    - https://heise.de/-11187649
-    - https://www.implicator.ai/asml-pushes-euv-light-source-to-1-000-watts-targets-50-more-chip-output-by-2030/
-  notes: 旧液滴频率有 50 kHz 与 60 kHz 两种说法；旁白统一用 F2 的 5 万。研发里程碑，不是现役产品。
+    - https://www.asml.com/en/investors/annual-report/2025
+    - https://doi.org/10.1117/12.3010463
+  notes: 1000 W 为 A 级；>500 W 为 B 级（ASML 作者的 SPIE 论文）。“量产 600 W”“原理样机/实验室”只见媒体，不用。
   segments: [B1, D]
 
 F5:
@@ -75,7 +76,7 @@ F5:
   quote: "A more powerful laser pulse – hotter than the surface of the sun at a temperature of about 500,000 K – vaporizes the tin pancakes."
   sources:
     - https://www.asml.com/en/discover/hot-machines
-  notes: ASML 官网原文如上（措辞把温度挂在激光脉冲上，旁白说成等离子体的温度）。ZEISS 官网另写“将近 22 万 ℃、约太阳表面 40 倍”，两家一手资料不一致；论文测得电子温度约 30–40 eV（≈35–46 万 K），与 ASML 的量级相符，故用 ASML 的 50 万 K，用户已拍板。不要同时说两个数字。
+  notes: ASML 官网原文如上（措辞把温度挂在激光脉冲上，旁白说成等离子体的温度）。冲突：ZEISS 官网写“将近 22 万 ℃、约太阳表面 40 倍”；ASML 2025 年报故事栏目也写“40 times hotter than the surface of the sun”（≈23 万 K，research/visual/B1_sources.md）。论文测得电子温度约 30–40 eV（≈35–46 万 K）。ASML 自家 S2 光源实测电子温度 30–42 eV（Torretti et al. 2020），约 35–49 万 K，与 ASML 官网的 50 万 K 一致，“40 倍太阳表面”是通俗比喻、偏低；保留用户已拍板的 50 万 K。不要同时说两个数字。
   segments: [B1, C]
 
 F6:
