@@ -1,6 +1,7 @@
 """Cut finished-look film from rendered shots: picture, clean subtitles, on-screen labels, VO, music, SFX.
 
   python3 shared/tools/edit_film.py --segments A0 [--quality sample] [--size 1920x1080] [--out name]
+                                    [--no-brand [--tail 2]]
 
 Unlike story_reel (a review board with shot ids and debug overlays), this is the deliverable look:
 - picture: each shot's best render (final > sample > preview), shot-relative frame clamped at its end;
@@ -8,7 +9,10 @@ Unlike story_reel (a review board with shot ids and debug overlays), this is the
 - subtitles: Heiti, white with a soft shadow, bottom centre, no box;
 - labels: the shot's on-screen overlays (upper right), only on 3D shots (2D graphics carry their own text);
 - sound: the VO track (audio/vo/<voice>/vo_track.wav), music + SFX from episodes/<ep>/sound/<seg>.yaml,
-  music ducked under the voice (sidechain), integrated loudness normalised to -16 LUFS.
+  music ducked under the voice (sidechain), integrated loudness normalised to -16 LUFS;
+- brand (on by default): brand/eigenlens_logo_locked/sting_open.mp4 before the body, sting_end.mp4 after it,
+  both silent (padded with silence so sound stays in sync); the end sting replaces --tail. --no-brand cuts
+  the body alone, and only then does --tail apply (stand-alone cuts).
 """
 import argparse
 import os
@@ -23,7 +27,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from overlay_labels import draw_label, font  # noqa: E402
 import story_reel as SR  # noqa: E402
 
-from paths import AUDIO, EP, RENDERS, timed_shots  # noqa: E402
+from paths import AUDIO, BRAND, EP, RENDERS, timed_shots  # noqa: E402
 
 FPS = 24
 DISSOLVE = 8
@@ -179,6 +183,41 @@ def sound(shots, seg_files, dur, voice, out_wav, tail=0.0):
     subprocess.run(cmd, check=True)
 
 
+def probe(path, entries, streams=None):
+    sel = ["-select_streams", streams] if streams else []
+    out = subprocess.run(["ffprobe", "-v", "error", *sel, "-show_entries", entries, "-of", "csv=p=0", path],
+                         check=True, capture_output=True, text=True).stdout
+    return [v.strip(",") for v in out.split()]
+
+
+def apply_brand_stings(body_mp4, out_mp4, brand_dir=BRAND):
+    """open sting + body + end sting -> out_mp4, at the body's frame size. The stings are silent: each gets
+    a silence pad of its own length, so the body's mix (VO / music / loudness) is untouched, only delayed.
+    Returns (open, body, end) durations in seconds."""
+    op, end = (os.path.join(brand_dir, f) for f in ("sting_open.mp4", "sting_end.mp4"))
+    for p in (op, end):
+        if not os.path.exists(p):
+            raise FileNotFoundError(f"[edit_film] 品牌 sting 不存在：{p}")
+    W, H = probe(body_mp4, "stream=width,height", "v:0")[0].split(",")
+    d_op, d_body, d_end = (float(probe(p, "format=duration")[0]) for p in (op, body_mp4, end))
+    has_audio = bool(probe(body_mp4, "stream=index", "a"))
+    sil = lambda d: ["-f", "lavfi", "-t", f"{d:.3f}", "-i", "anullsrc=r=48000:cl=stereo"]
+    inputs = ["-i", op, "-i", body_mp4, "-i", end, *sil(d_op), *sil(d_end)]
+    if not has_audio:                       # body 没有音轨：整段补静音
+        print(f"[edit_film] 警告：{body_mp4} 没有音轨，用静音代替", file=sys.stderr)
+        inputs += sil(d_body)
+    va = f"fps={FPS},scale={W}:{H}:flags=lanczos,setsar=1,format=yuv420p"
+    aa = "aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo"
+    filters = [f"[{i}:v]{va}[v{i}]" for i in range(3)]
+    filters += [f"[3:a]{aa}[a0]", f"[{1 if has_audio else 5}:a]{aa},apad,atrim=0:{d_body:.3f}[a1]", f"[4:a]{aa}[a2]",
+                "[v0][a0][v1][a1][v2][a2]concat=n=3:v=1:a=1[v][a]"]
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", *inputs, "-filter_complex", ";".join(filters),
+                    "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-crf", "16", "-preset", "slow",
+                    "-pix_fmt", "yuv420p", "-r", str(FPS), "-c:a", "aac", "-b:a", "256k",
+                    "-movflags", "+faststart", out_mp4], check=True)
+    return d_op, d_body, d_end
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--segments", required=True)
@@ -187,8 +226,15 @@ def main():
     ap.add_argument("--voice", default="Andre")
     ap.add_argument("--out")
     ap.add_argument("--tail", type=float, default=0.0,
-                    help="seconds after the last shot: picture fades to black, music and effects decay (stand-alone cuts)")
+                    help="seconds after the last shot: picture fades to black, music and effects decay "
+                         "(stand-alone cuts; only with --no-brand)")
+    ap.add_argument("--brand", action=argparse.BooleanOptionalAction, default=True,
+                    help="open sting before, end sting after (default on; --no-brand for the body alone)")
     a = ap.parse_args()
+    if a.brand and a.tail:                 # 片尾 sting 取代淡出黑场
+        print(f"[edit_film] 警告：品牌开启时忽略 --tail {a.tail}（片尾 sting 取代淡出）；独立短片用 --no-brand --tail",
+              file=sys.stderr)
+        a.tail = 0.0
     segs = a.segments.split(",")
     W, H = (int(v) for v in a.size.split("x"))
     shots = timed_shots(segs)
@@ -202,9 +248,15 @@ def main():
     sound(shots, [p for p in seg_files if os.path.exists(p)], dur, a.voice, wav, a.tail)
     name = a.out or "_".join(segs)
     mp4 = os.path.join(out_dir, f"{name}.mp4")
+    body = os.path.join(tmp, "body.mp4") if a.brand else mp4
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-framerate", str(FPS), "-i", os.path.join(tmp, "%05d.png"),
                     "-i", wav, "-c:v", "libx264", "-crf", "16", "-preset", "slow", "-pix_fmt", "yuv420p",
-                    "-c:a", "aac", "-b:a", "256k", "-shortest", "-movflags", "+faststart", mp4], check=True)
+                    "-c:a", "aac", "-b:a", "256k", "-shortest", "-movflags", "+faststart", body], check=True)
+    if a.brand:
+        d_op, d_body, d_end = apply_brand_stings(body, mp4)
+        shutil.rmtree(tmp)
+        print(mp4, f"{d_op + d_body + d_end:.1f}s (open {d_op:.1f} + body {d_body:.1f} + end {d_end:.1f})")
+        return
     shutil.rmtree(tmp)
     print(mp4, f"{dur + a.tail:.1f}s")
 
