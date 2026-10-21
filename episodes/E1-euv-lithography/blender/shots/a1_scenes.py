@@ -218,6 +218,8 @@ def process(sc, rnd):
     _key(over, 174, scale=(1, 1, 0.001))                            # CMP polishes it away: lines left in the trenches
     # A1_07 (181-321): the cycle repeats, faster and faster; each new layer grows on top with a violet flash
     flash = _additive("ExpoFlash", VIOLET)
+    # the exposure flash lights only the newest layer's top face (a full-frame card blew the picture out)
+    fl = _box("FlashSheet", (0, 0, 0.3), (8.1, 2.1, 0.005), flash, role="emitter")
     top = 0.3
     f = 182
     for c in range(9):
@@ -225,16 +227,16 @@ def process(sc, rnd):
         th = 0.3
         # every level is dielectric with metal embedded: wire levels carry parallel lines (direction alternating
         # from one wire level to the next), via levels carry a few vertical plugs; a continuous metal sheet
-        # would short everything
-        parts = [_apply_scale(_box(f"Stack{c}", (0, 0, 0), (8.0, 2.0, th), film_m))]
+        # would short everything. wire ends stand 0.003 proud of the cut faces: flush faces z-fought into slivers
+        parts = [_apply_scale(_box(f"Stack{c}", (0, 0, 0), (8.0, 2.0, th), film_m, bevel=0.012))]   # bevel: layer seams read
         if c % 2 == 0:
             along_x = (c // 2) % 2 == 0
             for j in range(7):
                 if along_x:
-                    parts.append(_apply_scale(_box(f"Stack{c}W{j}", (0, -0.85 + 0.283 * j, 0), (8.0, 0.13, th * 0.9),
+                    parts.append(_apply_scale(_box(f"Stack{c}W{j}", (0, -0.85 + 0.283 * j, 0), (8.006, 0.13, th * 0.9),
                                                    metal_m, role="emitter")))
                 else:
-                    parts.append(_apply_scale(_box(f"Stack{c}W{j}", (-3.6 + 1.2 * j, 0, 0), (0.22, 2.0, th * 0.9),
+                    parts.append(_apply_scale(_box(f"Stack{c}W{j}", (-3.6 + 1.2 * j, 0, 0), (0.22, 2.006, th * 0.9),
                                                    metal_m, role="emitter")))
         else:
             for j in range(5):
@@ -248,12 +250,15 @@ def process(sc, rnd):
             _key(lay, 1, scale=(1, 1, 0.001))
             _key(lay, f, scale=(1, 1, 0.001))
             _key(lay, f + dur // 2, scale=(1, 1, 1))
+        _key(fl, f + dur // 2 - 1, location=(0, 0, top + th + 0.01))
         M.set_emission_strength(flash, f + dur // 2 - 1, 0.0)
-        M.set_emission_strength(flash, f + dur // 2, 12.0)
+        M.set_emission_strength(flash, f + dur // 2, 3.0)
         M.set_emission_strength(flash, f + dur // 2 + 3, 0.0)
         top += th
         f += dur
-    fl = _box("FlashSheet", (0, -1.05, 1.5), (8.4, 0.01, 4.0), flash, role="emitter")
+    for fc in C.fcurves(fl.animation_data.action):
+        for kp in fc.keyframe_points:
+            kp.interpolation = "CONSTANT"
     B._area("ClayKey", (5, -6, 8), (0.8, 0, 0.6), 8, 1800, (1.0, 0.98, 0.95))
     B._camera("CamA1_06", [(1, (0, 0, 0.2), (0.0, -12.5, 1.4), 50, 11.0), (176, (0, 0, 0.2), (0.8, -12.5, 1.5), 50, 11.0)])
     B._camera("CamA1_07", [(181, (0, 0, 0.6), (0.8, -12.5, 1.6), 50, 11.0), (321, (0, 0, 2.2), (6.0, -14.0, 5.0), 40, 11.0)])

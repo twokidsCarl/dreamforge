@@ -342,16 +342,11 @@ def fab_hall(seed=3, people=6):
     _box("TubeSlot", (-12, -0.36, -1.85), (21, 0.02, 0.08), M.emission("SlotGlass", (0.2, 0.25, 0.3), 0.4),
          role="env", bevel=0)
     sil = M.principled("Silhouette", (0.01, 0.01, 0.012), metallic=0.0, roughness=0.9)
+    import figures
     for i in range(people):                           # backlit human figures for scale (~1.75 m)
-        x, y = rnd.uniform(-10, 4), rnd.uniform(-5, 5)
-        bpy.ops.mesh.primitive_cylinder_add(radius=0.2, depth=1.45, location=(x, y, -2.2 + 0.73))
-        body = bpy.context.object
-        body.data.materials.append(sil)
-        styles.tag(body, "env")
-        bpy.ops.mesh.primitive_uv_sphere_add(radius=0.13, location=(x, y, -2.2 + 1.6))
-        head = bpy.context.object
-        head.data.materials.append(sil)
-        styles.tag(head, "env")
+        x, y = rnd.uniform(-10, 4), rnd.choice((-1, 1)) * rnd.uniform(2.4, 5.0)   # in the aisles, not in the machine
+        figures.person(f"Worker{i}", (x, y, -2.2), height=rnd.uniform(1.65, 1.85),
+                       pose=rnd.choice(("stand", "work", "walk")), facing=rnd.uniform(-60, 60), mat=sil)
 
 
 HOSTS = {"source": "SrcDrum", "illum": "Illuminator", "reticle": "ReticleStage", "po": "POBarrel",

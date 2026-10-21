@@ -126,15 +126,10 @@ def monolith(sc, rnd):
 
 
 def _person(name, loc, rnd, mat):
-    x, y = loc
-    h = rnd.uniform(1.62, 1.85)
-    body = _cyl(name + "B", 0.22, h * 0.62, (x, y, h * 0.31 + 0.25), mat, verts=16)
-    body.scale = (1.0, 0.7, 1.0)
-    legs = _cyl(name + "L", 0.17, 0.5, (x, y, 0.25), mat, verts=12)
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.13, segments=16, ring_count=8, location=(x, y, h * 0.62 + 0.4))
-    hd = bpy.context.object
-    hd.data.materials.append(mat)
-    styles.tag(hd, "structure")
+    import figures
+    figures.person(name, (loc[0], loc[1], 0.0), height=rnd.uniform(1.62, 1.85),
+                   pose=rnd.choice(("stand", "stand", "work", "walk")), facing=rnd.uniform(-180, 180), mat=mat,
+                   role="structure")
 
 
 def crowd(sc, rnd):

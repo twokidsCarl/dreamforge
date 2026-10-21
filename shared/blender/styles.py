@@ -56,7 +56,7 @@ def role_of(obj):
 
 
 def _set_material(obj, mat):
-    if obj.type not in ("MESH", "CURVE"):
+    if obj.type not in ("MESH", "CURVE", "META"):
         return
     obj.data.materials.clear()
     obj.data.materials.append(mat)

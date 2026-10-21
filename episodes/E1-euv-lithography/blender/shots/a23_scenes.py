@@ -40,31 +40,32 @@ def _beam(name, a, b, radius, mat, role="emitter"):
 # ---- A2_08 ---------------------------------------------------------------------------------
 def ribbon(sc, rnd):
     C.set_world(top=(0, 0, 0), horizon=(0, 0, 0), bottom=(0, 0, 0))
-    bpy.ops.mesh.primitive_plane_add(size=1, location=(0, 0, 0))
-    rb = bpy.context.object
-    rb.name = "WaveRibbon"
-    rb.scale = (12.0, 0.12, 1)
-    sub = rb.modifiers.new("Sub", "SUBSURF")
-    sub.levels = sub.render_levels = 0
-    bpy.ops.object.select_all(action="DESELECT")
-    rb.select_set(True)
-    bpy.context.view_layer.objects.active = rb
-    bpy.ops.object.transform_apply(scale=True)
-    bpy.ops.object.mode_set(mode="EDIT")
-    bpy.ops.mesh.subdivide(number_cuts=400)
-    bpy.ops.object.mode_set(mode="OBJECT")
-    # an exact sine written into the vertices (a displaced Wood texture clipped its crests into double peaks)
-    lam, amp = 2.0, 0.45
-    for v in rb.data.vertices:
-        v.co.z = amp * math.sin(2 * math.pi * v.co.x / lam)
-    for pl in rb.data.polygons:
-        pl.use_smooth = True
+    # an exact sine built vertex by vertex: 2400 segments over 16 units (~300 per wavelength), so the crests stay
+    # round even in close-up (bpy.ops.mesh.subdivide caps at 100 cuts, which left visible facets)
+    lam, amp, half_w, n, x0, x1 = 2.0, 0.45, 0.035, 2400, -8.0, 8.0
+    verts, faces = [], []
+    for i in range(n + 1):
+        x = x0 + (x1 - x0) * i / n
+        z = amp * math.sin(2 * math.pi * x / lam)
+        verts += [(x, -half_w, z), (x, half_w, z)]
+        if i:
+            faces.append((2 * i - 2, 2 * i - 1, 2 * i + 1, 2 * i))
+    me = bpy.data.meshes.new("WaveRibbon")
+    me.from_pydata(verts, [], faces)
+    me.polygons.foreach_set("use_smooth", [True] * len(faces))
+    rb = bpy.data.objects.new("WaveRibbon", me)
+    sc.collection.objects.link(rb)
+    # the wave travels one wavelength over the shot; its ends stay out of frame
     _key(rb, 1, location=(0, 0, 0))
-    _key(rb, 60, location=(-1.2, 0, 0))
-    m = M.emission("RibbonGlow", (0.72, 0.52, 1.0), 6.0)
-    rb.data.materials.append(m)
+    _key(rb, 60, location=(-lam * 2.5 / 1.25 / 2, 0, 0))
+    for fc in C.fcurves(rb.animation_data.action):
+        for kp in fc.keyframe_points:
+            kp.interpolation = "LINEAR"
+    rb.data.materials.append(M.emission("RibbonGlow", (0.40, 0.18, 1.0), 1.8))
     styles.tag(rb, "emitter")
-    B._camera("CamA2_08", [(1, (0.6, 0, 0.4), (2.6, -2.4, 0.9), 85, 1.4), (60, (0.6, 0, 0.4), (1.8, -1.9, 0.7), 85, 1.4)])
+    # three-quarter view down the wave so it recedes into the dark; focus on the nearest crest, slow push-in
+    B._camera("CamA2_08", [(1, (0.0, 0, 0.1), (-3.6, -3.0, 0.75), 50, 2.8),
+                           (60, (0.2, 0, 0.1), (-2.9, -2.5, 0.62), 50, 2.8)])
 
 
 # ---- A3_04 ---------------------------------------------------------------------------------
@@ -144,74 +145,127 @@ def lens(sc, rnd):
 
 
 # ---- A3_05 ---------------------------------------------------------------------------------
+def _port(name, centre, r_body, angle, mat, flange_mat, length=0.34, r=0.12, z=0.0):
+    """A radial CF-style port on a vertical vacuum chamber: tube plus end flange; returns the flange's outer centre."""
+    d = Vector((math.cos(angle), math.sin(angle), 0))
+    base = Vector(centre) + Vector((0, 0, z))
+    _cyl(name, r, length, tuple(base + d * (r_body + length / 2 - 0.05)), mat, rot=(0, math.pi / 2, angle))
+    tip = base + d * (r_body + length)
+    _cyl(name + "Flange", r + 0.07, 0.06, tuple(tip), flange_mat, rot=(0, math.pi / 2, angle))
+    return tip, d
+
+
 def montage(sc, rnd):
     C.set_world(top=(0.02, 0.022, 0.03), horizon=(0.01, 0.011, 0.015), bottom=(0.002, 0.002, 0.003))
-    steel = M.polished_steel("MonSteel", 0.25)
+    steel = M.principled("MonSteel", (0.58, 0.60, 0.63), metallic=1.0, roughness=0.32)   # brushed vacuum steel
+    flange = M.principled("MonFlange", (0.62, 0.64, 0.66), metallic=1.0, roughness=0.2)
     dark = M.dark_anodized("MonDark")
-    # 1) optical bench with an early source chamber flashing (x = 200)
+    # 1) early source test: a vertical vacuum chamber with radial ports on an optical table; the plasma
+    #    flashes behind the viewport (x = 200). Generic lab, no specific historical set-up (audit_A3: artistic)
     o1 = Vector((200, 0, 0))
-    _box("Table", o1 + Vector((0, 0, 0.9)), (6, 2.4, 0.15), dark)
+    _box("Table", o1 + Vector((0, 0, 0.9)), (6, 2.4, 0.15), M.principled("TableTop", (0.05, 0.05, 0.055),
+         metallic=0.6, roughness=0.45), bevel=0.02)
     for x in (-2.6, 2.6):
-        _box(f"TLeg{x}", o1 + Vector((x, 0, 0.4)), (0.2, 2.0, 0.8), dark)
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.6, location=tuple(o1 + Vector((0, 0, 1.6))))
-    ch = bpy.context.object
-    ch.data.materials.append(steel)
-    styles.tag(ch, "structure")
-    fl = M.emission("BenchFlash", (0.8, 0.7, 1.0), 0.0)
-    _cyl("Port", 0.15, 0.1, tuple(o1 + Vector((0, -0.6, 1.6))), fl, rot=(math.pi / 2, 0, 0), role="emitter")
-    for f in range(4, 66, 9):
+        _box(f"TLeg{x}", o1 + Vector((x, 0, 0.4)), (0.3, 2.0, 0.8), dark)
+    cc = o1 + Vector((0.4, 0.1, 1.62))
+    _cyl("ChamberBase", 0.4, 0.14, tuple(o1 + Vector((0.4, 0.1, 1.04))), dark)
+    _cyl("Chamber", 0.55, 0.9, tuple(cc), steel)
+    for z in (-0.47, 0.47):
+        _cyl(f"ChamberFlange{z}", 0.66, 0.07, tuple(cc + Vector((0, 0, z))), flange)
+    _cyl("ChamberTopPort", 0.14, 0.3, tuple(cc + Vector((0, 0, 0.62))), steel)
+    _cyl("ChamberTopFlange", 0.21, 0.06, tuple(cc + Vector((0, 0, 0.78))), flange)
+    for k, ang in enumerate((math.radians(-35), math.radians(30), math.radians(150), math.radians(215))):
+        _port(f"Port{k}", cc, 0.55, ang, steel, flange, z=0.12 if k % 2 else -0.1)
+    tip, d = _port("ViewPort", cc, 0.55, math.radians(-100), steel, flange, length=0.3, r=0.13, z=0.05)
+    fl = M.emission("BenchFlash", (0.78, 0.66, 1.0), 0.0)
+    _cyl("ViewGlass", 0.12, 0.02, tuple(tip + d * 0.035), fl, rot=(0, math.pi / 2, math.radians(-100)), role="emitter")
+    for f in range(4, 66, 9):                                         # the source fires in bursts
         M.set_emission_strength(fl, f, 0.0)
-        M.set_emission_strength(fl, f + 1, 40.0)
+        M.set_emission_strength(fl, f + 1, 30.0)
         M.set_emission_strength(fl, f + 4, 0.0)
-    for k in range(5):
-        _cyl(f"Optic{k}", 0.12, 0.6, tuple(o1 + Vector((-2.4 + 0.5 * k, 0, 1.3))), steel)
-    # 2) polishing a large mirror blank on a turntable (x = 400)
+    for k in range(3):                                                # optic mounts on posts
+        px = -2.0 + 0.6 * k
+        _cyl(f"OptPost{k}", 0.035, 0.42, tuple(o1 + Vector((px, -0.2, 1.18))), steel)
+        _cyl(f"OptMount{k}", 0.13, 0.05, tuple(o1 + Vector((px, -0.2, 1.42))), dark, rot=(0, math.pi / 2, 0))
+    # 2) polishing a large mirror blank on a turntable (x = 400). ZEISS figures and polishes the bare
+    #    glass-ceramic substrate first and coats it afterwards (S8), so the blank is bare glass here
     o2 = Vector((400, 0, 0))
     _cyl("PolishTable", 2.2, 0.6, tuple(o2 + Vector((0, 0, 0.3))), dark)
-    # ZEISS figures and polishes the bare glass-ceramic substrate first and coats it afterwards
-    sub_m = M.principled("SubstrateGlass", (0.86, 0.72, 0.52), roughness=0.03)
-    sub_m.node_tree.nodes["Principled BSDF"].inputs["Transmission Weight"].default_value = 0.7
-    blank = _cyl("Blank", 1.8, 0.35, tuple(o2 + Vector((0, 0, 0.78))), sub_m)
+    sub_m = M.principled("SubstrateGlass", (0.94, 0.88, 0.78), roughness=0.01)
+    sb_ = sub_m.node_tree.nodes["Principled BSDF"]
+    sb_.inputs["Transmission Weight"].default_value = 0.92
+    sb_.inputs["IOR"].default_value = 1.54
+    blank = _cyl("Blank", 1.8, 0.32, tuple(o2 + Vector((0, 0, 0.77))), sub_m, verts=128)
+    bv = blank.modifiers.new("Chamfer", "BEVEL")
+    bv.width, bv.segments = 0.03, 2
     _key(blank, 66, rotation_euler=(0, 0, 0))
     _key(blank, 130, rotation_euler=(0, 0, math.radians(120)))
-    _box("Arm", o2 + Vector((1.2, 0, 2.2)), (3.0, 0.3, 0.3), steel)
-    head = _cyl("PolHead", 0.35, 0.3, tuple(o2 + Vector((0.4, 0, 1.15))), steel)
-    _key(head, 66, location=o2 + Vector((0.2, 0, 1.15)))
-    _key(head, 130, location=o2 + Vector((1.1, 0.3, 1.15)))
-    # 3) a long laser amplifier hall (x = 600)
+    _cyl("PolColumn", 0.16, 2.6, tuple(o2 + Vector((2.9, 0.9, 1.3))), steel)
+    _box("Arm", o2 + Vector((1.6, 0.45, 2.45)), (2.9, 0.22, 0.22), steel, bevel=0.03)
+    head = _cyl("PolHead", 0.38, 0.16, tuple(o2 + Vector((0.4, 0, 1.03))), steel)
+    pad = _cyl("PolPad", 0.38, 0.03, (0, 0, -0.095), M.principled("Pad", (0.16, 0.1, 0.07), roughness=0.8))
+    spindle = _cyl("Spindle", 0.06, 1.35, (0, 0, 0.75), steel)
+    for ob in (pad, spindle):
+        ob.parent = head
+    _key(head, 66, location=o2 + Vector((0.2, 0, 1.03)))
+    _key(head, 130, location=o2 + Vector((1.1, 0.3, 1.03)))
+    # an unseen soft box the polished face mirrors toward the camera, so the surface reads as optical quality
+    bpy.ops.mesh.primitive_plane_add(size=5, location=tuple(o2 + Vector((-3.8, 4.4, 3.6))))
+    sbx = bpy.context.object
+    sbx.rotation_euler = (o2 + Vector((0, 0, 0.9)) - sbx.location).to_track_quat("Z", "Y").to_euler()
+    sbx.data.materials.append(M.soft_emitter("PolishBox", (0.9, 0.93, 1.0), 2.2))
+    sbx.visible_camera = False
+    styles.tag(sbx, "rig")
+    # 3) the drive-laser amplifier chain (x = 600): seed, pre-amplifier, four amplifiers (S7) as a stylised row;
+    #    the infrared CO2 beam runs inside a closed beam tube, view ports glow in the film's laser orange
     o3 = Vector((600, 0, 0))
     tube = M.emission("HallBeam", ORANGE, 6.0)
+    panel = M.principled("AmpPanel", (0.80, 0.82, 0.84), roughness=0.42)
+    seam = M.principled("AmpSeam", (0.12, 0.12, 0.13), roughness=0.6)
+    led = M.emission("AmpLED", (0.3, 0.85, 1.0), 4.0)
+    tsteel = M.principled("TubeSteel", (0.6, 0.62, 0.65), metallic=0.9, roughness=0.3)
     for k in range(6):
-        _box(f"Amp{k}", o3 + Vector((-10 + 4.2 * k, 0, 1.0)), (3.2, 1.6, 2.0), M.principled("AmpPanel", (0.82, 0.84, 0.86),
-                                                                                      roughness=0.45), bevel=0.05)
-    # the drive-laser beam travels inside a closed beam tube; small view ports glow
-    _cyl("BeamTube", 0.22, 26.0, tuple(o3 + Vector((1, 0, 2.2))), M.principled("TubeSteel", (0.6, 0.62, 0.65),
-         metallic=0.9, roughness=0.3), rot=(0, math.pi / 2, 0))
+        x = -10 + 4.2 * k
+        _box(f"Amp{k}", o3 + Vector((x, 0, 1.0)), (3.2, 1.6, 2.0), panel, bevel=0.05)
+        for sx in (-0.53, 0.53):                                       # door seams on the aisle face
+            _box(f"AmpSeam{k}{sx}", o3 + Vector((x + sx, -0.801, 1.0)), (0.012, 0.004, 1.8), seam, bevel=0)
+        _box(f"AmpLED{k}", o3 + Vector((x + 1.25, -0.803, 1.75)), (0.1, 0.004, 0.03), led, role="emitter", bevel=0)
+        _cyl(f"AmpFeed{k}", 0.1, 0.24, tuple(o3 + Vector((x, 0, 2.1))), tsteel)   # beam in/out of each unit
+    _cyl("BeamTube", 0.22, 26.0, tuple(o3 + Vector((1, 0, 2.2))), tsteel, rot=(0, math.pi / 2, 0))
     for k in range(7):
         _cyl(f"TubePort{k}", 0.08, 0.46, tuple(o3 + Vector((-11 + 4 * k, 0, 2.2))), tube, rot=(math.pi / 2, 0, 0),
              role="emitter")
     _box("HallFloor3", o3 + Vector((0, 0, -0.05)), (60, 20, 0.1), M.principled("Floor3", (0.05, 0.05, 0.06), roughness=0.15))
+    lamp3 = M.emission("HallLamp3", (0.92, 0.95, 1.0), 5.0)
+    for k in range(5):                                                 # ceiling strips mirrored in the floor
+        _box(f"Lamp3_{k}", o3 + Vector((-12 + 6 * k, -2.5, 5.5)), (0.2, 3.0, 0.08), lamp3, role="env", bevel=0)
     # 4) clean-room assembly: fab hall with the machine and backlit people (origin)
     BM.fab_hall(people=4)
     BM.machine(with_path=False)
+    import figures
+    sil = bpy.data.materials["Silhouette"]
+    figures.person("Fitter0", (1.4, -2.3, -2.2), pose="work", facing=180, mat=sil)       # at the open panels
+    figures.person("Fitter1", (4.6, -2.9, -2.2), height=1.7, pose="stand", facing=150, mat=sil)
+    cx = BM.CENTER[0]
     # camera: four set-ups, hard cuts (constant interpolation), slow push inside each
     cam = B._camera("CamA3_05", [
-        (1, tuple(o1 + Vector((0, 0, 1.4))), tuple(o1 + Vector((3.5, -5.5, 2.4))), 35, 4.0),
-        (64, tuple(o1 + Vector((0, 0, 1.4))), tuple(o1 + Vector((2.8, -4.8, 2.2))), 35, 4.0),
-        (65, tuple(o2 + Vector((0, 0, 0.9))), tuple(o2 + Vector((3.6, -4.6, 3.0))), 35, 4.0),
-        (129, tuple(o2 + Vector((0, 0, 0.9))), tuple(o2 + Vector((3.0, -4.0, 2.6))), 35, 4.0),
+        (1, tuple(o1 + Vector((0.2, 0, 1.55))), tuple(o1 + Vector((2.6, -4.6, 2.3))), 40, 2.8),
+        (64, tuple(o1 + Vector((0.3, 0, 1.55))), tuple(o1 + Vector((2.1, -3.9, 2.1))), 40, 2.8),
+        (65, tuple(o2 + Vector((0, 0, 0.85))), tuple(o2 + Vector((3.2, -3.6, 1.75))), 40, 4.0),
+        (129, tuple(o2 + Vector((0, 0, 0.85))), tuple(o2 + Vector((2.7, -3.1, 1.6))), 40, 4.0),
         (130, tuple(o3 + Vector((2, 0, 1.6))), tuple(o3 + Vector((-13.0, -4.5, 2.2))), 24, 5.6),
         (194, tuple(o3 + Vector((4, 0, 1.6))), tuple(o3 + Vector((-11.0, -4.2, 2.1))), 24, 5.6),
-        (195, (BM.CENTER[0], 0, 0.8), (BM.CENTER[0] + 6.0, -15.0, 2.4), 28, 4.0),
-        (259, (BM.CENTER[0], 0, 0.8), (BM.CENTER[0] + 5.0, -13.5, 2.2), 28, 4.0)])
+        (195, (cx - 0.5, 0, 0.9), (cx + 7.5, -12.8, 2.6), 24, 5.6),       # inside the column line (y = -14)
+        (259, (cx - 0.5, 0, 0.9), (cx + 6.8, -12.0, 2.4), 24, 5.6)])
     for ob in (cam, bpy.data.objects["CamA3_05Aim"]):
         for fc in C.fcurves(ob.animation_data.action):
             pts = fc.keyframe_points
             for i, kp in enumerate(pts):
                 if i % 2 == 1:
                     kp.interpolation = "CONSTANT"                     # hold, then jump at the cut
-    B._area("MonKey1", tuple(o1 + Vector((2, -4, 5))), (0.8, 0, 0.5), 4, 800, (0.85, 0.9, 1.0))
-    B._area("MonKey2", tuple(o2 + Vector((2, -3, 6))), (0.6, 0, 0.5), 5, 1200, (0.85, 0.9, 1.0))
+    B._area("MonKey1", tuple(o1 + Vector((2, -4, 5))), (0.8, 0, 0.5), 4, 600, (0.85, 0.9, 1.0))
+    B._area("MonRim1", tuple(o1 + Vector((-1.5, 3.5, 3.5))), (-0.9, 0, 3.4), 3, 400, (0.8, 0.85, 1.0))
+    B._area("MonKey2", tuple(o2 + Vector((2, -3, 6))), (0.6, 0, 0.5), 5, 900, (0.85, 0.9, 1.0))
     B._area("MonKey3", tuple(o3 + Vector((0, -6, 8))), (0.9, 0, 0), 20, 3000, (0.85, 0.9, 1.0))
 
 
