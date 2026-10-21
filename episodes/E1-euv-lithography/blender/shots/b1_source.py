@@ -32,8 +32,8 @@ def build(vessel=False, rays=False):
     cam("CamB1_04", [(1, (0, ny + 0.8, 0.05), (2.5, ny + 1.6, 1.25), 50, 0.8),
                      (187, (0, ny + 1.2, 0.05), (2.0, ny + 2.4, 0.9), 50, 0.8)])
     # B1_07 — long lens down the stream axis: compressed "string of pearls"
-    cam("CamB1_07", [(1, (0, -8.0, 0), (0.7, 13.0, 0.5), 200, 5.6),
-                     (94, (0, -7.0, 0), (0.6, 12.5, 0.45), 200, 5.6)])
+    cam("CamB1_07", [(1, (0, -30.0, 0), (2.4, 8.0, 0.9), 135, 8.0),               # off-axis so the chain spreads
+                     (94, (0, -26.0, 0), (2.2, 9.0, 0.85), 135, 8.0)], focus=hero)   # across the frame
     # B1_08 — lateral track with the stream (HUD lock boxes added in post)
     cam("CamB1_08", B._follow_keys(hero, 1, B.T_ARRIVE, (5.2, 0.0, 0.5), (5.0, 0.0, 0.45), 30, 5.6,
                                     aim_offset=(0, -1.5, 0))
@@ -105,6 +105,24 @@ def _shadowgraph():
     sheet.data.materials.append(black)
 
 
+def _satin_sheet():
+    """Satin tin and gentler ripples for the expanded sheet, so it does not mirror the studio in blotches."""
+    import common as C
+    import materials as M
+    sheet = bpy.data.objects.get("Pancake")
+    if not sheet:
+        return
+    sheet.data.materials.clear()
+    sheet.data.materials.append(M.tin("TinSheetSatin", roughness=0.22))
+    ad = sheet.animation_data                                  # gentler ripples: a liquid sheet, not foil
+    for fc in (C.fcurves(ad.action) if ad and ad.action else []):
+        if "Ripple" in fc.data_path and fc.data_path.endswith("strength"):
+            for kp in fc.keyframe_points:
+                kp.co[1] *= 0.35
+                kp.handle_left[1] *= 0.35
+                kp.handle_right[1] *= 0.35
+
+
 def _cold_open():
     """A0_01 cold open (and D_08/D_09, its mirror at the end): the droplet in pure black. Chamber wall and ribs
     go, and so does the collector (out of focus it read as a flat grey-blue wall, and its edge reflected in
@@ -117,17 +135,7 @@ def _cold_open():
             ob.hide_render = True
     C.set_world(top=(0.0, 0.0, 0.0), horizon=(0.0, 0.0, 0.0), bottom=(0.0, 0.0, 0.0))
     C.reflection_env("studio_small_09", 0.25)
-    sheet = bpy.data.objects.get("Pancake")
-    if sheet:
-        sheet.data.materials.clear()
-        sheet.data.materials.append(M.tin("TinSheetSatin", roughness=0.22))
-        ad = sheet.animation_data                                  # gentler ripples: a liquid sheet, not foil
-        for fc in (C.fcurves(ad.action) if ad and ad.action else []):
-            if "Ripple" in fc.data_path and fc.data_path.endswith("strength"):
-                for kp in fc.keyframe_points:
-                    kp.co[1] *= 0.35
-                    kp.handle_left[1] *= 0.35
-                    kp.handle_right[1] *= 0.35
+    _satin_sheet()
     # a few far LEDs as bokeh, low and to the side, so the black has depth
     led = M.emission("BokehLED", (0.45, 0.7, 1.0), 6.0)
     for k, (x, y, z) in enumerate(((-14, -4, 2.5), (-16, -9, -1.8), (-13, -13, 0.6), (-18, -6, -3.2), (-15, 2, 3.4))):
@@ -138,8 +146,25 @@ def _cold_open():
         styles.tag(b, "emitter")
 
 
+def _endless_chain():
+    """B1_07 looks down the droplet line; the stylised chamber wall would end the chain after a few droplets, so it
+    goes and the chain runs into the dark (the real nozzle is ~0.3 m away, ~200 droplets back)."""
+    from mathutils import Vector
+    for ob in bpy.data.objects:      # edge-on collector = a bright bar; no sheet before 100; the nozzle would end the chain
+        if ob.name in ("ChamberWall", "Pancake") or ob.name.startswith(("Rib", "Collector", "DropletGenerator")):
+            ob.hide_render = True
+    # a long strip light beside the line gives every droplet down the chain its own glint
+    rot = Vector((-1.0, 0.0, -0.55)).to_track_quat("-Z", "Y").to_euler()
+    lt = B._area("ChainStrip", (2.6, -150.0, 1.4), rot, 300.0, 40000, (0.6, 0.78, 1.0), size_y=0.3)
+    lt["keep_light"] = True
+
+
 def after_style(style, shot_id):
-    if shot_id == "B1_11":
+    if shot_id == "B1_07":
+        _endless_chain()
+    elif shot_id == "B1_11":
         _shadowgraph()
     elif shot_id in ("A0_01", "D_08", "D_09"):
         _cold_open()
+    elif shot_id in ("B1_10", "B1_12", "B1_13", "C_02"):
+        _satin_sheet()

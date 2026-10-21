@@ -335,12 +335,8 @@ def fab_hall(seed=3, people=6):
     for x in range(-42, 43, 6):                        # ceiling light strips
         _box(f"Lamp{x}", (x, 0, 9.8), (0.25, 26.0, 0.12), lamp, role="env", bevel=0)
     _box("Ceiling", (0, 0, 10.3), (120, 40, 0.4), wall, role="env", bevel=0)
-    # trench with the drive-laser beam tube (B1_25)
-    _box("Trench", (-12, 0, -2.19), (22, 1.4, 0.02), M.dark_anodized("TrenchDark"), role="env", bevel=0)
-    _disc("BeamTubeHall", (-12, 0, -1.85), 0.35, 22, M.polished_steel("TubeSteel", 0.25), rot=(0, math.pi / 2, 0),
-          role="env")
-    _box("TubeSlot", (-12, -0.36, -1.85), (21, 0.02, 0.08), M.emission("SlotGlass", (0.2, 0.25, 0.3), 0.4),
-         role="env", bevel=0)
+    # (no drive-laser tube on this floor: the laser sits in the sub-fab and its beam comes up through the slab, F62;
+    #  b1_machine.subfab() draws that level)
     sil = M.principled("Silhouette", (0.01, 0.01, 0.012), metallic=0.0, roughness=0.9)
     import figures
     for i in range(people):                           # backlit human figures for scale (~1.75 m)

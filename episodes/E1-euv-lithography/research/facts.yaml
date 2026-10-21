@@ -27,7 +27,10 @@ F2:
   sources:
     - https://www.asml.com/en/investors/annual-report/2025
     - https://www.asml.com/en/products/euv-lithography-systems
-  notes: ASML 2025 年报故事栏目原文如上（research/visual/B1_sources.md）。旧页面写 50,000；以最新的 6 万为准，不说“最多”。
+  notes: >-
+    ASML 2025 年报故事栏目原文如上（research/visual/B1_sources.md）。旧页面写 50,000；以最新的 6 万为准，不说“最多”。
+    锡滴间距：70 m/s ÷ 6 万/秒 ≈ 1.2 mm（推算，F3）；50 kHz 时 ASML/Cymer 给出 "1.5-mm droplet-to-droplet spacing"
+    （Fomenkov et al. 2017 p.180, https://www.degruyterbrill.com/document/doi/10.1515/aot-2017-0029/pdf）。画面写“约 1–1.5 mm”。
   segments: [B1, C, D]
 
 F3:
@@ -260,14 +263,19 @@ F20:
 # ---- new: light source -------------------------------------------------------------------
 
 F21:
-  claim: 喷嘴内径仅 3–5 μm，比锡滴还小数倍；射流先断裂成更小的液滴，经 MHz 级与 kHz 级双重调制在飞行中合并成一颗
-  values: {nozzle_um: [3, 5]}
+  claim: 喷嘴内径仅 3–5 μm，比锡滴还小数倍；射流先断裂成更小的液滴，经 MHz 级与 kHz 级双重调制在飞行中合并成一颗；约 100 颗小液滴合成 1 颗
+  values: {nozzle_um: [3, 5], small_per_droplet: 100, small_mhz: 5}
   status: verified
   grade: B
   narration: 按 ASML 专利描述……（示意，不是量产规格）
   sources:
     - https://patents.google.com/patent/US9715174
     - https://patents.google.com/patent/US11240904
+    - https://www.degruyterbrill.com/document/doi/10.1515/aot-2017-0029/pdf
+  quote: >-
+    "Approximately 100 small droplets at an average frequency of 5 MHz were used in this example to produce 50 kHz
+    droplets with a 1.5-mm droplet-to-droplet spacing" (Fomenkov et al., ASML/Cymer, Adv. Opt. Techn. 2017, p.180)
+  notes: 100 颗是论文中的一个示例（in this example），画面写“约 100 颗”并注明出处。
   segments: [B1]
 
 F22:
@@ -662,3 +670,15 @@ F61:
     - https://www.sec.gov/Archives/edgar/data/0000937966/000162828026011378/asml-20251231.htm
     - https://intel.com/content/www/us/en/newsroom/news/intel-foundry-opens-new-frontier-chipmaking.html
   segments: [A0]
+
+F62:
+  claim: 驱动激光通常装在楼下的辅助层（sub-fab）；光束经转向镜，穿过华夫板楼板送上来，进入锡滴腔
+  status: verified
+  grade: A
+  sources:
+    - https://www.degruyterbrill.com/document/doi/10.1515/aot-2017-0029/pdf
+  quote: >-
+    "The laser is typically installed in the sub-fab along with its RF generators and water-to-water heat exchangers"
+    and "Turning mirrors may be used to allow the beam to travel from the sub-fab to the fab through the waffle-slab
+    floor" (Fomenkov et al., ASML/Cymer, Adv. Opt. Techn. 2017, p.176); Fig. 1 labels "Fab Floor" over "Sub-Fab Floor".
+  segments: [B1]

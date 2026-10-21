@@ -23,7 +23,7 @@ T_ARRIVE = 100
 T_PRE = 100
 T_MAIN = 192
 PLASMA_X = 0.35
-NOZZLE_Y = -60.0                     # off-screen: really ~0.3 m (2400 units) from the plasma
+NOZZLE_Y = -300.0                    # off-screen: really ~0.3 m (2400 units) from the plasma
 
 CUTS = [
     ("CamEstablish", 1, 64),
@@ -155,7 +155,7 @@ def build():
     nozzle_tip, _ = S.nozzle(NOZZLE_Y)
     spacing = 11.2                                   # 1.4 mm at 125 um per unit
     hero = S.droplet("HeroDroplet")
-    stream = S.droplet_stream(count=5, spacing=spacing)
+    stream = S.droplet_stream(count=26, spacing=spacing)        # back to the nozzle: a chain with no visible end
     for obj, off in ((hero, 0.0), (stream, -spacing)):
         _key(obj, 1, location=(0, -12.0 + off, 0))
         _key(obj, 80, location=(0, -1.3 + off, 0))

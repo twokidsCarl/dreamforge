@@ -59,22 +59,23 @@ def build_atom(sc, rnd):
     # strip order: the 4 outer electrons, then 10 from the 4th shell -> Sn14+
     strip = [(4, k) for k in range(4)] + [(3, k) for k in range(10)]
     t_strip = {s: 30 + 7 * i for i, s in enumerate(strip)}
+    from mathutils import Euler, Vector
+    rot = Euler(tilt.rotation_euler).to_matrix()        # electrons are placed in world space through the same tilt
     for si, (n, r) in enumerate(zip(shells, radii)):
         ring = _ring(f"Shell{si}", r, ring_mat)
         ring.parent = tilt
         for k in range(n):
             e = _sphere(f"E{si}_{k}", 0.018, el_mat)
-            e.parent = ring
             a0 = 2 * math.pi * k / n
             w = 0.04 / (r ** 1.5)                         # inner electrons orbit faster
             f_end = t_strip.get((si, k), FRAMES)
             for f in list(range(1, f_end, 4)) + [f_end]:
                 a = a0 + w * f
-                e.location = (r * math.cos(a), r * math.sin(a), 0)
+                e.location = rot @ Vector((r * math.cos(a), r * math.sin(a), 0))
                 e.keyframe_insert("location", frame=f)
             if (si, k) in t_strip:
                 a = a0 + w * f_end
-                e.location = (6.0 * r * math.cos(a), 6.0 * r * math.sin(a), rnd.uniform(-1, 1))
+                e.location = rot @ Vector((6.0 * r * math.cos(a), 6.0 * r * math.sin(a), rnd.uniform(-1, 1)))
                 e.keyframe_insert("location", frame=f_end + 14)
                 _key(e, 1, hide_render=False)
                 _key(e, f_end + 14, hide_render=True)
@@ -148,6 +149,8 @@ def build_web(sc, rnd, n_levels=420, n_lines=2600, groups=12):
     styles.tag(beam, "emitter")
     for f, v in ((1, 0.0), (175, 0.0), (205, 9.0), (380, 7.0)):
         M.set_emission_strength(beam_mat, f, v)
+    _key(beam, 1, hide_render=True)                   # at zero emission it is a black bar across the web
+    _key(beam, 175, hide_render=False)
     import sample_b1 as B
     # B1_19: start close on a few floors, pull back until the web fills frame
     B._camera("CamB1_19", [(1, (0.4, 0, 0.3), (0.5, -1.4, 0.35), 24, 11.0),

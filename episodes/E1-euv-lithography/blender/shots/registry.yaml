@@ -6,7 +6,7 @@
 
 B1_02: {scene: b1_source, args: {vessel: true, rays: true}, camera: CamB1_02, start: 1, style: xray, engine: cycles}
 B1_03: {scene: b1_source, camera: CamB1_03, start: 1, style: photoreal, engine: cycles}
-B1_04: {scene: b1_source, camera: CamB1_04, start: 1, style: photoreal, engine: cycles}
+B1_04: {scene: b1_jet, camera: CamB1_04, start: 300, style: photoreal, engine: cycles}
 B1_07: {scene: b1_source, camera: CamB1_07, start: 1, style: photoreal, engine: cycles}
 B1_08: {scene: b1_source, camera: CamB1_08, start: 1, style: photoreal, engine: cycles}
 B1_10: {scene: b1_source, camera: CamB1_10, start: 65, style: photoreal, engine: cycles}
@@ -16,7 +16,7 @@ B1_13: {scene: b1_source, camera: CamB1_13, start: 186, style: photoreal, engine
 B1_14: {scene: b1_source, camera: CamB1_14, start: 200, style: energy, engine: eevee}
 B1_15: {scene: b1_source, camera: CamB1_15, start: 205, style: photoreal, engine: cycles}
 B1_21: {scene: b1_source, camera: CamB1_21, start: 260, style: photoreal, engine: cycles}
-B1_05: {scene: b1_jet, camera: CamB1_05, start: 25, style: photoreal, engine: cycles}
+B1_05: {scene: b1_jet, camera: CamB1_05, start: 498, style: photoreal, engine: cycles}
 B1_17: {scene: b1_atom, args: {variant: atom}, camera: CamB1_17, start: 1, style: energy, engine: eevee}
 B1_19: {scene: b1_atom, args: {variant: web}, camera: CamB1_19, start: 1, style: energy, engine: eevee}
 B1_20: {scene: b1_atom, args: {variant: web}, camera: CamB1_20, start: 150, style: energy, engine: eevee}

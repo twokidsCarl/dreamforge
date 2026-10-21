@@ -68,6 +68,23 @@ def build(explode=False, seed=5):
     for i, (name, x, length, r) in enumerate(MODULES):
         cx = x + length / 2
         first = len(parts)
+        if name == "Seed":
+            # TRUMPF: the seed module "consists of two seed lasers" (pre-pulse and main pulse; POS16 "PP&MP Seed
+            # unit"); stacked so the side view shows both, their beams joined before the pre-amplifier
+            for k, z in enumerate((0.3, -0.3)):
+                parts.append(_box(f"Seed{('PP', 'MP')[k]}", (cx - 0.15, 0, z), (0.9, 0.5, 0.38), dark, bevel=0.04))
+                parts.append(_cyl(f"SeedBeam{k}", (cx + 0.5, 0, z * 0.5), 0.03,
+                                  math.hypot(0.5, z), steel, rot=(0, math.pi / 2 - math.atan2(-z, 0.5), 0), verts=12))
+            parts.append(_box("SeedCombiner", (cx + 0.78, 0, 0), (0.18, 0.4, 0.3), steel, bevel=0.02))
+            for p in parts[first:]:
+                p["module"] = i
+            if not explode:
+                g = M.emission("SeedGlowMat", ORANGE, 0.0)
+                for k, z in enumerate((0.3, -0.3)):
+                    win = _box(f"SeedWindow{k}", (cx - 0.15, -0.262, z), (0.5, 0.02, 0.12), g, 0.005)
+                    styles.tag(win, "emitter")
+                stage_glows.append((g, cx, 2))
+            continue
         body = _box(f"{name}Body", (cx, 0, 0), (length, 2 * r, 2 * r), dark, bevel=0.08)
         parts.append(body)
         for side in (-1, 1):                                      # end flanges
@@ -149,8 +166,8 @@ def build(explode=False, seed=5):
             p.location = p.location + d
             p.keyframe_insert("location", frame=f0 + 36)
     # cameras
-    B._camera("CamB1_22", [(1, (10.0, 0, 0), (10.0, -22.0, 3.0), 50, 11.0),
-                           (120, (16.0, 0, 0), (16.0, -22.0, 3.0), 50, 11.0)])
+    B._camera("CamB1_22", [(1, (22.0, 0, 0), (22.0, -22.0, 3.0), 50, 11.0),     # back along the beam to the seeds
+                           (100, (6.5, 0, 0), (6.5, -22.0, 3.0), 50, 11.0)])
     B._camera("CamB1_23", [(40, (2.0, 0, 0), (1.5, -5.5, 1.6), 35, 4.0),
                            (220, (20.0, 0, 0), (19.0, -6.0, 2.0), 35, 4.0)])
     B._camera("CamB1_24", [(f, (_pulse_x(f) + 1.5, 0, 0), (_pulse_x(f) - 1.6, -2.4, 0.8), 24, 4.0)

@@ -107,14 +107,19 @@ def why_prepulse(t, dur, W, H):
             c.line((cx + r * math.cos(ang0), cy + r * math.sin(ang0)), (cx + r * math.cos(ang1), cy + r * math.sin(ang1)),
                    ORANGE, 3, a * draw)
         c.text((cx, cy + 250), "激光光斑", 26, ORANGE, a * draw, anchor="mm")
+        # both panels look along the beam: the target is drawn face-on at the same scale as the 400 um spot
+        # (PUR20 slide 23: main-pulse beam 400 um; droplet ~27 um; FOM17 Fig.12: the disk is expanded "to match
+        # the main pulse (MP) beam waist diameter")
         if side == 0:
-            c.circle((cx, cy), 46, outline=LINE, width=3, a=a * draw)
-            c.circle((cx, cy), 30 * heat, fill=ORANGE, a=a * heat, glow=True)
-            c.text((cx, cy - 110), "只接住光斑中间一小块", 26, LINE, a * heat, anchor="mm")
+            rd = r * 27 / 400
+            c.circle((cx, cy), rd, outline=LINE, width=2, a=a * draw)
+            c.circle((cx, cy), rd * heat, fill=ORANGE, a=a * heat, glow=True)
+            c.text((cx, cy - 250), "锡滴只接住光斑中间一小点", 26, LINE, a * heat, anchor="mm")
         else:
-            c.rect((cx - 190, cy - 24, cx + 190, cy + 24), outline=LINE, width=3, a=a * draw, radius=24)
-            c.rect((cx - 186 * heat, cy - 20, cx + 186 * heat, cy + 20), fill=ORANGE, a=a * heat, glow=True, radius=20)
-            c.text((cx, cy - 110), "薄盘面积大、密度低，正好接住整个光斑", 26, LINE, a * heat, anchor="mm")
+            rd = r * 0.95
+            c.circle((cx, cy), rd, outline=LINE, width=3, a=a * draw)
+            c.circle((cx, cy), rd * heat, fill=ORANGE, a=a * heat * 0.6, glow=True)
+            c.text((cx, cy - 250), "薄盘面积大、密度低，正好接住整个光斑", 26, LINE, a * heat, anchor="mm")
     arrow = ease_out(seg(t, 4.2, 5.4))
     c.line((700, 920), (700 + 520 * arrow, 920), LINE, 3, a * arrow)
     c.text((960, 975), "更多能量 → 变成 13.5 nm 的光（示意）", 32, LINE, a * arrow, anchor="mm")
@@ -200,9 +205,10 @@ def two_pulses(t, dur, W, H):
             continue
         head = 200 + (dx - 80 - 200) * p - 160 * k * (1 - p)
         c.line((max(200, head - length), dy), (head, dy), ORANGE, w, a, glow=True)
-        c.text((head - length / 2, dy - 50 - 20 * k), lab, 26, ORANGE, a * min(1.0, p * 3), anchor="mm")
+        la = a * min(1.0, p * 3) * (1 - ease(seg(t, 1.9, 2.3)) if k == 0 else 1.0)   # one label at a time
+        c.text((head - length / 2, dy - 50 if k == 0 else dy + 52), lab, 26, ORANGE, la, anchor="mm")
     x2 = ease(seg(t, 2.8, 3.3))
     c.text((1760, 200), "×2", 120, ORANGE, a * x2, anchor="mm", weight_glow=True)
     c.text((1760, 290), "每颗锡滴打两次", 28, INK, a * x2, anchor="mm")
-    c.text((1880, 1030), "CO2 激光为红外光，橙色为示意 · F4", 18, INK2, a, anchor="rm")
+    c.text((1880, 1030), "CO2 激光为红外光，橙色为示意", 18, INK2, a, anchor="rm")
     return c.finish(glow_radius=10, glow_gain=1.0)

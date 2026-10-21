@@ -63,11 +63,13 @@ B1_04:
     status: sourced (caption) / simplified (shape)
     source: S8 (US9715174 "inner diameter of 3-5 μm"); S9 (orifice at the end of a capillary tube)
   - item: visible end face of the nozzle reads as an open bore about 30 um across, as large as a droplet
-    status: wrong
+    status: sourced
+    resolved: "2026-10-21: b1_jet.nozzle() flat matte end face 30 um across with a 4 um dark orifice (R_BORE 0.016)"
     note: the cone is capped at radius 0.12 units (15 um), and the bevel/reflection makes the whole face look like an opening. This contradicts the 3-5 um caption, which says the bore is several times smaller than the droplet.
     fix: model a 4 um orifice (radius 0.016 units) as a dark pinhole in a flat, matte end face; keep the tip outer diameter at least 5x the bore
   - item: no jet at the orifice; full-size 25 um droplets appear right next to the tip
-    status: wrong
+    status: sourced
+    resolved: "2026-10-21: B1_04 now renders b1_jet: a 3.2 um jet leaves the orifice and breaks up ~75 um out; no full-size droplets in frame"
     note: FOM17 Fig.10 and US9715174 show a continuous jet about as thick as the nozzle, which breaks into tiny droplets that coalesce only "at some distance away from the nozzle" (S8, S10). The storyboard also asks for a hair-thin jet.
     fix: emit a 3-5 um jet from the orifice in CamB1_04 (reuse the b1_jet metaball emitter at real proportions); no full-size droplets in this frame
 
@@ -76,7 +78,8 @@ B1_05:
     status: sourced
     source: S8 (MHz Rayleigh break-up plus kHz speed modulation; "high speed droplets overtake low speed droplets and coalesce"), S9
   - item: 3 small droplets merge into one; jet as thick as the final droplets; final droplets spaced about 2 diameters
-    status: wrong
+    status: sourced
+    resolved: "2026-10-21: b1_jet at published proportions: 5.8 um droplets 14 um apart (5 MHz), 100 per final 27 um droplet, merging from the middle out; caption 约 100 颗小液滴在飞行中合成 1 颗（ASML/Cymer 2017 示例 · 示意）, F21 now quotes FOM17 p.180"
     note: "ASML/Cymer: \"Approximately 100 small droplets at an average frequency of 5 MHz ... produce 50 kHz droplets with a 1.5-mm droplet-to-droplet spacing\" (S10, FOM17 p.180). The jet is about nozzle-sized (3-5 um) against 25-27 um droplets, and the final spacing is about 55 diameters (FOM17 Fig.10 bottom: two small dots far apart)."
     fix: b1_jet.py PER_BIG to about 20-30 per visible merge (or show clusters of dozens), element radius about 1/6 of the final droplet, and end the shot on widely spaced droplets; add 约 100 颗小液滴合成 1 颗（ASML/Cymer 2017） to the caption, or keep "示意" and drop the implied ratio
   - item: caption 射流经双重调制，在飞行中合并（ASML 专利 · 示意）; 慢动作
@@ -208,11 +211,13 @@ B1_16:
     status: sourced (idea)
     source: ES §3 (FOM17 Fig.12 "expansion of the Sn droplet to match the main pulse (MP) beam waist diameter and lower the density"); S3 ("flattening the tin droplet ... increased the EUV light output"); S5 (disk with a larger surface area)
   - item: "projections mixed: the laser spot is drawn face-on (dashed circle) but the sheet edge-on (horizontal bar)"
-    status: wrong
+    status: sourced
+    resolved: "2026-10-21: both panels face-on along the beam at one scale: 27 um droplet vs 400 um spot, disc matching the spot (PUR20, FOM17 Fig.12)"
     note: a sheet that faces the laser looks like a disc in the beam's view. Drawn as a bar inside a circular spot, it reads as a stick that catches only a strip of the beam, the opposite of the message.
     fix: right panel, filled disc with diameter 0.75 of the spot (300/400 um, PUR20 slide 23); left panel droplet 27/400 of the spot; or switch both panels to a side view (beam as a horizontal band, droplet as a dot, sheet as a vertical hairline spanning most of the band)
   - item: text 薄盘接住整个光斑，受热均匀 and the narration's 受热更均匀
-    status: unsourced
+    status: sourced
+    resolved: "text now 薄盘面积大、密度低，正好接住整个光斑 (FOM17 Fig.12, S3, S5); narration already 先拍扁，薄饼的面积正好接住整束主脉冲，密度也更低"
     note: the sources give a larger area and lower density matched to the beam waist, and more EUV output (S3, S5, FOM17 Fig.12). None says "more uniform heating".
     fix: 薄盘面积大、密度低，正好接住整个光斑 (and narration 先拍扁，薄饼正好接住整束主脉冲，更多能量变成 13.5 纳米的光)
   - item: arrow 更多能量 → 变成 13.5 nm 的光（示意）
@@ -225,7 +230,8 @@ B1_17:
     source: S15 (NIST ground configurations; strip order 5p, 5s, then 4d gives Sn14+ = 4s2 4p6); S12 (Sn8+-Sn14+ emit in band)
   - item: Bohr-style rings, glow of the ion brightening as it is stripped
     status: artistic
-  - glitch: electrons are not on their rings. In preview frame 100 they form ellipses offset below and in front of the drawn orbits (a parenting/transform error in b1_atom.build_atom; the electrons ignore the tilt/ring transform). Fix the parent inverse or compute positions in the tilted frame. Also check that all 5 rings are visible.
+  - resolved: "2026-10-21: electrons positioned in world space through the atom's tilt (b1_atom.build_atom)"
+    was: electrons are not on their rings. In preview frame 100 they form ellipses offset below and in front of the drawn orbits (a parenting/transform error in b1_atom.build_atom; the electrons ignore the tilt/ring transform). Fix the parent inverse or compute positions in the tilted frame. Also check that all 5 rings are visible.
 
 B1_18:
   - item: spectrum 10-18 nm; lines of each charge state Sn8+ to Sn14+ falling in layers and piling into a peak at 13.5 nm; caption UTA
@@ -243,7 +249,8 @@ B1_19:
   - item: levels and transitions random, 420 levels / 2600 strokes
     status: artistic
     note: illustrative (b1_atom docstring)
-  - glitch: a black horizontal bar crosses the web in every frame. It is the ConvergedBeam cylinder at zero emission occluding the lines. Hide it (hide_render) until frame 175.
+  - resolved: "2026-10-21: ConvergedBeam hidden until frame 175"
+    was: a black horizontal bar crosses the web in every frame. It is the ConvergedBeam cylinder at zero emission occluding the lines. Hide it (hide_render) until frame 175.
 
 B1_20:
   - item: the web converges into one violet beam; caption Torretti, Versolato 等 · Nature Communications 2020; 多重激发态 → EUV 光
@@ -276,11 +283,12 @@ B1_22:
     source: S5 (seed, 100 W pre-amp, "four resonators", BTS); FOM17 Fig.1 / POS16 (seed, pre-amp, PA1-PA4)
     note: "the real floor plan is not a straight row (FOM17 Fig.2 scale drawing: four big enclosures in a T/L plan); the caption covers it"
   - item: one seed box
-    status: wrong
+    status: sourced
+    resolved: "2026-10-21: seed module = two stacked seed lasers (PP, MP) joined by a combiner before the pre-amp (b1_laser.py)"
     note: "TRUMPF: the seed module \"consists of two seed lasers\" (pre-pulse and main pulse; POS16 \"PP&MP Seed unit\") (S5)"
     fix: draw two small seed lasers inside or side by side in the seed module, merging into the pre-amp
   - item: dimension lines and hidden lines promised in the storyboard
-    glitch: not visible in the preview (only outlines); add them or edit the storyboard text
+    resolved: "2026-10-21: storyboard text edited (no dimension lines promised)"
 
 B1_23:
   - item: power steps 几 W → 100 W → 4 级放大 → 几十 kW（最高约 40 kW）; 放大 1 万倍以上
@@ -301,11 +309,13 @@ B1_25:
     status: sourced
     source: S5 ("up to 30 meters in the direction of the droplet chamber")
   - item: beam tube lying along the fab floor in the same hall as the scanner
-    status: wrong
+    status: sourced
+    resolved: "2026-10-21: two-floor section (b1_machine.subfab_section): laser chain, RF generator and heat exchanger in the sub-fab, beam tube up through the waffle slab via turning mirrors to the source; F62 (FOM17 p.176); fab_hall's floor trench removed"
     note: the drive laser "is typically installed in the sub-fab" and the beam goes "from the sub-fab to the fab through the waffle-slab floor" via turning mirrors (FOM17 p.176; FOM17 Fig.1 / POS16 / WS18 "Fab Floor" over "Sub-Fab Floor"; ES §6). The storyboard itself says 从地面下方穿过.
     fix: "two-level section in build_machine.fab_hall: laser enclosures and a horizontal tube in a lower sub-fab, a vertical tube rising through a perforated (waffle) slab to the source vessel beside the scanner; silhouettes on both levels"
   - item: orange light dot racing along an observation slot in the tube
     status: artistic
+    resolved: "overlay 示意 · 橙色光点为示意 added"
     note: the BTS is enclosed and CO2 light is invisible. The storyboard marks this 示意, but the overlay list has no 示意.
     fix: add 示意 to the caption (光路最长约 30 m · 光点为示意) or drop the slot
   - item: stylised hall, columns, light strips, people silhouettes for scale

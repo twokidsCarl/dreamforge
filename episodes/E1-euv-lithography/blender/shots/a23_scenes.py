@@ -272,6 +272,7 @@ def montage(sc, rnd):
 # ---- A3_06 ---------------------------------------------------------------------------------
 def tour(sc, rnd):
     path, pmat = BM.machine()
+    path.data.bevel_depth = 0.035                              # colour: styles.xray makes rays saturated violet
     path.data.bevel_factor_end = 0.0
     path.data.keyframe_insert("bevel_factor_end", frame=1)
     path.data.bevel_factor_end = 1.0
