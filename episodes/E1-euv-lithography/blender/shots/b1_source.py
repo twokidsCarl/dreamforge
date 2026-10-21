@@ -69,7 +69,7 @@ def build(vessel=False, rays=False):
     # C_02 — long take part 1 (step ~0.73: slow): fly beside the droplet, pre-pulse, main pulse, turn to the collector
     cam("CamC_02", B._follow_keys(hero, 1, B.T_ARRIVE, (0.9, 1.2, 0.25), (1.0, 1.4, 0.3), 50, 2.0)
         + [(150, (0.2, 0, 0), (2.4, 3.6, 0.6), 40, 2.8), (192, (0.3, 0, 0), (3.6, 5.2, 0.9), 40, 3.2),
-           (300, (-2.2, 1.5, 0.6), (4.5, 3.5, 1.6), 35, 4.0)])
+           (300, (-2.4, 0.0, 0.0), (4.2, 2.6, 1.4), 35, 4.0)])        # end on the lit collector (C_03 continues it)
     # D_09 — the last shot: tight on the droplet, the orange pre-pulse closing in; cut before the hit
     cam("CamD_09", B._follow_keys(hero, 86, B.T_ARRIVE, (1.9, -1.1, 0.35), (1.8, -1.05, 0.33), 100, 4.0))
     # ---- B2 reuses the same simulation ---------------------------------------------------
