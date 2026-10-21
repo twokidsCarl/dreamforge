@@ -1433,7 +1433,7 @@ shots:
   builders:
   - schematic
   fx: []
-  engine: manim
+  engine: pillow
   sfx:
   - 低噪室温
 - id: B_20b
