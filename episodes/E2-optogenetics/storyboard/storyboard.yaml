@@ -2,23 +2,23 @@
 shots:
 - id: A0_01a
   segment: A0
-  duration: 3.76
+  duration: 9.6
   lead: 1.2
   vo:
-  - 理想的信号，也许是光。
-  facts: &id001
-  - F3
+  - 1979 年，有人写下对研究脑的一个要求：要有办法只动某一类神经元，其余的大体不动。
+  facts:
+  - F3b
   style: documentary
-  style_why: 冷开场先给一句不解释的话，用纪实纸页，不先上机制。
+  style_why: 冷开场先给 1979 年那条要求，用纪实纸页，不先上机制，也不提光。
   transition_in: fade
-  visual: 暗室里一页泛黄纸，侧光只照亮其中一行；纸上是不可读的抽象行，不冒充原稿。没有人脸，只有纸和灰尘。
+  visual: 暗室里一页泛黄纸，侧光只照亮其中一行；纸上是不可读的抽象行，不冒充原稿（示意 1979《科学美国人》一文，不是原件）。没有人脸，只有纸和灰尘。
   overlays:
-  - text: Francis Crick · 1999
+  - text: Francis Crick · 1979
     facts:
-    - F3
-  - text: 诺奖科学背景引用
+    - F3b
+  - text: 《科学美国人》
     facts:
-    - F3
+    - F3b
   camera:
     move: slow dolly-in
     lens_mm: 50
@@ -32,17 +32,26 @@ shots:
   - 低噪室温
 - id: A0_01b
   segment: A0
-  duration: 1.35
-  vo: []
-  facts: *id001
-  style: type
-  style_why: 纸页上的句子需要被单独读完，排版把字从环境里提出来。
+  duration: 8.2
+  vo:
+  - 接下来的那些年，微生物那边，能被光推动的膜蛋白正在被找到，线索越来越多。
+  facts:
+  - F3c
+  style: hud
+  style_why: 1979 和 1999 之间不干跳：用一只暗的 HUD 并行记下微生物那条线，只给剪影和刻度，不开第二幕。
   transition_in: cut
-  visual: 同一句「理想的信号，也许是光」在黑底上停留一拍。
+  visual: 暗底 HUD，标题「微生物」。两条细轨道先后亮起：上轨是杆状古菌剪影，刻度「1981 · 古菌 · 盐视紫红质」；下轨是双鞭毛绿藻剪影，刻度「1991–1996 · 衣藻 · 微秒级光电流」。不画蛋白结构，不出现通道视紫红质、2002/2003，不开门。
+  overlays:
+  - text: 1981 · 古菌 · 盐视紫红质
+    facts:
+    - F3c
+  - text: 1991–1996 · 衣藻 · 微秒级光电流
+    facts:
+    - F3c
   camera:
     move: locked-off
     lens_mm: 35
-    notes: 纯画面
+    notes: 2D HUD（mograph/a0.py），文字画在镜头里，不由 edit_film 再贴右上角
   builders:
   - schematic
   fx: []
@@ -50,15 +59,17 @@ shots:
   sfx: []
 - id: A0_02a
   segment: A0
-  duration: 4.96
+  duration: 14.4
   vo:
-  - 写下这句话的人随即停住：这个想法相当牵强。
-  facts: &id002
+  - 后来在讲座里，他猜过：拨动这类细胞的信号，也许可以是光。
+  - 1999 年，他把它写进文章：理想的信号会是光。他也承认，这个想法相当牵强。
+  facts: &id001
+  - F3b
   - F3
   style: type
-  style_why: 把自嘲的停顿做成排版，不急着解释蛋白。
+  style_why: 从讲座里的猜测到 1999 年落成文字，再到自嘲的停顿，都做成排版，不急着解释蛋白。
   transition_in: cut
-  visual: 黑底上那句话还在，后面慢慢打出「相当牵强」，光标停住。
+  visual: 黑底上先浮出一行暗的「……也许是光？」（讲座里的猜测，不标年份）；它淡掉，换成「理想的信号会是光。」并注「Crick · 1999」；句子上移变暗，后面慢慢打出「相当牵强」，光标停住。
   camera:
     move: locked-off
     lens_mm: 50
@@ -73,11 +84,18 @@ shots:
   segment: A0
   duration: 1.35
   vo: []
-  facts: *id002
+  facts: *id001
   style: documentary
   style_why: 停顿要落回纸页，而不是继续打字。
   transition_in: cut
-  visual: 同一页纸的近景，被照亮的那一行慢慢暗下。写字的手不出现。
+  visual: 纸页近景（示意 1999 一文，不是原件），被照亮的那一行慢慢暗下。写字的手不出现。
+  overlays:
+  - text: Francis Crick · 1999
+    facts:
+    - F3
+  - text: 诺奖科学背景引用
+    facts:
+    - F3
   camera:
     move: locked-off
     lens_mm: 35
@@ -92,8 +110,9 @@ shots:
   duration: 8.8
   vo:
   - 他要的方法很具体。只让某一类神经元打开，或者关掉，旁边的细胞大体不动，而且要快。
-  facts: &id003
+  facts: &id002
   - F3
+  - F3b
   style: infographic
   style_why: 把「只动一类细胞」画成可核对的选择，而不是口号。
   transition_in: cut
@@ -112,7 +131,7 @@ shots:
   segment: A0
   duration: 1.35
   vo: []
-  facts: *id003
+  facts: *id002
   style: clay
   style_why: 被圈出的那一类细胞要能单独活动，白模看运动。
   transition_in: cut
@@ -131,7 +150,7 @@ shots:
   duration: 21.04
   vo:
   - 2026 年 10 月 5 日，诺贝尔生理学或医学奖颁给 Karl Deisseroth、Peter Hegemann 和 Georg Nagel。理由写的是：他们发现了光控离子通道，并由此建立了光遗传学。
-  facts: &id004
+  facts: &id003
   - F1
   style: energy
   style_why: 诺奖公告用光点名，能量图把三人从纸页里点亮，不画写实脸。
@@ -156,7 +175,7 @@ shots:
   segment: A0
   duration: 1.35
   vo: []
-  facts: *id004
+  facts: *id003
   style: type
   style_why: 三个人名需要无肖像的停顿。
   transition_in: cut
@@ -175,13 +194,14 @@ shots:
   duration: 9.76
   vo:
   - 名单上是这三个人。从一句自认牵强的设想，走到这份名单，中间缺的是一枚能用光拨动的开关。
-  facts: &id005
+  facts: &id004
   - F1
   - F3
+  - F3b
   style: blueprint
   style_why: 把缺口画成还没闭合的设计问题：有预言，有名单，中间缺开关。
   transition_in: cut
-  visual: 蓝图上左侧是一句引文，右侧是三个人名，中间一个空的方框标着「开关」。
+  visual: 蓝图上左侧是两行：上行「只动一类神经元」注「1979」，下行「理想的信号会是光」注「1999」；右侧是三个人名，中间一个空的方框标着「开关」。
   camera:
     move: slow dolly-in
     lens_mm: 50
@@ -196,7 +216,7 @@ shots:
   segment: A0
   duration: 1.35
   vo: []
-  facts: *id005
+  facts: *id004
   style: energy
   style_why: 空着的开关用一道尚未接通的光表示。
   transition_in: cut
@@ -216,7 +236,7 @@ shots:
   hold: 1.1
   vo:
   - 这一期就讲这枚开关。片名是《光遗传学》。
-  facts: &id006
+  facts: &id005
   - F7
   style: type
   style_why: 片名卡需要停住，排版比写实场景更干净。
@@ -236,7 +256,7 @@ shots:
   segment: A0
   duration: 1.35
   vo: []
-  facts: *id006
+  facts: *id005
   style: energy
   style_why: 片名之后留一束光，作为全片会回到的动机。
   transition_in: cut
@@ -270,13 +290,18 @@ shots:
   sfx: []
 - id: A0_92
   segment: A0
-  duration: 1.5
+  duration: 2.0
   vo: []
-  facts: []
+  facts:
+  - F3b
+  - F3
+  - F1
+  - F3c
   style: hud
-  style_why: 把即将到来的年份先藏在一只未点亮的计时器里。
+  style_why: 把冷开场的三个年份收进一只计时器：1979 的要求、1999 的光、2026 的名单。
   transition_in: cut
-  visual: HUD 计数器先停在 1999，翻牌换成 2026 后停在暗处。只出现这两个年份（不逐年滚动），不出现未核实的 1979，不写相差年数。
+  visual: HUD 计数器 1979 → 1999 → 2026 三次翻牌，每个停一拍，最后停在暗处（不逐年滚动，中间不出现可读的年份）。刻度尺下方一条暗的细轨上有几颗不带字的小点，标微生物那条线（F3c），不写年份，不会被读成 Crick
+    的年份。不写相差年数。
   camera:
     move: locked-off
     lens_mm: 50
@@ -291,7 +316,7 @@ shots:
   duration: 10.48
   vo:
   - 神经元靠细胞膜两侧的电压说话。一次锋电位，是离子在极短的时间里穿过膜，电压忽然翻过去，再恢复。
-  facts: &id007
+  facts: &id006
   - F6
   style: xray
   style_why: 第一幕要看见膜的里面：电压差和离子穿过膜。
@@ -311,7 +336,7 @@ shots:
   segment: A
   duration: 1.35
   vo: []
-  facts: *id007
+  facts: *id006
   style: energy
   style_why: 离子流本身要用能量图再看一眼，剖视已经交代了位置。
   transition_in: cut
@@ -330,7 +355,7 @@ shots:
   duration: 12.88
   vo:
   - 二十世纪的研究者已经能记录哪里在活动，也能损毁一块组织，看行为缺了什么。诺奖新闻稿写明：这些方法证明不了因果关系。
-  facts: &id008
+  facts: &id007
   - F2
   style: documentary
   style_why: 把「只能记录、不能证明因果」放回实验室的真实动作。
@@ -351,7 +376,7 @@ shots:
   segment: A
   duration: 1.35
   vo: []
-  facts: *id008
+  facts: *id007
   style: infographic
   style_why: 记录和损毁并成两种旧方法，都指向同一个缺口。
   transition_in: cut
@@ -370,7 +395,7 @@ shots:
   duration: 13.36
   vo:
   - 相关是：这一类细胞亮着的时候，动物醒了，或者怕了。因果要多问一句。是这些细胞的放电造成了行为，还是它们只是跟着行为一起亮。
-  facts: &id009
+  facts: &id008
   - F2
   style: infographic
   style_why: 相关和因果要并排对照，信息图比写实更不容易说满。
@@ -390,7 +415,7 @@ shots:
   segment: A
   duration: 1.35
   vo: []
-  facts: *id009
+  facts: *id008
   style: energy
   style_why: 问号要落成可操作的动作：打开或按住。
   transition_in: cut
@@ -409,7 +434,7 @@ shots:
   duration: 9.76
   vo:
   - 要回答这句，得能只推动那一类细胞，也能把它按住，时间尺度要跟锋电位一样，是毫秒，不是分钟。
-  facts: &id010
+  facts: &id009
   - F3
   - F6
   style: hud
@@ -430,7 +455,7 @@ shots:
   segment: A
   duration: 1.35
   vo: []
-  facts: *id010
+  facts: *id009
   style: blueprint
   style_why: 速度要求写成设计规格，而不是口号。
   transition_in: cut
@@ -449,7 +474,7 @@ shots:
   duration: 16.24
   vo:
   - 更早的光控尝试已经有过。诺奖科学背景写明，有的方案要靠好几步信号接力，有的要在通道上再外加一种化学光开关。它们都达不到毫秒级编码所需要的速度。
-  facts: &id011
+  facts: &id010
   - F16
   style: clay
   style_why: 早期方案是零件堆在一起还是不够快，白模适合讲组装失败。
@@ -469,7 +494,7 @@ shots:
   segment: A
   duration: 1.35
   vo: []
-  facts: *id011
+  facts: *id010
   style: blueprint
   style_why: 多步方案的失败用图纸打叉，白模已经演过零件。
   transition_in: cut
@@ -488,7 +513,7 @@ shots:
   duration: 6.4
   vo:
   - 缺的是一个蛋白。光打上去，它自己就开门，不必再请一套帮手。
-  facts: &id012
+  facts: &id011
   - F5
   style: energy
   style_why: 答案收成一个蛋白、一道光，用能量而不是零件堆。
@@ -509,7 +534,7 @@ shots:
   segment: A
   duration: 1.35
   vo: []
-  facts: *id012
+  facts: *id011
   style: clay
   style_why: 单个蛋白要从零件堆里被单独拿出来。
   transition_in: cut
@@ -528,7 +553,7 @@ shots:
   duration: 14.56
   vo:
   - 这种问法后来做成过一次干净的实验。小鼠下丘脑外侧有一群分泌食欲素的神经元，人们早就知道它们和清醒有关，但不知道放电本身够不够。
-  facts: &id013
+  facts: &id012
   - F10
   style: xray
   style_why: 食欲素实验要看见光纤到达下丘脑外侧，而不是抽象口号。
@@ -548,7 +573,7 @@ shots:
   segment: A
   duration: 1.35
   vo: []
-  facts: *id013
+  facts: *id012
   style: infographic
   style_why: 相关还是因果，用两列问题卡住。
   transition_in: cut
@@ -567,7 +592,7 @@ shots:
   duration: 21.76
   vo:
   - 2007 年，Adamantidis 等人把一种光控通道放进这群细胞，用光纤把光送进去。光一开，动物从慢波睡眠或快速眼动睡眠转入清醒的概率升高。每秒五到三十次的脉冲能缩短这段等待，每秒一次则不能。
-  facts: &id014
+  facts: &id013
   - F10
   style: photoreal
   style_why: 活体实验的「光送进去」需要一个可信的器物，而不是再画一张表。
@@ -587,7 +612,7 @@ shots:
   segment: A
   duration: 1.35
   vo: []
-  facts: *id014
+  facts: *id013
   style: hud
   style_why: 脉冲频率是读数，1 Hz 和 5–30 Hz 必须分开。
   transition_in: cut
@@ -642,7 +667,7 @@ shots:
   duration: 7.84
   vo:
   - 这枚开关不是在神经科学里设计出来的。它先在微生物的膜上，干了别的活。
-  facts: &id015
+  facts: &id014
   - F4
   style: sem
   style_why: 第二幕的来源是微生物膜，显微尺度先把观众带离神经科。
@@ -662,7 +687,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id015
+  facts: *id014
   style: clay
   style_why: 从神经科回到微生物，用白模膜片做转场。
   transition_in: cut
@@ -681,7 +706,7 @@ shots:
   duration: 18.88
   vo:
   - 1971 年，Oesterhelt 和 Stoeckenius 从一种嗜盐古菌里分离出紫膜。深紫色来自视黄醛，视黄醛绑在一种视紫红质样的蛋白上。这个膜片段里，蛋白只有这一种。
-  facts: &id016
+  facts: &id015
   - F4
   style: sem
   style_why: 1971 年的发现是视黄醛绑在唯一的那种蛋白上，仍停在显微尺度。
@@ -701,7 +726,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id016
+  facts: *id015
   style: energy
   style_why: 视黄醛感光是能量事件。
   transition_in: cut
@@ -720,7 +745,7 @@ shots:
   duration: 16.96
   vo:
   - 1973 年，他们给这种蛋白起了后来通用的名字：细菌视紫红质。闪光让它的吸收峰移动，同时把质子放出去、再收回来。它是一台光驱动的质子泵，在膜上定向搬运质子。
-  facts: &id017
+  facts: &id016
   - F4b
   style: energy
   style_why: 1973 年要看见质子被泵出去，这是看不见的物理，不是外观。
@@ -741,7 +766,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id017
+  facts: *id016
   style: xray
   style_why: 质子跨膜要看见膜的两侧，能量图之后补剖视。
   transition_in: cut
@@ -760,7 +785,7 @@ shots:
   duration: 12.64
   vo:
   - 泵和通道不是一回事。泵把离子往指定方向推。通道是一个孔。孔打开以后，离子顺着自己已有的电化学梯度走，电压因此改变。
-  facts: &id018
+  facts: &id017
   - F4b
   - F5
   style: blueprint
@@ -781,7 +806,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id018
+  facts: *id017
   style: clay
   style_why: 两种分子不要在蓝图里停太久，白模把它们拆开拿在手里。
   transition_in: cut
@@ -800,7 +825,7 @@ shots:
   duration: 13.6
   vo:
   - 衣藻是单细胞绿藻，会朝光游。Peter Hegemann 想知道：这么快的转向，感光的是谁。诺奖新闻稿把后来的故事从这里讲起。
-  facts: &id019
+  facts: &id018
   - F1
   style: photoreal
   style_why: 衣藻是真实存在的生物，先给外形，再进分子。
@@ -820,7 +845,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id019
+  facts: *id018
   style: energy
   style_why: 朝光游的原因先收成眼点上的一道电流。
   transition_in: cut
@@ -839,7 +864,7 @@ shots:
   duration: 29.44
   vo:
   - 2002 年，Georg Nagel、Peter Hegemann、Ernst Bamberg 等人把衣藻的一种蛋白放进爪蟾的卵母细胞。细胞自己没有这套感光系统。可是加上视黄醛、再给光，膜上出现了一道电流，而且主要让质子通过。他们把加上视黄醛之后的蛋白称为通道视紫红质一。
-  facts: &id020
+  facts: &id019
   - F5
   style: blueprint
   style_why: 2002 年的证据是异源表达：卵母细胞自己没有这套系统。
@@ -859,7 +884,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id020
+  facts: *id019
   style: sem
   style_why: 卵母细胞实验之后，回到蛋白自己的尺度。
   transition_in: cut
@@ -878,7 +903,7 @@ shots:
   duration: 20.56
   vo:
   - 关键的一句在这里。不必再找一个分开的感受器，去通知一个分开的孔。把这个蛋白放进去，光控的电导就出现了。诺奖科学背景写明，哪怕只保留蛋白里形成通道的那一段，光仍然能打开电导。蛋白本身就够。
-  facts: &id021
+  facts: &id020
   - F5
   style: clay
   style_why: 「蛋白本身就够」要用组装语言：拿掉帮手，孔还在。
@@ -898,7 +923,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id021
+  facts: *id020
   style: xray
   style_why: 只保留通道那一段，剖视看截短之后孔还在。
   transition_in: cut
@@ -917,7 +942,7 @@ shots:
   duration: 19.36
   vo:
   - 2003 年，同一个合作组报告了第二种蛋白，通道视紫红质二。它在卵母细胞里能工作，在哺乳动物的培养细胞里也能工作。蓝光直接打开它。它放行的是阳离子，不限于质子。光一照，细胞去极化。
-  facts: &id022
+  facts: &id021
   - F5
   style: energy
   style_why: ChR2 的物理是阳离子流入和去极化，能量图最直接。
@@ -938,7 +963,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id022
+  facts: *id021
   style: hud
   style_why: 去极化用一条上升的电压读出来。
   transition_in: cut
@@ -957,7 +982,7 @@ shots:
   duration: 13.6
   vo:
   - 持续照着的时候，这道电流会从一开始的高峰落到一个较低的平台。通道会脱敏。所以它不是一盏永远开着的灯，而是一扇会疲劳的门。
-  facts: &id023
+  facts: &id022
   - F5
   style: infographic
   style_why: 脱敏是一条曲线，不是一句形容词。
@@ -977,7 +1002,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id023
+  facts: *id022
   style: energy
   style_why: 平台期的门没有关死，只是开得更小。
   transition_in: cut
@@ -996,7 +1021,7 @@ shots:
   duration: 31.6
   vo:
   - 去极化如果又快又够大，神经元就会打出自己的锋电位。2005 年，Edward Boyden、张锋、Ernst Bamberg、Georg Nagel 和 Karl Deisseroth 把通道视紫红质二送进培养的哺乳动物神经元。短脉冲的蓝光可以在毫秒尺度上可靠地驱动锋电位，也可以控制突触传递。
-  facts: &id024
+  facts: &id023
   - F6
   style: clay
   style_why: 2005 年是培养神经元自己打出锋电位，白模适合看细胞被驱动。
@@ -1016,7 +1041,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id024
+  facts: *id023
   style: hud
   style_why: 毫秒脉冲和锋电位一一对应。
   transition_in: cut
@@ -1035,7 +1060,7 @@ shots:
   duration: 19.6
   vo:
   - 论文的第一作者是 Boyden，通讯作者是 Deisseroth。诺奖新闻稿把 2005 年这次发表记在 Deisseroth 名下。两句话都对：论文署名和后来的授奖名单，不是同一份。
-  facts: &id025
+  facts: &id024
   - F6
   - F1
   style: infographic
@@ -1056,7 +1081,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id025
+  facts: *id024
   style: type
   style_why: 第一作者四个字单独停一拍，避免和得主混。
   transition_in: cut
@@ -1075,7 +1100,7 @@ shots:
   duration: 13.12
   vo:
   - 2026 年的生理学或医学奖得主是 Deisseroth、Hegemann 和 Nagel。Boyden 不在这份名单上。
-  facts: &id026
+  facts: &id025
   - F1
   style: type
   style_why: 得主名单要用排版钉死，不靠旁白一带而过。
@@ -1095,7 +1120,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id026
+  facts: *id025
   style: infographic
   style_why: 三人名单和 Brain Prize 先别混，这里只钉诺奖。
   transition_in: cut
@@ -1115,7 +1140,7 @@ shots:
   vo:
   - 2006 年，Deisseroth、Feng、Majewska、Miesenböck、Ting 和 Schnitzer 在《神经科学杂志》上用 optogenetic 这个词，称呼把光学和遗传靶向合在一起的做法。诺奖科学背景写明，是这一组作者正式提出了
     optogenetics。名字来自这篇论文，不是来自后来的授奖公告。
-  facts: &id027
+  facts: &id026
   - F7
   style: documentary
   style_why: 命名是一篇真实发表的杂志论文，不是后来的奖状。
@@ -1136,7 +1161,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id027
+  facts: *id026
   style: type
   style_why: 词本身要被看见。
   transition_in: cut
@@ -1155,7 +1180,7 @@ shots:
   duration: 20.08
   vo:
   - 培养皿里的光还不是活的脑。2007 年，Aravanis 等人用光纤把蓝光送进啮齿动物的运动皮层，只驱动表达通道视紫红质二的兴奋性神经元。不另外添加视黄醛，光也足够让动物做出行为。
-  facts: &id028
+  facts: &id027
   - F8
   style: xray
   style_why: 活体要看见光纤进到运动皮层，剖视回答位置。
@@ -1175,7 +1200,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id028
+  facts: *id027
   style: photoreal
   style_why: 光纤是器物，剖视之后给一个外表。
   transition_in: cut
@@ -1194,7 +1219,7 @@ shots:
   duration: 14.8
   vo:
   - 新闻稿说，Deisseroth 在那次神经元实验大约两年后，让这枚开关在活体小鼠的脑里工作。光纤论文把这次活体行为放在 2007 年。
-  facts: &id029
+  facts: &id028
   - F1
   - F8
   style: hud
@@ -1215,7 +1240,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id029
+  facts: *id028
   style: documentary
   style_why: 活体小鼠的行为只给剪影级的结果。
   transition_in: cut
@@ -1234,7 +1259,7 @@ shots:
   duration: 15.52
   vo:
   - 只有开还不够。同一年，张锋等人在《自然》报告另一种古菌蛋白，NpHR。它是氯离子泵。黄光照上去，氯离子被泵进细胞，膜电位往相反方向走，锋电位被按住。
-  facts: &id030
+  facts: &id029
   - F8
   style: energy
   style_why: NpHR 是相反方向的离子流，必须用能量图和 ChR2 分开。
@@ -1255,7 +1280,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id030
+  facts: *id029
   style: blueprint
   style_why: 氯离子泵的方向要画成和阳离子通道相反的箭头。
   transition_in: cut
@@ -1274,7 +1299,7 @@ shots:
   duration: 8.8
   vo:
   - 黄光和蓝光的光谱分开。同一套细胞里可以放两种蛋白：蓝光负责打开，黄光负责关掉。
-  facts: &id031
+  facts: &id030
   - F8
   style: infographic
   style_why: 双向控制是一张对照，不是再演一次实验。
@@ -1294,7 +1319,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id031
+  facts: *id030
   style: energy
   style_why: 两种颜色同时存在，但打在不同蛋白上。
   transition_in: cut
@@ -1313,7 +1338,7 @@ shots:
   duration: 14.8
   vo:
   - 后来的工具把敏感的颜色往更长的波长推。2021 年用在人眼上的 ChrimsonR 就是其中一种，不是 2005 年那个蓝光通道的改名。
-  facts: &id032
+  facts: &id031
   - F11
   - F6
   style: sem
@@ -1334,7 +1359,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id032
+  facts: *id031
   style: infographic
   style_why: 波长只做先后，不发明新的峰值。
   transition_in: cut
@@ -1354,7 +1379,7 @@ shots:
   vo:
   - 荣誉也有两份名单。2013 年，隆德贝克基金会的 Brain Prize 授给六个人：Ernst Bamberg、Edward Boyden、Karl Deisseroth、Peter Hegemann、Gero Miesenböck
     和 Georg Nagel。
-  facts: &id033
+  facts: &id032
   - F14
   style: infographic
   style_why: 六人奖和三人奖是计数问题，信息图比群像安全。
@@ -1374,7 +1399,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id033
+  facts: *id032
   style: type
   style_why: 六个名字太长，排版让观众数得清。
   transition_in: cut
@@ -1393,7 +1418,7 @@ shots:
   duration: 15.76
   vo:
   - 六个人里有 Boyden，有 Bamberg，也有 Miesenböck。2026 年的诺奖是三个人。前一份奖不是诺贝尔奖，两份名单也不能并成一份。
-  facts: &id034
+  facts: &id033
   - F14
   - F1
   style: blueprint
@@ -1414,7 +1439,7 @@ shots:
   segment: B
   duration: 1.35
   vo: []
-  facts: *id034
+  facts: *id033
   style: type
   style_why: 差集用一句话收住。
   transition_in: cut
@@ -1469,7 +1494,7 @@ shots:
   duration: 10.48
   vo:
   - 开关一旦能在活体里只拨某一类细胞，就可以拿来问记忆存在哪里。这里只深讲一件事，而且只讲小鼠。
-  facts: &id035
+  facts: &id034
   - F9
   style: energy
   style_why: 第三幕打开记忆问题，先用光点出「选定的细胞」，还不进房间。
@@ -1490,7 +1515,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id035
+  facts: *id034
   style: infographic
   style_why: 这一幕只讲一件事，先把范围写成标题。
   transition_in: cut
@@ -1509,7 +1534,7 @@ shots:
   duration: 16.0
   vo:
   - 2013 年，Ramirez 等人在《科学》报告：小鼠待在环境甲的时候，海马齿状回里有一批神经元会活动。他们给这批当时活跃的细胞装上通道视紫红质二。
-  facts: &id036
+  facts: &id035
   - F9
   style: clay
   style_why: 标记的是环境甲里活跃过的齿状回细胞，白模讲步骤。
@@ -1529,7 +1554,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id036
+  facts: *id035
   style: documentary
   style_why: 环境甲只是一个地点，不是刑讯场面。
   transition_in: cut
@@ -1548,7 +1573,7 @@ shots:
   duration: 15.76
   vo:
   - 之后把小鼠放到环境乙。在乙里做恐惧条件化、给予足底电击的同时，用光重新打开那些在甲里活跃过的细胞。电击发生在乙，光却把甲的那批细胞叫了回来。
-  facts: &id037
+  facts: &id036
   - F9
   style: photoreal
   style_why: 环境乙里的行为需要一个可辨认的地点，但动物保持风格化。
@@ -1568,7 +1593,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id037
+  facts: *id036
   style: energy
   style_why: 被重新打开的是甲的那批细胞，用光标出身份。
   transition_in: cut
@@ -1587,7 +1612,7 @@ shots:
   duration: 13.12
   vo:
   - 再把小鼠放回环境甲。甲里从来没有电击。实验组却在甲里冻结。作者的结论是：他们在小鼠海马里制造出了一段虚假的恐惧记忆。
-  facts: &id038
+  facts: &id037
   - F9
   style: documentary
   style_why: 回到环境甲却冻结，这是行为结果，用纪实笼箱而不是分子。
@@ -1608,7 +1633,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id038
+  facts: *id037
   style: infographic
   style_why: 冻结对上「甲里没有电击」。
   transition_in: cut
@@ -1627,7 +1652,7 @@ shots:
   duration: 13.12
   vo:
   - 写进去的不是一句话，也不是一段人生。写进去的是一批选定细胞的活动。光再打开这批细胞时，动物把电击和环境甲绑在了一起。
-  facts: &id039
+  facts: &id038
   - F9
   style: type
   style_why: 必须把「写进去的是什么」说成句子，防止观众理解成改写人生。
@@ -1647,7 +1672,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id039
+  facts: *id038
   style: clay
   style_why: 一批细胞被光再次打开，白模把「绑定」演成动作。
   transition_in: cut
@@ -1666,7 +1691,7 @@ shots:
   duration: 12.16
   vo:
   - 这是实验动物里的因果演示。它说明选定细胞的活动足以支撑一种恐惧行为。它没有说明，同样的操作已经用在人身上。
-  facts: &id040
+  facts: &id039
   - F9
   style: hud
   style_why: 因果演示的边界用读数标出来：小鼠有，人没有。
@@ -1686,7 +1711,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id040
+  facts: *id039
   style: type
   style_why: 边界句单独占一屏。
   transition_in: cut
@@ -1705,7 +1730,7 @@ shots:
   duration: 17.2
   vo:
   - 眼睛走的是另一条路。视网膜色素变性里，感光细胞会逐渐死去，后面的视网膜神经节细胞还可以留着。若能让这些幸存的细胞自己感光，后面的视觉通路也许还能被点着。
-  facts: &id041
+  facts: &id040
   - F11
   style: xray
   style_why: 视觉路线要看见视网膜里谁死了、谁还在。
@@ -1725,7 +1750,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id041
+  facts: *id040
   style: sem
   style_why: 感光层和神经节层的尺度用显微风格再确认一次。
   transition_in: cut
@@ -1744,7 +1769,7 @@ shots:
   duration: 25.12
   vo:
   - 2021 年，Sahel 等人在《自然·医学》报告一名已经失明的患者。他们向一只眼睛的玻璃体注射腺相关病毒，病毒携带 ChrimsonR，主要转导视网膜神经节细胞。护目镜侦测外界亮度的变化，把光脉冲打到视网膜上，去打开这些新装的通道。
-  facts: &id042
+  facts: &id041
   - F11
   style: clay
   style_why: 病毒、护目镜和神经节细胞是一套组装，白模先讲零件。
@@ -1764,7 +1789,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id042
+  facts: *id041
   style: photoreal
   style_why: 护目镜是观众认得的器物。
   transition_in: cut
@@ -1783,7 +1808,7 @@ shots:
   duration: 17.68
   vo:
   - 这名患者只用接受治疗的那只眼，而且必须戴着护目镜，才能知觉物体、指出位置、数出个数，并伸手触到。注射前无论戴不戴护目镜，注射后只要摘掉护目镜，他都看不见这些物体。
-  facts: &id043
+  facts: &id042
   - F11
   style: documentary
   style_why: 患者能做什么、不能做什么，用纪实任务桌，不把视力画满。
@@ -1804,7 +1829,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id043
+  facts: *id042
   style: xray
   style_why: 物体看不见的条件要回到眼睛：没有护目镜就没有脉冲。
   transition_in: cut
@@ -1823,7 +1848,7 @@ shots:
   duration: 19.6
   vo:
   - 论文称之为部分功能恢复，也是神经退行性疾病里光遗传治疗后第一次这样的报告。看见的是护目镜翻译出来的高对比轮廓，不是不依赖设备的日常视觉。诺奖新闻稿的措辞停在尝试恢复视力。
-  facts: &id044
+  facts: &id043
   - F11
   - F1
   style: energy
@@ -1845,7 +1870,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id044
+  facts: *id043
   style: type
   style_why: 部分恢复四个字需要停，避免听成恢复如初。
   transition_in: cut
@@ -1864,7 +1889,7 @@ shots:
   duration: 31.12
   vo:
   - 2026 年 9 月 9 日，Nanoscope 公告：美国食品药品监督管理局已经受理并立案 MOGENRY 的生物制品许可申请。研究代号是 MCO-010，通用名 sonpiretigene isteparvovec，针对伴有严重视力丧失的视网膜色素变性。公告写的是如果获批，所以当时尚未获批。
-  facts: &id045
+  facts: &id044
   - F12
   style: infographic
   style_why: 受理和未获批必须同时出现，信息图防止只记住产品名。
@@ -1884,7 +1909,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id045
+  facts: *id044
   style: type
   style_why: 如果获批四个字单独出现。
   transition_in: cut
@@ -1903,7 +1928,7 @@ shots:
   duration: 18.64
   vo:
   - 同一篇公告写，RESTORE 试验在第五十二周和第七十六周达到了视力的主要终点和关键次要终点，并且没有治疗相关的严重不良事件。这是申请方的公告，不是已经生效的许可。
-  facts: &id046
+  facts: &id045
   - F12
   style: hud
   style_why: 公司终点是公告里的读数，HUD 适合，同时标明这不是许可。
@@ -1923,7 +1948,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id046
+  facts: *id045
   style: infographic
   style_why: 周次是公告数字，信息图比 HUD 更适合和许可状态并列。
   transition_in: cut
@@ -1942,7 +1967,7 @@ shots:
   duration: 15.76
   vo:
   - 2026 年 10 月 8 日，GenSight 与巴黎十五-二十国家医院公告：GS030 的一期二期试验 PIONEER，发表在当天的《新英格兰医学杂志》。
-  facts: &id047
+  facts: &id046
   - F13
   style: documentary
   style_why: GS030 的消息是一篇当天的医院与公司公告，用纪实纸页。
@@ -1963,7 +1988,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id047
+  facts: *id046
   style: infographic
   style_why: PIONEER 的身份是一期二期，先分类。
   transition_in: cut
@@ -1982,7 +2007,7 @@ shots:
   duration: 12.64
   vo:
   - 这项研究以安全性为主要目的，不是为了确证疗效而设计。公告引用 Sahel 的话：结果仍是探索性的，还需要进一步确认。
-  facts: &id048
+  facts: &id047
   - F13
   style: type
   style_why: 「不是为了确证疗效」要用大字停住，避免后面的数字被听成治愈。
@@ -2002,7 +2027,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id048
+  facts: *id047
   style: infographic
   style_why: 探索性不是装饰词，放进结果的标题。
   transition_in: cut
@@ -2021,7 +2046,7 @@ shots:
   duration: 27.6
   vo:
   - 数字要连同分母一起说，而且下面的数字出自公司公告。十名参与者里有六人，在全视野光敏感测试上出现了该公司所称有临床意义的改善。公告还写，完成行为测试的八人里有四人，戴着光刺激护目镜时，在察觉、定位、触碰物体或判断条纹方向的部分任务上有正向变化。
-  facts: &id049
+  facts: &id048
   - F13
   style: infographic
   style_why: 6/10 和 4/8 必须带分母，这是信息图的本职。
@@ -2045,7 +2070,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id049
+  facts: *id048
   style: hud
   style_why: 分数用读数，避免口播滑过去。
   transition_in: cut
@@ -2064,7 +2089,7 @@ shots:
   duration: 6.4
   vo:
   - 公告脚注写明：GS030 在任何司法辖区都没有上市许可。
-  facts: &id050
+  facts: &id049
   - F13
   style: blueprint
   style_why: 没有上市许可是设计边界，用图章而不是庆祝。
@@ -2084,7 +2109,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id050
+  facts: *id049
   style: type
   style_why: 无上市许可需要一句静止的话。
   transition_in: cut
@@ -2103,7 +2128,7 @@ shots:
   duration: 13.36
   vo:
   - 光学人工耳蜗，按 2023 年的综述，仍是临床前。
-  facts: &id051
+  facts: &id050
   - F15
   style: xray
   style_why: 光学耳蜗只留一句，剖视耳蜗后立刻离开，不展开试验。
@@ -2123,7 +2148,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id051
+  facts: *id050
   style: infographic
   style_why: 一句耳蜗之后立刻回到边界，不给第二句。
   transition_in: cut
@@ -2142,7 +2167,7 @@ shots:
   duration: 9.76
   vo:
   - 边界停在已发表的事实上。通道视紫红质二在持续光照下会脱敏，不能当成一扇永不疲劳的门。
-  facts: &id052
+  facts: &id051
   - F5
   style: energy
   style_why: 脱敏回到通道本身的物理极限。
@@ -2163,7 +2188,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id052
+  facts: *id051
   style: infographic
   style_why: 脱敏写成限制，而不是再讲一遍发现史。
   transition_in: cut
@@ -2182,7 +2207,7 @@ shots:
   duration: 10.24
   vo:
   - 光得送到细胞旁边。脑里 2007 年的做法是光纤。那名患者的眼睛里，没有护目镜，就没有那些物体。
-  facts: &id053
+  facts: &id052
   - F8
   - F11
   style: photoreal
@@ -2203,7 +2228,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id053
+  facts: *id052
   style: blueprint
   style_why: 光纤和护目镜是两种送光设计。
   transition_in: cut
@@ -2222,7 +2247,7 @@ shots:
   duration: 14.08
   vo:
   - 人体视觉上已经发表的，是部分功能，而且绑在装置上。一条申请尚未获批，另一条没有上市许可，并且自己写明那项研究不是为了确证疗效。
-  facts: &id054
+  facts: &id053
   - F11
   - F12
   - F13
@@ -2244,7 +2269,7 @@ shots:
   segment: C
   duration: 1.35
   vo: []
-  facts: *id054
+  facts: *id053
   style: type
   style_why: 三行边界再停一拍，不加新数据。
   transition_in: cut
@@ -2299,7 +2324,7 @@ shots:
   duration: 9.04
   vo:
   - 这枚开关做得到的，是在实验里打开或关掉选定的细胞，把同时发生推进成是它造成的。
-  facts: &id055
+  facts: &id054
   - F2
   - F8
   style: energy
@@ -2321,7 +2346,7 @@ shots:
   segment: D
   duration: 1.35
   vo: []
-  facts: *id055
+  facts: *id054
   style: clay
   style_why: 开和关是两个动作，白模演给尾声看。
   transition_in: cut
@@ -2340,7 +2365,7 @@ shots:
   duration: 14.08
   vo:
   - 做不到的，是把小鼠海马里的一段恐惧，说成已经改写了某一个人的人生；也做不到把一次离不开装置的部分视觉报告，说成失明已经结束。
-  facts: &id056
+  facts: &id055
   - F9
   - F11
   style: type
@@ -2361,7 +2386,7 @@ shots:
   segment: D
   duration: 1.35
   vo: []
-  facts: *id056
+  facts: *id055
   style: infographic
   style_why: 做不到的范围用两格，不再叙述实验。
   transition_in: cut
@@ -2380,7 +2405,7 @@ shots:
   duration: 6.4
   vo:
   - 回到开场。有人曾经觉得，用光去拨动某一类神经元，相当牵强。
-  facts: &id057
+  facts: &id056
   - F3
   style: documentary
   style_why: 回到开场那页纸，纪实收束，不预告别的题目。
@@ -2401,7 +2426,7 @@ shots:
   segment: D
   duration: 1.35
   vo: []
-  facts: *id057
+  facts: *id056
   style: type
   style_why: 牵强两个字回到开场的语气。
   transition_in: cut
@@ -2421,7 +2446,7 @@ shots:
   hold: 1.3
   vo:
   - 牵强的是当年的工程。今天它是一套实验方法，也是几条仍在审查中的临床尝试。这一期在这里结束。
-  facts: &id058
+  facts: &id057
   - F1
   - F3
   style: type
@@ -2442,7 +2467,7 @@ shots:
   segment: D
   duration: 1.35
   vo: []
-  facts: *id058
+  facts: *id057
   style: energy
   style_why: 结束在光熄灭，不接下一题。
   transition_in: cut
