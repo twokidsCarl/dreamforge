@@ -28,8 +28,9 @@ def build(vessel=False, rays=False):
     cam("CamB1_03", [(1, (0, -5.5, 0), (16.0, 3.5, 5.0), 30, 4.0),
                      (120, (0, -4.0, 0), (12.5, 2.4, 3.6), 30, 4.0)])
     # B1_04 — nozzle macro, very shallow focus
-    cam("CamB1_04", [(1, (0, -13.2, 0.05), (2.5, -12.4, 1.25), 50, 0.8),
-                     (187, (0, -12.8, 0.05), (2.0, -11.6, 0.9), 50, 0.8)])
+    ny = B.NOZZLE_Y
+    cam("CamB1_04", [(1, (0, ny + 0.8, 0.05), (2.5, ny + 1.6, 1.25), 50, 0.8),
+                     (187, (0, ny + 1.2, 0.05), (2.0, ny + 2.4, 0.9), 50, 0.8)])
     # B1_07 — long lens down the stream axis: compressed "string of pearls"
     cam("CamB1_07", [(1, (0, -8.0, 0), (0.7, 13.0, 0.5), 200, 5.6),
                      (94, (0, -7.0, 0), (0.6, 12.5, 0.45), 200, 5.6)])
@@ -44,7 +45,7 @@ def build(vessel=False, rays=False):
     cam("CamB1_10", B._follow_keys(hero, 65, B.T_ARRIVE, (1.75, 1.15, 0.32), (1.8, 1.0, 0.3), 70, 1.0)
         + [(125, (0.1, 0, 0), (2.7, 3.1, 0.7), 50, 1.8), (189, (0.25, 0, 0), (3.5, 4.7, 1.0), 45, 2.4)])
     # B1_11 — edge-on silhouette of the sheet (SEM freeze)
-    cam("CamB1_11", [(150, (0.25, 0, 0), (2.3, 8.6, 0.4), 55, 11.0)])
+    cam("CamB1_11", [(150, (0.25, 0, 0), (0.25, 8.6, 0.0), 55, 11.0)])          # strictly side-on: the sheet is a line
     # B1_12 — slow arc while the sheet drifts to focus
     cam("CamB1_12", [(140, (0.25, 0, 0), (3.8, 5.0, 0.6), 50, 2.4),
                      (187, (0.3, 0, 0), (3.2, 5.5, 1.0), 50, 2.4)])

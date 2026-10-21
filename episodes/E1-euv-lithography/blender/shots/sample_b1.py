@@ -23,6 +23,7 @@ T_ARRIVE = 100
 T_PRE = 100
 T_MAIN = 192
 PLASMA_X = 0.35
+NOZZLE_Y = -60.0                     # off-screen: really ~0.3 m (2400 units) from the plasma
 
 CUTS = [
     ("CamEstablish", 1, 64),
@@ -60,7 +61,7 @@ def _lights(tin_objs):
     _area("Key", (2.0, 1.5, 7.0), (0.25, 0.15, 0), 5.0, 320, (0.62, 0.76, 1.0))
     _area("Fill", (6.0, 6.0, 2.0), (1.3, 0, 2.35), 8.0, 260, (0.75, 0.82, 1.0))
     _area("Rim", (-5.0, -4.0, 2.5), (1.2, 0, -2.3), 4.0, 520, (0.45, 0.85, 1.0))
-    _area("NozzleKick", (1.8, -14.5, 1.6), (0.9, 0, 2.6), 1.2, 250, (0.5, 0.8, 1.0))
+    _area("NozzleKick", (1.8, NOZZLE_Y - 0.5, 1.6), (0.9, 0, 2.6), 1.2, 250, (0.5, 0.8, 1.0))
     # grazing washes on the chamber wall so it reads as a space, not a void
     _area("WallWashA", (12, 18, 14), (0.6, 0, 2.6), 12, 9000, (0.35, 0.55, 1.0))
     _area("WallWashB", (-6, -20, -6), (1.9, 0, -0.4), 10, 5000, (0.3, 0.6, 0.9))
@@ -149,8 +150,10 @@ def build():
     V.chamber()
 
     # --- droplet generator and stream ---------------------------------------------------
-    nozzle_tip, _ = S.nozzle(-14.0)
-    spacing = 3.0
+    # the nozzle sits ~0.3 m from the plasma (research/visual/B1_sources.md): far outside any frame that shows
+    # the plasma site, so it is placed well off-screen; droplets fly 1.4 mm apart (Cymer/ASML: ~1.5 mm measured)
+    nozzle_tip, _ = S.nozzle(NOZZLE_Y)
+    spacing = 11.2                                   # 1.4 mm at 125 um per unit
     hero = S.droplet("HeroDroplet")
     stream = S.droplet_stream(count=5, spacing=spacing)
     for obj, off in ((hero, 0.0), (stream, -spacing)):
@@ -166,11 +169,11 @@ def build():
                 fc.keyframe_points[0].interpolation = "LINEAR"
 
     # --- pre-pulse: a travelling orange pulse flattens the droplet into a sheet ----------
-    pre, pre_mat, pre_len = S.laser_beam("PrePulse", 0.12, (1.0, 0.32, 0.06))
+    pre, pre_mat, pre_len = S.laser_beam("PrePulse", 0.4, (1.0, 0.32, 0.06))          # ~100 um spot (PUR20 s.23)
     M.set_beam(pre_mat, T_PRE - 5, front=-pre_len / 2, strength=0)
-    M.set_beam(pre_mat, T_PRE - 4, strength=220)
+    M.set_beam(pre_mat, T_PRE - 4, strength=12)        # strengths scaled down with the larger, real spot areas
     M.set_beam(pre_mat, T_PRE, front=pre_len / 2 + 1.5)
-    M.set_beam(pre_mat, T_PRE + 3, strength=120)
+    M.set_beam(pre_mat, T_PRE + 3, strength=7)
     M.set_beam(pre_mat, T_PRE + 9, strength=0)
 
     swap = T_PRE + 6
@@ -185,18 +188,18 @@ def build():
     for f, k, x in ((swap, s0, 0.0), (T_PRE + 30, 0.8, 0.15), (T_MAIN - 4, 1.0, PLASMA_X)):
         _key(sheet, f, scale=(1, k, k), location=(x, 0, 0))
     ripple = sheet.modifiers["Ripple"]
-    for f, st in ((swap, 0.0), (T_PRE + 40, 0.035), (T_MAIN, 0.05)):
+    for f, st in ((swap, 0.0), (T_PRE + 40, 0.003), (T_MAIN, 0.005)):    # a liquid film tens of nm thick: barely rippled
         ripple.strength = st
         ripple.keyframe_insert("strength", frame=f)
     _key(sheet, T_MAIN, scale=(1, 1, 1))
     _key(sheet, T_MAIN + 2, scale=(0, 0, 0))
 
     # --- main pulse -> plasma, debris -----------------------------------------------------
-    main, main_mat, main_len = S.laser_beam("MainPulse", 0.7, (1.0, 0.4, 0.12))
+    main, main_mat, main_len = S.laser_beam("MainPulse", 1.6, (1.0, 0.4, 0.12))       # ~400 um spot, covers the sheet
     M.set_beam(main_mat, T_MAIN - 4, front=-main_len / 2, strength=0)
-    M.set_beam(main_mat, T_MAIN - 3, strength=70)
+    M.set_beam(main_mat, T_MAIN - 3, strength=10)
     M.set_beam(main_mat, T_MAIN, front=main_len / 2 + 1.5)
-    M.set_beam(main_mat, T_MAIN + 2, strength=45)
+    M.set_beam(main_mat, T_MAIN + 2, strength=6)
     M.set_beam(main_mat, T_MAIN + 8, strength=0)
 
     shell, vol, core, core_mat, light = S.plasma()
@@ -206,6 +209,10 @@ def build():
         _key(shell, f, scale=(k, k, k))
     _key(core, T_MAIN - 1, scale=(0, 0, 0))
     _key(core, T_MAIN, scale=(1.6, 1.6, 1.6))
+    for fc in C.fcurves(core.animation_data.action):        # appears at the main pulse, no dark dot growing before it
+        for kp in fc.keyframe_points:
+            if kp.co[0] < T_MAIN:
+                kp.interpolation = "CONSTANT"
     _key(core, T_MAIN + 30, scale=(1, 1, 1))
     for f, e in ((T_MAIN, 0), (T_MAIN + 2, 22), (T_MAIN + 20, 4.5), (FRAME_END, 1.5)):
         M.set_volume_strength(vol, f, emission_strength=e)

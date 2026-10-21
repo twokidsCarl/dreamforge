@@ -62,7 +62,7 @@ def pancake(name="Pancake", rings=48, segments=128):
     prof = []
     for i in range(rings + 1):
         r = PANCAKE_R * i / rings
-        t = 0.025 + 0.06 * (i / rings) ** 6          # half-thickness: thin centre, beaded rim
+        t = 0.0004 + 0.012 * (i / rings) ** 10      # half-thickness: ~50 nm sheet, ~3 um beaded rim (ARCNL)
         prof.append((r, t))
     prof.append((PANCAKE_R * 1.02, 0.0))
     top, bot = [], []
@@ -93,7 +93,7 @@ def pancake(name="Pancake", rings=48, segments=128):
     disp.texture_coords = "LOCAL"
     disp.strength = 0.08
     disp.mid_level = 0.5
-    obj.data.materials.append(M.tin("TinSheet", roughness=0.14))
+    obj.data.materials.append(M.tin("TinSheet", roughness=0.22))
     return obj
 
 
@@ -177,7 +177,8 @@ def collector(rings=64, segments=128, thickness=0.18):
     sol = obj.modifiers.new("Solidify", "SOLIDIFY")
     sol.thickness = thickness
     sol.offset = 1.0
-    obj.data.materials.append(M.multilayer_mirror())
+    # ASML's photographs show the collector as a plain mirror: no rainbow bands (the multilayer is invisible)
+    obj.data.materials.append(M.principled("CollectorMirror", (0.86, 0.85, 0.82), metallic=1.0, roughness=0.03))
     obj.data.materials.append(M.dark_anodized("CollectorBack"))
     sol.material_offset = 1
     sol.material_offset_rim = 1
