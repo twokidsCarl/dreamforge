@@ -80,3 +80,7 @@ python3 shared/tools/mograph.py --shot <2D 镜头 id ...> --quality sample
 ### 4. 之后
 
 按 `STATUS.md` 第 4.2–4.5 节继续：剪全片 v2 样片并自审，复核 B4–B9、C、D，最后出 1080p 终版。
+
+## 2026-10-23 本地改动（R2 未覆盖）
+
+- 删掉片尾句「下一期，我们会公开这部片子是怎么用 AI 和 Blender 做出来的」（Carl 决定）后，本地 `audio/vo/Andre/vo_track.wav` 从 1191.31 s 截到 **1181.71 s**（D_09 结束处）。R2 上仍是 1191.31 s 的原版。本地的 `timing.json` 和 `sentences.json` 仍含这一句，但 `storyboard.timed.yaml` 和 `subs/zh.srt`（297 条）已不再引用它。**不要重跑 tts.py**；从 R2 重新拉配音后要按同样方式重截。新轨待 P4 定稿后再上传 R2。
