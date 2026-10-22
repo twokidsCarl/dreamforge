@@ -37,7 +37,7 @@ def _wrapped(name, fn):
 # SF04 (R11) : R11 text; breathing; early cyan light sweep over the portrait
 # ================================================================================================
 _s = R10.src_of('sf_r10.py', "@scene('SF04_crick_quote', 5.0)")
-for o, n in (
+SF04_SUBS = (
     ("P0 = img('sf04g_crick')", "P0 = None"),
     ("Pc = cam(P0, pw, ph, zoom=1.02+0.08*u, cx=0.5+0.015*u, cy=0.47)",
      "Pc = port_view('sf04h_crick', pw, ph, 1.02+0.06*u, 0.5+0.012*u, 0.46, 1.0+0.045*ease(u)+0.006*math.sin(2*math.pi*t/3.1))\n"
@@ -53,7 +53,8 @@ for o, n in (
      "    rgb = over(rgb, fg_bokeh(W, H, t, ((-40, 700, 140), (560, 760, 90))), shadow=0)\n"),
     ("    rgb = over(rgb, L2.get(), shadow=0.4)\n    return grade(rgb, seed=int(t*24))",
      "    rgb = over(rgb, L2.get(), shadow=0.4)\n    rgb = _cam0(np.clip(rgb, 0, 1), W, H, zoom=math.exp(0.020*t), cx=0.5, cy=0.5)\n    return grade(rgb, seed=int(t*24))"),
-):
+)
+for o, n in SF04_SUBS:
     _s = R10.sub(_s, o, n)
 exec(compile(_s, 'sf_r15_sf04', 'exec'), R12.__dict__)
 S['SF04_crick_quote'] = (_wrapped('SF04_crick_quote', R12.S['SF04_crick_quote'][0]), 5.0)
