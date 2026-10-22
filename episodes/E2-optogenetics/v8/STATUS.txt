@@ -36,4 +36,4 @@ E2《光遗传学》v8 · 第 15 轮 · 状态（2026-10-23）
   建议 Carl 拍板：(a) 是否接受「单张全过、均分约 91」作为样张阶段结果；或 (b) 授权一次人物/小鼠画法的定向重做（先做小样、用校准锚复打，涨了再铺开）。
 
 花费：image2 本轮 $0（累计 ≈ $8.63）；Wan 本轮 $0（累计 ≈ $8.20）；GPU / Tripo $0
-PR：见下方 PR 行（分支 e2/v8-visual）
+PR：#38/#47/#48 已合并；第 15 轮在 PR #49（https://github.com/twokidsCarl/eigenlens/pull/49，分支 e2/v8-visual，已开 auto-merge）
