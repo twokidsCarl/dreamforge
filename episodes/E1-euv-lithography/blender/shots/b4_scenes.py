@@ -129,14 +129,18 @@ def mirror(sc, rnd, scan=False):
     styles.tag(cap, "structure")
     steel = M.polished_steel("Stand", 0.3)
     dark = M.dark_anodized("Fixture")
-    # a handling fixture: a ring cradle on a low pedestal, mirror face ~1.25 m above the floor (floor z = -2.2)
-    bpy.ops.mesh.primitive_torus_add(major_radius=0.52, minor_radius=0.035, location=(0, 0.06, -0.95),
-                                     rotation=(math.radians(55), 0, 0))
-    cr = bpy.context.object
-    cr.data.materials.append(steel)
-    styles.tag(cr, "structure")
-    for x in (-0.38, 0.38):
-        _cyl(f"Leg{x}", 0.04, 0.9, (x, 0.25, -1.65), steel)
+    # a handling fixture: three pads under the substrate on a tilted plate and a column, face ~1.25 m above the floor
+    from mathutils import Euler
+    tilt = Euler((math.radians(-35), 0, 0))
+    plate = _cyl("FixturePlate", 0.4, 0.06, (0, 0, -0.95), dark)
+    plate.rotation_euler = tilt
+    plate.location = Vector((0, 0, -0.95)) + tilt.to_matrix() @ Vector((0, 0, -0.16))
+    for k in range(3):
+        a_ = 2 * math.pi * k / 3 + math.pi / 2
+        pad = _cyl(f"Pad{k}", 0.05, 0.05, (0, 0, 0), steel)
+        pad.rotation_euler = tilt
+        pad.location = Vector((0, 0, -0.95)) + tilt.to_matrix() @ Vector((0.3 * math.cos(a_), 0.3 * math.sin(a_), -0.11))
+    _cyl("Column", 0.07, 1.05, (0, 0.12, -1.62), steel)
     bpy.ops.mesh.primitive_cube_add(location=(0, 0.2, -2.13))
     base = bpy.context.object
     base.scale = (0.7, 0.55, 0.07)
@@ -155,7 +159,7 @@ def mirror(sc, rnd, scan=False):
         styles.tag(band, "emitter")
         _key(band, 1, location=(-0.7, 0, -0.9))
         _key(band, 100, location=(0.7, 0, -0.9))
-    B._camera("CamB4_04", [(1, (0, 0, -1.0), (1.3, -1.6, -0.35), 40, 4.0), (96, (0, 0, -1.0), (0.9, -1.8, -0.5), 40, 4.0)])
+    B._camera("CamB4_04", [(1, (0, 0, -1.2), (2.4, -2.9, -0.2), 40, 5.6), (96, (0, 0, -1.15), (1.7, -3.2, -0.35), 40, 5.6)])
     B._camera("CamB4_05", [(1, (0, 0, -0.95), (0.15, -1.4, 0.15), 45, 5.6), (103, (0, 0, -0.95), (-0.15, -1.45, 0.12), 45, 5.6)])
 
 
@@ -344,12 +348,31 @@ def space(sc, rnd):
     C.set_world(top=(0, 0, 0), horizon=(0, 0, 0), bottom=(0, 0, 0))   # no atmosphere: a black sky (audit_B4 B4_11)
     _earth((0, 0, 0), 6.0)
     moon = M.principled("MoonMat", (0.4, 0.39, 0.38), roughness=0.95)
+    mn = moon.node_tree                                               # maria and craters, so it reads as the Moon
+    mtc = mn.nodes.new("ShaderNodeTexCoord")
+    maria = mn.nodes.new("ShaderNodeTexNoise")
+    maria.inputs["Scale"].default_value = 1.6
+    maria.inputs["Detail"].default_value = 3.0
+    mr = mn.nodes.new("ShaderNodeValToRGB")
+    mr.color_ramp.elements[0].position, mr.color_ramp.elements[0].color = 0.45, (0.16, 0.16, 0.16, 1)
+    mr.color_ramp.elements[1].position, mr.color_ramp.elements[1].color = 0.6, (0.46, 0.45, 0.44, 1)
+    mn.links.new(mtc.outputs["Object"], maria.inputs["Vector"])
+    mn.links.new(maria.outputs["Fac"], mr.inputs["Fac"])
+    mn.links.new(mr.outputs["Color"], mn.nodes["Principled BSDF"].inputs["Base Color"])
+    crat = mn.nodes.new("ShaderNodeTexVoronoi")
+    crat.inputs["Scale"].default_value = 9.0
+    mn.links.new(mtc.outputs["Object"], crat.inputs["Vector"])
+    cb = mn.nodes.new("ShaderNodeBump")
+    cb.inputs["Strength"].default_value = 0.5
+    mn.links.new(crat.outputs["Distance"], cb.inputs["Height"])
+    mn.links.new(cb.outputs["Normal"], mn.nodes["Principled BSDF"].inputs["Normal"])
     bpy.ops.mesh.primitive_uv_sphere_add(radius=1.64, segments=64, ring_count=32, location=(360, 0, 0))
     mo = bpy.context.object
     mo.data.materials.append(moon)
     styles.tag(mo, "structure")
     beam, bm = _beam("Laser", (6.05, 0, 0), (358.4, 0, 0), 0.015, (0.95, 0.95, 1.0), 20.0)
     beam.data.materials[0] = bm
+    beam.visible_shadow = False                        # it cast a dark streak on the Moon
     _moon_terrain(rnd)
     _earth((-60, 220, -470), 2.0)                      # small Earth in the lunar sky
     sun = bpy.data.lights.new("SpaceSun", "SUN")
