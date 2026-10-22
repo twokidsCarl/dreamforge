@@ -1,0 +1,8 @@
+Edit the FIRST image (a portrait) into a clean editorial science illustration in the same visual family as the SECOND reference image: bold, clean dark indigo ink outlines around every shape, smooth flat colour areas, only 2-3 tone soft cel shading, saturated colours, gentle glow, deep indigo/teal background.
+Keep exactly: the same person and likeness (face shape, age, hairline, hairstyle, glasses if any, expression, head angle), the same framing, size and position of the head and shoulders, and the same background (membrane and molecular beads behind the person, which may stay bead-textured).
+Change only how the person is drawn:
+- a confident dark indigo ink contour line (clearly visible, 3-5 px) around the head, hair, ears, jaw, nose, eyes, eyebrows, lips, collar and shoulders;
+- skin as smooth flat warm tones in three steps (light, mid, shadow) with a few simple ink lines for the main wrinkles only; NO photographic skin texture, NO pores, NO bead/mosaic texture on the face or clothes, NO photographic lighting;
+- hair drawn as simple rounded clumps with outlines; clothes as flat shapes with simple folds;
+- a soft cyan rim light along one edge of the head and shoulders.
+It must read as a hand-drawn illustration (like a high-end graphic-novel or editorial portrait), not as a photo or painting. No text, no frame, no border.
