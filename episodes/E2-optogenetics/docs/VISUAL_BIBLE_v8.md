@@ -156,6 +156,8 @@ v7 的根本问题是十种画风轮换（documentary / hud / type / infographic
 
 ## 6. 新评分量表（以参考片为 100 分锚点）
 
+> **自 2026-10-22 起，审美打分以 `episodes/E2-optogenetics/v8/review/SCALE_v2.md` 为准（C 权重 25、硬封顶、refs 实锚）。** 下文 §6.1–6.4 为历史 v1 原文，保留备查；校准记录见同目录 `CALIBRATION_v1.md`。
+
 ### 6.1 维度与权重
 
 | 维度 | 权重 | 100 分锚点（参考帧） |
