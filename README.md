@@ -21,12 +21,12 @@
 | 期 | 文件夹 | 状态 |
 |---|---|---|
 | E1《一台光刻机里发生了什么》（约 20 分钟） | `episodes/E1-euv-lithography/` | 制作中 |
-| E2《光遗传学》（目标 12–15 分钟） | `episodes/E2-optogenetics/` | 检查点①②已通过；P7 建模完成（126 镜登记，67 个 3D 镜头 build 通过）；下一步 P8 第一批试渲，等 Carl 开 GPU，见 [FIRST_BATCH.md](episodes/E2-optogenetics/FIRST_BATCH.md) |
+| E2《光遗传学》（目标 12–15 分钟） | `episodes/E2-optogenetics/` | 检查点①②已通过；P7 建模完成（126 镜登记，67 个 3D 镜头 build 通过）；下一步 P8 第一批试渲（agent 用 API 开 GPU），见 [FIRST_BATCH.md](episodes/E2-optogenetics/FIRST_BATCH.md) |
 
 - 所有期共用的工具与 Blender 模块：`shared/`
 - 制作流程与目录约定：[docs/WORKFLOW.md](docs/WORKFLOW.md)
 - 拉取请求审查与自动合并：[docs/REVIEW.md](docs/REVIEW.md)
-- GPU 渲染开卡（Carl 自开 RunPod）：[docs/RUNPOD.md](docs/RUNPOD.md)
+- GPU 渲染（agent 用 API 起停 RunPod，Network Volume 缓存 Blender + 仓库）：[docs/RUNPOD.md](docs/RUNPOD.md)
 - 当前期由 `shared/tools/paths.py` 决定，默认 E1；切换：`DREAMFORGE_EPISODE=E2-optogenetics`
 
 常用命令（在仓库根目录运行）：
