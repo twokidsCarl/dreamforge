@@ -38,4 +38,4 @@ E2《光遗传学》v8 · 第 17 轮 · 状态（2026-10-23）
   四项合计约 +0.5～0.75，原始均分可到约 91.6～91.8；要稳过 92 还需审稿人方差落在有利一侧，或 SF01/SF11 再各 +1。
 
 花费：image2 本轮 ≈ $0.31（累计 ≈ $9.21）；Wan 本轮 $0（累计 ≈ $10.15）；GPU / Tripo $0
-PR：见 PR 行
+PR：#50 已合并；第 17 轮在 PR #51（https://github.com/twokidsCarl/eigenlens/pull/51，分支 e2/v8-visual，已开 auto-merge）
