@@ -61,7 +61,10 @@ PLASMA = tuple(i + 2.2 * a for i, a in zip(IF, SRC_AXIS))
 COLLECTOR = tuple(p + 0.55 * a for p, a in zip(PLASMA, SRC_AXIS))             # behind the plasma, facing the IF
 ILLUM = [FOLD, FACET1, FACET2]
 M6_HIT = (M6_R * 0.62, 0.0, PO_MIRRORS[5][2])        # where the drawn ray meets M6 after M5 (off-axis, outside the hole)
-PATH = ([COLLECTOR, IF] + ILLUM + [RETICLE] + PO_MIRRORS[:4] + [PO_FOCUS, PO_MIRRORS[4], M6_HIT, WAFER])
+# M5 is holed too: the ray must reflect off its annulus, not at its centre (the hole). From PO_FOCUS it passes M6's hole
+# (x ~0.16 < 0.193), reflects on M5 at x = 0.20 (> hole 0.079), goes up to M6_HIT and down through M5's hole (x ~0.06)
+M5_HIT = (0.20, 0.0, PO_MIRRORS[4][2])
+PATH = ([COLLECTOR, IF] + ILLUM + [RETICLE] + PO_MIRRORS[:4] + [PO_FOCUS, M5_HIT, M6_HIT, WAFER])
 CENTER = (2.9, 0.0, 0.8)                            # middle of scanner + source, for cameras
 
 
@@ -246,7 +249,34 @@ def machine(with_path=True):
     _tag_module(cone)
     for k, u in enumerate((0.25, 0.5, 0.75)):
         _ring(f"ConeRib{k}", tuple(drum - ax * (0.8 + span * u)), 1.1 - 0.92 * u + 0.02, 0.03, steel, rot=arot)
-    _disc("Collector", COLLECTOR, 0.9, 0.08, mirror, rot=arot)
+    # collector: a concave (ellipsoidal) shell with a central hole for the drive laser, facing the IF
+    # (euv_source.md s.5; a flat disc read as a plate). Depth ~0.28 of the radius, drawn as a paraboloid.
+    import bmesh
+    bmc = bmesh.new()
+    nr, ns, r_out, r_in, depth = 10, 96, 0.9, 0.14, 0.26
+    rings = []
+    for i in range(nr + 1):
+        r = r_in + (r_out - r_in) * i / nr
+        z = depth * (r * r) / (r_out * r_out)              # rim leans toward the IF (local +Z)
+        rings.append([bmc.verts.new((r * math.cos(2 * math.pi * k / ns), r * math.sin(2 * math.pi * k / ns), z))
+                      for k in range(ns)])
+    for i in range(nr):
+        for k in range(ns):
+            j = (k + 1) % ns
+            bmc.faces.new((rings[i][k], rings[i][j], rings[i + 1][j], rings[i + 1][k]))
+    mec = bpy.data.meshes.new("Collector")
+    bmc.to_mesh(mec)
+    bmc.free()
+    col = bpy.data.objects.new("Collector", mec)
+    bpy.context.scene.collection.objects.link(col)
+    col.location = Vector(COLLECTOR) - (-ax) * depth * 0.5
+    col.rotation_euler = arot
+    col.modifiers.new("Thick", "SOLIDIFY").thickness = -0.05
+    for pl in mec.polygons:
+        pl.use_smooth = True
+    mec.materials.append(mirror)
+    styles.tag(col, "structure")
+    _tag_module(col)
     _box("SrcPedestal", (drum.x, 0, -1.05), (2.6, 2.6, 2.7), dark)          # up to the vessel's underside
     plat = PLASMA[0] + 2.6
     _box("OpticalPlatform", (plat, 0, 1.0), (2.2, 2.0, 0.25), steel)
@@ -269,7 +299,8 @@ def machine(with_path=True):
         _box(f"RetRail{y}", (RETICLE[0], y, rz + 0.07), (4.6, 0.16, 0.14), dark)
         for k in range(13):
             _box(f"RetMagnet{y}{k}", (RETICLE[0] - 2.1 + 0.35 * k, y, rz + 0.15), (0.26, 0.17, 0.03), steel, bevel=0.005)
-    _box("Reticle", (RETICLE[0], 0, RETICLE[2] + 0.05), (0.6, 0.6, 0.06), mirror, bevel=0.005)
+    _box("Reticle", (RETICLE[0], 0, RETICLE[2] + 0.05), (0.6, 0.6, 0.06),          # dark plate, as ASML draws it
+         M.principled("ReticlePlate", (0.08, 0.085, 0.09), metallic=0.6, roughness=0.15), bevel=0.005)
     _panel_box("MaskHandler", (-2.6, 0, rz + 0.3), (1.4, 1.6, 0.9), dark, seam, nx=2, nz=1)
     # ---- projection optics: a narrow upper column for M1-M4 with a step where the illuminator reaches in,
     #      a wide lower drum around the holed M6 / M5 pair
@@ -298,7 +329,7 @@ def machine(with_path=True):
         for j in range(6):
             _box(f"Tile{i}{j}", (-1.25 + 0.5 * i, -1.25 + 0.5 * j, -1.56), (0.46, 0.46, 0.04), tile, bevel=0.01)
     _disc("Chuck", (WAFER[0], 0, WAFER[2] - 0.04), 0.5, 0.05, steel)
-    _disc("Wafer", WAFER, 0.45, 0.02, M.multilayer_mirror("WaferFilm", r_max=0.45))
+    _disc("Wafer", WAFER, 0.45, 0.02, M.principled("WaferSi", (0.30, 0.31, 0.36), metallic=0.7, roughness=0.12))
     _panel_box("WaferHandler", (-2.7, 0, -1.4), (1.2, 1.6, 1.6), dark, seam, nx=2, nz=1)
     # ---- base frame on vibration isolators, under the scanner (the source stands on its own)
     MODULE = "base"
@@ -335,23 +366,14 @@ def fab_hall(seed=3, people=6):
     for x in range(-42, 43, 6):                        # ceiling light strips
         _box(f"Lamp{x}", (x, 0, 9.8), (0.25, 26.0, 0.12), lamp, role="env", bevel=0)
     _box("Ceiling", (0, 0, 10.3), (120, 40, 0.4), wall, role="env", bevel=0)
-    # trench with the drive-laser beam tube (B1_25)
-    _box("Trench", (-12, 0, -2.19), (22, 1.4, 0.02), M.dark_anodized("TrenchDark"), role="env", bevel=0)
-    _disc("BeamTubeHall", (-12, 0, -1.85), 0.35, 22, M.polished_steel("TubeSteel", 0.25), rot=(0, math.pi / 2, 0),
-          role="env")
-    _box("TubeSlot", (-12, -0.36, -1.85), (21, 0.02, 0.08), M.emission("SlotGlass", (0.2, 0.25, 0.3), 0.4),
-         role="env", bevel=0)
+    # (no drive-laser tube on this floor: the laser sits in the sub-fab and its beam comes up through the slab, F62;
+    #  b1_machine.subfab() draws that level)
     sil = M.principled("Silhouette", (0.01, 0.01, 0.012), metallic=0.0, roughness=0.9)
+    import figures
     for i in range(people):                           # backlit human figures for scale (~1.75 m)
-        x, y = rnd.uniform(-10, 4), rnd.uniform(-5, 5)
-        bpy.ops.mesh.primitive_cylinder_add(radius=0.2, depth=1.45, location=(x, y, -2.2 + 0.73))
-        body = bpy.context.object
-        body.data.materials.append(sil)
-        styles.tag(body, "env")
-        bpy.ops.mesh.primitive_uv_sphere_add(radius=0.13, location=(x, y, -2.2 + 1.6))
-        head = bpy.context.object
-        head.data.materials.append(sil)
-        styles.tag(head, "env")
+        x, y = rnd.uniform(-10, 4), rnd.choice((-1, 1)) * rnd.uniform(2.4, 5.0)   # in the aisles, not in the machine
+        figures.person(f"Worker{i}", (x, y, -2.2), height=rnd.uniform(1.65, 1.85),
+                       pose=rnd.choice(("stand", "work", "walk")), facing=rnd.uniform(-60, 60), mat=sil)
 
 
 HOSTS = {"source": "SrcDrum", "illum": "Illuminator", "reticle": "ReticleStage", "po": "POBarrel",

@@ -1,0 +1,570 @@
+# Visual fact audit, segment B1 (EUV light source). One row per engineering / structural / optical detail the PICTURE or
+# on-screen text shows (narration numbers live in research/facts.yaml). Checked 2026-10-21.
+# status: sourced | wrong | unsourced | simplified | artistic | glitch  (see docs/WORKFLOW.md 2.3)
+#   glitch - rendering / layout / storyboard-consistency defect (not a fact question); must change
+# Sources: S-numbers = research/visual/B1_sources.md; ES §n = research/visual/euv_source.md.
+# Scale note for the b1_source simulation (sample_b1.py / build_source.py): 1 unit = 125 um. The droplet (25 um) and
+# pancake (300 um) are to scale; the collector (rim diameter 1.6 mm, real 650 mm) is not. Since a7b7d67 the nozzle sits
+# off-screen at NOZZLE_Y = -300 (~0.3 m) and the droplets fly 11.2 units (1.4 mm) apart.
+# Previews reviewed via 3x3 contact sheets in renders/review/refs/B1/sheets/.
+#
+# Verification pass 2026-10-22: code at HEAD a393fa0, renders/shots/B1_*/sample (960x540), contact sheets and crops.
+# 3D samples carry no edit_film labels: the labels were composited onto sample frames with edit_film.labels_for +
+# overlay_labels.draw_label to check text and overlap. The mograph shots (B1_01/06/09/16/18/27) were re-rendered from
+# the current mograph/b1.py at sample size into a scratch dir (not renders/), because their renders are stale or missing.
+# Sample staleness:
+#   b1_source samples B1_02/03/07/08/10/12/13/15/21 (10-22 09:16-10:19): current. The only later change, a393fa0
+#     (10:24), moves CamB2_01 only.
+#   B1_04 (10-21 23:52) and B1_05 (10-22 00:14): content current (b1_jet 23:24) but rendered before the retime:
+#     202 / 185 frames against 170 / 173 now; they also predate the compositor dispersion change (00:57, minor).
+#   B1_17 (23:19), B1_19 (23:21), B1_20 (23:24), B1_22 (23:27), B1_29 (23:29): rendered around commit 06087ee; the
+#     committed fixes are visible in the frames. Lengths stale: B1_17 132/123, B1_19 167/163, B1_20 211/189,
+#     B1_22 104/97. B1_29 predates build_machine cb57857 (23:58), which only moves the M5 hit point (far from its frame).
+#   B1_09 (110/99) and B1_16 (257/222) samples (23:17) are stale; current code was rendered to scratch and checked.
+#   B1_23/24/26 (01:06-01:09), B1_25 (00:28), B1_28 (09:54): current.
+#   No sample at all: B1_01, B1_06, B1_18, B1_27 (mograph; previews 10-16..10-18 are stale) and B1_11, B1_14 (Blender,
+#     previews 10-16) - B1_11 and B1_14 cannot be verified until rendered.
+# Counts (after verification): sourced 58, simplified 14, artistic 17, wrong 1, unsourced 0, glitch 22 (112 rows; 22 new;
+#   compound "sourced / simplified" rows counted as sourced). Before: wrong 12, unsourced 1, glitch notes 9.
+
+B1_01:
+  - item: chapter card 第一站 · 光源 over a blurred nozzle frame; ledger 电 "约 1.26 MW · ASML 2025 年报"
+    status: sourced
+    source: F48 (ASML AR2025, NXE:3800E 1.26 MW)
+    was: the preview (10-16) still reads "兆瓦量级 · 据行业估算"; re-render (mograph/b1.py was updated on 10-21)
+    verified: "2026-10-22: no sample exists (only the stale 10-16 preview). Current mograph/b1.py rendered to scratch,
+      frames 1/20/40/72: ledger 电 · 约 1.26 MW · ASML 2025 年报; no 兆瓦量级 / 据行业估算. Render the sample."
+  - item: NEW - ledger sublabel (the 1.26 MW figure and its source) drawn at 20 px on a 1080 design (10 px in the sample),
+      grey on dark; the chapter title pops on at frames 5-7 instead of fading (shared text-alpha bug, see B1_06)
+    status: glitch
+    fix: sublabel size >= 26 px in draw_ledger; fix Canvas.text alpha (B1_06)
+
+B1_02:
+  - item: source vessel as a drum that narrows in a cone to the intermediate focus
+    status: simplified
+    source: ES §4 (POS16 panel 1, cone with vanes narrowing to the IF unit; SW17 slide 28 real vessel)
+    note: generic shell; the vanes, hydrogen ports and bowl-shaped lower chamber are omitted
+    verified: "2026-10-22: frames 1-120 unchanged generic drum + cone, ghost glass"
+  - item: ellipsoidal collector with the plasma at the first focus and the IF at the second; rays plasma -> mirror -> IF
+    status: sourced
+    source: ES §5 (SW17 slide 35 "Ellipsoidal design • Plasma at first focus ... intermediate focus"); light_rays() uses the focal property
+    verified: "2026-10-22: frames 1-120 violet rays from the bowl converge on the IF disc; rays saturated violet, not clipped"
+  - item: collector depth / diameter about 0.29, small central hole (about 1/9 of the diameter)
+    status: simplified
+    source: S10 (FOM17 Fig.16 / SW17 slide 35 photos, a deep bowl, matches); the hole size is not public (ES not-public 2), drawn as a plausible fit
+  - item: drive-laser entry port at the back of the vessel, on the collector axis
+    status: sourced
+    source: ES §2 (FOM17 p.176 "propagates through a central aperture in the collector")
+    verified: "2026-10-22: frame 105 the orange beam enters from behind and passes the central hole"
+  - item: droplet generator port on the side, perpendicular to the collector axis
+    status: sourced
+    source: ES §1 (POS16 x along the droplets, z along the collector axis)
+  - item: droplet catcher opposite the generator
+    status: simplified
+    note: build_vacuum.source_vessel now has a port at +Y (radius 1.5) diametrically opposite the generator port at -Y
+      (SW17 slide 28, POS16 "Tin catch"); it is a plain port, no catcher module and no label
+    fix: optional - label it 锡滴收集器 if the shot keeps per-part labels
+    verified: "2026-10-22: code (build_vacuum 10-21 17:49) and frames 1/60/120: two ports on opposite flanks of the drum"
+  - item: vessel orientation (collector axis horizontal on screen, IF to the side)
+    status: simplified
+    note: real NXE vessel has a "62 degree orientation", collector at the bottom "facing up against gravity", IF on top (ES §5-6). There is no floor in this shot, so roll CamB1_02 until the IF points up-right at about 60 deg; then no viewer is misled.
+    verified: "2026-10-22: not rolled - frames 1-120 the IF points left and slightly down; acceptable without a floor"
+  - item: labels 喷嘴（示意）/ 收集镜 / 激光入口 / 中间焦点 IF
+    status: glitch
+    note: edit_film turns the four overlays into ONE upper-right label - headline 喷嘴（示意）, sub 收集镜 ｜ 激光入口
+      (rest[:2]), so 中间焦点 IF is dropped; nothing points at a part, and the headline names the nozzle, which is not in
+      the B1_02 picture (only its port)
+    fix: give the overlays `at:` times so each part gets its own label in turn (the storyboard says 各部件依次亮起标签),
+      or one headline 光源腔（示意） with sub 收集镜 · 激光入口 · 中间焦点 IF
+    verified: "2026-10-22: labels composited on sample frame 66 with edit_film.labels_for/draw_label"
+  - item: NEW - a small dark ring floats outside the vessel at the top left from frame 84 to 120 (drifting right with the
+      orbit); most likely the off-screen nozzle tip (NOZZLE_Y = -300) seen end-on, or the far end of the droplet stream
+    status: glitch
+    fix: hide the nozzle tip and the far stream in the vessel view (hide_render for CamB1_02's window), or frame tighter
+
+B1_03:
+  - item: tin droplets flying horizontally across the collector axis, generator to plasma site
+    status: sourced
+    source: ES §1, S1
+    verified: "2026-10-22: frames 1-95 droplets enter from the left edge and fly to the plasma site in front of the hole"
+  - item: droplet spacing 1.4 mm (11.2 units)
+    status: sourced
+    source: S10 (FOM17 p.180 "1.5-mm droplet-to-droplet spacing"); F2 note (70 m/s / 50-60 kHz = 1.2-1.4 mm)
+    was: wrong - 375 um (15 droplet diameters)
+    verified: "2026-10-22: sample_b1.py spacing = 11.2; frames 1-95 show one or two droplets, far apart"
+  - item: nozzle position
+    status: sourced
+    note: the nozzle is now 300 units (~0.3 m) from the plasma (NOZZLE_Y = -300), off-screen in every plasma shot
+    was: wrong - nozzle tip 1.75 mm from the plasma, inside the frame
+    verified: "2026-10-22: no nozzle in B1_03 frames 1-108, B1_08 frames 1-92 or B1_21 frames 1-84"
+  - item: dark chamber walls, ribs, ports, LED bokeh
+    status: artistic
+    source: build_vacuum.py docstring ("purely stylised")
+  - item: NEW - the pre-pulse fires at the end of B1_03 (frames 99-108, sim 100-108; zoom frame 108) - an orange beam
+      from the collector hole flattens the droplet while the VO is still 一个喷嘴，把熔化的锡喷进真空腔; the lasers are
+      only introduced in B1_09 (然后，激光开火)
+    status: glitch
+    fix: end B1_03 before sim ~95 (shift its start earlier or slow CamB1_03), or hide PrePulse/MainPulse for this window
+
+B1_04:
+  - item: nozzle tip "外形示意" plus caption 喷嘴内径 3–5 μm（按 ASML 专利描述 · 示意）
+    status: sourced (caption) / simplified (shape)
+    source: S8 (US9715174 "inner diameter of 3-5 μm"); S9 (orifice at the end of a capillary tube)
+    verified: "2026-10-22: label composited on frame 71: 喷嘴内径 3–5 μm（按 ASML 专利描述 · 示意）, 来源：ASML 专利"
+  - item: nozzle end face with a 4 um orifice
+    status: sourced
+    resolved: "2026-10-21: b1_jet.nozzle() flat matte end face 30 um across with a 4 um dark orifice (R_BORE 0.016)"
+    verified: "2026-10-22: CamB1_04 sees the tip from the side, so the face/pinhole is not visible (frames 1-202); the
+      jet is clearly thinner than the tip and the downstream droplets - consistent with the caption"
+  - item: jet at the orifice, no full-size droplets beside the tip
+    status: sourced
+    resolved: "2026-10-21: B1_04 now renders b1_jet: a 3.2 um jet leaves the orifice and breaks up ~75 um out; no full-size droplets in frame"
+    verified: "2026-10-22: frames 1-202 a hair-thin rippling jet leaves the tip and pinches into small droplets"
+  - item: NEW - two-frame strobe. V_FLOW = LAM/2 per frame, so the ripple and the droplets repeat every 2 frames;
+      frames 60-65 alternate between two jet phases, droplets jump and one smears into a streak (frame 64). At 24 fps
+      the jet buzzes in place instead of flowing
+    status: glitch
+    fix: b1_jet V_FLOW <= LAM/8 per frame (true slow motion) and switch off motion blur for the handler-driven jet and
+      metaballs (or render them without sub-frame blur); re-render at the current 170 frames
+
+B1_05:
+  - item: jet necks and pinches, small droplets catch up and merge (double modulation)
+    status: sourced
+    source: S8 (MHz Rayleigh break-up plus kHz speed modulation; "high speed droplets overtake low speed droplets and coalesce"), S9
+    verified: "2026-10-22: frames 1-185 small droplets close in on one growing droplet (40-139), one droplet left (162-185)"
+  - item: 5.8 um small droplets 14 um apart, about 100 per 27 um droplet, merging from the middle out
+    status: sourced
+    resolved: "2026-10-21: b1_jet at published proportions: 5.8 um droplets 14 um apart (5 MHz), 100 per final 27 um droplet, merging from the middle out; caption 约 100 颗小液滴在飞行中合成 1 颗（ASML/Cymer 2017 示例 · 示意）, F21 now quotes FOM17 p.180"
+    note: code matches FOM17 p.180; the frames are too smeared to read the proportions (see the glitch below)
+    verified: "2026-10-22: code checked (R_SMALL 2.9 um, LAM 14 um, GROUP 100); frames 24-139 unreadable, see below"
+  - item: caption 约 100 颗小液滴在飞行中合成 1 颗（ASML/Cymer 2017 示例 · 示意）; 慢动作
+    status: sourced
+    source: S8, S10 (FOM17 p.180)
+    note: the label's source line reads 来源：ASML 专利 (from F21's patent URL) although the 100:1 example is the
+      Fomenkov 2017 paper; the text itself names ASML/Cymer 2017, so this is minor
+    verified: "2026-10-22: label composited on frame 71; long but fits the frame width"
+  - item: NEW - motion-blur / strobe breakup. Frames 9-17 cycle between sharp droplets with tails (10, 12), blocky
+      rectangular smears (9, 11, 14-16) and long streaks (13, 17); frames 24-139 the small droplets render as stacked
+      white slabs and the merging droplet as a blur with rectangular highlights (zoom frame 70). It reads as a render
+      fault, not as liquid tin
+    status: glitch
+    fix: same as B1_04 - V_FLOW <= LAM/8 per frame and no motion blur on the handler-driven metaballs; re-render at the
+      current 173 frames
+
+B1_06:
+  - item: droplet 25 um next to a hair cross-section of 80 um, drawn to the same scale (5.2 px/um)
+    status: sourced
+    source: "S1 (25 um); S7 (ASML: 80 um \"about the diameter of an average human hair\"); S2 \"a fraction of the thickness of a human hair\""
+    verified: "2026-10-22: scratch render frames 30-119: hair 3.2x the droplet diameter"
+  - item: speed readout 70 m/s
+    status: sourced
+    source: S1 (70 m/s); S2 (241 km/h = 67 m/s)
+  - item: speed counter rising from 0 while the droplet accelerates off screen
+    status: artistic
+  - item: small caption under m/s
+    status: sourced
+    was: the preview (10-18) shows "(F3)"
+    verified: "2026-10-22: no sample exists; scratch render frames 60-119 show 来源：ASML (screen_text strips the ID)"
+  - item: NEW (shared, mograph) - Pillow 12.3 ignores the alpha of a text fill drawn with ImageDraw(..., "RGBA") onto an
+      RGB image (tested - alpha 0/10/128/255 all give full brightness), so every Canvas.text fade is a hard pop. In B1_06
+      the label 锡滴 ≈ 25 μm stays at full brightness over the empty spot after the droplet has streaked away
+      (frames 75-119, pixel max constant 219); the same bug pops the B1_01 title and the B1_09 labels
+    status: glitch
+    fix: shared/tools/mograph.Canvas.text - draw the text into an L mask (or a transparent RGBA layer), scale it by a,
+      and composite; this affects every mograph shot in every segment
+
+B1_07:
+  - item: axial telephoto string of droplets; label 最新光源每秒 6 万颗
+    status: sourced
+    source: S3 (ASML AR2025 "60,000 times per second in our latest commercial sources"); F2
+    was: wrong - 每秒最多 5 万颗 · 每 20 μs 一颗
+    verified: "2026-10-22: storyboard overlay composited on frame 53: 最新光源每秒 6 万颗 / 来源：ASML; matches the VO"
+  - item: caption 间距约 1–1.5 mm（随频率与速度）
+    status: sourced
+    source: F2 note (70 m/s / 60 kHz = 1.2 mm derived; FOM17 p.180 "1.5-mm" at 50 kHz, S10)
+    verified: "2026-10-22: label sub line on frame 53"
+  - item: chain of droplets (stream count 26 at 1.4 mm)
+    status: artistic
+    was: only 6 droplets, the chain never read as 看不到头
+    verified: "2026-10-22: frames 1-96 the chain recedes into a continuous streak with no visible end"
+  - item: NEW - storyboard visual still says 角落计数器飞速滚到 50 000 and 频闪光; no counter is rendered, and 50 000
+      contradicts the 6 万 label and VO
+    status: glitch
+    fix: storyboard B1_07 visual - drop the counter or make it 60 000
+
+B1_08:
+  - item: each droplet individually imaged and targeted (label 单独成像 · 单独瞄准)
+    status: sourced
+    source: S2 (F22) "individually imaged and targeted"
+    verified: "2026-10-22: label composited on frame 52 with sub 示意：成像与瞄准系统细节未公开, 来源：ASML"
+  - item: HUD design, decorative characters, lock colour change
+    status: artistic
+    note: labelled 示意：成像与瞄准系统细节未公开
+  - item: NEW - the HUD lock boxes do not exist. overlay:hud_lock_boxes has no implementation (nothing in shared/ or the
+      episode code; style 'hud' is not defined in styles.py), so frames 1-92 are a plain photoreal follow of one droplet
+      and nothing shows imaging or targeting; the storyboard visual and the 单独瞄准 label promise boxes that turn orange
+    status: glitch
+    fix: implement the lock-box overlay (thin cyan brackets tracking the droplet's projected position, orange on lock,
+      decorative glyphs only) in edit_film, or rewrite the storyboard visual/overlay to what is shown
+  - item: droplet spacing and nozzle-to-plasma distance
+    status: sourced
+    was: wrong - same as B1_03
+    verified: "2026-10-22: frames 1-92 one droplet in frame, no nozzle"
+  - item: NEW - frames 1-35 a large dark rounded cylinder (about 4x the droplet diameter) ends right behind the droplet
+      (zoom frame 12); it reads as a black rod. Likely the droplet's shadow stretched across the chamber decor by a
+      nearby light, or the PrePulse stand-in (radius 0.4 = 4x the droplet) rendering dark at strength 0 in this style
+    status: glitch
+    fix: identify the object in CamB1_08's window; set visible_shadow off on hero/stream or remove the light that throws
+      it, and make sure the beam volume is invisible at strength 0
+
+B1_09:
+  - item: two pulses, thin then thick, arriving from the collector's central hole along one axis
+    status: sourced
+    source: "ES §2 (SW17 slide 29, PUR20 slide 23: both CO2 beams from one side; PP beam 100 um, MP beam 400 um)"
+  - item: pulse widths 6 px vs 18 px (3x)
+    status: simplified
+    note: real PP/MP beam diameters are 100/400 um (4x, PUR20 slide 23); close enough for a diagram
+  - item: both pulses end on the same droplet outline
+    status: simplified
+    note: the main pulse really hits the expanded sheet downstream (PUR20 slide 23); B1_10-13 show the sequence
+  - item: orange colour for CO2 light, caption CO₂ 激光为红外光，橙色为示意
+    status: artistic
+  - item: labels 预脉冲：细 / 主脉冲：粗
+    status: sourced
+    was: glitch - labels overlapped when the pulses converged; caption ended "· F4"
+    verified: "2026-10-22: sample (23:17, 110 frames) is stale; current code rendered to scratch, frames 30-99: pre
+      label above, main label below, pre label gone by frame 56; no fact ID"
+  - item: NEW - 主脉冲：粗 is placed at head - length/2 while the pulse is still entering, so frames ~46-52 show only
+      粗 clipped at the left edge (zoom frame 49); the footnote CO2 激光为红外光，橙色为示意 is 18 px on 1080
+    status: glitch
+    fix: clamp the label x to >= 80 (or show it once the pulse is fully in frame); footnote >= 24 px, CO₂ with a
+      subscript glyph the font has
+
+B1_10:
+  - item: pre-pulse from behind the collector flattens the droplet into a sheet facing the laser
+    status: sourced
+    source: S1, S5, ES §3 (FOM17 Fig.13B; PM351 "dominant expansion orthogonal to the incident beam")
+    verified: "2026-10-22: frames 36-48 orange pre-pulse, droplet flattens, sheet faces the beam"
+  - item: sheet diameter 300 um (12x the droplet), caption 预脉冲：薄饼直径约 300 μm（锡滴约 25 μm）
+    status: sourced
+    source: F4b (TOR20 "about 300 μm"); PUR20 slide 23 "Target Diameter 400µm"
+    verified: "2026-10-22: label composited on frame 69, 来源：ASML"
+  - item: sheet thickness - ~50 nm centre, ~3 um beaded rim, barely rippled
+    status: sourced
+    source: S13 (ARCNL "a thickness of just several tens of nanometers" with a "bounding rim")
+    was: wrong - 6 um centre, 21 um rim, 10 um ripples
+    verified: "2026-10-22: build_source.pancake half-thickness 0.0004 + 0.012 rim, ripple <= 0.005; frames 44-48 a thin
+      disc with a bright rim, 64-126 a flat satin sheet with a hairline edge"
+  - item: beam sizes - pre-pulse radius 0.4 (100 um), main pulse 1.6 (400 um) as cylinders
+    status: simplified
+    source: PUR20 slide 23 ("Beam Diameter 100µm" PP, "400µm" MP)
+    note: sizes now as published; still parallel cylinders rather than cones focused to the spot (FOM17 p.176)
+    was: wrong - 30 um / 175 um, main pulse narrower than the sheet
+    verified: "2026-10-22: frame 36 the pre-pulse is ~4x the droplet diameter; B1_13 frame 7 the main pulse is wider
+      than the sheet"
+  - item: sheet drifts +x (along the laser, away from the collector) and stays on the droplet path
+    status: simplified
+    note: the push along +laser is real (KUR16 U 0.5-350 m/s; ejecta go back toward the laser, S14). Missing is the downstream motion along the droplet path, about 160-300 um before the main pulse (80 m/s x 2-4 us; PUR20 slide 23 MP about 300 um downstream).
+    fix: key the sheet along +y by about 1.6-2.4 units between T_PRE and T_MAIN, plus the existing small +x push; put the main-pulse axis at that downstream point
+    verified: "2026-10-22: unchanged - sample_b1.py keys the sheet only along x to PLASMA_X"
+  - item: droplet growth and concentric ripples in slow motion
+    status: artistic
+  - item: sheet surface
+    status: sourced
+    was: glitch - blotchy mirror reflections; satin only in _cold_open
+    verified: "2026-10-22: frames 64-126 smooth satin gradient, no blotches"
+  - item: NEW - the upper-right label and its scrim sit on top of the sheet (frame 69 composite), darkening the subject
+    status: glitch
+    fix: put this shot's label upper left (edit_film pos per shot) or reframe CamB1_10 so the sheet sits left of centre
+
+B1_11:
+  - item: shadowgraph freeze of the sheet, grey field, black silhouette, scale bar 300 μm, 示意（仿高速阴影成像）
+    status: sourced (concept)
+    source: "ES §3 (FOM17 Fig.13B; KUR16 Fig.2: edge-on sheet = thin dark vertical line with thicker rim)"
+  - item: silhouette is a fat lens about 1/4 as thick as it is wide
+    status: wrong
+    note: CamB1_11 sat about 13 deg off edge-on and the mesh was 50-100x too thick; reference shadowgrams show a hairline with beaded tips and fragments.
+    fix: camera exactly perpendicular to the laser axis, thin sheet as in B1_10, rim beads and a few ligament fragments at the tips (storyboard asks for 液丝)
+    verified: "2026-10-22: NOT verifiable - no sample, the only preview is 10-16 (stale). Code now has CamB1_11 strictly
+      side-on ((0.25, 8.6, 0) aimed at (0.25, 0, 0)) and the thin sheet; no ligament fragments in code. Status kept
+      until a render shows it"
+
+B1_12:
+  - item: sheet drifting toward the main-pulse focus, ripples spreading
+    status: simplified
+    note: same motion issue as B1_10 (needs the downstream component)
+  - item: next droplet far up the stream
+    status: sourced
+    source: S10 (1.5 mm spacing)
+    was: wrong - next droplet right beside the sheet (375 um)
+    verified: "2026-10-22: frames 24-48 the next droplet appears only as a speck at the left edge, far from the sheet"
+
+B1_13:
+  - item: main pulse hits the sheet, flash, plasma at the collector's primary focus
+    status: sourced
+    source: S1, ES §4 (FOM17 p.174)
+    verified: "2026-10-22: frames 7-19 wide orange main pulse, white flash, debris; plasma in front of the collector"
+  - item: caption 约 50 万开尔文
+    status: sourced
+    source: F5 (ASML "hot machines" page)
+    note: ASML AR2025 (S3) now says "40 times hotter than the surface of the sun" (about 23万 K, matching ZEISS). Producer chose 50万 K; recorded in F5's notes.
+  - item: caption 主脉冲约 500 mJ（实验条件）
+    status: sourced
+    source: F4b (TOR20, ASML S2 source used in the experiments)
+    verified: "2026-10-22: label composited on frame 71 (约 50 万开尔文 / 主脉冲约 500 mJ（实验条件） / 来源：ASML)"
+  - item: violet-white volumetric plasma about 300 um across; orange/white debris sparks flying in all directions
+    status: artistic
+    note: plasma size and visible colour are not public (ES §4); debris of "target fragments, clusters of neutrals and ions" is real (FOM17 p.175), but its look is ours
+  - item: camera shake and exposure flash
+    status: artistic
+  - item: NEW - black dot. Frame 7 (sim 192 = T_MAIN) shows a dark disc in the middle of the sheet as the main pulse
+      arrives (zoom frame 7); the plasma core is keyed to scale 1.6 at T_MAIN while core_mat emission is still 0 there
+      (160 only at T_MAIN+1) - an unlit emitter for one frame. The same sim feeds A0_01, C_02 and B2_03
+    status: glitch
+    fix: sample_b1.py - keep the core at scale 0 through T_MAIN (CONSTANT) and scale it at T_MAIN+1, or key the core
+      emission > 0 at T_MAIN
+
+B1_14:
+  - item: debris cooling from white-violet to orange-red on black, pulsing core
+    status: artistic
+    verified: "2026-10-22: NOT verifiable - no sample, preview 10-16 only"
+
+B1_15:
+  - item: grazing pass over the collector - plain mirror, no rainbow
+    status: sourced
+    source: S10 (SW17 slide 35, FOM17 Fig.16 - a plain, mirror-bright bowl); materials.multilayer_mirror plain since cb57857
+    was: wrong - rainbow thin-film interference bands
+    verified: "2026-10-22: sample 10-22 09:52 (after cb57857 23:58); frames 1-36 the collector is a plain lavender-grey
+      surface, no bands"
+  - item: the plasma reflected in the mirror
+    status: sourced (physics)
+    note: in frames 1-36 the mirror reads as a flat lavender field behind the plasma and debris; no reflection is
+      distinguishable and the grazing angle does not read as a mirror surface - acceptable for a 1.5 s beat
+  - item: NEW - storyboard visual still says 多层膜的彩虹干涉色被等离子体映亮, which the corrected picture (and the
+      audit) contradict
+    status: glitch
+    fix: storyboard B1_15 visual - 镜面光洁如镜（Mo/Si 多层膜没有可见的彩虹色），映出等离子体
+
+B1_16:
+  - item: left 直接打锡滴 (small sphere hit by the centre of the spot), right 先拍扁 (sheet fills the spot)
+    status: sourced (idea)
+    source: ES §3 (FOM17 Fig.12 "expansion of the Sn droplet to match the main pulse (MP) beam waist diameter and lower the density"); S3 ("flattening the tin droplet ... increased the EUV light output"); S5 (disk with a larger surface area)
+    verified: "2026-10-22: sample (23:17, 257 frames vs 222) is stale; current code rendered to scratch, frames 10-222"
+  - item: both panels face-on along the beam at one scale
+    status: sourced
+    resolved: "2026-10-21: both panels face-on along the beam at one scale: 27 um droplet vs 400 um spot, disc matching the spot (PUR20, FOM17 Fig.12)"
+    verified: "2026-10-22: scratch frames 40-222: dashed 400 um spot in both panels, 27/400 droplet left, disc at 0.95
+      of the spot right"
+  - item: text 薄盘面积大、密度低，正好接住整个光斑
+    status: sourced
+    resolved: "text now 薄盘面积大、密度低，正好接住整个光斑 (FOM17 Fig.12, S3, S5)"
+    verified: "2026-10-22: scratch frames 60-222"
+  - item: arrow 更多能量 → 变成 13.5 nm 的光（示意）
+    status: sourced
+    source: S3; FOM17 Fig.14 (CE rises from no-PP to disk to cloud targets)
+    verified: "2026-10-22: scratch frames 140-222"
+
+B1_17:
+  - item: tin atom with Bohr shells 2-8-18-18-4; outer electrons stripped one by one to Sn14+; label Sn8+ … Sn14+：剥掉 8–14 个电子, 示意（壳层模型）
+    status: sourced
+    source: S15 (NIST ground configurations; strip order 5p, 5s, then 4d gives Sn14+ = 4s2 4p6); S12 (Sn8+-Sn14+ emit in band)
+    verified: "2026-10-22: frame 1 shells 2-8-18-18-4; frame 123 outer ring empty, 4th ring ~8 electrons; strips at
+      frames 30-121 inside the 123-frame shot; label composited on frame 67 (superscripts written as Sn8+, by design)"
+  - item: Bohr-style rings, glow of the ion brightening as it is stripped
+    status: artistic
+  - item: electrons on their rings
+    status: sourced
+    resolved: "2026-10-21: electrons positioned in world space through the atom's tilt (b1_atom.build_atom)"
+    was: electrons formed ellipses offset from the drawn orbits
+    verified: "2026-10-22: frames 1-132 every electron sits on its ring; flying electrons at 34, 66, 116"
+
+B1_18:
+  - item: spectrum 10-18 nm; lines of each charge state Sn8+ to Sn14+ falling in layers and piling into a peak at 13.5 nm
+    status: sourced
+    source: S12 (Sn8+–Sn14+, 4p-4d / 4d-4f UTAs, "a peak at exactly 13.5 nm", thousands of lines)
+    verified: "2026-10-22: no sample; scratch render frames 20-194"
+  - item: line positions random (Gaussian, sigma 0.24 nm), symmetric peak, no out-of-band features
+    status: simplified
+    note: real Sn LPP spectra have a long-wavelength tail and short-wavelength 7-12 nm arrays (S12); the caption 成千上万条谱线（示意） covers it
+    was: glitch - the preview showed "（示意，F24）"
+    verified: "2026-10-22: scratch frames 20-194 read 成千上万条谱线（示意）, no ID"
+  - item: NEW - the stacked lines run off the top of the frame - from about frame 110 the tallest stack reaches y = 1 px
+      (frames 130/160/194), far above the 13.5 nm marker; one 0.01 nm bin forms a needle much taller than the rest of the
+      envelope, so the peak reads as one giant line rather than an unresolved array
+    status: glitch
+    fix: mograph/b1.tin_spectrum - bin at ~0.05 nm, scale the stacks so the peak tops out ~60 px below the marker label
+      (yb - 640 on the design grid), and draw a soft envelope behind the lines
+
+B1_19:
+  - item: energy-level "city" (horizontal levels, vertical transition strokes); label Sn12+ 一种离子：超过 100 亿种可能的跃迁
+    status: sourced
+    source: "S11 (Sn12+: \"more than 10^10 dipole-allowed transitions\", over 3x10^5 levels)"
+    verified: "2026-10-22: label composited on frame 71"
+  - item: levels and transitions random, 420 levels / 2600 strokes
+    status: artistic
+    note: illustrative (b1_atom docstring)
+  - item: black bar across the web (ConvergedBeam at zero emission)
+    status: sourced
+    resolved: "2026-10-21: ConvergedBeam hidden until frame 175"
+    verified: "2026-10-22: frames 1-167 no horizontal black bar from the beam"
+  - item: NEW - unlit transition strokes. Every transition group starts at emission 0 and only glows from frame 18+12g,
+      and a zero-emission stroke renders opaque black, so frames 1-~30 are a black lattice over the violet levels
+      (frames 1, 10, 20), still visible at 40
+    status: glitch
+    fix: b1_atom.build_web - key hide_render per group until its emission rises (as done for ConvergedBeam), or mix the
+      emission with a transparent shader so zero emission is invisible
+
+B1_20:
+  - item: the web converges into one violet beam; label Torretti, Versolato 等 · Nature Communications 2020 / 多重激发态 → EUV 光
+    status: sourced
+    source: S11
+    verified: "2026-10-22: label composited on frame 71"
+  - item: textbook page wording - old 单激发态 → 基态（旧解释）, new 多重激发态之间的跃迁
+    status: sourced
+    source: S11 ("singly-excited states decaying to the ground state")
+    was: wrong - 单电子跃迁示意
+    verified: "2026-10-22: storyboard visual now uses the S11 wording; but see the next row - the page is not drawn"
+  - item: NEW - the textbook page does not exist in the picture - overlay textbook_page has no implementation anywhere,
+      frames 1-211 show only the web and the beam, so the VO's 改写了原来的教科书解释 has no image
+    status: glitch
+    fix: draw the page (2D insert in edit_film or a mograph layer, crossed-out 单激发态 → 基态（旧解释）, new title
+      多重激发态之间的跃迁, Torretti et al. 2020), or drop it from the storyboard visual
+  - item: beam forming out of the web
+    status: artistic
+    note: the lines do not bend or converge; the beam simply appears and the web dims (frames 27-211)
+  - item: NEW - the beam is unhidden at sim 175 while its emission is still ~0, so frames 26-28 show a dark bar across
+      the web before it lights
+    status: glitch
+    fix: unhide ConvergedBeam at the first frame its emission is clearly > 0 (e.g. key emission 2.0 at 176 and unhide
+      at 176)
+
+B1_21:
+  - item: pull back; collector lit; EUV cone from the collector to the IF; caption EUV 肉眼不可见 · 光锥为示意
+    status: sourced (geometry) / artistic (visible cone)
+    source: ES §5 (ellipsoid, IF at second focus)
+    verified: "2026-10-22: frames 1-84 cone from the collector rim to the IF unit; label composited on frame 48"
+  - item: solid cone with no central hole
+    status: simplified
+    note: "the collector's central aperture and the obscuration make the bundle hollow (PUR20 slide 11 far field: an annulus with a dark centre, ES §6). Optional: hollow the cone with an inner radius from COLLECTOR_HOLE_R."
+    verified: "2026-10-22: still solid (frames 32-84)"
+  - item: collector 1.6 mm across at droplet scale
+    status: simplified
+    note: real collector 650 mm (POS16, ES §5). The caption still lacks 非比例; adding it costs nothing.
+    verified: "2026-10-22: label reads EUV 肉眼不可见 · 光锥为示意 only"
+  - item: next droplet on its way
+    status: sourced
+    was: wrong - 375 um behind
+    verified: "2026-10-22: frames 1-22 the next droplet is a speck far up-left of the collector"
+
+B1_22:
+  - item: blueprint of a straight chain seed module -> pre-amplifier -> 4 amplifier stages -> beam transport tube; caption 通快 TRUMPF · CO₂ 驱动激光, 示意 · 非真实结构
+    status: sourced (stages) / simplified (layout)
+    source: S5 (seed, 100 W pre-amp, "four resonators", BTS); FOM17 Fig.1 / POS16 (seed, pre-amp, PA1-PA4)
+    note: "the real floor plan is not a straight row (FOM17 Fig.2 scale drawing: four big enclosures in a T/L plan); the caption covers it"
+    verified: "2026-10-22: frames 1-91 pan from the tube along four stages and the pre-amp to the seed module; label
+      composited on frame 54"
+  - item: two seed lasers
+    status: sourced
+    resolved: "2026-10-21: seed module = two stacked seed lasers (PP, MP) joined by a combiner before the pre-amp (b1_laser.py)"
+    verified: "2026-10-22: frames 78-91 two seed boxes merging into a combiner; the sample has 104 frames vs 97 now,
+      the seed module is still in frame at 91"
+  - item: dimension lines and hidden lines promised in the storyboard
+    status: sourced
+    resolved: "2026-10-21: storyboard text edited (no dimension lines promised)"
+
+B1_23:
+  - item: power steps 几 W → 100 W → 4 级放大 → 几十 kW（最高约 40 kW）; 放大 1 万倍以上
+    status: sourced
+    source: S5 ("a few watts", "100 W", "four resonators", "40 kilowatts", "more than 10,000 times")
+    verified: "2026-10-22: label composited on frame 71; frames 1-155 seed pair, pre-amp, stages glowing brighter"
+  - item: three copper cooling pipes on each amplifier stage
+    status: simplified
+    source: S5 ("three different cooling circuits"); routing is ours
+  - item: metal housings, window glow stepping up per stage (风格化外形)
+    status: artistic
+
+B1_24:
+  - item: orange pulse leaving the last amplifier into the beam tube (energy view)
+    status: artistic
+  - item: NEW - the pulse renders as a clipped white ellipse with an orange halo that barely moves (frames 1-48), not
+      as an orange pulse shooting into the tube; frame 1 also carries a flat peach card and stray lines at the left edge
+    status: glitch
+    fix: lower the pulse emission (or saturate it as styles.xray does for rays) so the core stays orange, animate it
+      along the tube axis, and clean the first frame
+
+B1_25:
+  - item: caption 光路最长约 30 m
+    status: sourced
+    source: S5 ("up to 30 meters in the direction of the droplet chamber")
+  - item: laser in the sub-fab, beam up through the waffle slab to the source beside the scanner
+    status: sourced
+    resolved: "2026-10-21: two-floor section (b1_machine.subfab_section): laser chain, RF generator and heat exchanger in the sub-fab, beam tube up through the waffle slab via turning mirrors to the source; F62 (FOM17 p.176); fab_hall's floor trench removed"
+    verified: "2026-10-22: frames 1-127 two-floor section - cabinets and people below, the tube runs under the slab and
+      rises at the right to the source next to the scanner; label 光路最长约 30 m / 激光在楼下辅助层… composited on frame 69"
+  - item: orange light dot racing along the tube
+    status: artistic
+    resolved: "overlay 示意 · 橙色光点为示意 added"
+    verified: "2026-10-22: the dot travels the tube in frames 1-127; the label sub line includes 示意 · 橙色光点为示意"
+  - item: stylised hall, columns, light strips, people silhouettes for scale
+    status: artistic
+    note: project rule (no real fab copied; silhouettes only)
+
+B1_26:
+  - item: caption 超过 45 万个零件 · 重 20 多吨; 示意
+    status: sourced
+    source: S6 (TRUMPF press release, new-generation laser)
+    verified: "2026-10-22: label composited on frame 71 (来源：ASML · TRUMPF)"
+  - item: clay exploded view of the same straight chain (hundreds of parts, not 450,000)
+    status: artistic
+    note: labelled 示意; the exterior is not TRUMPF's
+
+B1_27:
+  - item: ledger 电 约 1.26 MW → 激光 几十 kW → EUV; log scale, 量级示意 · 对数刻度
+    status: sourced
+    source: F48 (1.26 MW), S5 (40 kW)
+    verified: "2026-10-22: no sample; scratch render frames 10-248"
+  - item: EUV entry 超过 500 W · NXE:3800E
+    status: sourced
+    source: F4c (S4 Hummler et al. 2024, ">500W" on NXE:3800E)
+    was: unsourced - 量产最高约 600 W
+    verified: "2026-10-22: scratch frames 80-248 read EUV / 超过 500 W · NXE:3800E; matches the VO"
+  - item: dashed extension 1000 W · ASML 2025 年演示
+    status: sourced
+    source: F4c (S3, ASML AR2025 p.31, April 2025 demonstration, grade A)
+    was: simplified - 1000 W 原理样机（实验室）
+    verified: "2026-10-22: scratch frames 170-248; no 据报道 / 据行业估算 anywhere"
+  - item: NEW - storyboard B1_27 overlays and visual still say 量产光源最高约 600 W / 1000 W 原理样机已在实验室演示
+      (EUV 量产最高约 600 W, 原理样机（实验室）); not drawn (2D shot), but they contradict the graphic, the VO and F4c
+    status: glitch
+    fix: storyboard overlays 最新 NXE 光源超过 500 W（NXE:3800E） and 2025 年 ASML 演示 1000 W 光源; visual likewise
+  - item: NEW - the key numbers (超过 500 W · NXE:3800E, 1.26 MW) are 20 px grey sublabels on a 1080 design while the
+      category words get 30 px
+    status: glitch
+    fix: draw_ledger sublabel >= 26-28 px, or make the number the main label (500 W+) and the model the sublabel
+
+B1_28:
+  - item: x-ray whole machine, light from the source through the IF into the scanner, 示意
+    status: sourced
+    source: audit_A0.yaml A0_05 (High-NA EXE:5000 layout from van Schoot 2022/2021 and ZEISS 2024; build_machine.py header)
+    was: glitch - preview predated the High-NA re-layout and CamB1_28 used the old frame
+    verified: "2026-10-22: sample 09:54 on the High-NA layout; frames 15-111 the violet path grows from the source
+      through the IF, turns only at mirror discs, up to the reticle and down the PO; label 示意 composited on frame 61"
+  - item: NEW - NXE/EXE pairing. B1_27's ledger closes on 超过 500 W · NXE:3800E, and B1_28/B1_29 then fly through an EXE
+      (High-NA) layout labelled only 示意, which invites reading the 500 W NXE source as this machine's
+    status: simplified
+    note: no number is shown on the EXE picture, so nothing is false; the label is the cheap guard
+    fix: label 示意（High-NA EXE 布局）; the storyboard's 计量条缩回右侧 is also not in the 3D picture (ledger not composited)
+
+B1_29:
+  - item: thin violet beam through the IF in the dark; ledger static
+    status: sourced
+    source: as B1_28
+    was: glitch - stale preview
+    verified: "2026-10-22: sample 23:29 after 06087ee (High-NA framing); cb57857 only moved M5_HIT, far from this frame;
+      frames 1-60 the path turns at a mirror outline"
+  - item: NEW - the beam is a thick, clipped-white bar filling the frame diagonally (frames 1-60), not 一束细细的紫光;
+      the energy style keeps the old white-hot ray emission (only xray got the saturated-violet fix in 06087ee); the
+      ledger promised by the storyboard is not in the picture
+    status: glitch
+    fix: apply the rays fix to the energy style (violet (0.30, 0.06, 1.0), moderate strength) and a thinner bevel for
+      B1_29; drop 光的账本在右侧静止 from the storyboard or composite the ledger

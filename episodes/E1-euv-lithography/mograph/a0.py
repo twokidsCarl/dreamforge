@@ -92,7 +92,7 @@ def logistics_2d(t, dur, W, H):
     items = [("250+ 板条箱", 0.6), ("43 个集装箱", 2.6), ("多架货机 → 西雅图", 4.3), ("20 辆卡车 → 俄勒冈", 6.3)]
     for k, (txt, t0) in enumerate(items):
         c.text((1860, 90 + 48 * k), txt, 34, INK, a * ease(seg(t, t0, t0 + 0.4)), anchor="ra")
-    c.text((80, 1030), "2023 年 12 月 · 首台 High-NA EUV 交付（F17）", 20, INK2, a, anchor="lm")
+    c.text((80, 1030), "2023 年 12 月 · 首台 High-NA EUV 发货（F20）", 20, INK2, a, anchor="lm")
     return c.finish(glow_radius=8, glow_gain=0.7)
 
 

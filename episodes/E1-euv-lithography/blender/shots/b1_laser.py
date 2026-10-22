@@ -68,6 +68,23 @@ def build(explode=False, seed=5):
     for i, (name, x, length, r) in enumerate(MODULES):
         cx = x + length / 2
         first = len(parts)
+        if name == "Seed":
+            # TRUMPF: the seed module "consists of two seed lasers" (pre-pulse and main pulse; POS16 "PP&MP Seed
+            # unit"); stacked so the side view shows both, their beams joined before the pre-amplifier
+            for k, z in enumerate((0.3, -0.3)):
+                parts.append(_box(f"Seed{('PP', 'MP')[k]}", (cx - 0.15, 0, z), (0.9, 0.5, 0.38), dark, bevel=0.04))
+                parts.append(_cyl(f"SeedBeam{k}", (cx + 0.5, 0, z * 0.5), 0.03,
+                                  math.hypot(0.5, z), steel, rot=(0, math.pi / 2 - math.atan2(-z, 0.5), 0), verts=12))
+            parts.append(_box("SeedCombiner", (cx + 0.78, 0, 0), (0.18, 0.4, 0.3), steel, bevel=0.02))
+            for p in parts[first:]:
+                p["module"] = i
+            if not explode:
+                g = M.emission("SeedGlowMat", ORANGE, 0.0)
+                for k, z in enumerate((0.3, -0.3)):
+                    win = _box(f"SeedWindow{k}", (cx - 0.15, -0.262, z), (0.5, 0.02, 0.12), g, 0.005)
+                    styles.tag(win, "emitter")
+                stage_glows.append((g, cx, 2))
+            continue
         body = _box(f"{name}Body", (cx, 0, 0), (length, 2 * r, 2 * r), dark, bevel=0.08)
         parts.append(body)
         for side in (-1, 1):                                      # end flanges
@@ -149,12 +166,45 @@ def build(explode=False, seed=5):
             p.location = p.location + d
             p.keyframe_insert("location", frame=f0 + 36)
     # cameras
-    B._camera("CamB1_22", [(1, (10.0, 0, 0), (10.0, -22.0, 3.0), 50, 11.0),
-                           (120, (16.0, 0, 0), (16.0, -22.0, 3.0), 50, 11.0)])
+    B._camera("CamB1_22", [(1, (22.0, 0, 0), (22.0, -22.0, 3.0), 50, 11.0),     # back along the beam to the seeds
+                           (100, (6.5, 0, 0), (6.5, -22.0, 3.0), 50, 11.0)])
     B._camera("CamB1_23", [(40, (2.0, 0, 0), (1.5, -5.5, 1.6), 35, 4.0),
                            (220, (20.0, 0, 0), (19.0, -6.0, 2.0), 35, 4.0)])
-    B._camera("CamB1_24", [(f, (_pulse_x(f) + 1.5, 0, 0), (_pulse_x(f) - 1.6, -2.4, 0.8), 24, 4.0)
-                           for f in range(140, 192, 4)])
+    # B1_24 (sim 140-187, the pulse runs from the Amp4 exit x~21 to x~33): a near-static 3/4 view at the tube mouth,
+    # so the pulse visibly shoots away down the tube (a camera locked on the pulse froze it in frame)
+    B._camera("CamB1_24", [(140, (24.0, 0, 0), (16.6, -4.4, 1.5), 24, 5.6),
+                           (188, (26.0, 0, 0), (17.6, -4.1, 1.35), 24, 5.6)])
     B._camera("CamB1_26", [(1, (12.0, 0, 0), (12.0, -26.0, 9.0), 50, 11.0),
                            (180, (12.0, 0, 0), (30.0, -16.0, 11.0), 50, 11.0)])
     return sc
+
+
+def after_style(style, shot_id):
+    """B1_24 (energy): only the pulse. At strength 40 the pastel-orange ellipsoid clipped to a white blob; here a
+    saturated orange core at a moderate strength with a long, dimmer tail behind it reads as a pulse travelling down
+    the tube. The amplifier windows (a flat peach card next to the camera) go dark."""
+    if shot_id != "B1_24":
+        return
+    for ob in bpy.data.objects:
+        if ob.name.endswith("Window") or ob.name.startswith("SeedWindow"):
+            ob.hide_render = True
+    pulse = bpy.data.objects["Pulse"]
+    em = bpy.data.materials["PulseMat"].node_tree.nodes["Emission"]
+    em.inputs["Color"].default_value = (1.0, 0.26, 0.03, 1)
+    em.inputs["Strength"].default_value = 4.0
+    pulse.scale = (6.0, 0.9, 0.9)
+    tail_mat = M.emission("PulseTailMat", (1.0, 0.22, 0.02), 1.6)
+    for k, (length, rad, st) in enumerate(((2.2, 0.07, 1.6), (4.5, 0.04, 0.7))):
+        bpy.ops.mesh.primitive_cylinder_add(radius=rad, depth=length, vertices=16, rotation=(0, math.pi / 2, 0))
+        tail = bpy.context.object
+        tail.name = f"PulseTail{k}"
+        m = tail_mat if k == 0 else M.emission("PulseTailMat2", (1.0, 0.2, 0.02), st)
+        tail.data.materials.append(m)
+        styles.tag(tail, "emitter")
+        for f in range(1, FRAMES + 1):
+            tail.location = (_pulse_x(f) - length / 2 - 0.3, 0, 0)
+            tail.keyframe_insert("location", frame=f)
+        tail.hide_render = True
+        tail.keyframe_insert("hide_render", frame=PULSE_START - 1)
+        tail.hide_render = False
+        tail.keyframe_insert("hide_render", frame=PULSE_START + 8)

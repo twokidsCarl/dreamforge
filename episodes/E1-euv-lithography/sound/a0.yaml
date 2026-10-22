@@ -3,10 +3,10 @@
 music:
   - {at: 0.0, file: music/5472e95acf3d18a0.mp3, gain: -6, fade_out: 3.0}
 cues:
-  - {shot: A0_01, at: 0.0, len: 10.0, gain: -14, text: "deep low vacuum chamber hum, subtle electrical room tone, very quiet, clean"}
+  - {shot: A0_01, at: 0.0, len: 11.0, gain: -14, text: "deep low vacuum chamber hum, subtle electrical room tone, very quiet, clean"}
   - {shot: A0_01, at: 0.6, len: 2.5, gain: -22, text: "tiny metallic droplet whizzing past in slow motion, soft airy whoosh"}
-  - {shot: A0_01, at: 5.4, len: 1.2, gain: -14, text: "short sharp infrared laser zap, crisp electric snap"}
-  - {shot: A0_01, at: 10.42, len: 3.0, gain: -5, text: "powerful plasma ignition, deep electric crack into a bright roaring flash with a long sizzling tail"}
+  - {shot: A0_01, at: 5.65, len: 1.2, gain: -14, text: "short sharp infrared laser zap, crisp electric snap"}
+  - {shot: A0_01, at: 10.9, len: 3.0, gain: -5, text: "powerful plasma ignition, deep electric crack into a bright roaring flash with a long sizzling tail"}
   - {shot: A0_02, at: 0.0, len: 6.0, gain: -18, text: "night airport apron ambience, distant jet engine whine, light rain on wet tarmac"}
   - {shot: A0_02, at: 0.9, len: 5.0, gain: -14, text: "heavy hydraulic cargo door slowly opening, mechanical whine and metal creak"}
   - {shot: A0_03, at: 0.4, len: 2.0, gain: -18, text: "many wooden crates stacking quickly, cascade of soft wooden clacks"}
@@ -19,4 +19,4 @@ cues:
   - {shot: A0_07, at: 0.0, len: 3.5, gain: -16, text: "beam of light descending, soft glassy hum, then a gentle crystalline imprint shimmer"}
   - {shot: A0_08, at: 0.2, len: 4.0, gain: -22, text: "delicate glass shimmer, very subtle high sparkle"}
   - {shot: A0_09, at: 0.0, len: 4.5, gain: -20, text: "zooming deep into a microscope, soft rising whoosh with tiny electronic ticks"}
-  - {shot: A0_10, at: 4.62, len: 2.3, gain: -4, text: "massive cinematic impact boom then metallic parts separating, airy whoosh"}
+  - {shot: A0_10, at: 5.75, len: 2.3, gain: -4, text: "massive cinematic impact boom then metallic parts separating, airy whoosh"}

@@ -396,7 +396,7 @@ shots:
   style: energy
   style_why: 曝光是看不见的光化学，能量图只留光和图形的影子。
   transition_in: fade-to-energy
-  visual: 黄光熄灭，只剩黑底。一束紫白光从上方落下，穿过一块画着电路图形的“底片”（这里用透射式示意通用原理；B6 再揭示 EUV 掩模其实是反射式），图形的影子投在下方的光刻胶层上，被照到的区域泛起淡淡荧光。
+  visual: 黄光熄灭，只剩黑底。一束紫白光从上方落下，穿过一块画着电路图形的“底片”（这里用透射式示意通用原理；B6 再揭示 EUV 掩模其实是反射式），光穿过掩模后经一枚缩小镜头（示意）会聚，图形缩小 4 倍落在光刻胶上，被照到的区域泛起淡淡荧光。
   camera:
     move: crane-down
     lens_mm: 35
@@ -451,7 +451,7 @@ shots:
   style: clay
   style_why: 显影、刻蚀、沉积是机构式的步骤动作，白模最清楚。
   transition_in: match-cut
-  visual: 潜像轮廓在同一位置变成白模截面。三步动画，各配小标签：显影，被照的胶溶掉露出沟槽；刻蚀，沟槽向下咬进材料；沉积，金属填进沟槽，余胶被剥离，一层导线留了下来（导线用浅金色以示区分）。
+  visual: 潜像轮廓在同一位置变成白模截面。三步动画，各配小标签：显影，被照的胶溶掉露出沟槽；刻蚀，沟槽向下咬进材料；去胶，剩下的胶被剥离；沉积，金属填满沟槽并盖过表面；抛光，磨去多余的金属，一层导线留了下来（导线用浅金色以示区分）。
   camera:
     move: static with slight push
     lens_mm: 50
@@ -465,7 +465,7 @@ shots:
   fx:
   - ambient_occlusion
   overlays:
-  - text: 显影 · 刻蚀 · 沉积
+  - text: 显影 · 刻蚀 · 去胶 · 沉积 · 抛光
     facts: []
   engine: eevee
   sfx:
@@ -498,13 +498,13 @@ shots:
   segment: A1
   duration: 6.0
   vo:
-  - 一颗芯片，最多要叠大约 100 层图形；
+  - 一颗芯片，要叠上百层图形；
   facts:
   - F44
   style: infographic
   style_why: “有多少层”：用一栋百层摩天楼作对比物，把层数变得可感。
   transition_in: match-cut
-  visual: 层柱在同一位置变成扁平图形，继续向上叠，计数器滚到“约 100”；右侧一栋 100 层摩天楼的剪影同步一层层亮起作对比。
+  visual: 层柱在同一位置变成扁平图形，继续向上叠，计数器滚到“上百层”；右侧一栋百层摩天楼的剪影同步一层层亮起作对比。
   camera:
     move: 2d-tilt-up
     lens_mm: null
@@ -515,7 +515,7 @@ shots:
   fx:
   - counter_roll
   overlays:
-  - text: 最多约 100 层图形
+  - text: 上百层图形
     facts:
     - F44
   engine: manim
@@ -526,13 +526,12 @@ shots:
   segment: A1
   duration: 8.0
   vo:
-  - 其中最精细的二十多层，要交给极紫外光刻机来画。
-  facts:
-  - F55
+  - 其中最精细、最关键的那几层，要交给极紫外光刻机来画。
+  facts: []
   style: xray
   style_why: “里面怎么排布”：透明剖视同时展示整体层数和最精细的层在哪里。
   transition_in: scan-wipe
-  visual: 扫描带掠过扁平层柱，它变成一块芯片截面的透明三维模型：上百层结构像封在玻璃里的城市，越往上越粗；最底部、贴着晶体管的那二十多层最细密，被染成 EUV 紫并发光。
+  visual: 扫描带掠过扁平层柱，它变成一块芯片截面的透明三维模型：上百层结构像封在玻璃里的城市，越往上越粗；最底部、贴着晶体管的那几层最细密，被染成 EUV 紫并发光（层数示意）。
   camera:
     move: slow orbit
     lens_mm: 50
@@ -545,9 +544,8 @@ shots:
   - ghost_glass_fresnel
   - bloom
   overlays:
-  - text: 先进芯片约二十多层用 EUV 曝光
-    facts:
-    - F55
+  - text: 最精细的那几层用 EUV 曝光
+    facts: []
   - text: 示意
     facts: []
   engine: eevee
@@ -938,7 +936,7 @@ shots:
   segment: A3
   duration: 6.0
   vo:
-  - 第一，自然界里没有现成的 13.5 纳米强光源。
+  - 第一，地球上没有现成的 13.5 纳米强光源。
   facts:
   - F1
   style: type
@@ -1000,7 +998,7 @@ shots:
   style: photoreal
   style_why: “玻璃会吞光”最好用真实材质的透镜和镜子对比，让观众看到实物上的差别。
   transition_in: whip
-  visual: 暗色摄影棚，一块厚重的光学玻璃透镜立在支架上；紫光射入，刚进玻璃就消失，只在入射点留下一圈暖色的辉光。随后透镜被移开，一面泛着彩虹干涉色的多层膜反射镜滑入同一位置，光束被干净利落地折返出去。
+  visual: 真空腔内（钢制腔壁、法兰与观察窗），一块厚重的光学玻璃透镜在换镜滑台上；紫光射入，刚进玻璃就消失，只在入射点留下一圈暖色的辉光。随后透镜被移开，一面素净金属光泽的多层膜反射镜滑入同一位置（整套装置在真空腔里），光束被干净利落地折返出去。
   camera:
     move: slow arc
     lens_mm: 65
@@ -1011,7 +1009,6 @@ shots:
   - build_optics.mirror_blank
   fx:
   - caustics
-  - thin_film_iridescence
   - bloom
   overlays:
   - text: ③ 一片透镜都不能用 · 只能用反射镜
@@ -1049,14 +1046,10 @@ shots:
   - motion_blur
   - counter_roll
   overlays:
-  - text: 17 年
-    facts:
-    - F20
-  - text: 投入 60 多亿欧元
-    facts:
-    - F20
   - text: ASML · 蔡司 ZEISS · 通快 TRUMPF 等伙伴
-    facts: []
+    at: 5.9
+    facts:
+    - F65
   engine: eevee
   sfx:
   - 时间流逝的嗖嗖切换声
@@ -1070,7 +1063,7 @@ shots:
   style: xray
   style_why: “机器里面怎么排布”：透明剖视给出整条光路的空间地图，作为后面各站的目录。
   transition_in: scan-wipe
-  visual: 洁净室里那台机器被扫描光带扫过，外壳变成幽灵玻璃：光源、照明、掩模台、投影物镜、晶圆台以发光核心标出（示意，非真实 CAD）；一条紫色细线从光源出发，沿光路依次点亮各模块，最后落在晶圆上。
+  visual: 从切入起即为透明剖视（示意，非真实 CAD）：光源、照明、掩模台、投影物镜、晶圆台以发光核心标出（示意，非真实 CAD）；一条紫色细线从光源出发，沿光路依次点亮各模块，最后落在晶圆上。
   camera:
     move: track along machine
     lens_mm: 35
@@ -1149,7 +1142,7 @@ shots:
   style: xray
   style_why: 先给空间地图：透明剖视一次交代喷嘴、收集镜、激光入口和中间焦点的相对位置。
   transition_in: dissolve
-  visual: 光源腔透明剖视：鼓形真空容器是幽灵玻璃，里面看得见喷嘴（示意）、椭球收集镜、后方的激光入口、前方收窄到中间焦点；各部件依次亮起标签。
+  visual: 光源腔透明剖视：鼓形真空容器是幽灵玻璃，侧面是锡滴发生器的接口（喷嘴本身在约 0.3 m 外），里面是椭球收集镜、后方的激光入口、前方收窄到中间焦点；各部件依次亮起标签。
   camera:
     move: slow orbit
     lens_mm: 30
@@ -1167,13 +1160,9 @@ shots:
   - ghost_glass_fresnel
   - bloom
   overlays:
-  - text: 喷嘴（示意）
+  - text: 光源腔（示意）
     facts: []
-  - text: 收集镜
-    facts: []
-  - text: 激光入口
-    facts: []
-  - text: 中间焦点 IF
+  - text: 收集镜 · 激光入口 · 中间焦点 IF
     facts: []
   engine: eevee
   sfx:
@@ -1235,6 +1224,8 @@ shots:
   - text: 喷嘴内径 3–5 μm（按 ASML 专利描述 · 示意）
     facts:
     - F21
+  - text: 慢动作
+    facts: []
   engine: cycles
   sfx:
   - 高压细流的嘶声
@@ -1263,7 +1254,7 @@ shots:
   - bloom
   - shallow_dof
   overlays:
-  - text: 射流经双重调制，在飞行中合并（ASML 专利 · 示意）
+  - text: 约 100 颗小液滴在飞行中合成 1 颗（ASML/Cymer 2017 示例 · 示意）
     facts:
     - F21
   - text: 慢动作
@@ -1309,14 +1300,14 @@ shots:
   segment: B1
   duration: 4.5
   vo:
-  - 每秒最多 5 万颗。
+  - 最新的光源，每秒 6 万颗。
   facts:
   - F2
   - F3
   style: photoreal
-  style_why: 用长焦压缩和频闪把“每秒 5 万颗”拍成一条看不到头的珍珠链：B1 的第一个震撼时刻。
+  style_why: 用长焦压缩和频闪把“每秒 6 万颗”拍成一条看不到头的珍珠链：B1 的第一个震撼时刻。
   transition_in: cut
-  visual: 长焦沿锡滴流的轴线拍：压缩透视把成串的锡滴叠成一条伸向远处的珍珠链，频闪光一下下冻结它们；角落计数器飞速滚到 50 000。
+  visual: 长焦沿锡滴流的轴线拍：压缩透视把成串的锡滴叠成一条伸向远处的珍珠链，频闪光一下下冻结它们；角落计数器飞速滚到 60 000。
   camera:
     move: locked-off
     lens_mm: 200
@@ -1330,10 +1321,10 @@ shots:
   - shallow_dof
   - counter_roll
   overlays:
-  - text: 每秒最多 5 万颗 · 每 20 μs 一颗
+  - text: 最新光源每秒 6 万颗
     facts:
     - F2
-  - text: 间距约 1.4 mm（推算：70 m/s × 20 μs）
+  - text: 间距约 1–1.5 mm（随频率与速度）
     facts:
     - F2
     - F3
@@ -1350,7 +1341,7 @@ shots:
   style: hud
   style_why: “控制与测量怎么实时发生”：HUD 细线界面叠在真实画面上。
   transition_in: cut
-  visual: 侧面看锡滴流，计量青色细线锁定框依次套住每一颗锡滴并跟随移动；框边小字跳动（装饰性滚动字符，不显示可读数值）；一颗锁定完成，框变成激光橙，表示“已瞄准”。
+  visual: 侧面看锡滴流，计量青色锁定框套住飞过的锡滴并跟随移动，框边装饰短线跳动（不显示数值）；锁定后框变激光橙，表示“已瞄准”（锡滴间距按真实比例，画面里一次只有一颗）。
   camera:
     move: lateral track with stream
     lens_mm: 70
@@ -1461,11 +1452,9 @@ shots:
   - sem_noise
   - vignette
   overlays:
-  - text: 比例尺 300 μm
+  - text: 示意（仿高速阴影成像）
     facts:
     - F4b
-  - text: 示意（仿高速阴影成像）
-    facts: []
   engine: eevee
   sfx:
   - 快门声
@@ -1570,7 +1559,7 @@ shots:
   style: photoreal
   style_why: 暴力与温柔的对照：一团等离子体旁边，就是原子级精度的镜面。
   transition_in: cut
-  visual: 掠过收集镜镜面：多层膜的彩虹干涉色被等离子体映亮，镜面完美得能看到等离子体的倒影。
+  visual: 掠过收集镜镜面：素净的镜面被等离子体映亮（多层膜在可见光下没有彩虹色），镜面完美得能看到等离子体的倒影。
   camera:
     move: grazing dolly
     lens_mm: 35
@@ -1581,7 +1570,6 @@ shots:
   - build_source.collector
   - build_source.plasma
   fx:
-  - thin_film_iridescence
   - shallow_dof
   overlays: []
   engine: cycles
@@ -1589,9 +1577,9 @@ shots:
   - 一声清亮的高音
 - id: B1_16
   segment: B1
-  duration: 8.5
+  duration: 10.4
   vo:
-  - 先拍扁再加热，薄饼受热更均匀，更多的能量才能变成我们要的那一种光。
+  - 先拍扁，薄饼的面积正好接住整束主脉冲，密度也更低，更多的能量才能变成我们要的那一种光。
   facts:
   - F4
   - F4b
@@ -1721,7 +1709,7 @@ shots:
   style: energy
   style_why: 延续同一张织网，让它在能量图里收拢成一道光，画面本身就是“解释被改写”。
   transition_in: cut
-  visual: 织网中的跃迁线开始弯曲、汇聚，向同一方向收拢，最终拧成一道明亮的紫色光束；画面一侧，一页“教科书”插图（单电子跃迁示意）被这道紫光划过，标题改写为“多重激发态”。
+  visual: 织网渐暗，一道明亮的紫色光束从中穿出；画面左侧一页“教科书”插图：旧标题“单激发态 → 基态（旧解释）”被划掉，改写为“多重激发态之间的跃迁”（Torretti et al. 2020，Nature Communications）。
   camera:
     move: arc around converging beam
     lens_mm: 35
@@ -1738,6 +1726,16 @@ shots:
     facts:
     - F23
   - text: 多重激发态 → EUV 光
+    facts:
+    - F23
+  - text: 教科书页
+    kind: page
+    at: 5.0
+    strike: 5.6
+    write: 6.2
+    old: 单激发态 → 基态（旧解释）
+    new: 多重激发态之间的跃迁
+    note: Torretti et al. 2020 · Nature Communications
     facts:
     - F23
   engine: eevee
@@ -1784,7 +1782,7 @@ shots:
   style: blueprint
   style_why: 镜头逆着激光往回追，进入“它是怎么设计的”：蓝图线稿逐笔画出放大链。
   transition_in: whip
-  visual: 镜头顺着激光入射方向甩回去，落在蓝底网格上：白色线稿逐笔画出一条长长的激光放大链：种子激光盒、前置放大器、四个串联的放大级、光束传输管，尺寸线和虚线隐藏线随之出现。
+  visual: 镜头顺着激光入射方向甩回去，落在蓝底网格上：白色线稿逐笔画出一条长长的激光放大链：种子模块（两台种子激光：预脉冲、主脉冲）、前置放大器、四个串联的放大级、光束传输管。
   camera:
     move: orthographic slow track
     lens_mm: null
@@ -1872,7 +1870,7 @@ shots:
   style: documentary
   style_why: 回答“它在真实世界里有多大”：厂房尺度只能用纪实氛围和人影来交代。
   transition_in: cut
-  visual: 广角低机位，风格化的厂房（不仿制具体工厂）：一根粗光束管从地面下方穿过，连接隔壁的激光间和光刻机；管道观察窗里一道橙色光点高速掠过（示意），几个工程师剪影站在旁边给出尺度。
+  visual: 两层楼的剖面（风格化，不仿制具体工厂）：楼下辅助层里是一排激光放大柜、射频电源和换热器，光束管沿楼下走，经转向镜竖直穿过华夫板楼板，送到楼上光刻机旁的光源；一道橙色光点沿管道掠过（示意），两层都有人影给出尺度。
   camera:
     move: low-angle slow pan
     lens_mm: 20
@@ -1888,6 +1886,11 @@ shots:
   - text: 光路最长约 30 m
     facts:
     - F6
+  - text: 激光在楼下辅助层，光束穿过楼板送上来
+    facts:
+    - F62
+  - text: 示意 · 橙色光点为示意
+    facts: []
   engine: cycles
   sfx:
   - 厂房空调与设备底噪
@@ -1925,16 +1928,16 @@ shots:
   - 零件分离的细碎金属声汇成一片
 - id: B1_27
   segment: B1
-  duration: 11.0
+  duration: 12.4
   vo:
-  - 今天量产机器的光源最高约 600 瓦，ASML 已经在实验室演示了 1000 瓦的原理样机。
+  - 最新一代 NXE 光源，功率已超过 500 瓦；2025 年，ASML 演示了第一台 1000 瓦的 EUV 光源。
   facts:
   - F6
   - F4c
   style: infographic
   style_why: 光的账本第一次记账：从几十千瓦的激光掉到几百瓦的 EUV，计量条的落差就是答案。
   transition_in: cut
-  visual: 光的账本特写：顶端“电”，第一格“激光 几十 kW”亮起；往下一大截落差，第二格“EUV 量产最高约 600 W”；旁边一根虚线向上延伸到“1000 W 原理样机（实验室）”。
+  visual: 光的账本特写：顶端“电”，第一格“激光 几十 kW”亮起；往下一大截落差，第二格“EUV 超过 500 W（NXE:3800E）”；旁边一根虚线向上延伸到“1000 W（ASML 2025 年演示）”。
   camera:
     move: 2d-tilt-down
     lens_mm: null
@@ -1948,10 +1951,10 @@ shots:
   - text: 激光 几十 kW
     facts:
     - F6
-  - text: 量产光源最高约 600 W
+  - text: NXE:3800E 光源超过 500 W
     facts:
     - F4c
-  - text: 1000 W 原理样机已在实验室演示
+  - text: 1000 W 光源已演示（ASML 2025）
     facts:
     - F4c
   engine: manim
@@ -1966,7 +1969,7 @@ shots:
   style: xray
   style_why: “终点在哪里”：回到整机透明剖视，让观众看见光还要走多远。
   transition_in: push-through
-  visual: 计量条缩回右侧，镜头穿进透明整机：光从光源腔穿出中间焦点，沿光路钻进机器深处，镜头跟着光往前推；远处终点晶圆的位置亮起一个小小的光点。
+  visual: 镜头穿进透明整机（High-NA EXE 布局）：光从光源腔穿出中间焦点，沿光路钻进机器深处，镜头跟着光往前推；远处终点晶圆的位置亮起一个小小的光点。
   camera:
     move: push along light path
     lens_mm: 28
@@ -1980,7 +1983,7 @@ shots:
   - ghost_glass_fresnel
   - path_glow
   overlays:
-  - text: 示意
+  - text: 示意（High-NA EXE 布局）
     facts: []
   engine: eevee
   sfx:
@@ -1993,7 +1996,7 @@ shots:
   style: energy
   style_why: 段尾留白：只剩光，交给下一段“刚造出来的光，处境非常危险”。
   transition_in: cut
-  visual: 外壳和结构淡去，只剩一束细细的紫光在黑暗里穿过中间焦点向前；光的账本在右侧静止。
+  visual: 外壳和结构淡去，只剩一束细细的紫光在黑暗里穿过中间焦点向前。
   camera:
     move: slow follow
     lens_mm: 35

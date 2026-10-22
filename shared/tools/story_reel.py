@@ -223,8 +223,7 @@ def label_layer(s, W, H, k, a=1.0):
     ovs = [o for o in s.get("overlays") or [] if o.get("kind") != "chapter"]
     if not ovs or s["id"] in MOGRAPH or s.get("style") == "type":     # text already drawn in frame
         return layer
-    sub_digits = str.maketrans("₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻", "01234567890123456789+-")   # Heiti lacks most of these
-    ovs = [dict(o, text=o["text"].translate(sub_digits)) for o in ovs]
+    # sub/superscripts are typeset by overlay_labels.draw_label via richtext
     lab = {"text": ovs[0]["text"], "sub": " ｜ ".join(o["text"] for o in ovs[1:3]),
            "source": fact_orgs(sorted({f for o in ovs for f in o.get("facts") or []})),
            "facts": [],

@@ -111,7 +111,7 @@ def ledger_level(t, dur, W, H):
     c.text((x + w + 40, level + 4), "光量不变", 36, CYAN, a * (0.7 + 0.3 * pulse), anchor="lm", weight_glow=True)
     c.text((x + w / 2, bot + 50), "光的账本", 28, INK2, a, anchor="mm")
     c.text((960, 120), "改变照明形状 · 几乎不损失光", 44, INK, a * ease(seg(t, 0.4, 1.0)), anchor="mm")
-    c.text((960, 1010), "ZEISS：照明效率接近 100%（F34）", 22, INK2, a, anchor="mm")
+    c.text((960, 1010), "ZEISS（NXE:3400 照明系统数据）：照明效率 100%", 22, INK2, a, anchor="mm")
     return c.finish(glow_radius=10, glow_gain=0.9)
 
 

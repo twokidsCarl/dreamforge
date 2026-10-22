@@ -1,0 +1,232 @@
+# Visual fact audit, segment B3 (collector -> intermediate focus). One row per engineering / structural / optical detail
+# the PICTURE or on-screen text shows (narration numbers live in research/facts.yaml). status:
+#   sourced    - matches a primary source cited here
+#   wrong      - contradicts a source; must change
+#   unsourced  - invented or unchecked; may not reach the final render
+#   simplified - deliberate simplification; difference stated
+#   artistic   - deliberate convention, flagged on screen as 示意 where a viewer could take it literally
+#   glitch     - rendering / readability problem still open; fixed - glitch seen resolved by the verification pass
+# Sources S1-S11 and the recomputed geometry: research/visual/B3_sources.md. Background: euv_source.md s.4-6.
+# Checked against: storyboard/parts/p2_B2-B6.yaml, mograph/b3.py, blender/scripts/build_source.py,
+# blender/shots/b3_scenes.py + b1_source.py (CamB3_02), build_vacuum.source_vessel, shared/blender/materials.py,
+# shared/tools/edit_film.py (how overlays reach the screen), previews renders/shots/B3_*/preview (2026-10-16/17).
+# VERIFIED 2026-10-22 (research/visual/verify_B2-D.md): sample renders renders/shots/B3_*/sample (960x540, rendered
+# 08:10-08:31 on 10-22, after every code change for B3; frame counts = timed durations). Labels / chapter cards checked
+# by running edit_film.labels_for / draw_label / draw_chapter on sample frames.
+B3_01:
+  - item: EUV leaves the plasma point in every direction (spherical burst of rays)
+    status: sourced
+    source: S3 p.181 "open access to the EUV emission pattern over the full 4π sr"
+  - item: rays violet, drawn as moving streaks, slow motion
+    status: artistic
+    note: 13.5 nm EUV is invisible (euv_source.md s.4); project convention EUV = violet
+  - item: chapter card "章节 · 收集镜：把爆炸的光收回来"
+    status: fixed
+    note: edit_film.py label_for() and story_reel drop overlays with kind chapter, so the card is never drawn by the edit. Wording itself is fine.
+    fix: confirm where chapter cards are rendered; if nowhere, add them to the edit
+    verified: "2026-10-22: edit_film.chapter_of/draw_chapter (commit 8dba7e4) return ('收集镜', '把爆炸的光收回来') for B3_01 and draw it 0.2-2.8 s; the same function composited on B5_01/D_01 sample frames renders 章节 / title / subtitle lower left."
+  - item: rendering glitch - frames 1-10 have a grey vignette instead of the black ground the storyboard asks for; frames ~15-30 wash out to a flat lavender field (420 rays at bevel radius 0.006 fill the frame while the camera sits 2 units from the core, plus bloom)
+    status: glitch
+    fix: start CamB3_01 further out or ramp ray emission/bloom over the first second; keep world black
+    verified: "2026-10-22: not fixed - b3_scenes.burst unchanged; frame 1 a large grey bloom halo; frames 13-34 luma 67-183, frames 19-28 a flat lavender field of rays. Commit 0dd7f35 (10:46, after this sample) caps energy-style 'rays' at strength 2.2 in saturated violet, which may cure the wash-out - re-render B3_01 and recheck."
+B3_02:
+  - item: concave ellipsoidal normal-incidence multilayer collector, laser hole at its centre, plasma site in front of the centre
+    status: sourced
+    source: S1 ("Ellipsoidal design • Plasma at first focus"), S3 p.176 ("central aperture in the collector"), S6, S7
+  - item: rim just behind the droplet path (rim 93.2 deg from the axis seen from the plasma; 5.84 sr collected; incidence angle 3.9-31.5 deg)
+    status: sourced
+    source: S2 ">5sr 650mm diameter normal incidence collector"; S3 p.181 "5.5 sr", AOI kept below ~45 deg; S6 mirror extends "almost to the focus point" so it does not block the droplets
+  - item: collector size against droplet and pre-pulse sheet (collector 12.6 units = 1.6 mm at the droplet scale, real 650 mm; the 300 um sheet looks larger than the laser hole)
+    status: simplified
+    source: S2 (650 mm); audit_backlog.yaml B1 note
+    note: on-screen label "椭球形收集镜（示意，非比例）" is drawn (3D shot, first overlay) - keep it
+    verified: "2026-10-22: label composited from edit_film = '椭球形收集镜（示意，非比例）' / 来源 ASML 专利."
+  - item: central hole diameter = 0.11 of the collector diameter
+    status: simplified
+    note: not public; S1 photo reads ~1/6 (our reading). Covered by the 示意 label.
+  - item: coating look - dark steel-blue mirror; material has thin-film rainbow bands (barely visible); storyboard text promises 蓝紫—金色 interference colours from hole to rim
+    status: simplified
+    source: S1 photo shows a mirror-bright bowl with a warm gold/amber cast and no rainbow bands; S1/S8 graded Mo/Si coating (thickness follows the local angle of incidence)
+    note: materials.multilayer_mirror docstring already says the rainbow is an artistic cue
+    fix: drop the rainbow wording from the storyboard; warm amber metallic tint and brighter environment reflections to match the S1 photo
+    verified: "2026-10-22: material fixed - multilayer_mirror is now plain (materials.py l.41-45); frames 1-121 a plain dark steel-blue bowl, no bands. Still darker and cooler than the S1 photo (simplified). Storyboard visual still says 覆满钼硅薄膜虹彩……蓝紫—金色的干涉色 (new item)."
+  - item: tin droplets crossing in front of the collector, perpendicular to its axis
+    status: sourced
+    source: S2 (horizontal droplets, x across z), S5; euv_source.md s.1
+    verified: "2026-10-22: present but tiny - single specks in frames 46-91."
+  - item: pre-pulse beam emerging from the central hole along the axis
+    status: sourced
+    source: S3 p.176; S2 drawing
+    note: orange colour is artistic (CO2 10.6 um is infrared and invisible)
+    verified: "2026-10-22: frame 106 orange beam from the hole to the droplet."
+  - item: dark ring housing at the rim, ribbed chamber, round ports behind
+    status: simplified
+    note: real collector sits in a cylindrical housing about one diameter deep (FOM17 Fig. 16, euv_source.md s.5); interior not public
+  - item: collector axis horizontal
+    status: simplified
+    source: S2 "62 degree orientation", S5 IF at the top of the vessel
+    note: cannot be read in this shot; matters in B3_06
+  - item: rendering - the last ~20 frames show the pre-pulse sheet as a large lumpy silver blob beside the hole, which reads as debris stuck on the mirror and pulls attention from "巨大的收集镜"
+    status: glitch
+    fix: end the shot before the sheet forms, or keep the droplets only
+    verified: "2026-10-22: not fixed - frame 121 a lumpy silver disc about the size of the laser hole beside it."
+  - item: NEW - storyboard visual "巨大的凹面镜覆满钼硅薄膜虹彩，从中心孔向镜缘流动着蓝紫—金色的干涉色" - the picture (correctly) has no rainbow
+    status: wrong
+    source: S1 photo (plain mirror-bright bowl); audit_B1 B1_15
+    fix: storyboard B3_02 visual -> "巨大的凹面镜在暗腔中淡入，镜面平整明亮，中心留着激光孔；锡滴流从镜前横穿而过"
+B3_03:
+  - item: ellipse drawn with two pins and a taut string; text "到两个焦点的距离之和处处相等"
+    status: sourced
+    source: S9
+  - item: mirror arc = the part of the ellipse around the near vertex, focus 1 inside the bowl; labels 焦点① / 焦点②
+    status: sourced
+    source: S1, S7
+  - item: arc extent - the arc runs to 48.7 deg from the axis seen from F1 (far in front of the plasma toward F2); as a mirror that would collect 10.4 sr with 54 deg incidence at the edge
+    status: sourced
+    source: S2 >5 sr, S3 p.181 5.5 sr / only ~2π sr usable / AOI approaching 45 deg reflects s-pol only; S6 rim almost at the focus; the 3D model has the rim at 93 deg
+    fix: in mograph/b3.py end the arc where the polar angle from F1 is ~93-95 deg (rim just behind F1), same as build_source
+    verified: "2026-10-22: fixed - b3.py RIM = 93 deg; frames 13-96 the solid arc ends just behind F1."
+  - item: ellipse proportions - eccentricity 0.83, F1-vertex to F1-F2 = 1 to 9.5; the 3D shots (B3_02/05/06) use 0.64 and 1 to 3.5, and the storyboard asks B3_03 to match B3_02's outline
+    status: unsourced
+    note: real distances are not public (euv_source.md not-public 1-2; S7, S8 give none)
+    fix: use the build_source ellipse (a=11, c=7, scaled to the frame) and add a 示意 tag to the frame
+    verified: "2026-10-22: half fixed - E_ = 0.64 as in 3D (frame 25: vertex-F1 : F1-F2 ~ 1 : 3.6); but no 示意 anywhere in the frame, so the undisclosed proportions are still shown as fact. Add 示意 to the title line (e.g. 到两个焦点的距离之和处处相等（比例示意）)."
+  - item: mirror arc drawn continuous through the vertex (no laser hole)
+    status: sourced
+    source: S3 p.176, S6, S7 (central aperture for the laser)
+    fix: leave a gap around the vertex (hole/rim diameter ratio 0.11 as in 3D, i.e. ±10 deg seen from F1)
+    verified: "2026-10-22: fixed - HOLE = ±10 deg; frames 13-96 the arc has a gap at the vertex; label 收集镜的镜面（中心留孔给激光）."
+  - item: layout - "收集镜的镜面" label sits at the top-left corner, away from the arc
+    status: glitch
+    fix: place the label next to the arc
+    verified: "2026-10-22: not fixed - label at (CX-A-30, CY-B-10), top-left corner, 28 px (frames 13-96)."
+B3_04:
+  - item: every drawn ray from focus 1 reflects through focus 2 (15 rays recomputed - max error 1.2e-6 deg); normals from the ellipse gradient are correct
+    status: sourced
+    source: S9; F56; B3_sources.md geometry
+  - item: ray span - rays hit the ellipse from 58.5 to 180 deg seen from F1 (9.6 sr; incidence up to 51 deg)
+    status: sourced
+    source: same as B3_03 arc extent (S2, S3 p.181, S6)
+    fix: restrict angles to the trimmed arc (polar ~95-170 deg from F1)
+    verified: "2026-10-22: fixed - mirror_phis spans 93-170 deg each side; frames 49-195 every ray lands between the rim (level with F1) and the hole edge."
+  - item: first ray (k=7, drawn first) hits the vertex, i.e. the laser hole, and comes straight back through F1, so it reads as an unbounced line F1 -> F2
+    status: sourced
+    source: S3 p.176, S6 (hole on the axis)
+    fix: drop k=7 and any ray inside the hole cone; open with an off-axis ray
+    verified: "2026-10-22: fixed - first ray at 131.5 deg (frame 25); no ray inside ±10 deg."
+  - item: storyboard promises incidence and reflection angle marks; code draws only the normal with "法线"
+    status: simplified
+    fix: add the two equal angle arcs on the first ray, or change the storyboard text
+    verified: "2026-10-22: not changed - normals only (b3.py l.89-95); storyboard still says 标出入射角与反射角."
+  - item: in-frame title "从一个焦点出发的光，反射后必经另一个焦点"
+    status: sourced
+    source: S9
+    note: repeats the subtitle word for word; consider a shorter in-frame title
+  - item: last rays turn violet and glow
+    status: artistic
+  - item: rendering - "法线" labels at 22 px crowd and overlap the "焦点①" label near F1 (frames ~60-120)
+    status: glitch
+    fix: label one normal only, larger type, offset away from F1
+    verified: "2026-10-22: not fixed - frame 98 crop: three 22 px 法线 labels round F1, one struck through by a ray, rays cross 焦点①; frames 147-195 the bloom at F1 swallows 焦点①."
+  - item: continuity B3_04 -> B3_05 ("same composition") - F1 jumps from x=431 to ~645 px (1920 wide), F2 from 1489 to ~1509, mirror shape changes
+    status: simplified
+    fix: same ellipse as 3D (see B3_03) and match CamB3_05 framing to the blueprint
+    verified: "2026-10-22: shape now matches (e 0.64) but the frame does not: blueprint F1 602 / F2 1318 px vs B3_05 F1 ~645 / F2 ~1509 px (1920 wide). Scale CamB3_05 (or A in b3.py) so the foci coincide."
+  - item: NEW - B3_04 drops the solid mirror arc (and its laser hole) from B3_03 - only the 50 %-alpha dashed construction ellipse is drawn, so the rays reflect off a dashed line
+    status: glitch
+    fix: draw the B3_03 solid arc (RIM..HOLE, both halves) in B3_04 under the rays
+B3_05:
+  - item: hundreds of rays focus 1 -> collector -> focus 2 (2000 random rays checked - on the surface to <1e-6, aimed at F2 to 2.3e-6 deg)
+    status: sourced
+    source: S1, S9; B3_sources.md geometry
+  - item: rays skip the central hole, giving a hollow (annular) cone at IF
+    status: sourced
+    source: S4 far-field inset (ring with dark centre)
+    note: the horizontal shadow band of S4 (droplet hardware) is not drawn - simplified, fine
+  - item: collected solid angle 5.84 sr, rim incidence 31.5 deg
+    status: sourced
+    source: S2, S3 p.181
+  - item: ellipse proportions (plasma-vertex 4, plasma-IF 14; IF 1.1 collector diameters away; IF cone half-angle 23.7 deg) with no 示意 tag on screen
+    status: unsourced
+    note: distances not public; label shows only "每秒最多 5 万次爆炸 → 汇进同一个点"
+    fix: add 示意 to the label (e.g. "示意 · 每秒最多 5 万次爆炸 → 汇进同一个点")
+    verified: "2026-10-22: not fixed - edit_film label for B3_05 is still '每秒最多 5 万次爆炸 → 汇进同一个点' with no 示意."
+  - item: overlay "每秒最多 5 万次爆炸 → 汇进同一个点"
+    status: wrong
+    source: F2; S10 "repeated 50,000 times every second"
+    note: F2 was re-sourced on 10-21 to ASML AR2025 "60,000 times per second in our latest commercial sources"; facts.yaml F2 notes say 以最新的 6 万为准，不说"最多" (C_06 was changed accordingly)
+    fix: storyboard B3_05 overlay -> "每秒 6 万次 → 汇进同一个点（示意）" (facts F2, F56)
+    verified: "2026-10-22: label still reads 每秒最多 5 万次 - contradicts the current F2."
+  - item: only rays toward the collector are drawn (none straight to IF); no obscuration or vanes
+    status: simplified
+    source: S3 p.183 small obscuration on the plasma-IF line; S2 vanes
+  - item: five pulses, accelerating, slow motion; rays stop at IF
+    status: artistic
+    verified: "2026-10-22: frames 11-84 five pulses converge on the IF dot; the collector outline between pulses is very faint (frames 1, 63)."
+B3_06:
+  - item: plasma at focus 1, intermediate focus at focus 2, IF = handover point between source and scanner (labels 焦点① · 等离子体 / 焦点② · 中间焦点（IF）/ 光源 ┃ 扫描仪)
+    status: sourced
+    source: S1, S2 (IF unit at the vessel/scanner boundary), S4 slide 11 (IF on the source/scanner boundary)
+  - item: no plasma at focus 1 - the handoff variant never builds S.plasma (storyboard lists it); the label points at nothing
+    status: glitch
+    fix: add S.plasma() or the emissive core used in B3_05 at the origin
+    verified: "2026-10-22: not fixed - b3_scenes.handoff builds no plasma; frames 1-213 rays cross at F1 with no emitter."
+  - item: on-screen 示意 tag is not shown - edit_film.label_for() shows the first overlay plus the next two only, so the 4th overlay "示意" is dropped; labels sit upper right, not anchored to F1 / F2
+    status: simplified
+    source: WORKFLOW 1.2 (undisclosed details must carry 示意); shared/tools/edit_film.py line 68
+    fix: fold 示意 into the first overlay text ("焦点① · 等离子体（示意）") or make label_for show all overlays
+    verified: "2026-10-22: 示意 fixed - edit_film._lab puts 示意 first (l.64); composited label = '焦点① · 等离子体' / '示意 ｜ 焦点② · 中间焦点（IF）'. Labels still upper right, not anchored (simplified). The third overlay 光源 ┃ 扫描仪 is now the one dropped (new item)."
+  - item: vessel = drum around the collector narrowing to a cone and neck at IF
+    status: simplified
+    source: S2 cone lined with vanes to the IF unit; S5 bowl-shaped lower vessel, narrower upper section, IF on top
+    note: vanes and obscuration not drawn
+  - item: IF aperture plate with a small hole at the neck tip
+    status: simplified
+    source: S2 "Intermediate Focus Unit" hourglass throat
+    note: aperture size not public
+  - item: collector axis horizontal, scanner straight along it
+    status: simplified
+    source: S2 "62 degree orientation", S5 IF at the top; S2 schematic itself is drawn horizontal
+    note: acceptable only with the 示意 tag actually on screen (see above)
+    verified: "2026-10-22: 示意 is now on screen (label sub)."
+  - item: laser port behind the collector on its axis; droplet-generator port at plasma height
+    status: sourced
+    source: S3 p.176, S2, S5
+  - item: no droplet-catcher port opposite the generator
+    status: sourced
+    source: S5 catcher and generator on opposite flanks
+    fix: add a port on +Y at plasma height in build_vacuum.source_vessel
+    verified: "2026-10-22: fixed in build_vacuum.source_vessel (l.132-136: generator -Y, catcher +Y on one line through the plasma); frames 54-133 show port cylinders on both flanks of the drum."
+  - item: scanner body = plain box much larger than the vessel
+    status: artistic
+    note: generic shell (project rule - no ASML exterior); PUR20 slide 16 shows the scanner far larger than the vessel
+  - item: rendering - neck ends at x=14.4 but the scanner box face is at x=16, so the "docking" leaves a 1.6-unit gap
+    status: glitch
+    fix: move ScannerBody to x=38.4 or extend the neck to the box face
+    verified: "2026-10-22: not fixed - ScannerBody still at x=40, scale 24 (face x=16)."
+  - item: NEW - end of the shot is washed out - frames 107-213 grey-on-grey (luma stddev 8.8 at 100, 4.6 at 213); the scanner body is a barely visible ghost outline, so the docking that the narration and 光源 ┃ 扫描仪 describe does not read
+    status: glitch
+    fix: darker xray background or stronger shell edges for the ScannerBody; end on a closer framing of the neck entering the body
+  - item: NEW - overlay 光源 ┃ 扫描仪 never reaches the screen (edit_film shows the first overlay + two sub-items, 示意 taking one slot)
+    status: glitch
+    fix: give the overlays `at:` times (焦点① at 0.4, 焦点② at ~3.5, 光源 ┃ 扫描仪 at ~6.0 s, each with （示意）) so each appears with its narration
+B3_07:
+  - item: camera pushes through the IF aperture past the violet focus point
+    status: artistic
+    note: aperture plate radius 6 / hole 0.6 is stylised; IF aperture size not public
+  - item: beyond IF, 14 round mirrors in symmetric pairs flank a straight beam like nave columns; the light never reflects off any of them
+    status: simplified
+    source: S4 slide 11 (after IF the beam reflects at the first illuminator mirror and zig-zags; every turn is a mirror); S11 (EXE - fold mirror -> field facet mirror -> pupil facet mirror -> mask); S3 p.175 (NXE - 10 reflections from IF to the wafer in total, the nave shows 14 before the mask); WORKFLOW 2.5 (no EXE mirror count)
+    fix: after the aperture show the first real element(s) - the small fold mirror then the faceted field facet mirror lighting up with the beam bouncing off them (high_na_optics.md [Z24] s.13) - or keep an empty dark vacuum with no mirror objects so no path or count is implied
+    verified: "2026-10-22: geometry fixed - b3_scenes.nave uses the build_machine High-NA train (fold, field facet, pupil facet, PO mirrors, reticle stage); frames 67-136 show these, no symmetric nave. Simplified: facet mirrors are plain discs. But the beam is never visible (new glitch), so 'the beam bouncing off them' is still not shown."
+  - item: mirror rims lit with cold light, Mo/Si material
+    status: artistic
+  - item: NEW - no light path visible after the IF - LightPath bevel is keyed IF -> reticle over frames 30-120, yet frames 40-136 contain no violet pixels at all
+    status: glitch
+    fix: check LightPath visibility in nave() (styles may hide role 'rays' in photoreal, or its emission is 0); the beam should draw on and turn at each mirror as the camera passes
+  - item: NEW - the camera passes through the aperture plate - frames 61-63 grey plate fill, 64-65 pure black, 66 split frame (left half lit, right half black at a hard vertical edge)
+    status: glitch
+    fix: push the camera through the hole axis (keys BM.IF + ax*0.15 is inside the 1.2-radius plate off-axis by 0.3) - put the eye on the axis or let the plate hide_render from frame 60
+  - item: NEW - storyboard visual still describes the old nave ("远处一面面镜子的边缘依次亮起冷光，像一座教堂的廊柱"; builder build_optics.mirror_blank)
+    status: wrong
+    fix: storyboard B3_07 visual -> "穿过中间焦点的小孔，紫色光束在折转镜、场分面镜、光瞳分面镜上依次转折，一路通向掩模（示意）"

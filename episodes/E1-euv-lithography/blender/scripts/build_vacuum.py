@@ -129,9 +129,11 @@ def source_vessel(r=15.0, x_back=-6.5, x_shoulder=2.0, x_neck=12.6, r_neck=1.6, 
         _smooth(ring)
         ring.data.materials.append(steel)
         styles.tag(ring, "structure")
-    # ports: drive-laser entry at the back, droplet generator at -Y, diagnostics around
+    # ports: drive-laser entry at the back, droplet generator at -Y and the droplet catcher opposite it at +Y
+    # (one horizontal line through the plasma, research/visual/euv_source.md), diagnostics around
     for loc, rot, rad in (((x_back - 0.6, 0, 0), (0, math.pi / 2, 0), 1.2),
                           ((0.0, -r - 0.5, 0), (math.pi / 2, 0, 0), 1.8),
+                          ((0.0, r + 0.5, 0), (math.pi / 2, 0, 0), 1.5),
                           ((-2.0, 0, r + 0.5), (0, 0, 0), 1.4),
                           ((-1.0, r * 0.7 + 0.4, r * 0.7 + 0.4), (-math.pi / 4, 0, 0), 1.1)):
         bpy.ops.mesh.primitive_cylinder_add(radius=rad, depth=1.2, vertices=64, location=loc,

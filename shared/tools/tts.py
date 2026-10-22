@@ -21,9 +21,11 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 import time
 
 sys.path.insert(0, os.path.dirname(__file__))
+from asr_prompt import asr_prompt  # noqa: E402
 from lint_script import parse  # noqa: E402
 from speech_text import normalize  # noqa: E402
 
@@ -60,13 +62,21 @@ def request(spoken, voice, wav):
     body = json.dumps({"model": MODEL, "input": {"text": spoken, "voice": voice,
                                                   "language_type": "Chinese"}}).encode()
     url = ENDPOINTS[os.environ.get("QWEN_REGION", "singapore")]
+    fd, hdr = tempfile.mkstemp(prefix="tts_hdr_")         # the key goes in a 0600 file, not on the command line
+    with os.fdopen(fd, "w") as f:
+        f.write(f"Authorization: Bearer {os.environ['DASHSCOPE_API_KEY']}\nContent-Type: application/json\n")
+    try:
+        return _request(body, url, hdr, wav, spoken)
+    finally:
+        os.remove(hdr)
+
+
+def _request(body, url, hdr, wav, spoken):
     r = None
     for attempt in range(5):
         try:
             # curl uses the system trust store (python.org builds of Python ship without one)
-            r = subprocess.run(["curl", "-s", "-m", "90", "-X", "POST", url,
-                                "-H", f"Authorization: Bearer {os.environ['DASHSCOPE_API_KEY']}",
-                                "-H", "Content-Type: application/json", "--data-binary", "@-"],
+            r = subprocess.run(["curl", "-s", "-m", "90", "-X", "POST", url, "-H", f"@{hdr}", "--data-binary", "@-"],
                                input=body, capture_output=True, check=True)
             d = json.loads(r.stdout)
             # the result URL comes back as plain http; some networks block port 80, so fetch it over https
@@ -80,8 +90,14 @@ def request(spoken, voice, wav):
             return wav
         except Exception as e:  # noqa: B902  # rate limits / transient network errors / API error bodies
             wait = 2 ** attempt
-            detail = r.stdout[:200] if "r" in locals() and hasattr(r, "stdout") else ""
-            print(f"  retry {attempt + 1} in {wait}s: {e} {detail}", file=sys.stderr)
+            # never print the exception itself: a CalledProcessError carries the curl command line,
+            # including the Authorization header with the API key
+            if isinstance(e, subprocess.CalledProcessError):
+                what = f"curl/ffmpeg exit {e.returncode}"
+            else:
+                what = type(e).__name__
+            detail = r.stdout[:200].decode("utf-8", "replace") if r is not None and r.stdout else ""
+            print(f"  retry {attempt + 1} in {wait}s: {what} {detail}", file=sys.stderr)
             time.sleep(wait)
     raise RuntimeError(f"TTS failed: {spoken[:30]}")
 
@@ -200,11 +216,13 @@ _ASR = []
 
 
 def intelligibility(wav, spoken):
-    """How well the recogniser hears a take, as the score of its worst sentence (0-1): a take can hit the
-    target rate and pitch and still garble two words, which a whole-paragraph average would hide.
-    The transcript is cached next to the take. Needs faster-whisper (.venv)."""
+    """How well the recogniser hears a take, as the score of its worst sentence (0-1, compared by sound so
+    homophones are not errors): a take can hit the target rate and pitch and still garble two words, which a
+    whole-paragraph average would hide. The transcript is cached next to the take. Needs faster-whisper,
+    pypinyin (.venv)."""
     import difflib
-    from asr_check import load16k, norm
+    from asr_check import load16k, missed_terms, sounds
+    from asr_prompt import asr_terms
     cache = wav + ".asr.txt"
     if os.path.exists(cache):
         heard = open(cache, encoding="utf-8").read()
@@ -212,22 +230,23 @@ def intelligibility(wav, spoken):
         if not _ASR:
             from faster_whisper import WhisperModel
             _ASR.append(WhisperModel("large-v3-turbo", device="cpu", compute_type=os.environ.get("DREAMFORGE_ASR_COMPUTE", "int8")))
-        segs, _ = _ASR[0].transcribe(load16k(wav), language="zh", beam_size=5,
-                                     initial_prompt="以下是普通话科普旁白，使用简体中文。")
-        heard = norm("".join(x.text for x in segs))
+        segs, _ = _ASR[0].transcribe(load16k(wav), language="zh", beam_size=5, initial_prompt=asr_prompt())
+        heard = "".join(x.text for x in segs)
         open(cache, "w", encoding="utf-8").write(heard)
-    parts = [norm(sp) for sp in spoken]
-    full = "".join(parts)
+    parts = [sounds(sp) for sp in spoken]
+    full = [x for p in parts for x in p]
     hit = [False] * len(full)
-    for b in difflib.SequenceMatcher(None, full, heard, autojunk=False).get_matching_blocks():
-        for i in range(b.a, b.a + b.size):
+    for blk in difflib.SequenceMatcher(None, full, sounds(heard), autojunk=False).get_matching_blocks():
+        for i in range(blk.a, blk.a + blk.size):
             hit[i] = True
     worst, i = 1.0, 0
     for p in parts:
         if p:
             worst = min(worst, sum(hit[i:i + len(p)]) / len(p))
         i += len(p)
-    return worst
+    # a glossary term that is not heard (激光 as 机关) costs as much as a badly garbled sentence
+    miss = missed_terms("".join(spoken), heard, asr_terms())
+    return worst - 0.05 * len(miss)
 
 
 def build_paragraph(voice, segments, out_dir, attempts=3, asr=None):
@@ -241,8 +260,24 @@ def build_paragraph(voice, segments, out_dir, attempts=3, asr=None):
     script = parse(os.path.join(EP, "script/script_zh.md"))
     manifest, report, ref_pitch = {}, [], None
     timing, t_global = {"voice": voice, "model": MODEL, "mode": "paragraph", "segments": []}, 0.0
+    # a partial run (--segments) must keep every other segment: carry its timing entry and sentence files over
+    # (rewriting timing.json / sentences.json with only the selected segments broke retime for the rest)
+    old = {}
+    tpath = os.path.join(vdir, "timing.json")
+    if segments and os.path.exists(tpath):
+        old = {sg["id"]: sg for sg in json.load(open(tpath, encoding="utf-8")).get("segments", [])}
     for seg in script:
         if segments and seg["id"] not in segments:
+            prev = old.get(seg["id"])
+            if prev is None:
+                raise SystemExit(f"{seg['id']} has no earlier timing entry; run tts.py for all segments once")
+            for row in prev["lines"]:
+                row["global_start"] = round(t_global + row["start"], 3)
+            for i, L in enumerate(seg["lines"]):
+                manifest[L["text"]] = os.path.join(sdir, f"{seg['id']}_{i:02d}.wav")
+            prev["start"] = round(t_global, 3)
+            timing["segments"].append(prev)
+            t_global += prev["duration"]
             continue
         spoken = [normalize(L["text"]) for L in seg["lines"]]
         weights = [spoken_len(sp) for sp in spoken]
@@ -252,7 +287,11 @@ def build_paragraph(voice, segments, out_dir, attempts=3, asr=None):
             key = hashlib.sha1(f"{MODEL}|{voice}|para|{k}|{text}".encode()).hexdigest()[:16]
             wav = os.path.join(cache, f"{seg['id']}_{key}.wav")
             if not os.path.exists(wav):
-                request(text, voice, wav)
+                try:
+                    request(text, voice, wav)
+                except RuntimeError as e:                 # one failed take (network) must not end the whole run
+                    print(f"  {seg['id']} take {k + 1}: skipped ({e})", flush=True)
+                    continue
             spans, x = vo_split.split(wav, weights)
             rate, f0 = take_stats(x, spans, weights)
             ref = TARGET_PITCH                        # one pitch for the whole film, not per segment
@@ -265,6 +304,8 @@ def build_paragraph(voice, segments, out_dir, attempts=3, asr=None):
                 best = (score, wav, spans, x, rate, f0, k)
             if abs(rate / TARGET_RATE - 1) <= RATE_TOL and abs(f0 / ref - 1) <= PITCH_TOL and clear >= 0.97:
                 break
+        if best is None:
+            raise SystemExit(f"{seg['id']}: no take could be synthesised")
         score, wav, spans, x, rate, f0, k = best
         ref_pitch = ref_pitch or f0
         rows, t = [], 0.0

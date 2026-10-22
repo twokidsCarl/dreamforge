@@ -50,7 +50,6 @@ shots:
   - build_vacuum.chamber
   - build_source.collector
   - build_source.collector_housing
-  - build_source.euv_cone
   - build_source.debris
   fx:
   - bloom
@@ -134,7 +133,9 @@ shots:
   - motion_blur
   - bloom
   - particles
-  overlays: []
+  overlays:
+  - text: 示意（非比例）
+    facts: []
   engine: cycles
   sfx:
   - 主脉冲爆裂（与 B1 同一音效，稍压低）
@@ -197,7 +198,7 @@ shots:
   - scanlines
   - deposition_particles
   overlays:
-  - text: 沉积 · 注入 · 溅射（示意）
+  - text: 沉积 · 注入 · 溅射（示意 · 原子放大 · 顶层为保护层）
     facts:
     - F26
   - text: 反射率 ↓
@@ -301,7 +302,7 @@ shots:
   - text: Sn + 4 H· → SnH₄↑（气体）
     facts:
     - F27
-  - text: 示意
+  - text: 示意 · 顶层为保护层
     facts: []
   engine: eevee
   sfx:
@@ -331,7 +332,9 @@ shots:
   fx:
   - ghost_glass
   - gas_flow_particles
-  overlays: []
+  overlays:
+  - text: 抽气口（泵的类型与位置未公开 · 示意）
+    facts: []
   engine: eevee
   sfx:
   - 真空泵高速旋转的稳定嗡声
@@ -501,6 +504,8 @@ shots:
   - freestyle_lines
   - line_draw_on
   overlays:
+  - text: 示意
+    facts: []
   - text: 焦点①
     facts: []
   - text: 焦点②
@@ -566,7 +571,7 @@ shots:
   - bloom
   - flare
   overlays:
-  - text: 每秒最多 5 万次爆炸 → 汇进同一个点
+  - text: 每秒 6 万次 → 汇进同一个点（示意）
     facts:
     - F2
     - F56
@@ -601,17 +606,18 @@ shots:
   - ghost_glass
   - glow_core
   overlays:
-  - text: 焦点① · 等离子体
+  - text: 焦点① · 等离子体（示意）
+    at: 0.4
     facts:
     - F56
-  - text: 焦点② · 中间焦点（IF）
+  - text: 焦点② · 中间焦点（IF）（示意）
+    at: 3.3
     facts:
     - F56
-  - text: 光源 ┃ 扫描仪
+  - text: 光源 ┃ 扫描仪（示意）
+    at: 5.5
     facts:
     - F56
-  - text: 示意
-    facts: []
   engine: eevee
   sfx:
   - 机械对接的厚重“咔”声
@@ -654,7 +660,7 @@ shots:
   style: energy
   style_why: 反射与吸收是看不见的物理，能量图里一面普通镜子“吞光”最直观。
   transition_in: fade-to-energy
-  visual: 黑底上一面普通镀银玻璃镜的暗色描边；一道紫色 EUV 光射过去，到镜面就像落进黑洞一样消失，没有一丝反射；镜框边缘只微微泛起一圈暗橙色的热。
+  visual: 黑底上一面普通镀银玻璃镜的暗色描边；一道紫色 EUV 光射过去，到镜面就像落进黑洞一样消失，没有一丝反射；光斑处微微泛起一点暗橙色的热。
   camera:
     move: static
     lens_mm: 50
@@ -679,13 +685,13 @@ shots:
   segment: B4
   duration: 8.5
   vo:
-  - 蔡司的办法，是在镜面上交替镀钼和硅，最多约 100 层，每层只有几纳米厚。
+  - 蔡司的办法，是在镜面上交替镀钼和硅，多达上百层，每层只有几纳米厚。
   facts:
   - F8
   style: sem
   style_why: 膜层只有几纳米，必须用显微截面才看得见。
   transition_in: zoom-through
-  visual: 镜头扎进一面 EUV 镜子的镜面，变成灰阶电镜截面：深色钼、浅色硅一层层交替，扫描线自上而下“扫出”每一层；侧边计数器从 1 滚到约 100；构图与 B2_05 相同。
+  visual: 镜头扎进一面 EUV 镜子的镜面，变成灰阶电镜截面：深色钼、浅色硅一层层交替，扫描线自上而下“扫出”每一层；侧边计数器滚到上百层；构图与 B2_05 相同。
   camera:
     move: zoom-through
     lens_mm: 100
@@ -699,7 +705,7 @@ shots:
   - scanlines
   - counter
   overlays:
-  - text: 钼 / 硅 交替 · 最多约 100 层 · 每层几 nm
+  - text: 钼 / 硅 交替 · 上百层 · 每层几 nm
     facts:
     - F8
   engine: eevee
@@ -748,7 +754,7 @@ shots:
   style: photoreal
   style_why: 纯画面节拍：从原理回到实物——这层膜真的覆在一面闪着虹彩的大镜子上。
   transition_in: zoom-through
-  visual: 从截面倒拉出镜面，一面巨大的自由曲面镜躺在洁净室支架上，镜面泛着与收集镜同样的钼硅虹彩，一道冷光从镜面上缓缓掠过。
+  visual: 从截面倒拉出镜面，一面约 1 米宽的非球面镜架在洁净室的工装上，镜面是素净的金属光泽，一道冷光从镜面上缓缓掠过。
   camera:
     move: pull-back
     lens_mm: 65
@@ -846,7 +852,7 @@ shots:
   - sem_noise
   - dof
   overlays:
-  - text: 比例尺 mm → μm → nm → pm
+  - text: 比例尺 nm → pm · 原子排布示意
     facts: []
   engine: eevee
   sfx:
@@ -878,7 +884,7 @@ shots:
   - scanlines
   - ruler_glow
   overlays:
-  - text: High-NA 镜面误差 ≈ 20 pm ≈ 1/10 个原子
+  - text: High-NA 镜面误差约 20 pm（RMS）≈ 1/10 个原子
     facts:
     - F29
   - text: 硅原子标尺 · 相邻硅原子间距 ≈ 235 pm
@@ -943,7 +949,7 @@ shots:
   - dof
   - motion_blur
   overlays:
-  - text: < 0.1 nrad ≈ 从地球打中月球上的一颗高尔夫球
+  - text: < 0.1 nrad · 蔡司的比喻：从地球打中月球上的一颗高尔夫球
     facts:
     - F30
     - F9b
@@ -1051,7 +1057,7 @@ shots:
   style: clay
   style_why: “零件怎么组装”——白模爆炸图安静而清楚，不暴露真实内部结构。
   transition_in: match-cut
-  visual: 测量舱的舱门合上，轮廓接成一只白色哑光的投影光学模块；模块炸开成成千上万个白色零件悬浮在空中，再如潮水般收拢复位，被吊钩提起；零件计数器滚过 40,000。
+  visual: 测量舱的舱门合上，轮廓接成一只白色哑光的投影光学模块；模块打开成受力框架、传感框架和六个镜片模块（按公开设计示例摆放），再收拢复位。
   camera:
     move: orbit
     lens_mm: 50
@@ -1117,7 +1123,7 @@ shots:
   style: energy
   style_why: 同一语言接续：把单面镜的损耗串成一整条光路。
   transition_in: cut
-  visual: 镜头拉开，光束在约 10 面镜子之间折来折去（布局示意，不是真实光路），每打一次镜子就暗一截、细一截；右侧计量条同步一级级下降（不标中间数字）。
+  visual: 镜头拉开，光束沿 High-NA 的公开光路在约 10 面镜子和掩模之间折转，每打一次镜子就暗一截、细一截；右侧计量条同步一级级下降（不标中间数字）。
   camera:
     move: pull-back-pan
     lens_mm: 28
@@ -1132,7 +1138,7 @@ shots:
   - bloom
   - beam_attenuation
   overlays:
-  - text: 约 10 面反射镜（布局示意）
+  - text: 约 10 面反射镜 + 掩模（按 High-NA 公开光路）
     facts:
     - F7
   engine: eevee
@@ -1142,7 +1148,7 @@ shots:
   segment: B4
   duration: 6.0
   vo:
-  - 进去 100 瓦，到晶圆上，最多只剩约 1 瓦。
+  - 进去的光，到了晶圆上，只剩大约百分之一。
   facts:
   - F33
   style: infographic
@@ -1159,7 +1165,7 @@ shots:
   - flat_motion
   - meter_drop
   overlays:
-  - text: 进入扫描仪 100 W → 到晶圆 ≈ 1 W
+  - text: 进入光路 100% → 到晶圆 ≈ 1%（每面约 66%，11 次反射）
     facts:
     - F33
   engine: manim
@@ -1292,7 +1298,7 @@ shots:
   style: photoreal
   style_why: 镜片阵列是真实存在的精密实物，真实渲染的微距才能看到每一片的镀膜光泽。
   transition_in: dissolve
-  visual: 镜片阵列微距：成排的小镜片密密铺开，每片都带着钼硅虹彩，一片接一片轻轻偏转，反射光像鳞片一样闪烁。
+  visual: 镜片阵列微距：成排的小镜片密密铺开，每片都是一条细长的弧形镜条，一片接一片轻轻偏转，反射光像鳞片一样闪烁。
   camera:
     move: slide
     lens_mm: 100
@@ -1321,7 +1327,7 @@ shots:
   style: photoreal
   style_why: 纯画面节拍（本段震撼时刻）：整面镜墙同步翻转，像外星生物的鳞片——“外星科技”的直观感受。
   transition_in: cut
-  visual: 拉开看整面镜墙：所有镜片如人浪一般依次翻转，反射光在墙面上拼出一个明亮的圆环，又翻转成两个光点。
+  visual: 拉开看：左边的场分面镜墙一列列微微转动，把光分别送到右边圆形的光瞳分面镜上；光瞳镜上被点亮的小圆镜拼出一个圆环，又变成上下两极。
   camera:
     move: pull-back
     lens_mm: 50
@@ -1455,20 +1461,19 @@ shots:
   - 下一站：掩模，也就是芯片的设计底片。
   facts: []
   style: photoreal
-  style_why: 新角色登场，先以真实的样子见面：掩模的图案在光下泛着虹彩。
+  style_why: 新角色登场，先以真实的样子见面：掩模的图形区在光下呈现明暗不一的功能块。
   transition_in: dissolve
-  visual: 掩模在暗色支架里缓缓转入画面，表面的电路图案在侧光下折射出彩虹般的衍射色带，浅景深只清晰一小块图形区。
+  visual: 掩模在暗色支架里缓缓转入画面，镜面般的图形区在侧光下显出一块块明暗不同的功能区和芯片之间的切割道（没有彩虹：EUV 掩模的图形周期太细，看不到可见光衍射色），浅景深只清晰一小块图形区。
   camera:
     move: slide-rotate
     lens_mm: 85
     fstop: 2.0
-    notes: 低角度横移，掩模微微转动带出衍射色
+    notes: 低角度横移，掩模微微转动带出镜面高光
   builders:
   - build_mask.reticle
   - build_mask.absorber_pattern
   - pdk_patterns.sky130_metal
   fx:
-  - diffraction_iridescence
   - dof
   - bloom
   overlays:
@@ -1533,7 +1538,7 @@ shots:
   - bloom
   - additive_blend
   overlays:
-  - text: 反射 = 亮 · 吸收 = 关
+  - text: 开口 = 反射 · 吸收层 = 关
     facts:
     - F14
   engine: eevee
@@ -1564,7 +1569,7 @@ shots:
   - line_draw_on
   - dimension_lines
   overlays:
-  - text: 入射角 ≈ 6°
+  - text: NXE：入射角 ≈ 6°
     facts:
     - F40
   engine: eevee
@@ -1704,7 +1709,7 @@ shots:
   - strobe_fill
   - hud_markers
   overlays:
-  - text: 1 颗颗粒 → 每一颗芯片 · 良率损失 100%
+  - text: 1 颗颗粒 → 每一颗芯片 · 满场芯片良率损失 100%
     facts:
     - F35
   engine: eevee
@@ -1738,6 +1743,8 @@ shots:
   - text: 每 100 万次搬运 · 最多 1 个颗粒
     facts:
     - F37
+  - text: 机械手外形示意
+    facts: []
   engine: eevee
   sfx:
   - 机械臂的伺服声加速成连续嗡鸣
@@ -1767,16 +1774,16 @@ shots:
   - 一声极轻的“叮”
 - id: B6_12
   segment: B6
-  duration: 7.5
+  duration: 8.3
   vo:
-  - 掩模上方还罩着一层保护膜，叫 pellicle，只有 13 纳米厚，
+  - 掩模的图形面前还罩着一层保护膜，叫 pellicle，只有 13 纳米厚，
   facts:
   - F36
   - F1
   style: xray
   style_why: “它装在哪里”——透明剖视同时看到掩模、支架和悬在上方的膜。
   transition_in: scan-wipe
-  visual: 透明剖视：掩模上方一圈边框撑起一张近乎看不见的薄膜，只在掠射角泛出淡淡的虹彩；侧面插入一个小尺寸对照——13 nm 的膜厚旁画一段 13.5 nm 的 EUV 波长，几乎一样长。
+  visual: 透明剖视：掩模图形区前方，四个小支座托起一圈低矮的框架（与掩模之间留一道细缝），框上绷着一张近乎看不见的矩形薄膜，只在掠射角泛出一层淡淡的反光；侧面插入一个小尺寸对照——13 nm 的膜厚旁画一段 13.5 nm 的 EUV 波长，几乎一样长。
   camera:
     move: orbit
     lens_mm: 40
@@ -1788,7 +1795,6 @@ shots:
   - styles.apply_style
   fx:
   - ghost_glass
-  - thin_film_iridescence
   overlays:
   - text: pellicle 厚 13 nm
     facts:
@@ -1831,6 +1837,9 @@ shots:
   - text: 真空中 最高 500 °C
     facts:
     - F36
+  - text: 暗红辉光为示意（500 °C 时肉眼几乎看不到）
+    facts:
+    - F36
   engine: cycles
   sfx:
   - 每次脉冲一声低沉的“嗡”
@@ -1844,7 +1853,7 @@ shots:
   style: photoreal
   style_why: 纯画面节拍（本段震撼时刻）：掠射特写，让发光的薄膜在画面里完整呼吸一次。
   transition_in: cut
-  visual: 掠射角特写：发着暗红光的薄膜微微起伏，干涉色带缓缓流过表面，热浪让背景轻轻扭曲；一行小字浮现又淡去。
+  visual: 掠射角特写：发着暗红光的薄膜微微起伏，微弱的暗红辉光缓缓起伏，镜面高光沿膜面滑过，热浪让背景轻轻扭曲；一行小字浮现又淡去。
   camera:
     move: slide
     lens_mm: 100
@@ -1855,10 +1864,9 @@ shots:
   fx:
   - emission_heat
   - heat_shimmer
-  - thin_film_iridescence
   - dof
   overlays:
-  - text: 13 nm · 500 °C
+  - text: 13 nm · 500 °C（发光示意）
     facts:
     - F36
   engine: cycles
@@ -1868,7 +1876,7 @@ shots:
   segment: B6
   duration: 5.5
   vo:
-  - 灰尘落在膜上，离开了焦点，就印不出来。
+  - 小颗粒落在膜上，离开了焦点，就印不出来。
   facts: []
   style: energy
   style_why: 离焦是光学现象，能量图里能直接看到光线在像面上散开。
@@ -1889,7 +1897,7 @@ shots:
   - defocus_blur
   - light_trails
   overlays:
-  - text: 离焦 → 印不出来（示意）
+  - text: 小颗粒离焦 → 印不出来（示意）
     facts: []
   engine: eevee
   sfx:
@@ -1918,7 +1926,7 @@ shots:
   - text: “与魔法无异”
     facts:
     - F36
-  - text: The EUV pellicle — indistinguishable from magic · ASML, 2022
+  - text: 'Indistinguishable from magic: the EUV pellicle · ASML, 2022'
     facts:
     - F36
   engine: manim
@@ -1932,7 +1940,7 @@ shots:
   style: xray
   style_why: 纯画面节拍：退回整机剖视，带着图形的光离开掩模射向投影物镜，交给 B7。
   transition_in: dissolve
-  visual: 引语淡出，透明剖视中带着条纹的紫色光从掩模反射而下，射进下方投影物镜的幽灵玻璃外壳里。
+  visual: 引语淡出，透明剖视中带着条纹的紫色光从掩模反射而下，从光瞳分面镜射上掩模、再反射进下方投影物镜的 M1、M2（High-NA 光路）。
   camera:
     move: tilt-down
     lens_mm: 35

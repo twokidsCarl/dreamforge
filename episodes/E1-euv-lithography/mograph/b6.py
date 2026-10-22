@@ -1,10 +1,16 @@
-"""B6 2D shots: incidence-angle blueprint (F40), OPC/ILT mask shapes under the SEM (F38),
+"""B6 2D shots: incidence-angle blueprint (F40), OPC mask shapes under the SEM (F38),
 computational lithography in three beats (F38), one particle -> every die (F35),
-one in a million (F37), defocused dust on the pellicle, and the "indistinguishable from magic" card (F36)."""
+one in a million (F37), defocused dust on the pellicle, and the "indistinguishable from magic" card (F36).
+
+Sources (research/visual/B6B7_sources.md, audit_B6.yaml): NXE chief ray 6 deg [ZEISS, Conradi 2011 s.20]; cone
+half-angle at the mask asin(0.33/4) = 4.73 deg; OPC shapes = hammerheads at line ends, serifs at corners, separate
+assist bars [Brion/ASML US 7,694,267]; densest NXE mask pitch 104 nm = 26 nm on the wafer x 4 [ASML]; 96 full fields
+of 26 x 33 mm per 300 mm wafer, edge fields included [F45; ASML 2022 s.12]; "100% yield loss for full field dies"
+[ASML, van de Kerkhof 2019 s.3]; article title "Indistinguishable from magic: the EUV pellicle" [ASML 2022]."""
 import math
 import random
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 from mograph import (BLUE_BG, CYAN, INK, INK2, LINE, ORANGE, VIOLET, Canvas, ease, ease_out, fade, font,
                      seg, shot)
@@ -13,9 +19,9 @@ RED = (240, 72, 72)
 
 
 # ---- blueprint: incident and reflected cones on the mask ------------------------------------
-def cone_diagram(c, t, a, angle_deg, label, half_deg=2.6):
+def cone_diagram(c, t, a, angle_deg, label, half_deg=4.73):
     """Orthographic side view: mask plane, normal, incident cone (left) and reflected cone (right).
-    Shared by B6_04 (6°) and B7 (5.4°) so the two read as one comparison."""
+    half_deg: cone half-angle at the mask, asin(NA / magnification) = 4.73 deg for the NXE (NA 0.33, 4x)."""
     px, py, L = 960, 820, 640
     d = ease_out(seg(t, 0.0, 1.0))
     c.line((px - 760 * d, py), (px + 760 * d, py), LINE, 5, a)
@@ -61,8 +67,8 @@ def incidence(t, dur, W, H):
     c = Canvas(W, H, bg=BLUE_BG)
     c.grid(a=0.55)
     a = fade(t, 0.0, dur, dur, 0.3)
-    cone_diagram(c, t, a, 6.0, "≈ 6°")
-    c.text((960, 110), "入射角 ≈ 6°（主光线相对法线，F40）", 32, LINE, a * ease(seg(t, 3.4, 4.0)), anchor="mm")
+    cone_diagram(c, t, a, 6.0, "≈ 6°", half_deg=math.degrees(math.asin(0.33 / 4)))
+    c.text((960, 110), "NXE：入射角 ≈ 6°（主光线相对法线）", 32, LINE, a * ease(seg(t, 3.4, 4.0)), anchor="mm")
     return c.finish(glow_radius=8)
 
 
@@ -73,44 +79,73 @@ def _sem(im_l, blur=1.2, grain=0.2):
     return Image.blend(im_l, noise, grain).convert("RGB")
 
 
-def _wavy_line(d, x0, x1, yc, w, p, rnd_phase, k):
-    """One feature: a line whose edges wiggle and whose ends swell into bulbs; p=1 straightens it."""
-    amp = (1 - p) * w * 0.35
-    top, bot = [], []
-    n = 60
-    for i in range(n + 1):
-        x = x0 + (x1 - x0) * i / n
-        wob = amp * math.sin(i * 0.45 + rnd_phase) + amp * 0.6 * math.sin(i * 0.17 + 2 * rnd_phase)
-        top.append((x, yc - w / 2 - wob))
-        bot.append((x, yc + w / 2 + wob * 0.8))
-    d.polygon(top + bot[::-1], fill=170)
-    r_end = w / 2 + (1 - p) * w * 0.55                                 # hammerheads / bulbs
-    for x in (x0, x1):
-        d.ellipse((x - r_end, yc - r_end, x + r_end, yc + r_end), fill=170)
-    d.line(top, fill=226, width=2)
-    d.line(bot, fill=226, width=2)
-    return top, bot
+PITCH = 104                          # design px = nm on the mask: the densest NXE pitch, 26 nm on the wafer x 4
+
+
+def _feature(d, x0, x1, yc, w, p, ends=(True, True), fill=170):
+    """A horizontal line (mask: p=0) with hammerheads at its free ends; p=1 is the printed resist line (straight,
+    ends slightly rounded, no hammerheads). Returns nothing; draws on the L image."""
+    d.rectangle((x0, yc - w / 2, x1, yc + w / 2), fill=fill)
+    hh = (1 - p) * w * 0.32                                            # hammerhead overhang
+    hl = w * 0.9
+    for x, e, sgn in ((x0, ends[0], 1), (x1, ends[1], -1)):
+        if not e:
+            continue
+        if hh > 0.5:
+            xa, xb = (x, x + sgn * hl) if sgn > 0 else (x + sgn * hl, x)
+            d.rectangle((min(xa, xb), yc - w / 2 - hh, max(xa, xb), yc + w / 2 + hh), fill=fill)
+        if p > 0.05:                                                   # printed ends round off a little
+            r = w / 2 * p
+            d.ellipse((x - r, yc - w / 2, x + r, yc + w / 2), fill=fill)
 
 
 def sem_field(Wpx, Hpx, p, pan, seed=4):
-    """A field of curvilinear mask features (p=0) or straight resist lines (p=1), SEM-rendered."""
+    """SEM view of OPC'd mask features (p=0) or the straight lines they print (p=1): dense lines at the 104 nm mask
+    pitch with hammerheads at line ends, an L-shaped wire with a corner serif and a jog, and isolated lines flanked
+    by thin assist bars that do not print (US 7,694,267). Design px = nm on the mask."""
     rnd = random.Random(seed)
     s = Hpx / 1080
     im = Image.new("L", (Wpx, Hpx), 62)
     d = ImageDraw.Draw(im)
-    pitch = 120 * s
-    for k in range(-1, 10):
-        yc = (k + 0.5) * pitch + 40 * s
-        x0 = (180 + 140 * rnd.random()) * s - pan * s
-        x1 = (1500 + 300 * rnd.random()) * s - pan * s
-        _wavy_line(d, x0, x1, yc, 46 * s, p, rnd.uniform(0, 6), k)
-    for _ in range(26):                                                 # droplets / assist features
-        x = rnd.uniform(0, 2200) * s - pan * s
-        y = rnd.uniform(0, 1080) * s
-        r = rnd.uniform(8, 18) * s * (1 - p)
-        if r > 1:
-            d.ellipse((x - r * 1.6, y - r, x + r * 1.6, y + r), fill=150)
+    w = PITCH / 2
+
+    def X(v):
+        return (v - pan) * s
+    # region A: dense lines, segments with line ends facing each other across small gaps
+    for k in range(10):
+        yc = (110 + k * PITCH) * s
+        x = -200 + rnd.uniform(0, 160)
+        while x < 1150:
+            ln = rnd.choice((260, 340, 420, 560))
+            _feature(d, X(x), X(min(x + ln, 1150)), yc, w * s, p, ends=(x > -150, x + ln < 1150))
+            x += ln + 110
+    # region B: two isolated lines, each with assist bars above and below (they vanish in print)
+    for yc0 in (318, 734):
+        yc = yc0 * s
+        _feature(d, X(1260), X(1900), yc, w * s, p)
+        sa = 1 - p
+        if sa > 0.02:
+            for off in (-1, 1):
+                ya = yc + off * 0.9 * PITCH * s
+                d.rectangle((X(1280), ya - 7 * s, X(1880), ya + 7 * s), fill=int(62 + (150 - 62) * sa))
+    # region C: an L-shaped wire with a serif on its outer corner and a jog
+    for yc0, x0 in ((214, 2050), (630, 2120)):
+        yc = yc0 * s
+        xc = X(x0 + 420)
+        d.rectangle((X(x0), yc - w / 2 * s, xc + w / 2 * s, yc + w / 2 * s), fill=170)
+        d.rectangle((xc - w / 2 * s, yc, xc + w / 2 * s, yc + 300 * s), fill=170)
+        if p < 0.98:
+            sr = (1 - p) * 18 * s                                       # serif on the outer corner
+            d.rectangle((xc + w / 2 * s - sr, yc - w / 2 * s - sr, xc + w / 2 * s + sr, yc - w / 2 * s + sr), fill=170)
+            d.rectangle((xc - w / 2 * s - sr, yc + 300 * s - sr * 0.2, xc + w / 2 * s + sr, yc + 300 * s + sr), fill=170)
+        jog = 0.5 * w * s                                              # a jog: the line steps by half a width
+        d.rectangle((X(x0 - 300), yc - w / 2 * s + jog, X(x0), yc + w / 2 * s + jog), fill=170)
     return _sem(im)
+
+
+def _scale_bar(c, a, label):
+    c.rect((60, 980, 60 + PITCH, 990), fill=INK, a=a)
+    c.text((60, 950), label, 22, INK, a, anchor="lm")
 
 
 @shot("B6_05")
@@ -118,8 +153,7 @@ def opc_sem(t, dur, W, H):
     c = Canvas(W, H)
     a = fade(t, 0.0, dur, dur, 0.3)
     c.img.paste(sem_field(W, H, 0.0, pan=60 * t), (0, 0))
-    c.rect((60, 980, 260, 990), fill=INK, a=a)
-    c.text((160, 950), "200 nm", 22, INK, a, anchor="mm")
+    _scale_bar(c, a, "104 nm（掩模上）")
     c.text((1860, 60), "掩模图形（示意）", 26, INK, a, anchor="ra")
     out = c.finish(vignette=True)
     return Image.blend(Image.new("RGB", out.size), out, a)
@@ -131,9 +165,12 @@ def opc_morph(t, dur, W, H):
     a = fade(t, 0.0, dur, dur, 0.3)
     p = ease(seg(t, 0.3, dur - 0.6))
     c.img.paste(sem_field(W, H, p, pan=60 * (4.46 + t)), (0, 0))
-    c.rect((60, 980, 260, 990), fill=INK, a=a)
-    c.text((160, 950), "200 nm", 22, INK, a, anchor="mm")
-    c.text((1860, 60), "掩模图形 → 晶圆上的光刻胶线条", 26, INK, a, anchor="ra")
+    # same picture scale, but the end state is the wafer: 4x smaller in reality, shown enlarged 4x
+    lab = ease(seg(t, dur - 1.4, dur - 0.9))
+    _scale_bar(c, a * (1 - lab), "104 nm（掩模上）")
+    _scale_bar(c, a * lab, "26 nm（晶圆上）")
+    c.text((1860, 60), "掩模图形（示意）", 26, INK, a * (1 - lab), anchor="ra")
+    c.text((1860, 60), "晶圆上的线条（已按 4× 放大显示）", 26, INK, a * lab, anchor="ra")
     out = c.finish(vignette=True)
     return Image.blend(Image.new("RGB", out.size), out, a)
 
@@ -191,24 +228,45 @@ def comp_litho(t, dur, W, H):
     r3 = ease(seg(t, 7.6, 8.4))
     _lines(c, cols[2], 560, a * r3, CYAN, outline=True, rounded=4)
     c.text((cols[2] + 190, 850), "投出来正好笔直 ✓", 26, CYAN, a * r3, anchor="mm", weight_glow=True)
-    c.text((960, 1010), "计算光刻：把变形提前算进掩模（示意，F38）", 22, INK2, a, anchor="mm")
+    c.text((960, 1010), "计算光刻：把变形提前算进掩模（示意）", 22, INK2, a, anchor="mm")
     return c.finish(glow_radius=8, glow_gain=0.7)
 
 
 # ---- HUD: one particle, every die -------------------------------------------------------------
-def _fields(cx, cy, R, fw=60, fh=80):             # 96 full fields per wafer (F45)
+MM_PX = 430 / 150                     # wafer graphics: 300 mm wafer drawn with a 430 px radius
+FULL = (26 * MM_PX, 33 * MM_PX)       # 26 x 33 mm full field (NXE) = 74.5 x 94.6 px
+HALF = (26 * MM_PX, 16.5 * MM_PX)     # 26 x 16.5 mm half field (High-NA)
+
+
+def _fields(cx, cy, R, fw=FULL[0], fh=FULL[1]):
+    """Exposure fields at true size on a wafer of radius R (px), every field that touches the wafer, edge fields
+    included: columns on the wafer centre line, rows centred. This gives 96 full fields and 188 half fields on a
+    300 mm wafer, the counts ASML quotes (F45, F52). Serpentine scan order."""
     out = []
-    ny, nx = int(2 * R / fh) + 2, int(2 * R / fw) + 2
-    for j in range(ny):
+    nx, ny = int(R / fw) + 2, int(R / fh) + 2
+    for j in range(-ny, ny + 1):
         row = []
-        for i in range(nx):
-            x0 = cx - nx * fw / 2 + i * fw
-            y0 = cy - ny * fh / 2 + j * fh
-            corners = [(x0, y0), (x0 + fw, y0), (x0, y0 + fh), (x0 + fw, y0 + fh)]
-            if all(math.hypot(x - cx, y - cy) <= R for x, y in corners):
+        for i in range(-nx, nx + 1):
+            x0, y0 = cx + i * fw, cy - fh / 2 + j * fh
+            inside = any(math.hypot(x0 + (u + 0.5) * fw / 6 - cx, y0 + (v + 0.5) * fh / 6 - cy) <= R
+                         for u in range(6) for v in range(6))
+            if inside:
                 row.append((x0, y0, fw, fh))
-        out.extend(row if j % 2 == 0 else row[::-1])                # serpentine scan order
+        out.extend(row if j % 2 == 0 else row[::-1])
     return out
+
+
+def clipped(c, cx, cy, R, draw):
+    """Run draw() on a transparent layer and composite it clipped to the wafer circle (edge fields are cut)."""
+    layer = Image.new("RGBA", c.img.size, (0, 0, 0, 0))
+    d0 = c.d
+    c.d = ImageDraw.Draw(layer, "RGBA")
+    draw()
+    c.d = d0
+    m = Image.new("L", c.img.size, 0)
+    ImageDraw.Draw(m).ellipse([c.px(cx - R), c.px(cy - R), c.px(cx + R), c.px(cy + R)], fill=255)
+    layer.putalpha(ImageChops.multiply(layer.getchannel("A"), m))
+    c.img.paste(layer, (0, 0), layer)
 
 
 @shot("B6_09")
@@ -237,18 +295,22 @@ def every_die(t, dur, W, H):
     N = len(fields)
     prog = ease(seg(t, 1.6, dur - 0.7)) ** 1.6                    # accelerating
     lit = int(N * prog)
-    for k, (x0, y0, fw, fh) in enumerate(fields):
-        if k < lit:
-            flash = max(0.0, 1 - (prog * N - k) / 4)
-            c.rect((x0 + 3, y0 + 3, x0 + fw - 3, y0 + fh - 3), fill=(int(60 + 120 * flash), int(52 + 90 * flash), int(110 + 120 * flash)),
-                   outline=CYAN, width=1, a=a * w * 0.9)
-            c.rect((x0 + fw * 0.62, y0 + fh * 0.3, x0 + fw * 0.82, y0 + fh * 0.46), outline=RED, width=2, a=a * w)
-        else:
-            c.rect((x0 + 3, y0 + 3, x0 + fw - 3, y0 + fh - 3), outline=(54, 60, 76), width=1, a=a * w)
+
+    def draw():
+        for k, (x0, y0, fw, fh) in enumerate(fields):
+            if k < lit:
+                flash = max(0.0, 1 - (prog * N - k) / 4)
+                c.rect((x0 + 3, y0 + 3, x0 + fw - 3, y0 + fh - 3),
+                       fill=(int(60 + 120 * flash), int(52 + 90 * flash), int(110 + 120 * flash)),
+                       outline=CYAN, width=1, a=a * w * 0.9)
+                c.rect((x0 + fw * 0.62, y0 + fh * 0.3, x0 + fw * 0.82, y0 + fh * 0.46), outline=RED, width=2, a=a * w)
+            else:
+                c.rect((x0 + 3, y0 + 3, x0 + fw - 3, y0 + fh - 3), outline=(54, 60, 76), width=1, a=a * w)
+    clipped(c, cx + shift, cy, R, draw)
     c.text((1560, 420), "缺陷芯片", 28, INK2, a * w, anchor="lm")
     c.text((1560, 480), f"{lit} / {N}", 52, RED if lit else INK, a * w, anchor="lm", weight_glow=lit == N)
-    c.text((1560, 560), "良率损失 100%", 30, RED, a * ease(seg(t, dur - 1.2, dur - 0.7)), anchor="lm")
-    c.text((960, 1010), "示意：同一个缺陷被复制到每一个曝光场（F35）", 22, INK2, a, anchor="mm")
+    c.text((1560, 560), "良率损失 100%（满场芯片）", 30, RED, a * ease(seg(t, dur - 1.2, dur - 0.7)), anchor="lm")
+    c.text((960, 1010), "示意：同一个缺陷被复制到每一个曝光场", 22, INK2, a, anchor="mm")
     return c.finish(glow_radius=8, glow_gain=0.7)
 
 
@@ -319,7 +381,7 @@ def defocus(t, dur, W, H):
     c.img = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), c.img, shadow)
     c.d = ImageDraw.Draw(c.img, "RGBA")
     c.text((x0 + w / 2, y0 + h + 50), "像面：图形清晰，灰尘的影子化开", 24, INK, a, anchor="mm")
-    c.text((960, 1010), "离焦 → 印不出来（示意）", 22, INK2, a, anchor="mm")
+    c.text((960, 1010), "小颗粒离焦 → 印不出来（示意）", 22, INK2, a, anchor="mm")
     return c.finish(glow_radius=10, glow_gain=0.8)
 
 
@@ -347,6 +409,6 @@ def magic(t, dur, W, H):
         c.text((x, 470), ch, size, (246, 236, 232), a * ca, anchor="lm", weight_glow=True)
         x += f.getlength(ch) / c.k
     sub = ease(seg(t, 2.3, 3.0))
-    c.text((960, 640), "The EUV pellicle — indistinguishable from magic · ASML, 2022（F36）", 30, INK2, a * sub,
+    c.text((960, 640), "Indistinguishable from magic: the EUV pellicle · ASML, 2022", 30, INK2, a * sub,
            anchor="mm")
     return c.finish(glow_radius=18, glow_gain=0.8)

@@ -27,6 +27,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 sys.path.insert(0, os.path.dirname(__file__))
 from overlay_labels import draw_label, font  # noqa: E402
+from richtext import draw_text, text_bbox  # noqa: E402
 import story_reel as SR  # noqa: E402
 
 from paths import AUDIO, BRAND, EP, RENDERS, timed_shots  # noqa: E402
@@ -71,7 +72,7 @@ def subtitle(img, text, W, H, a=1.0, bar=True):
     size = int(H * 0.043)
     f = font(size)
     cx, cy = W / 2, H * 0.905                       # line centre; bar spans ~0.873H-0.937H, inside the bottom 15 %
-    l, t, r, b = d.textbbox((cx, cy), text, font=f, anchor="mm")
+    l, t, r, b = text_bbox(d, (cx, cy), text, f, anchor="mm")
     if bar:
         px, py = 0.6 * size, 0.28 * size
         d.rounded_rectangle((l - px, min(t, cy - size / 2) - py, r + px, max(b, cy + size / 2) + py),
@@ -79,24 +80,106 @@ def subtitle(img, text, W, H, a=1.0, bar=True):
     else:
         # plain dark 2D card: a soft dark halo (stroked glyphs, blurred) is enough
         sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        ImageDraw.Draw(sh).text((cx, cy + H * 0.002), text, font=f, anchor="mm", fill=(0, 0, 0, int(235 * a)),
-                                stroke_width=max(2, round(H * 0.004)), stroke_fill=(0, 0, 0, int(235 * a)))
+        draw_text(ImageDraw.Draw(sh), (cx, cy + H * 0.002), text, f, anchor="mm", fill=(0, 0, 0, int(235 * a)),
+                  stroke_width=max(2, round(H * 0.004)), stroke_fill=(0, 0, 0, int(235 * a)))
         layer.alpha_composite(sh.filter(ImageFilter.GaussianBlur(H * 0.005)))
-    d.text((cx, cy), text, font=f, anchor="mm", fill=(*SUB_INK, int(255 * a)))
+    draw_text(d, (cx, cy), text, f, anchor="mm", fill=(*SUB_INK, int(255 * a)))
     return Image.alpha_composite(img.convert("RGBA"), layer)
 
 
-def label_for(s, mg):
-    if s["id"] in mg or s.get("style") == "type":
-        return None
-    ovs = [o for o in s.get("overlays") or [] if o.get("kind") != "chapter"]
-    if not ovs:
-        return None
-    tr = str.maketrans("₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻", "01234567890123456789+-")
-    ovs = [dict(o, text=o["text"].translate(tr)) for o in ovs]
-    return {"text": ovs[0]["text"], "sub": " ｜ ".join(o["text"] for o in ovs[1:3]),
-            "source": SR.fact_orgs(sorted({f for o in ovs for f in o.get("facts") or []})), "facts": [],
+def _lab(texts, facts, sub_extra=()):
+    # sub/superscripts (Sn⁸⁺, H₂) are kept: overlay_labels typesets them via richtext (smaller raised/lowered glyphs)
+    rest = list(sub_extra) + texts[1:]
+    rest = (["示意"] if "示意" in rest else []) + [r for r in rest if r != "示意"]   # 示意 is never dropped
+    return {"text": texts[0], "sub": " ｜ ".join(rest[:2]), "source": SR.fact_orgs(sorted(set(facts))), "facts": [],
             "pos": "upper_right"}
+
+
+def labels_for(s, mg):
+    """[(start_s, end_s, label)] for a 3D shot. Overlays without `at:` share one label from 0.4 s (or after the chapter
+    card); an overlay with `at: <s>` gets its own label from that second, until the next one or 5 s, so long takes
+    can follow the narration."""
+    if s["id"] in mg or s.get("style") == "type":
+        return []
+    dur = s["duration"]
+    ovs = [o for o in s.get("overlays") or [] if o.get("kind") not in ("chapter", "page")]
+    timed = sorted((o for o in ovs if o.get("at") is not None), key=lambda o: o["at"])
+    plain = [o for o in ovs if o.get("at") is None]
+    out = []
+    t0 = 3.0 if chapter_of(s, mg) else 10 / FPS
+    if plain:
+        end = min(dur, t0 + 5.0, timed[0]["at"] if timed and timed[0]["at"] > t0 + 1.5 else dur)
+        out.append((t0, end, _lab([o["text"] for o in plain], [f for o in plain for f in o.get("facts") or []])))
+    for k, o in enumerate(timed):
+        nxt = timed[k + 1]["at"] if k + 1 < len(timed) else dur
+        out.append((o["at"], min(dur, nxt, o["at"] + 5.0), _lab([o["text"]], o.get("facts") or [])))
+    return out
+
+
+def chapter_of(s, mg):
+    """(title, subtitle) of a chapter overlay on a 3D shot (2D graphics draw their own chapter cards)."""
+    if s["id"] in mg:
+        return None
+    for o in s.get("overlays") or []:
+        if o.get("kind") == "chapter":
+            t = o["text"].split("·", 1)[-1].strip()
+            title, _, sub = t.partition("：")
+            return title.strip(), sub.strip()
+    return None
+
+
+def page_of(s):
+    return next((o for o in s.get("overlays") or [] if o.get("kind") == "page"), None)
+
+
+def draw_page(img, pg, t, W, H):
+    """A 'textbook page' inserted over a 3D shot (left third): old title, struck through at `strike`, new title written
+    at `write`, a source line. Overlay keys: kind: page, at, strike, write, old, new, note."""
+    a = max(0.0, min(1.0, (t - pg["at"]) / 0.4))
+    if a <= 0:
+        return img
+    k = H / 1080
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    x0, y0, x1, y1 = 110 * k, 300 * k, 760 * k, 760 * k
+    d.rounded_rectangle([x0, y0, x1, y1], radius=10 * k, fill=(236, 232, 222, int(235 * a)))
+    for yy in range(int(y0 + 60 * k), int(y1 - 40 * k), int(34 * k)):          # faint ruled lines
+        d.line([(x0 + 30 * k, yy), (x1 - 30 * k, yy)], fill=(200, 196, 186, int(150 * a)), width=max(1, int(k)))
+    f1, f2, f3 = font(int(40 * k)), font(int(44 * k)), font(int(26 * k))
+    d.text((x0 + 40 * k, y0 + 60 * k), pg["old"], font=f1, fill=(70, 70, 76, int(255 * a)))
+    st = max(0.0, min(1.0, (t - pg["strike"]) / 0.5))
+    if st > 0:
+        tw = d.textlength(pg["old"], font=f1)
+        yy = y0 + 84 * k
+        d.line([(x0 + 36 * k, yy), (x0 + 36 * k + (tw + 8 * k) * st, yy)], fill=(200, 40, 40, int(255 * a)), width=int(4 * k))
+    wr = max(0.0, min(1.0, (t - pg["write"]) / 0.6))
+    if wr > 0:
+        txt = pg["new"][:max(1, int(len(pg["new"]) * wr))]
+        d.text((x0 + 40 * k, y0 + 190 * k), txt, font=f2, fill=(92, 50, 200, int(255 * a)))
+    d.text((x0 + 40 * k, y1 - 70 * k), pg.get("note", ""), font=f3, fill=(110, 110, 118, int(255 * a)))
+    return Image.alpha_composite(img.convert("RGBA"), layer)
+
+
+def draw_chapter(img, title, sub, a, W, H):
+    """Chapter card over a 3D picture, lower left on a soft dark gradient: 章节 / title / subtitle / a growing rule."""
+    k = H / 1080
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    grad = Image.linear_gradient("L").rotate(90, expand=True).resize((W, H))      # dark at the left
+    shade = Image.new("RGBA", (W, H), (4, 5, 9, 0))
+    shade.putalpha(grad.point(lambda v: int(max(0.0, (255 - v) / 255 - 0.35) / 0.65 * 230 * a)))   # left 2/3
+    layer.alpha_composite(shade)
+    d = ImageDraw.Draw(layer)
+    d.text((160 * k, 470 * k), "章节", font=font(int(34 * k)), fill=(150, 158, 182, int(255 * a)))
+    ft = font(int(96 * k))
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(glow).text((160 * k, 520 * k), title, font=ft, fill=(164, 128, 255, int(160 * a)))
+    layer.alpha_composite(glow.filter(ImageFilter.GaussianBlur(14 * k)))
+    d.text((160 * k, 520 * k), title, font=ft, fill=(236, 238, 244, int(255 * a)))
+    tw = d.textlength(title, font=ft)
+    d.rectangle([160 * k, 640 * k, 160 * k + tw * a, 643 * k], fill=(164, 128, 255, int(255 * a)))
+    if sub:
+        d.text((164 * k, 662 * k), sub, font=font(int(34 * k)), fill=(190, 170, 255, int(255 * a)))
+    return Image.alpha_composite(img.convert("RGBA"), layer)
 
 
 def picture(shots, W, H, order, tmp, tail=0.0):
@@ -107,7 +190,7 @@ def picture(shots, W, H, order, tmp, tail=0.0):
     for s in shots:
         a = round((s["start"] - t_film0) * FPS)
         b = round((s["start"] + s["duration"] - t_film0) * FPS)
-        spans.append((s, a, b, best_frames(s["id"], order), label_for(s, mg)))
+        spans.append((s, a, b, best_frames(s["id"], order), (labels_for(s, mg), chapter_of(s, mg), page_of(s))))
     cache = {}
     bars = {}                                                        # shot id -> subtitle bar on / off (one decision per shot)
 
@@ -131,14 +214,20 @@ def picture(shots, W, H, order, tmp, tail=0.0):
             prev = frame_of(spans[k - 1], f)
             img = Image.blend(prev, img, (f - a + 1) / (DISSOLVE + 1))
         img = img.convert("RGBA")
-        if lab:
-            end = min(b, a + 5 * FPS)                                # a label reads in 5 s; then get out of the way
-            la = max(0.0, min(1.0, (f - a - 10) / 8, (end - f - 4) / 8))
+        labs, chap, pg = lab
+        t = (f - a) / FPS
+        if pg:
+            img = draw_page(img, pg, t, W, H)
+        if chap:                                                     # chapter card 0.2-2.8 s, 0.5 s fades
+            ca = max(0.0, min(1.0, (t - 0.2) / 0.5, (2.8 - t) / 0.5))
+            if ca > 0:
+                img = draw_chapter(img, chap[0], chap[1], ca, W, H)
+        for t0, t1, lb in labs:                                      # a label reads in 5 s; then gets out of the way
+            la = max(0.0, min(1.0, (t - t0) / 0.33, (t1 - t - 0.17) / 0.33))
             if la > 0:
                 layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-                draw_label(layer, lab, la, W, H)
+                draw_label(layer, lb, la, W, H)
                 img = Image.alpha_composite(img, layer)
-        t = (f - a) / FPS
         cue = next((c for c in s.get("subs") or [] if c["start"] <= t < c["end"]), None)
         if cue:
             ca = min(1.0, (t - cue["start"]) * 8, (cue["end"] - t) * 8)
@@ -170,8 +259,7 @@ def sound(shots, seg_files, dur, voice, out_wav, tail=0.0):
         return
     inputs += ["-ss", f"{t0:.3f}", "-t", f"{dur:.3f}", "-i", vo]
     total = dur + tail                                        # the narration stops at dur; music and effects ring on
-    filters.append(f"[0:a]aresample=48000,pan=stereo|c0=c0|c1=c0,apad=whole_dur={total:.3f},"
-                   "asplit=3[vo][vokey][vokey2]")
+    filters.append(None)                     # the VO split, filled in once we know which keys are needed
     n = 1
     music_parts, sfx_parts = [], []
     for sf in seg_files:
@@ -194,6 +282,9 @@ def sound(shots, seg_files, dur, voice, out_wav, tail=0.0):
             filters.append(f"[{n}:a]aresample=48000,volume={c.get('gain', -14)}dB,adelay={d}|{d}[s{n}]")
             sfx_parts.append(f"[s{n}]")
             n += 1
+    keys = (["[vokey]"] if music_parts else []) + (["[vokey2]"] if sfx_parts else [])
+    filters[0] = (f"[0:a]aresample=48000,pan=stereo|c0=c0|c1=c0,apad=whole_dur={total:.3f}" +
+                  (f",asplit={1 + len(keys)}[vo]{''.join(keys)}" if keys else "[vo]"))   # no unconnected pads
     if music_parts:
         filters.append("".join(music_parts) + f"amix=inputs={len(music_parts)}:normalize=0[mus]")
         filters.append("[mus][vokey]sidechaincompress=threshold=0.03:ratio=6:attack=40:release=500[musd]")
@@ -218,14 +309,53 @@ def probe(path, entries, streams=None):
     return [v.strip(",") for v in out.split()]
 
 
+CTA_TEXT = os.path.join(EP, "brand", "endcard_cta_text.png")   # per-episode CTA lines (eigenlens.ai), optional
+CTA_HOLD, CTA_SLIDE, CTA_LIFT = 6.0, 0.75, 0.10                # seconds held, slide-up time, lift (share of height)
+
+
+def cta_tail(out_mp4, brand_dir=BRAND, text_png=CTA_TEXT):
+    """After sting_end lands on the locked end card: the card slides up CTA_LIFT and the CTA lines fade in, then hold.
+    Silent, 1920x1080 @ FPS. Returns out_mp4, or None when the episode has no CTA text."""
+    if not os.path.exists(text_png):
+        return None
+    import tempfile
+    base = Image.open(os.path.join(brand_dir, "endcard_16x9.png")).convert("RGB").resize((1920, 1080))
+    txt = Image.open(text_png).convert("RGBA").resize((1920, 1080))
+    bg = base.getpixel((3, 3))
+    n, ns = round(CTA_HOLD * FPS), round(CTA_SLIDE * FPS)
+    with tempfile.TemporaryDirectory() as tmp:
+        for i in range(n):
+            k = min(1.0, i / ns)
+            k = k * k * (3 - 2 * k)                                     # smoothstep
+            img = Image.new("RGB", base.size, bg)
+            img.paste(base, (0, round(-CTA_LIFT * 1080 * k)))
+            ta = max(0.0, min(1.0, (i - ns * 0.6) / ns))
+            if ta > 0:
+                t = txt.copy()
+                t.putalpha(t.getchannel("A").point(lambda v: int(v * ta)))
+                img = Image.alpha_composite(img.convert("RGBA"), t).convert("RGB")
+            img.save(os.path.join(tmp, f"{i:05d}.png"))
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-framerate", str(FPS), "-i", os.path.join(tmp, "%05d.png"),
+                        "-c:v", "libx264", "-crf", "16", "-pix_fmt", "yuv420p", out_mp4], check=True)
+    return out_mp4
+
+
 def apply_brand_stings(body_mp4, out_mp4, brand_dir=BRAND):
-    """open sting + body + end sting -> out_mp4, at the body's frame size. The stings are silent: each gets
-    a silence pad of its own length, so the body's mix (VO / music / loudness) is untouched, only delayed.
-    Returns (open, body, end) durations in seconds."""
+    """open sting + body + end sting (+ the episode's CTA tail, if any) -> out_mp4, at the body's frame size. The
+    stings are silent: each gets a silence pad of its own length, so the body's mix (VO / music / loudness) is
+    untouched, only delayed. Returns (open, body, end) durations in seconds (end includes the CTA tail)."""
     op, end = (os.path.join(brand_dir, f) for f in ("sting_open.mp4", "sting_end.mp4"))
     for p in (op, end):
         if not os.path.exists(p):
             raise FileNotFoundError(f"[edit_film] 品牌 sting 不存在：{p}")
+    tail = cta_tail(os.path.splitext(out_mp4)[0] + "_cta_tail.mp4", brand_dir)
+    if tail:                                     # sting_end + CTA tail become one silent end piece
+        joined = os.path.splitext(out_mp4)[0] + "_end_cta.mp4"
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", end, "-i", tail, "-filter_complex",
+                        f"[0:v]fps={FPS},scale=1920:1080,setsar=1,format=yuv420p[a];"
+                        f"[1:v]fps={FPS},scale=1920:1080,setsar=1,format=yuv420p[b];[a][b]concat=n=2:v=1:a=0[v]",
+                        "-map", "[v]", "-c:v", "libx264", "-crf", "16", "-pix_fmt", "yuv420p", joined], check=True)
+        end = joined
     W, H = probe(body_mp4, "stream=width,height", "v:0")[0].split(",")
     d_op, d_body, d_end = (float(probe(p, "format=duration")[0]) for p in (op, body_mp4, end))
     has_audio = bool(probe(body_mp4, "stream=index", "a"))

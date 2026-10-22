@@ -384,7 +384,7 @@ shots:
   style: energy
   style_why: 曝光是看不见的光化学，能量图只留光和图形的影子。
   transition_in: fade-to-energy
-  visual: 黄光熄灭，只剩黑底。一束紫白光从上方落下，穿过一块画着电路图形的“底片”（这里用透射式示意通用原理；B6 再揭示 EUV 掩模其实是反射式），图形的影子投在下方的光刻胶层上，被照到的区域泛起淡淡荧光。
+  visual: 黄光熄灭，只剩黑底。一束紫白光从上方落下，穿过一块画着电路图形的“底片”（这里用透射式示意通用原理；B6 再揭示 EUV 掩模其实是反射式），光穿过掩模后经一枚缩小镜头（示意）会聚，图形缩小 4 倍落在光刻胶上，被照到的区域泛起淡淡荧光。
   camera:
     move: crane-down
     lens_mm: 35
@@ -439,7 +439,7 @@ shots:
   style: clay
   style_why: 显影、刻蚀、沉积是机构式的步骤动作，白模最清楚。
   transition_in: match-cut
-  visual: 潜像轮廓在同一位置变成白模截面。三步动画，各配小标签：显影，被照的胶溶掉露出沟槽；刻蚀，沟槽向下咬进材料；沉积，金属填进沟槽，余胶被剥离，一层导线留了下来（导线用浅金色以示区分）。
+  visual: 潜像轮廓在同一位置变成白模截面。三步动画，各配小标签：显影，被照的胶溶掉露出沟槽；刻蚀，沟槽向下咬进材料；去胶，剩下的胶被剥离；沉积，金属填满沟槽并盖过表面；抛光，磨去多余的金属，一层导线留了下来（导线用浅金色以示区分）。
   camera:
     move: static with slight push
     lens_mm: 50
@@ -453,7 +453,7 @@ shots:
   fx:
   - ambient_occlusion
   overlays:
-  - text: 显影 · 刻蚀 · 沉积
+  - text: 显影 · 刻蚀 · 去胶 · 沉积 · 抛光
     facts: []
   engine: eevee
   sfx:
@@ -486,13 +486,13 @@ shots:
   segment: A1
   duration: 6.0
   vo:
-  - 一颗芯片，最多要叠大约 100 层图形；
+  - 一颗芯片，要叠上百层图形；
   facts:
   - F44
   style: infographic
   style_why: “有多少层”：用一栋百层摩天楼作对比物，把层数变得可感。
   transition_in: match-cut
-  visual: 层柱在同一位置变成扁平图形，继续向上叠，计数器滚到“约 100”；右侧一栋 100 层摩天楼的剪影同步一层层亮起作对比。
+  visual: 层柱在同一位置变成扁平图形，继续向上叠，计数器滚到“上百层”；右侧一栋百层摩天楼的剪影同步一层层亮起作对比。
   camera:
     move: 2d-tilt-up
     lens_mm: null
@@ -503,7 +503,7 @@ shots:
   fx:
   - counter_roll
   overlays:
-  - text: 最多约 100 层图形
+  - text: 上百层图形
     facts:
     - F44
   engine: manim
@@ -514,13 +514,12 @@ shots:
   segment: A1
   duration: 8.0
   vo:
-  - 其中最精细的二十多层，要交给极紫外光刻机来画。
-  facts:
-  - F55
+  - 其中最精细、最关键的那几层，要交给极紫外光刻机来画。
+  facts: []
   style: xray
   style_why: “里面怎么排布”：透明剖视同时展示整体层数和最精细的层在哪里。
   transition_in: scan-wipe
-  visual: 扫描带掠过扁平层柱，它变成一块芯片截面的透明三维模型：上百层结构像封在玻璃里的城市，越往上越粗；最底部、贴着晶体管的那二十多层最细密，被染成 EUV 紫并发光。
+  visual: 扫描带掠过扁平层柱，它变成一块芯片截面的透明三维模型：上百层结构像封在玻璃里的城市，越往上越粗；最底部、贴着晶体管的那几层最细密，被染成 EUV 紫并发光（层数示意）。
   camera:
     move: slow orbit
     lens_mm: 50
@@ -533,9 +532,8 @@ shots:
   - ghost_glass_fresnel
   - bloom
   overlays:
-  - text: 先进芯片约二十多层用 EUV 曝光
-    facts:
-    - F55
+  - text: 最精细的那几层用 EUV 曝光
+    facts: []
   - text: 示意
     facts: []
   engine: eevee
@@ -926,7 +924,7 @@ shots:
   segment: A3
   duration: 6.0
   vo:
-  - 第一，自然界里没有现成的 13.5 纳米强光源。
+  - 第一，地球上没有现成的 13.5 纳米强光源。
   facts:
   - F1
   style: type
@@ -988,7 +986,7 @@ shots:
   style: photoreal
   style_why: “玻璃会吞光”最好用真实材质的透镜和镜子对比，让观众看到实物上的差别。
   transition_in: whip
-  visual: 暗色摄影棚，一块厚重的光学玻璃透镜立在支架上；紫光射入，刚进玻璃就消失，只在入射点留下一圈暖色的辉光。随后透镜被移开，一面泛着彩虹干涉色的多层膜反射镜滑入同一位置，光束被干净利落地折返出去。
+  visual: 真空腔内（钢制腔壁、法兰与观察窗），一块厚重的光学玻璃透镜在换镜滑台上；紫光射入，刚进玻璃就消失，只在入射点留下一圈暖色的辉光。随后透镜被移开，一面素净金属光泽的多层膜反射镜滑入同一位置（整套装置在真空腔里），光束被干净利落地折返出去。
   camera:
     move: slow arc
     lens_mm: 65
@@ -999,7 +997,6 @@ shots:
   - build_optics.mirror_blank
   fx:
   - caustics
-  - thin_film_iridescence
   - bloom
   overlays:
   - text: ③ 一片透镜都不能用 · 只能用反射镜
@@ -1037,14 +1034,10 @@ shots:
   - motion_blur
   - counter_roll
   overlays:
-  - text: 17 年
-    facts:
-    - F20
-  - text: 投入 60 多亿欧元
-    facts:
-    - F20
   - text: ASML · 蔡司 ZEISS · 通快 TRUMPF 等伙伴
-    facts: []
+    at: 5.9
+    facts:
+    - F65
   engine: eevee
   sfx:
   - 时间流逝的嗖嗖切换声
@@ -1058,7 +1051,7 @@ shots:
   style: xray
   style_why: “机器里面怎么排布”：透明剖视给出整条光路的空间地图，作为后面各站的目录。
   transition_in: scan-wipe
-  visual: 洁净室里那台机器被扫描光带扫过，外壳变成幽灵玻璃：光源、照明、掩模台、投影物镜、晶圆台以发光核心标出（示意，非真实 CAD）；一条紫色细线从光源出发，沿光路依次点亮各模块，最后落在晶圆上。
+  visual: 从切入起即为透明剖视（示意，非真实 CAD）：光源、照明、掩模台、投影物镜、晶圆台以发光核心标出（示意，非真实 CAD）；一条紫色细线从光源出发，沿光路依次点亮各模块，最后落在晶圆上。
   camera:
     move: track along machine
     lens_mm: 35
@@ -1137,7 +1130,7 @@ shots:
   style: xray
   style_why: 先给空间地图：透明剖视一次交代喷嘴、收集镜、激光入口和中间焦点的相对位置。
   transition_in: dissolve
-  visual: 光源腔透明剖视：鼓形真空容器是幽灵玻璃，里面看得见喷嘴（示意）、椭球收集镜、后方的激光入口、前方收窄到中间焦点；各部件依次亮起标签。
+  visual: 光源腔透明剖视：鼓形真空容器是幽灵玻璃，侧面是锡滴发生器的接口（喷嘴本身在约 0.3 m 外），里面是椭球收集镜、后方的激光入口、前方收窄到中间焦点；各部件依次亮起标签。
   camera:
     move: slow orbit
     lens_mm: 30
@@ -1155,13 +1148,9 @@ shots:
   - ghost_glass_fresnel
   - bloom
   overlays:
-  - text: 喷嘴（示意）
+  - text: 光源腔（示意）
     facts: []
-  - text: 收集镜
-    facts: []
-  - text: 激光入口
-    facts: []
-  - text: 中间焦点 IF
+  - text: 收集镜 · 激光入口 · 中间焦点 IF
     facts: []
   engine: eevee
   sfx:
@@ -1223,6 +1212,8 @@ shots:
   - text: 喷嘴内径 3–5 μm（按 ASML 专利描述 · 示意）
     facts:
     - F21
+  - text: 慢动作
+    facts: []
   engine: cycles
   sfx:
   - 高压细流的嘶声
@@ -1251,7 +1242,7 @@ shots:
   - bloom
   - shallow_dof
   overlays:
-  - text: 射流经双重调制，在飞行中合并（ASML 专利 · 示意）
+  - text: 约 100 颗小液滴在飞行中合成 1 颗（ASML/Cymer 2017 示例 · 示意）
     facts:
     - F21
   - text: 慢动作
@@ -1297,14 +1288,14 @@ shots:
   segment: B1
   duration: 4.5
   vo:
-  - 每秒最多 5 万颗。
+  - 最新的光源，每秒 6 万颗。
   facts:
   - F2
   - F3
   style: photoreal
-  style_why: 用长焦压缩和频闪把“每秒 5 万颗”拍成一条看不到头的珍珠链：B1 的第一个震撼时刻。
+  style_why: 用长焦压缩和频闪把“每秒 6 万颗”拍成一条看不到头的珍珠链：B1 的第一个震撼时刻。
   transition_in: cut
-  visual: 长焦沿锡滴流的轴线拍：压缩透视把成串的锡滴叠成一条伸向远处的珍珠链，频闪光一下下冻结它们；角落计数器飞速滚到 50 000。
+  visual: 长焦沿锡滴流的轴线拍：压缩透视把成串的锡滴叠成一条伸向远处的珍珠链，频闪光一下下冻结它们；角落计数器飞速滚到 60 000。
   camera:
     move: locked-off
     lens_mm: 200
@@ -1318,10 +1309,10 @@ shots:
   - shallow_dof
   - counter_roll
   overlays:
-  - text: 每秒最多 5 万颗 · 每 20 μs 一颗
+  - text: 最新光源每秒 6 万颗
     facts:
     - F2
-  - text: 间距约 1.4 mm（推算：70 m/s × 20 μs）
+  - text: 间距约 1–1.5 mm（随频率与速度）
     facts:
     - F2
     - F3
@@ -1338,7 +1329,7 @@ shots:
   style: hud
   style_why: “控制与测量怎么实时发生”：HUD 细线界面叠在真实画面上。
   transition_in: cut
-  visual: 侧面看锡滴流，计量青色细线锁定框依次套住每一颗锡滴并跟随移动；框边小字跳动（装饰性滚动字符，不显示可读数值）；一颗锁定完成，框变成激光橙，表示“已瞄准”。
+  visual: 侧面看锡滴流，计量青色锁定框套住飞过的锡滴并跟随移动，框边装饰短线跳动（不显示数值）；锁定后框变激光橙，表示“已瞄准”（锡滴间距按真实比例，画面里一次只有一颗）。
   camera:
     move: lateral track with stream
     lens_mm: 70
@@ -1449,11 +1440,9 @@ shots:
   - sem_noise
   - vignette
   overlays:
-  - text: 比例尺 300 μm
+  - text: 示意（仿高速阴影成像）
     facts:
     - F4b
-  - text: 示意（仿高速阴影成像）
-    facts: []
   engine: eevee
   sfx:
   - 快门声
@@ -1558,7 +1547,7 @@ shots:
   style: photoreal
   style_why: 暴力与温柔的对照：一团等离子体旁边，就是原子级精度的镜面。
   transition_in: cut
-  visual: 掠过收集镜镜面：多层膜的彩虹干涉色被等离子体映亮，镜面完美得能看到等离子体的倒影。
+  visual: 掠过收集镜镜面：素净的镜面被等离子体映亮（多层膜在可见光下没有彩虹色），镜面完美得能看到等离子体的倒影。
   camera:
     move: grazing dolly
     lens_mm: 35
@@ -1569,7 +1558,6 @@ shots:
   - build_source.collector
   - build_source.plasma
   fx:
-  - thin_film_iridescence
   - shallow_dof
   overlays: []
   engine: cycles
@@ -1577,9 +1565,9 @@ shots:
   - 一声清亮的高音
 - id: B1_16
   segment: B1
-  duration: 8.5
+  duration: 10.4
   vo:
-  - 先拍扁再加热，薄饼受热更均匀，更多的能量才能变成我们要的那一种光。
+  - 先拍扁，薄饼的面积正好接住整束主脉冲，密度也更低，更多的能量才能变成我们要的那一种光。
   facts:
   - F4
   - F4b
@@ -1709,7 +1697,7 @@ shots:
   style: energy
   style_why: 延续同一张织网，让它在能量图里收拢成一道光，画面本身就是“解释被改写”。
   transition_in: cut
-  visual: 织网中的跃迁线开始弯曲、汇聚，向同一方向收拢，最终拧成一道明亮的紫色光束；画面一侧，一页“教科书”插图（单电子跃迁示意）被这道紫光划过，标题改写为“多重激发态”。
+  visual: 织网渐暗，一道明亮的紫色光束从中穿出；画面左侧一页“教科书”插图：旧标题“单激发态 → 基态（旧解释）”被划掉，改写为“多重激发态之间的跃迁”（Torretti et al. 2020，Nature Communications）。
   camera:
     move: arc around converging beam
     lens_mm: 35
@@ -1726,6 +1714,16 @@ shots:
     facts:
     - F23
   - text: 多重激发态 → EUV 光
+    facts:
+    - F23
+  - text: 教科书页
+    kind: page
+    at: 5.0
+    strike: 5.6
+    write: 6.2
+    old: 单激发态 → 基态（旧解释）
+    new: 多重激发态之间的跃迁
+    note: Torretti et al. 2020 · Nature Communications
     facts:
     - F23
   engine: eevee
@@ -1772,7 +1770,7 @@ shots:
   style: blueprint
   style_why: 镜头逆着激光往回追，进入“它是怎么设计的”：蓝图线稿逐笔画出放大链。
   transition_in: whip
-  visual: 镜头顺着激光入射方向甩回去，落在蓝底网格上：白色线稿逐笔画出一条长长的激光放大链：种子激光盒、前置放大器、四个串联的放大级、光束传输管，尺寸线和虚线隐藏线随之出现。
+  visual: 镜头顺着激光入射方向甩回去，落在蓝底网格上：白色线稿逐笔画出一条长长的激光放大链：种子模块（两台种子激光：预脉冲、主脉冲）、前置放大器、四个串联的放大级、光束传输管。
   camera:
     move: orthographic slow track
     lens_mm: null
@@ -1860,7 +1858,7 @@ shots:
   style: documentary
   style_why: 回答“它在真实世界里有多大”：厂房尺度只能用纪实氛围和人影来交代。
   transition_in: cut
-  visual: 广角低机位，风格化的厂房（不仿制具体工厂）：一根粗光束管从地面下方穿过，连接隔壁的激光间和光刻机；管道观察窗里一道橙色光点高速掠过（示意），几个工程师剪影站在旁边给出尺度。
+  visual: 两层楼的剖面（风格化，不仿制具体工厂）：楼下辅助层里是一排激光放大柜、射频电源和换热器，光束管沿楼下走，经转向镜竖直穿过华夫板楼板，送到楼上光刻机旁的光源；一道橙色光点沿管道掠过（示意），两层都有人影给出尺度。
   camera:
     move: low-angle slow pan
     lens_mm: 20
@@ -1876,6 +1874,11 @@ shots:
   - text: 光路最长约 30 m
     facts:
     - F6
+  - text: 激光在楼下辅助层，光束穿过楼板送上来
+    facts:
+    - F62
+  - text: 示意 · 橙色光点为示意
+    facts: []
   engine: cycles
   sfx:
   - 厂房空调与设备底噪
@@ -1913,16 +1916,16 @@ shots:
   - 零件分离的细碎金属声汇成一片
 - id: B1_27
   segment: B1
-  duration: 11.0
+  duration: 12.4
   vo:
-  - 今天量产机器的光源最高约 600 瓦，ASML 已经在实验室演示了 1000 瓦的原理样机。
+  - 最新一代 NXE 光源，功率已超过 500 瓦；2025 年，ASML 演示了第一台 1000 瓦的 EUV 光源。
   facts:
   - F6
   - F4c
   style: infographic
   style_why: 光的账本第一次记账：从几十千瓦的激光掉到几百瓦的 EUV，计量条的落差就是答案。
   transition_in: cut
-  visual: 光的账本特写：顶端“电”，第一格“激光 几十 kW”亮起；往下一大截落差，第二格“EUV 量产最高约 600 W”；旁边一根虚线向上延伸到“1000 W 原理样机（实验室）”。
+  visual: 光的账本特写：顶端“电”，第一格“激光 几十 kW”亮起；往下一大截落差，第二格“EUV 超过 500 W（NXE:3800E）”；旁边一根虚线向上延伸到“1000 W（ASML 2025 年演示）”。
   camera:
     move: 2d-tilt-down
     lens_mm: null
@@ -1936,10 +1939,10 @@ shots:
   - text: 激光 几十 kW
     facts:
     - F6
-  - text: 量产光源最高约 600 W
+  - text: NXE:3800E 光源超过 500 W
     facts:
     - F4c
-  - text: 1000 W 原理样机已在实验室演示
+  - text: 1000 W 光源已演示（ASML 2025）
     facts:
     - F4c
   engine: manim
@@ -1954,7 +1957,7 @@ shots:
   style: xray
   style_why: “终点在哪里”：回到整机透明剖视，让观众看见光还要走多远。
   transition_in: push-through
-  visual: 计量条缩回右侧，镜头穿进透明整机：光从光源腔穿出中间焦点，沿光路钻进机器深处，镜头跟着光往前推；远处终点晶圆的位置亮起一个小小的光点。
+  visual: 镜头穿进透明整机（High-NA EXE 布局）：光从光源腔穿出中间焦点，沿光路钻进机器深处，镜头跟着光往前推；远处终点晶圆的位置亮起一个小小的光点。
   camera:
     move: push along light path
     lens_mm: 28
@@ -1968,7 +1971,7 @@ shots:
   - ghost_glass_fresnel
   - path_glow
   overlays:
-  - text: 示意
+  - text: 示意（High-NA EXE 布局）
     facts: []
   engine: eevee
   sfx:
@@ -1981,7 +1984,7 @@ shots:
   style: energy
   style_why: 段尾留白：只剩光，交给下一段“刚造出来的光，处境非常危险”。
   transition_in: cut
-  visual: 外壳和结构淡去，只剩一束细细的紫光在黑暗里穿过中间焦点向前；光的账本在右侧静止。
+  visual: 外壳和结构淡去，只剩一束细细的紫光在黑暗里穿过中间焦点向前。
   camera:
     move: slow follow
     lens_mm: 35
@@ -2016,7 +2019,6 @@ shots:
   - build_vacuum.chamber
   - build_source.collector
   - build_source.collector_housing
-  - build_source.euv_cone
   - build_source.debris
   fx:
   - bloom
@@ -2100,7 +2102,9 @@ shots:
   - motion_blur
   - bloom
   - particles
-  overlays: []
+  overlays:
+  - text: 示意（非比例）
+    facts: []
   engine: cycles
   sfx:
   - 主脉冲爆裂（与 B1 同一音效，稍压低）
@@ -2163,7 +2167,7 @@ shots:
   - scanlines
   - deposition_particles
   overlays:
-  - text: 沉积 · 注入 · 溅射（示意）
+  - text: 沉积 · 注入 · 溅射（示意 · 原子放大 · 顶层为保护层）
     facts:
     - F26
   - text: 反射率 ↓
@@ -2267,7 +2271,7 @@ shots:
   - text: Sn + 4 H· → SnH₄↑（气体）
     facts:
     - F27
-  - text: 示意
+  - text: 示意 · 顶层为保护层
     facts: []
   engine: eevee
   sfx:
@@ -2297,7 +2301,9 @@ shots:
   fx:
   - ghost_glass
   - gas_flow_particles
-  overlays: []
+  overlays:
+  - text: 抽气口（泵的类型与位置未公开 · 示意）
+    facts: []
   engine: eevee
   sfx:
   - 真空泵高速旋转的稳定嗡声
@@ -2467,6 +2473,8 @@ shots:
   - freestyle_lines
   - line_draw_on
   overlays:
+  - text: 示意
+    facts: []
   - text: 焦点①
     facts: []
   - text: 焦点②
@@ -2532,7 +2540,7 @@ shots:
   - bloom
   - flare
   overlays:
-  - text: 每秒最多 5 万次爆炸 → 汇进同一个点
+  - text: 每秒 6 万次 → 汇进同一个点（示意）
     facts:
     - F2
     - F56
@@ -2567,17 +2575,18 @@ shots:
   - ghost_glass
   - glow_core
   overlays:
-  - text: 焦点① · 等离子体
+  - text: 焦点① · 等离子体（示意）
+    at: 0.4
     facts:
     - F56
-  - text: 焦点② · 中间焦点（IF）
+  - text: 焦点② · 中间焦点（IF）（示意）
+    at: 3.3
     facts:
     - F56
-  - text: 光源 ┃ 扫描仪
+  - text: 光源 ┃ 扫描仪（示意）
+    at: 5.5
     facts:
     - F56
-  - text: 示意
-    facts: []
   engine: eevee
   sfx:
   - 机械对接的厚重“咔”声
@@ -2620,7 +2629,7 @@ shots:
   style: energy
   style_why: 反射与吸收是看不见的物理，能量图里一面普通镜子“吞光”最直观。
   transition_in: fade-to-energy
-  visual: 黑底上一面普通镀银玻璃镜的暗色描边；一道紫色 EUV 光射过去，到镜面就像落进黑洞一样消失，没有一丝反射；镜框边缘只微微泛起一圈暗橙色的热。
+  visual: 黑底上一面普通镀银玻璃镜的暗色描边；一道紫色 EUV 光射过去，到镜面就像落进黑洞一样消失，没有一丝反射；光斑处微微泛起一点暗橙色的热。
   camera:
     move: static
     lens_mm: 50
@@ -2645,13 +2654,13 @@ shots:
   segment: B4
   duration: 8.5
   vo:
-  - 蔡司的办法，是在镜面上交替镀钼和硅，最多约 100 层，每层只有几纳米厚。
+  - 蔡司的办法，是在镜面上交替镀钼和硅，多达上百层，每层只有几纳米厚。
   facts:
   - F8
   style: sem
   style_why: 膜层只有几纳米，必须用显微截面才看得见。
   transition_in: zoom-through
-  visual: 镜头扎进一面 EUV 镜子的镜面，变成灰阶电镜截面：深色钼、浅色硅一层层交替，扫描线自上而下“扫出”每一层；侧边计数器从 1 滚到约 100；构图与 B2_05 相同。
+  visual: 镜头扎进一面 EUV 镜子的镜面，变成灰阶电镜截面：深色钼、浅色硅一层层交替，扫描线自上而下“扫出”每一层；侧边计数器滚到上百层；构图与 B2_05 相同。
   camera:
     move: zoom-through
     lens_mm: 100
@@ -2665,7 +2674,7 @@ shots:
   - scanlines
   - counter
   overlays:
-  - text: 钼 / 硅 交替 · 最多约 100 层 · 每层几 nm
+  - text: 钼 / 硅 交替 · 上百层 · 每层几 nm
     facts:
     - F8
   engine: eevee
@@ -2714,7 +2723,7 @@ shots:
   style: photoreal
   style_why: 纯画面节拍：从原理回到实物——这层膜真的覆在一面闪着虹彩的大镜子上。
   transition_in: zoom-through
-  visual: 从截面倒拉出镜面，一面巨大的自由曲面镜躺在洁净室支架上，镜面泛着与收集镜同样的钼硅虹彩，一道冷光从镜面上缓缓掠过。
+  visual: 从截面倒拉出镜面，一面约 1 米宽的非球面镜架在洁净室的工装上，镜面是素净的金属光泽，一道冷光从镜面上缓缓掠过。
   camera:
     move: pull-back
     lens_mm: 65
@@ -2812,7 +2821,7 @@ shots:
   - sem_noise
   - dof
   overlays:
-  - text: 比例尺 mm → μm → nm → pm
+  - text: 比例尺 nm → pm · 原子排布示意
     facts: []
   engine: eevee
   sfx:
@@ -2844,7 +2853,7 @@ shots:
   - scanlines
   - ruler_glow
   overlays:
-  - text: High-NA 镜面误差 ≈ 20 pm ≈ 1/10 个原子
+  - text: High-NA 镜面误差约 20 pm（RMS）≈ 1/10 个原子
     facts:
     - F29
   - text: 硅原子标尺 · 相邻硅原子间距 ≈ 235 pm
@@ -2909,7 +2918,7 @@ shots:
   - dof
   - motion_blur
   overlays:
-  - text: < 0.1 nrad ≈ 从地球打中月球上的一颗高尔夫球
+  - text: < 0.1 nrad · 蔡司的比喻：从地球打中月球上的一颗高尔夫球
     facts:
     - F30
     - F9b
@@ -3017,7 +3026,7 @@ shots:
   style: clay
   style_why: “零件怎么组装”——白模爆炸图安静而清楚，不暴露真实内部结构。
   transition_in: match-cut
-  visual: 测量舱的舱门合上，轮廓接成一只白色哑光的投影光学模块；模块炸开成成千上万个白色零件悬浮在空中，再如潮水般收拢复位，被吊钩提起；零件计数器滚过 40,000。
+  visual: 测量舱的舱门合上，轮廓接成一只白色哑光的投影光学模块；模块打开成受力框架、传感框架和六个镜片模块（按公开设计示例摆放），再收拢复位。
   camera:
     move: orbit
     lens_mm: 50
@@ -3083,7 +3092,7 @@ shots:
   style: energy
   style_why: 同一语言接续：把单面镜的损耗串成一整条光路。
   transition_in: cut
-  visual: 镜头拉开，光束在约 10 面镜子之间折来折去（布局示意，不是真实光路），每打一次镜子就暗一截、细一截；右侧计量条同步一级级下降（不标中间数字）。
+  visual: 镜头拉开，光束沿 High-NA 的公开光路在约 10 面镜子和掩模之间折转，每打一次镜子就暗一截、细一截；右侧计量条同步一级级下降（不标中间数字）。
   camera:
     move: pull-back-pan
     lens_mm: 28
@@ -3098,7 +3107,7 @@ shots:
   - bloom
   - beam_attenuation
   overlays:
-  - text: 约 10 面反射镜（布局示意）
+  - text: 约 10 面反射镜 + 掩模（按 High-NA 公开光路）
     facts:
     - F7
   engine: eevee
@@ -3108,7 +3117,7 @@ shots:
   segment: B4
   duration: 6.0
   vo:
-  - 进去 100 瓦，到晶圆上，最多只剩约 1 瓦。
+  - 进去的光，到了晶圆上，只剩大约百分之一。
   facts:
   - F33
   style: infographic
@@ -3125,7 +3134,7 @@ shots:
   - flat_motion
   - meter_drop
   overlays:
-  - text: 进入扫描仪 100 W → 到晶圆 ≈ 1 W
+  - text: 进入光路 100% → 到晶圆 ≈ 1%（每面约 66%，11 次反射）
     facts:
     - F33
   engine: manim
@@ -3258,7 +3267,7 @@ shots:
   style: photoreal
   style_why: 镜片阵列是真实存在的精密实物，真实渲染的微距才能看到每一片的镀膜光泽。
   transition_in: dissolve
-  visual: 镜片阵列微距：成排的小镜片密密铺开，每片都带着钼硅虹彩，一片接一片轻轻偏转，反射光像鳞片一样闪烁。
+  visual: 镜片阵列微距：成排的小镜片密密铺开，每片都是一条细长的弧形镜条，一片接一片轻轻偏转，反射光像鳞片一样闪烁。
   camera:
     move: slide
     lens_mm: 100
@@ -3287,7 +3296,7 @@ shots:
   style: photoreal
   style_why: 纯画面节拍（本段震撼时刻）：整面镜墙同步翻转，像外星生物的鳞片——“外星科技”的直观感受。
   transition_in: cut
-  visual: 拉开看整面镜墙：所有镜片如人浪一般依次翻转，反射光在墙面上拼出一个明亮的圆环，又翻转成两个光点。
+  visual: 拉开看：左边的场分面镜墙一列列微微转动，把光分别送到右边圆形的光瞳分面镜上；光瞳镜上被点亮的小圆镜拼出一个圆环，又变成上下两极。
   camera:
     move: pull-back
     lens_mm: 50
@@ -3421,20 +3430,19 @@ shots:
   - 下一站：掩模，也就是芯片的设计底片。
   facts: []
   style: photoreal
-  style_why: 新角色登场，先以真实的样子见面：掩模的图案在光下泛着虹彩。
+  style_why: 新角色登场，先以真实的样子见面：掩模的图形区在光下呈现明暗不一的功能块。
   transition_in: dissolve
-  visual: 掩模在暗色支架里缓缓转入画面，表面的电路图案在侧光下折射出彩虹般的衍射色带，浅景深只清晰一小块图形区。
+  visual: 掩模在暗色支架里缓缓转入画面，镜面般的图形区在侧光下显出一块块明暗不同的功能区和芯片之间的切割道（没有彩虹：EUV 掩模的图形周期太细，看不到可见光衍射色），浅景深只清晰一小块图形区。
   camera:
     move: slide-rotate
     lens_mm: 85
     fstop: 2.0
-    notes: 低角度横移，掩模微微转动带出衍射色
+    notes: 低角度横移，掩模微微转动带出镜面高光
   builders:
   - build_mask.reticle
   - build_mask.absorber_pattern
   - pdk_patterns.sky130_metal
   fx:
-  - diffraction_iridescence
   - dof
   - bloom
   overlays:
@@ -3499,7 +3507,7 @@ shots:
   - bloom
   - additive_blend
   overlays:
-  - text: 反射 = 亮 · 吸收 = 关
+  - text: 开口 = 反射 · 吸收层 = 关
     facts:
     - F14
   engine: eevee
@@ -3530,7 +3538,7 @@ shots:
   - line_draw_on
   - dimension_lines
   overlays:
-  - text: 入射角 ≈ 6°
+  - text: NXE：入射角 ≈ 6°
     facts:
     - F40
   engine: eevee
@@ -3670,7 +3678,7 @@ shots:
   - strobe_fill
   - hud_markers
   overlays:
-  - text: 1 颗颗粒 → 每一颗芯片 · 良率损失 100%
+  - text: 1 颗颗粒 → 每一颗芯片 · 满场芯片良率损失 100%
     facts:
     - F35
   engine: eevee
@@ -3704,6 +3712,8 @@ shots:
   - text: 每 100 万次搬运 · 最多 1 个颗粒
     facts:
     - F37
+  - text: 机械手外形示意
+    facts: []
   engine: eevee
   sfx:
   - 机械臂的伺服声加速成连续嗡鸣
@@ -3733,16 +3743,17 @@ shots:
   - 一声极轻的“叮”
 - id: B6_12
   segment: B6
-  duration: 7.5
+  duration: 8.3
   vo:
-  - 掩模上方还罩着一层保护膜，叫 pellicle，只有 13 纳米厚，
+  - 掩模的图形面前还罩着一层保护膜，叫 pellicle，只有 13 纳米厚，
   facts:
   - F36
   - F1
   style: xray
   style_why: “它装在哪里”——透明剖视同时看到掩模、支架和悬在上方的膜。
   transition_in: scan-wipe
-  visual: 透明剖视：掩模上方一圈边框撑起一张近乎看不见的薄膜，只在掠射角泛出淡淡的虹彩；侧面插入一个小尺寸对照——13 nm 的膜厚旁画一段 13.5 nm 的 EUV 波长，几乎一样长。
+  visual: 透明剖视：掩模图形区前方，四个小支座托起一圈低矮的框架（与掩模之间留一道细缝），框上绷着一张近乎看不见的矩形薄膜，只在掠射角泛出一层淡淡的反光；侧面插入一个小尺寸对照——13 nm 的膜厚旁画一段 13.5 nm 的 EUV
+    波长，几乎一样长。
   camera:
     move: orbit
     lens_mm: 40
@@ -3754,7 +3765,6 @@ shots:
   - styles.apply_style
   fx:
   - ghost_glass
-  - thin_film_iridescence
   overlays:
   - text: pellicle 厚 13 nm
     facts:
@@ -3797,6 +3807,9 @@ shots:
   - text: 真空中 最高 500 °C
     facts:
     - F36
+  - text: 暗红辉光为示意（500 °C 时肉眼几乎看不到）
+    facts:
+    - F36
   engine: cycles
   sfx:
   - 每次脉冲一声低沉的“嗡”
@@ -3810,7 +3823,7 @@ shots:
   style: photoreal
   style_why: 纯画面节拍（本段震撼时刻）：掠射特写，让发光的薄膜在画面里完整呼吸一次。
   transition_in: cut
-  visual: 掠射角特写：发着暗红光的薄膜微微起伏，干涉色带缓缓流过表面，热浪让背景轻轻扭曲；一行小字浮现又淡去。
+  visual: 掠射角特写：发着暗红光的薄膜微微起伏，微弱的暗红辉光缓缓起伏，镜面高光沿膜面滑过，热浪让背景轻轻扭曲；一行小字浮现又淡去。
   camera:
     move: slide
     lens_mm: 100
@@ -3821,10 +3834,9 @@ shots:
   fx:
   - emission_heat
   - heat_shimmer
-  - thin_film_iridescence
   - dof
   overlays:
-  - text: 13 nm · 500 °C
+  - text: 13 nm · 500 °C（发光示意）
     facts:
     - F36
   engine: cycles
@@ -3834,7 +3846,7 @@ shots:
   segment: B6
   duration: 5.5
   vo:
-  - 灰尘落在膜上，离开了焦点，就印不出来。
+  - 小颗粒落在膜上，离开了焦点，就印不出来。
   facts: []
   style: energy
   style_why: 离焦是光学现象，能量图里能直接看到光线在像面上散开。
@@ -3855,7 +3867,7 @@ shots:
   - defocus_blur
   - light_trails
   overlays:
-  - text: 离焦 → 印不出来（示意）
+  - text: 小颗粒离焦 → 印不出来（示意）
     facts: []
   engine: eevee
   sfx:
@@ -3884,7 +3896,7 @@ shots:
   - text: “与魔法无异”
     facts:
     - F36
-  - text: The EUV pellicle — indistinguishable from magic · ASML, 2022
+  - text: 'Indistinguishable from magic: the EUV pellicle · ASML, 2022'
     facts:
     - F36
   engine: manim
@@ -3898,7 +3910,7 @@ shots:
   style: xray
   style_why: 纯画面节拍：退回整机剖视，带着图形的光离开掩模射向投影物镜，交给 B7。
   transition_in: dissolve
-  visual: 引语淡出，透明剖视中带着条纹的紫色光从掩模反射而下，射进下方投影物镜的幽灵玻璃外壳里。
+  visual: 引语淡出，透明剖视中带着条纹的紫色光从掩模反射而下，从光瞳分面镜射上掩模、再反射进下方投影物镜的 M1、M2（High-NA 光路）。
   camera:
     move: tilt-down
     lens_mm: 35
@@ -3920,18 +3932,19 @@ shots:
   segment: B7
   duration: 7.5
   vo:
-  - 从掩模反射出的光，进入投影物镜——由六面反射镜组成。
+  - 从掩模反射出的光，进入投影物镜——一组弯曲的反射镜。
   facts:
   - F7
   style: xray
-  style_why: 观众第一次进入投影物镜内部，问题是“里面怎么排布”，幽灵玻璃外壳让六面镜和光路同时可见
+  style_why: 观众第一次进入投影物镜内部，问题是“里面怎么排布”，幽灵玻璃外壳让镜组和光路同时可见
   transition_in: dissolve
-  visual: 承接 B6 的掩模：一束 EUV 紫光从掩模反射向下，镜头跟着光束钻进一只浅灰棚拍背景下的幽灵玻璃箱体。箱内六面镜（M1–M6）沿折线排布，光束每到一面，那面镜子的 Mo/Si 膜就亮起一圈虹彩，编号依次浮现。最终光束出箱、朝画面下方的晶圆收拢。
+  visual: 承接 B6 的掩模：一束 EUV 紫光从掩模反射向下，镜头跟着光束钻进一只浅灰棚拍背景下的幽灵玻璃箱体。上半部 M1–M4 在窄柱里折返，光束穿过大末镜 M6 中心的孔落到贴近晶圆的小镜 M5，再反射回 M6，最后一只宽光锥穿过
+    M5 的孔汇聚到晶圆；光每到一面镜子，镜缘亮起一圈紫光（外壳示意）。
   camera:
     move: follow-dolly
     lens_mm: 35
     fstop: 5.6
-    notes: 沿光路样条跟随，速度随光束；结尾升高到 3/4 俯视全景让六面镜同框
+    notes: 沿光路样条跟随，速度随光束；结尾升高到 3/4 俯视全景让镜组同框
   builders:
   - build_mask.reflective_mask
   - build_optics.projection_box
@@ -3943,12 +3956,10 @@ shots:
   - bloom
   overlays:
   - text: 章节 · 投影物镜与 High-NA：在镜子上开一个洞
-    facts: []
-    kind: chapter
-  - text: 投影物镜：6 面反射镜
     facts:
     - F7
-  - text: M1–M6 排布示意（非真实设计）
+    kind: chapter
+  - text: 按 ASML / ZEISS 公开设计示例绘制（示意）
     facts:
     - F7
   engine: eevee
@@ -3959,13 +3970,13 @@ shots:
   segment: B7
   duration: 5.0
   vo:
-  - 它把图形缩小 4 倍，投向晶圆。
+  - 现役 NXE 把图形缩小 4 倍，投向晶圆。
   facts:
   - F11
   style: blueprint
   style_why: “缩小 4 倍”是几何关系，蓝图正交侧视能把掩模尺寸和晶圆尺寸并排标注
   transition_in: scan-wipe
-  visual: 一条扫描光带自上而下扫过，玻璃箱体变成蓝底白线的正交侧视图。顶部掩模上的一段电路图形（SKY130 版图片段）用白色线稿画出，沿光路虚线投到底部，落成同形但缩小的图形，两端各拉出尺寸线。
+  visual: 蓝图并排画出两份公开设计示例：左 NXE（NA 0.33），右 High-NA EXE（NA 0.55），掩模在上、晶圆在下，紫色半透明光束逐段画出；NXE 一侧，掩模上的一段图形以 1/4 大小落到晶圆，标“缩小 4×”。
   camera:
     move: locked-ortho
     lens_mm: 0
@@ -3979,10 +3990,12 @@ shots:
   - freestyle_lines
   - dimension_draw_on
   overlays:
-  - text: 缩小 4×
+  - text: NXE：缩小 4×
     facts:
     - F11
-  engine: eevee
+  - text: 设计示例 · ASML / ZEISS
+    facts: []
+  engine: pillow
   sfx:
   - 笔尖划线声
   - 尺寸线咔哒定位
@@ -4054,12 +4067,12 @@ shots:
   style: documentary
   style_why: 回答“它在真实世界的哪里”：交付是一个真实事件，回到开场 A0 的板条箱母题
   transition_in: whip
-  visual: 夜色里一座风格化的厂房装货口，叉车把一只印着“EXE 示意”字样的白色板条箱推进集装箱；冷白顶灯，地面有水迹反光。日期字样在箱体侧面打出。不仿制任何真实厂区或 ASML 标识。
+  visual: 夜色停机坪：一台平板挂车载着一只白色铝框、倒角顶的运输箱缓缓驶过，箱体侧面印着“2023.12”；背景里一架货机抬起机头、剪叉式升降平台车停在机头下，湿地面反着灯光。不出现任何标志和涂装。
   camera:
     move: slow-push
     lens_mm: 50
     fstop: 2.0
-    notes: 低机位、浅景深，前景虚化的集装箱门边
+    notes: 低机位、浅景深，前景虚化的挂车边缘
   builders:
   - build_machine.shipping_crates
   - build_machine.dock_environment
@@ -4082,26 +4095,26 @@ shots:
   facts:
   - F18
   style: clay
-  style_why: 无旁白的呼吸镜头：B4_14 已经炸开过同一模块，这里改用白模转台加一个人形比例尺，安静地交代它有多大，避免重复
+  style_why: 无旁白的呼吸镜头：B4_14 已经炸开过同一模块，这里改用白模转台，安静地交代它的外形，避免重复
   transition_in: dissolve
-  visual: 纯白哑光的 High-NA 投影光学模块（示意外形）立在浅灰无缝棚里缓缓转动，旁边站着一个同样白模的人形比例尺，只到模块腰部；顶光在模块的层层框架上留下柔和的 AO 阴影。
+  visual: 纯白哑光的 High-NA 投影物镜模块（照 ZEISS 公开渲染图的外形：宽而矮的棱角框架、下部斜面、窄底座、顶部线缆）在浅灰棚里缓缓转动，顶光留下柔和的 AO 阴影。
   camera:
     move: orbit
     lens_mm: 65
     fstop: 4.0
-    notes: 环绕 60°，爆炸峰值时正好转到 3/4 侧面
+    notes: 环绕约 50°，停在 3/4 侧面
   builders:
   - build_optics.po_module_exploded
   - styles.clay
   fx:
   - ambient_occlusion
-  - explode_stagger
   overlays:
-  - text: High-NA 投影光学（外形示意，人形为比例参考）
+  - text: High-NA 投影物镜（外形示意 · 尺寸未公开）
     facts:
     - F18
-  - text: 外形示意
-    facts: []
+  - text: 约 12 吨 · 4 万多个零件（ZEISS）
+    facts:
+    - F18
   engine: eevee
   sfx:
   - 零件散开的细碎金属叮当
@@ -4187,7 +4200,6 @@ shots:
   - volumetric_cone
   - interference_ripple
   - bloom
-  - chromatic_dispersion
   overlays:
   - text: 示意
     facts: []
@@ -4224,9 +4236,9 @@ shots:
   - 两次压缩的气动声
 - id: B7_11
   segment: B7
-  duration: 6.0
+  duration: 8.6
   vo:
-  - 入射角从 6 度降到 5.4 度，两只光锥恰好错开；
+  - 扫描方向的光锥细了一半，入射角还能从 6 度降到 5.4 度，两只光锥恰好错开；
   facts:
   - F40
   style: energy
@@ -4245,9 +4257,11 @@ shots:
   - volumetric_cone
   - bloom
   overlays:
-  - text: 入射角 6° → 5.4°
+  - text: 扫描方向光锥减半（≈3.9°）· 入射角 6° → 5.4°
     facts:
     - F40
+  - text: 角度放大示意
+    facts: []
   engine: eevee
   sfx:
   - 啸叫消失，一声干净的长音
@@ -4321,7 +4335,7 @@ shots:
   style: photoreal
   style_why: 回答“它真的长这样吗”：一面原子级抛光的镜子中间开孔，只有真实材质才有冲击力
   transition_in: dissolve
-  visual: 真空腔幽暗环境中，一面巨大的凹面镜从黑暗里浮现，Mo/Si 膜层泛着淡淡的虹彩，表面倒映着另一面镜子；镜头绕到正面，镜心是一个黑洞般的圆孔，孔缘倒角闪着一线高光。孔的另一侧隐约能看到第二面同样开孔的镜子。
+  visual: 真空腔幽暗环境中，上方一面巨大的凹面镜（M6）镜面朝下、中心开孔；下方贴近晶圆处一面小镜（M5）镜面朝上、也开孔。镜头从侧面绕到下方，沿光轴仰望：两面镜子的孔对成一线。
   camera:
     move: arc-to-front
     lens_mm: 40
@@ -4332,7 +4346,6 @@ shots:
   - build_vacuum.chamber
   - materials.multilayer_mirror
   fx:
-  - thin_film_iridescence
   - depth_of_field
   - bloom
   overlays:
@@ -4351,7 +4364,7 @@ shots:
   style: photoreal
   style_why: 本段的震撼时刻：镜头像飞船穿过星门一样钻过末镜中央的孔，让观众亲身经历“在镜子上开洞”
   transition_in: push-through
-  visual: 镜头加速冲向孔洞，孔壁一闪而过；穿出瞬间，EUV 紫色光锥从四周的镜面反射汇聚过来、擦着镜头穿过孔洞，在前方收束成一个点——那是晶圆。回望：两面开孔镜前后对齐，像两道环形门。
+  visual: 镜头顺着从 M4 来的细光束下降，穿过 M6 中心的孔；光落到 M5 的镜环、反射回 M6，再从 M6 的整圈镜面汇成一只宽光锥（半角约 33°，中心空心），穿过 M5 的孔收束到晶圆上的一点。最后在下方仰望：两道环形镜对齐。
   camera:
     move: fly-through
     lens_mm: 24
@@ -4375,7 +4388,7 @@ shots:
   segment: B7
   duration: 13.0
   vo:
-  - 这样能让更多光通过，却也让描述镜头误差的标准数学工具失效了——蔡司和 ASML 只好换用另一套多项式。
+  - 这样能让更多光通过，却也让描述镜头误差的标准数学工具不再适用——蔡司和 ASML 只好换用另一套多项式。
   facts:
   - F39
   style: blueprint
@@ -4441,7 +4454,7 @@ shots:
   style: energy
   style_why: 光的形状是“看不见的物理”，黑底上只留光，才能看清它被整形成一条缝
   transition_in: fade-to-energy
-  visual: 晶圆结构淡成暗色描边。上方一团 EUV 紫光先试图铺满整片晶圆（虚影），随即被两片刀口收拢，压成一条窄窄的光带，横跨一个曝光场，边缘锐利。
+  visual: 晶圆结构淡成暗色描边。上方一团 EUV 紫光先试图铺满整片晶圆（虚影），虚影散去；投影物镜送来的是一束会聚的光（NA 0.55），落在晶圆上是一条弧形窄缝，长 26 mm，正好横跨一个曝光场（狭缝由照明系统的场分面镜整形，不是晶圆上方的刀片）。
   camera:
     move: tilt-down
     lens_mm: 35
@@ -4455,11 +4468,12 @@ shots:
   - volumetric_beam
   - bloom
   overlays:
-  - text: 狭缝（示意）
-    facts: []
+  - text: 弧形狭缝 26 mm（示意）
+    facts:
+    - F64
   engine: eevee
   sfx:
-  - 刀口合拢的轻响
+  - 光束成形的轻响
   - 光带持续的嗡鸣
 - id: B8_03
   segment: B8
@@ -4471,7 +4485,8 @@ shots:
   style: clay
   style_why: 回答“机构怎么运动”：白模去掉一切干扰，只看两张台子的相对运动
   transition_in: match-cut
-  visual: 光缝保留为唯一的紫色元素，其余变成哑光白模：上方掩模台向左滑、下方晶圆台向右滑，光缝原地不动；晶圆上的曝光场被一条一条“刷”出浅紫色的潜像。扫完一场，晶圆台步进到下一场，再反向扫回来。
+  visual: 光缝保留为唯一的紫色元素，其余变成哑光白模：上方掩模台向左滑、下方晶圆台向右滑，光缝原地不动；晶圆上的曝光场被一条一条“刷”出浅紫色的潜像。掩模台的行程是晶圆台的 8 倍（High-NA 扫描方向）；曝光场按真实尺寸 26
+    × 16.5 mm；扫完一场步进一格，下一场反向扫（扫描方向交替，ASML 专利 US8711329B2）。
   camera:
     move: static-3q
     lens_mm: 50
@@ -4494,16 +4509,16 @@ shots:
   - 直线电机的滑行声，一左一右
 - id: B8_04
   segment: B8
-  duration: 5.2
+  duration: 5.9
   vo:
-  - 缩小 4 倍，就意味着掩模要跑得比晶圆快 4 倍。
+  - 在扫描方向缩小 8 倍，掩模就要跑得比晶圆快 8 倍。
   facts:
   - F57
   - F11
   style: clay
-  style_why: 同一白模机位，加上速度矢量，就能看清“快 4 倍”
+  style_why: 同一白模机位，加上速度矢量，就能看清“快 8 倍”
   transition_in: cut
-  visual: 同一白模场景，两台各拉出一根速度箭头：掩模台的激光橙箭头是晶圆台计量青箭头的 4 倍长。两台同时启动，掩模台一闪而过，晶圆台慢条斯理；运动残影长度也正好 4:1。
+  visual: 同一白模场景，两台各拉出一根速度箭头：掩模台的激光橙箭头是晶圆台计量青箭头的 8 倍长。两台同时启动，掩模台一闪而过，晶圆台慢条斯理；运动残影长度也正好 8:1。
   camera:
     move: slow-truck
     lens_mm: 50
@@ -4516,7 +4531,7 @@ shots:
   - motion_trail
   - ambient_occlusion
   overlays:
-  - text: 掩模速度 = 4 × 晶圆速度
+  - text: 掩模速度 = 8 × 晶圆速度（High-NA 扫描方向）
     facts:
     - F57
   engine: eevee
@@ -4586,15 +4601,15 @@ shots:
   - 一记重低音冲击
 - id: B8_07
   segment: B8
-  duration: 9.5
+  duration: 11.0
   vo:
-  - 掩模台的电机推力超过 1 万牛——ASML 形容，就像每次加速，都有一辆车砸在台面上。
+  - 上一代 NXE 的掩模台，电机推力就超过 1 万牛——ASML 形容，就像每次加速，都有一辆车砸在台面上。
   facts:
   - F41
   style: photoreal
   style_why: “暴力与温柔”的暴力一面必须是真实质感：金属台面、真实光，才能和一辆车的重量感对撞
   transition_in: cut
-  visual: 真实渲染的掩模台（风格化外形）在幽暗腔体里蓄势；推力读数涨到 1 万牛的同时，一辆半透明的幽灵轿车（线框 + 玻璃材质）从画面上方砸下，正正落在台面上，车身被冲击压得变形、碎成光点。台面本身纹丝不动，只有一圈冲击波纹在幽灵车上荡开。
+  visual: 磁悬浮掩模台在两条直线电机轨道之间往复（不接触，有间隙），掩模由静电吸盘吸在台子下方、图形面朝下；推力读数涨到 1 万牛的同时，一辆半透明的幽灵轿车（线框 + 玻璃材质）从画面上方砸下，正正落在台面上，车身被冲击压得变形、碎成光点。台面本身纹丝不动，只有一圈冲击波纹在幽灵车上荡开。
   camera:
     move: low-angle-static
     lens_mm: 28
@@ -4610,7 +4625,7 @@ shots:
   - particle_shatter
   - motion_blur
   overlays:
-  - text: 掩模台推力 > 10,000 N
+  - text: 掩模台推力 > 10,000 N（NXE · >15 g）
     facts:
     - F41
   engine: cycles
@@ -4626,12 +4641,12 @@ shots:
   style: photoreal
   style_why: 震撼时刻的慢动作回放：同一画面换一个角度再看一次“车砸下来、掩模不动”
   transition_in: cut
-  visual: 侧面机位慢动作回放：幽灵车的冲击在台面框架里传成一圈橙色应力波，却在掩模边缘戛然而止；掩模上的电路图形在微距下纹丝不动，焦点一直锁在它身上。
+  visual: 从台子下方仰拍掩模的图形面（微距，慢放）：橙色应力波沿台子底面收缩，停在吸盘和掩模的边缘；掩模上的电路图形纹丝不动。
   camera:
     move: slow-dolly
     lens_mm: 100
     fstop: 1.8
-    notes: 0.1× 慢放；焦点锁掩模，幽灵车在前景大虚化
+    notes: 0.1× 慢放；焦点锁掩模图形面
   builders:
   - build_stage.reticle_stage
   - build_stage.ghost_car
@@ -4640,7 +4655,9 @@ shots:
   - stress_wave_shader
   - depth_of_field
   - motion_blur
-  overlays: []
+  overlays:
+  - text: 慢放 · 示意
+    facts: []
   engine: cycles
   sfx:
   - 拉长变调的撞击回声
@@ -4684,7 +4701,7 @@ shots:
   style: xray
   style_why: 要同时看见上面的掩模台和下面的晶圆台以及中间的光路，需要透明剖视
   transition_in: dissolve
-  visual: 幽灵玻璃整机剖面（示意）里，上方掩模台和下方晶圆台反向冲刺，中间一束紫色光路把两者连起来；两台各带一个计量青的时钟刻度，刻度每次对齐就闪一下白光。
+  visual: High-NA 整机剖面（光源在右侧，示意）里，上方掩模台和下方晶圆台反向往复，行程 8:1；光路固定不动，每个转折点都落在镜面或掩模上；两台各带一个计量青的时钟刻度，刻度每次对齐就闪一下白光。
   camera:
     move: slow-pull-back
     lens_mm: 35
@@ -4774,13 +4791,13 @@ shots:
   segment: B8
   duration: 6.8
   vo:
-  - 随后，机器读取超过 1000 个套刻标记，把它修正到亚纳米。
+  - 随后，对准传感器读取几十个对准标记，把位置修正到亚纳米。
   facts:
   - F44
   style: hud
   style_why: 回答“控制怎么实时发生”：标记被逐个读取、误差圈实时收缩，就是一段遥测
   transition_in: dissolve
-  visual: 俯视整片晶圆（真实渲染底图），上千个十字标记被计量青扫描点逐个“读”亮，计数器飞速上涨；画面中心的误差圈随之从头发丝粗细一路收缩，最后缩成一个几乎看不见的亮点。
+  visual: 俯视整片晶圆（真实渲染底图），划片槽里几十个光栅对准标记被逐个读亮（画在真实的 26 × 16.5 mm 曝光场网格上），计数器飞速上涨；画面中心的误差圈随之从头发丝粗细一路收缩，最后缩成一个几乎看不见的亮点。
   camera:
     move: slow-push
     lens_mm: 50
@@ -4794,7 +4811,7 @@ shots:
   - hud_glow
   - point_scan
   overlays:
-  - text: 读取 1000+ 套刻标记 → 亚纳米
+  - text: 读取几十个对准标记 → 亚纳米
     facts:
     - F44
   engine: eevee
@@ -4811,7 +4828,7 @@ shots:
   style: photoreal
   style_why: 回到真实的晶圆台：校正发生在一台真实的、高速运动的机器上，不是抽象图表
   transition_in: match-cut
-  visual: 那个亮点放大成晶圆台下方的一排促动器微距：金属台面在运动中，促动器表面的指示灯以肉眼几乎分辨不清的频率闪烁成一片青色微光；角落一个计数器飞速跳动。
+  visual: 磁悬浮晶圆台浮在平面电机的磁铁阵列上方，台面下有可见间隙（放大示意）；台子往复扫描，背景运动模糊；角落一个计数器飞速跳动。
   camera:
     move: track-macro
     lens_mm: 100
@@ -4819,11 +4836,10 @@ shots:
     notes: 跟拍运动中的台面边缘，背景运动模糊
   builders:
   - build_stage.wafer_stage
-  - build_stage.actuator_array
+  - build_stage.planar_maglev
   fx:
   - motion_blur
   - depth_of_field
-  - led_flicker
   overlays:
   - text: 定位 < 0.25 nm · 每秒校正 20,000 次
     facts:
@@ -4842,7 +4858,7 @@ shots:
   style: clay
   style_why: 回答“怎么组装”：层层图形像白模楼板一样叠落，对准误差就是楼板之间的错位
   transition_in: dissolve
-  visual: 哑光白模的芯片截面：一层层薄板（每层刻着不同的线条图形）从上方依次落下，精确叠在下一层上。最后一层落下时镜头推到两层交界，边缘几乎完全重合，一根计量青的极细标尺标出 0.7 nm 的错位。
+  visual: 哑光白模的芯片截面：一层层薄板（每层刻着不同的线条图形）从上方依次落下，精确叠在下一层上。最后一层落下时镜头推到两层交界，最后一层带着一点横向错位落下；层间缝上一根水平的计量青短标尺，标出这段水平错位（放大示意）。
   camera:
     move: crane-down
     lens_mm: 65
@@ -4855,9 +4871,10 @@ shots:
   - ambient_occlusion
   - drop_settle
   overlays:
-  - text: 层间套刻误差 0.7 nm（英特尔验收测试）
+  - text: 层间套刻误差 0.7 nm（EXE:5200B · 英特尔验收测试）
     facts:
     - F43b
+  - text: 错位放大示意
   engine: eevee
   sfx:
   - 每层落下的柔和‘嗒’声，一层比一层轻
@@ -4893,15 +4910,15 @@ shots:
   - 交换完成的确认音
 - id: B8_17
   segment: B8
-  duration: 7.2
+  duration: 9.6
   vo:
-  - 一片晶圆约 96 个曝光场，一小时 220 片——每小时两万多次曝光。
+  - High-NA 一片晶圆要曝光 188 个场，一小时 185 片以上——每小时三万多次曝光。
   facts:
   - F45
   style: infographic
-  style_why: 回答“多少”：96、220、2 万多，三个数用格子图和计数器一次交代清楚
+  style_why: 回答“多少”：188、185、3 万多，三个数用格子图和计数器一次交代清楚
   transition_in: cut
-  visual: 扁平俯视晶圆，96 个曝光场格子依次频闪点亮；右侧一摞晶圆图标快速叠高到 220；底部计数器滚到 21,120。
+  visual: 扁平俯视晶圆，188 个半场（26 × 16.5 mm，真实比例，边缘场被晶圆边缘裁掉）依次频闪点亮；右侧一摞晶圆图标快速叠高到 185；底部计数器滚过 3.4 万。
   camera:
     move: static
     lens_mm: 0
@@ -4913,10 +4930,10 @@ shots:
   fx:
   - strobe
   overlays:
-  - text: 96 个曝光场/片 · 220 片/小时
+  - text: 188 个曝光场/片 · 185 片以上/小时（EXE:5000）
     facts:
     - F45
-  - text: ≈ 21,120 次曝光/小时（推算）
+  - text: 超过 3.4 万次曝光/小时（推算）
     facts:
     - F45
   engine: manim
@@ -4929,9 +4946,9 @@ shots:
   facts:
   - F45
   style: energy
-  style_why: 本段视觉高潮之一：把 96 次曝光变成一片晶圆上真实节奏的光的闪烁
+  style_why: 本段视觉高潮之一：把 188 次曝光变成一片晶圆上真实节奏的光的闪烁
   transition_in: cut
-  visual: 黑底中一片暗色晶圆，紫色光缝像节拍器一样沿蛇形路径扫过 96 个场，每场亮一下留下潜像余辉；一片扫满，晶圆被瞬间换走、下一片又开始——四五片之后连成一片持续的紫色脉动。
+  visual: 黑底中一片暗色晶圆，光缝横跨每个场 26 mm 的宽度，沿 16.5 mm 方向扫下去，逐场扫过 188 个场（加速示意），每场亮一下留下潜像余辉；一片扫满，晶圆被瞬间换走、下一片又开始——四五片之后连成一片持续的紫色脉动。
   camera:
     move: top-down-drift
     lens_mm: 50
@@ -4946,7 +4963,7 @@ shots:
   - afterglow
   - bloom
   overlays:
-  - text: '96'
+  - text: '188'
     facts:
     - F45
   engine: eevee
@@ -4956,7 +4973,7 @@ shots:
   segment: B8
   duration: 9.4
   vo:
-  - 这台机器每周光是传感器就产生最多 31 TB 数据，是哈勃望远镜一年数据量的 3 倍。
+  - 一台光刻机每周光是传感器就产生最多 31 TB 数据，是哈勃望远镜一年数据量的 3 倍。
   facts:
   - F46
   style: infographic
@@ -5019,7 +5036,8 @@ shots:
   style: infographic
   style_why: 光的账本计量条一直在画面右侧，此刻它被请到画面中央，回答“还剩多少”
   transition_in: whip
-  visual: 一直挂在右侧的“光的账本”竖条滑到画面中央并放大：上方一格格已经熄灭的刻度记录着每一道损耗，底部只剩最后一小截紫色还亮着，像沙漏最后几粒沙。
+  visual: 一直挂在右侧的“光的账本”竖条滑到画面中央并放大：上方一格格已经熄灭的刻度记录着每一道损耗（以 NXE:3800E 为例：电力 1.26 MW → 驱动激光 40 kW → EUV 进入扫描仪 500 W 以上 → 十多面反射镜
+    → 到达晶圆约 1%），底部只剩最后一小截紫色还亮着，像沙漏最后几粒沙。
   camera:
     move: static
     lens_mm: 0
@@ -5126,7 +5144,7 @@ shots:
   - bloom
   - particle_streaks
   overlays:
-  - text: 30 mJ/cm² 剂量下：每 nm² ≈ 20 个光子（推算）
+  - text: 按 NXE 标定剂量 30 mJ/cm²：每 nm² ≈ 20 个入射光子（推算）
     facts:
     - F47
     - F45
@@ -5205,7 +5223,7 @@ shots:
     move: slow-truck
     lens_mm: 0
     fstop: 0
-    notes: SEM 视野横移，带比例尺（无具体数值）
+    notes: SEM 视野横移，比例尺 20 nm（线距约 28 nm）
   builders:
   - build_photon_rain.rough_lines
   - styles.sem
@@ -5225,16 +5243,16 @@ shots:
   - 发现缺陷时的低沉提示音
 - id: B9_08
   segment: B9
-  duration: 10.0
+  duration: 11.7
   vo:
-  - 这也是为什么，ASML 要把光源从几百瓦推向一千瓦——多一个光子，线条就稳一分。
+  - ASML 正把光源从几百瓦推向一千瓦：光更亮，就能在不降产能的同时多给光子——多一个光子，线条就稳一分。
   facts:
   - F4c
   - F59
   style: energy
   style_why: 用同一场光子雨的“加密”直接展示功率提高的意义，比一张功率表更有说服力
   transition_in: cut
-  visual: 画面左右分屏：左边是刚才的稀疏光子雨和毛糙线条；右边光源功率读数从 600 W 往 1000 W 爬升，光子雨明显更密，下方的线条边缘随之变平滑、断线消失。分屏中线是一条计量青细线。
+  visual: 画面左右分屏：左边是刚才的稀疏光子雨和毛糙线条；右边光源功率读数从 500 W 爬升到 1000 W，光子雨加倍，线边缘粗糙度降到约 0.71 倍；桥连消失，断线仍在（提高剂量只推回桥连，imec）。分屏中线是一条计量青细线。
   camera:
     move: static-split
     lens_mm: 35
@@ -5248,7 +5266,7 @@ shots:
   - bloom
   - edge_smooth_morph
   overlays:
-  - text: 量产约 600 W → 1000 W 原理样机
+  - text: NXE:3800E 超过 500 W → 2025 年演示 1000 W（ASML）
     facts:
     - F4c
   - text: 示意
@@ -5263,13 +5281,14 @@ shots:
   vo:
   - 从吞下巨量电力的激光，到每平方纳米 20 个光子——这本账，算到了最后一位。
   facts:
+  - F48
   - F6
   - F33
   - F47
   style: infographic
   style_why: 光的账本的总结算：一条从左到右的损耗链，是全片主线一的收尾
   transition_in: dissolve
-  visual: 账本摊开成横向的一整页：驱动激光 → EUV → 到达晶圆 1% → 每 nm² 20 个光子（整机耗电没有一手数字，不画）。每一格依次亮起，宽度按比例急剧收窄，最后一格只剩一个小小的紫点。
+  visual: 账本摊开成横向的一整页：电力 → 驱动激光 → EUV → 到达晶圆 1% → 每 nm² 20 个光子。每一格依次亮起，高度依次收窄（示意，不按比例），最后一格只剩一个小小的紫点。
   camera:
     move: slow-truck
     lens_mm: 0
@@ -5280,10 +5299,13 @@ shots:
   - overlay:light_ledger
   fx: []
   overlays:
+  - text: 电力：约 1.26 MW（NXE:3800E）
+    facts:
+    - F48
   - text: 驱动激光：最高 40 kW
     facts:
     - F6
-  - text: 进入扫描仪约 100 W → 晶圆约 1 W（约 1%）
+  - text: EUV 进入扫描仪：500 W 以上（NXE:3800E）→ 到达晶圆约 1%（推算）
     facts:
     - F33
   - text: 每 nm² ≈ 20 个光子
@@ -5328,12 +5350,12 @@ shots:
   style: clay
   style_why: 回答“零件怎么组装”：前面拆开讲过的各子系统，以白模形式飞回原位、合成一台整机
   transition_in: fade-to-energy
-  visual: 从黑屏中浮出浅灰棚：B1–B8 出现过的各个子系统（锡滴发生器、收集镜容器、照明分面镜、掩模台、投影物镜、晶圆台）以哑光白模悬浮在各自位置，然后依次飞入、咬合，组成一台完整的机器剖面（示意外形，不仿制 ASML 真机外观）。最后一块咬合时，白模表面开始长出真实金属材质——长镜头由此开始。
+  visual: 从黑屏中浮出浅灰棚：B1–B8 出现过的各个子系统（锡滴发生器、收集镜容器、照明分面镜、掩模台、投影物镜、晶圆台）以哑光白模悬浮在各自位置，然后依次飞入、咬合，组成一台完整的机器剖面（示意外形，不仿制 ASML 真机外观）。长镜头由此开始。
   camera:
     move: orbit-in
     lens_mm: 35
     fstop: 5.6
-    notes: 环绕 90° 同时推近到光源模块入口；最后一帧即 C_02 第一帧
+    notes: 环绕后推近到光源舱体（+x 侧）；最后一帧即 C_02 第一帧
   builders:
   - build_machine.assembled_cutaway
   - build_machine.subsystem_explode
@@ -5396,12 +5418,15 @@ shots:
   - depth_of_field
   overlays:
   - text: 锡滴 ≈ 25 μm
+    at: 1.2
     facts:
     - F3
   - text: 单独成像 · 单独瞄准
+    at: 2.0
     facts:
     - F22
   - text: 13.5 nm
+    at: 7.4
     facts:
     - F1
   engine: cycles
@@ -5425,8 +5450,8 @@ shots:
   style: xray
   style_why: 光离开光源腔、进入扫描仪内部，问题变成“它在机器里怎么走”：扫描光带扫过，真实墙壁变成幽灵玻璃，长镜头第一次风格变形
   transition_in: push-through
-  visual: TAKE C_LONG 第 2 段（无剪切）。镜头骑在 EUV 光束上从收集镜飞向中间焦点；穿过焦点小孔的瞬间，一道扫描光带横扫全画面——腔体墙壁、管道、框架全部变成幽灵玻璃，光束保持紫色发光（photoreal → xray）。镜头继续前行，飞过照明系统的分面镜墙：成百上千块小镜片同时翻转，把光打散再拼成一条均匀的弧形光带；随后光束斜着砸到掩模上，pellicle
-    薄膜像一层极薄的水面闪了一下，反射回来的光里带上了电路图形（光束横截面里出现 SKY130 线条）。
+  visual: TAKE C_LONG 第 2 段（无剪切）。镜头骑在 EUV 光束上从收集镜飞向中间焦点；穿过焦点小孔的瞬间，一道扫描光带横扫全画面——腔体墙壁、管道、框架全部变成幽灵玻璃，光束保持紫色发光（photoreal → xray）。镜头继续前行，飞过照明系统的分面镜墙：分面镜把光分成许多小束，再叠加成一条均匀的弧形光带，照到掩模上是一条弧形狭缝（示意）；随后光束斜着砸到掩模上，pellicle
+    薄膜像一层极薄的水面闪了一下，反射回来的光里带上了电路图形（反射回来的光带上电路图形（通用线条，示意））。
   camera:
     move: continuous-flythrough
     lens_mm: 28
@@ -5438,7 +5463,6 @@ shots:
   - build_optics.illuminator_facets
   - build_mask.reflective_mask
   - build_mask.pellicle
-  - pdk_patterns.sky130_tile
   - build_machine.cutaway_xray
   fx:
   - scan_band_style_morph
@@ -5449,9 +5473,11 @@ shots:
   - bloom
   overlays:
   - text: 中间焦点 IF · 示意
+    at: 1.2
     facts:
     - F56
   - text: 可动分面镜 · 示意
+    at: 4.1
     facts:
     - F34
   engine: cycles
@@ -5464,7 +5490,7 @@ shots:
   segment: C
   duration: 20.0
   vo:
-  - 六面镜子把图形缩小，投向晶圆；
+  - 投影物镜把图形缩小，投向晶圆；
   - 狭缝扫过，掩模和晶圆反向飞驰；
   - 光子落进光刻胶，一层电路就此写定。
   facts:
@@ -5475,7 +5501,9 @@ shots:
   style: energy
   style_why: 最后一段只看光：结构淡出，观众终于“看见不可见之物”——一束带着电路图形的光一路缩小、落地
   transition_in: push-through
-  visual: TAKE C_LONG 第 3 段（无剪切）。镜头随带图形的光束进入投影物镜，在六面镜之间折返，每反射一次周围的幽灵玻璃就淡去一分，到第六面（开孔末镜）时只剩黑底上的光（xray → energy）；镜头再次穿过中心孔。光束缩成一条窄缝落向晶圆，上方的掩模台和下方的晶圆台以发光轮廓反向飞驰；镜头一路下潜到光刻胶表面，紫色光子雨落下，在胶层里留下一行发光的电路潜像，最后一颗光子落地时画面静止半秒。画面右侧的光的账本计量条一路走低，在落地时停在最后一截。
+  visual: TAKE C_LONG 第 3 段（无剪切）。镜头随带图形的光束进入投影物镜，在投影物镜的反射镜之间折返（设计示例，M6、M5 中心开孔），每反射一次周围的幽灵玻璃就淡去一分，到第六面（开孔末镜）时只剩黑底上的光（xray
+    → energy）；镜头再次穿过中心孔。光束缩成一条窄缝落向晶圆，上方的掩模台和下方的晶圆台以计量青轮廓同步扫描（掩模走的距离是晶圆的 8 倍）；贴近晶圆时，光从 M5 的中心孔穿下，汇成 26 × 1.6 mm 的弧形狭缝；晶圆在狭缝下扫过，一个
+    26 × 16.5 mm 的曝光场里留下潜像（示意），静止半秒后步进到下一个场。画面右侧的光的账本计量条一路走低，在落地时停在最后一截。
   camera:
     move: continuous-flythrough
     lens_mm: 24
@@ -5498,11 +5526,12 @@ shots:
   - bloom
   - latent_image_paint
   overlays:
-  - text: 6 面镜 · 缩小 4×
+  - text: 投影物镜 · 缩小 4×/8×（扫描方向 8×）
+    at: 1.2
     facts:
-    - F7
-    - F11
-  - text: 光的账本：到达晶圆约 1%
+    - F12
+  - text: 光的账本：到达晶圆只剩约 1%（教材估算 · 示意）
+    at: 8.6
     facts:
     - F33
   engine: eevee
@@ -5525,7 +5554,7 @@ shots:
     move: rapid-pull-back
     lens_mm: 24
     fstop: 8.0
-    notes: C_LONG 轨迹倒放 6 倍速，最后 1 s 缓停在整机侧视
+    notes: C_LONG 轨迹倒放 6 倍速，最后 1 s 缓停在整机侧视（收集镜到晶圆整条光路都在画面内）
   builders:
   - build_machine.light_path_spline
   - build_machine.assembled_cutaway
@@ -5543,13 +5572,13 @@ shots:
   segment: C
   duration: 6.5
   vo:
-  - 这一切，每秒最多发生 5 万次。
+  - 这样的一滴锡、一束光，最新的光源每秒要重复 6 万次。
   facts:
   - F2
   style: energy
   style_why: 用同一条光路的反复闪亮把“5 万次”变成节奏，而不只是一个数字
   transition_in: cut
-  visual: 整机光路侧视：一次闪亮从等离子体沿折线跑到晶圆；然后第二次、第三次……闪亮间隔越来越短，最后连成一条持续发光、微微颤动的光带。计数器在角落飞速跳到 50,000 / s。
+  visual: 整机光路侧视：一次闪亮从等离子体沿折线跑到晶圆；然后第二次、第三次……闪亮间隔越来越短，最后连成一条持续发光、微微颤动的光带。计数器在角落飞速跳到 60,000 / s。
   camera:
     move: slow-push
     lens_mm: 35
@@ -5562,7 +5591,7 @@ shots:
   - strobe_accelerate
   - bloom
   overlays:
-  - text: 最多 50,000 次 / 秒
+  - text: 每秒 6 万次 · ASML 最新商用光源
     facts:
     - F2
   engine: eevee
@@ -5576,7 +5605,7 @@ shots:
   style: photoreal
   style_why: 节奏插入：四个极短的真实微距，把刚才一路走过的部件以“真东西”的面目快速回放
   transition_in: flash
-  visual: 四个 1 秒的硬切插入，每一切都伴随一次白闪：锡滴爆成等离子体；收集镜虹彩表面；掩模台急停；晶圆上的潜像亮起。
+  visual: 四个 1 秒的硬切插入，每一切都伴随一次白闪：主脉冲点燃等离子体（B1_13）；收集镜被等离子体照亮（B1_15）；掩模台和晶圆台按 8:1 扫描（C_04）；狭缝后潜像写出（C_04）。
   camera:
     move: macro-inserts
     lens_mm: 100
@@ -5603,7 +5632,7 @@ shots:
   style: xray
   style_why: 回答“这些部件在机器里如何连成一体”：透明剖视里，每说出一个部件它就亮起，其余保持幽灵玻璃
   transition_in: dissolve
-  visual: 整机幽灵玻璃剖面（示意）。旁白每点到一个部件，它就从玻璃里亮出自己的强调色：光源（激光橙 + EUV 紫）、镜子（虹彩）、掩模（线稿白的电路图形）、工件台（计量青）。四个都亮起后，一束光从头贯穿到尾把它们串起来。
+  visual: 整机幽灵玻璃剖面（示意）。旁白每点到一个部件，它就从玻璃里亮出自己的强调色：光源（激光橙 + EUV 紫）、镜子（蓝色光环：收集镜、折转镜、两块分面镜、M1–M6，共 10 面）、掩模（线稿白的电路图形）、工件台（计量青）。四个都亮起后，一束光从头贯穿到尾把它们串起来。
   camera:
     move: slow-truck
     lens_mm: 35
@@ -5664,7 +5693,7 @@ shots:
     move: static
     lens_mm: 35
     fstop: 8.0
-    notes: 静止，余烬位置与 D_08 锡滴位置一致
+    notes: 从整机侧视缓推向等离子体，余烬最终落在画面中心（与 D_08 锡滴位置一致）
   builders:
   - build_machine.light_path_spline
   - styles.energy
@@ -5685,7 +5714,7 @@ shots:
   style: documentary
   style_why: 回到真实世界：工厂里的晶圆盒，让观众从机器内部回到人类的尺度
   transition_in: dissolve
-  visual: 黄光洁净室（风格化，不仿制具体工厂），一只晶圆盒从一台机器的装载口（只拍局部、不拍整机外观）缓缓滑出，被头顶轨道上的搬运车吊起带走；身后同样的晶圆盒一个接一个。
+  visual: 黄光洁净室（风格化，不仿制具体工厂），晶圆盒停在装载口（托板离地约 900 mm）上，与机台脱开几厘米，头顶轨道上的搬运车放下吊带夹爪，夹住盒顶的把手法兰把它吊起带走；轨道上每个晶圆盒都挂在自己的搬运车下（只拍局部、不拍整机外观）。
   camera:
     move: slow-pan
     lens_mm: 50
@@ -5716,7 +5745,7 @@ shots:
   style: sem
   style_why: 与开场 A0_04 呼应：从指尖拉近到晶体管阵列，用显微风格收住尺度主线
   transition_in: zoom-through
-  visual: 一颗芯片停在指尖上（与 A0_08 同构图），镜头一路推进，画面转成灰阶 SEM 风格的晶体管阵列，阵列一片片点亮成暖白色。
+  visual: 一颗芯片停在指尖上（与 A0_08 同构图），镜头一路推进，推进到 AMD Zen 5 CCD 裸片照片（EUV 制造），功能块一片片亮起；“1840 亿个元件”只作标签，不标在这颗芯片上。
   camera:
     move: scale-zoom
     lens_mm: 0
@@ -5771,15 +5800,17 @@ shots:
   - 一滴 · 两响 · 十声玻璃铃音
 - id: D_04
   segment: D
-  duration: 7.6
+  duration: 12.6
   vo:
-  - ASML 说，自 2018 年以来，每片晶圆的能耗已经下降了 57%。
+  - ASML 测得，最新一代 NXE 一台耗电约 1.26 兆瓦；
+  - 而自 2018 年以来，每片晶圆的能耗已经下降了 57%。
   facts:
+  - F48
   - F49
   style: infographic
-  style_why: 回答“多少”：能耗下降比例是 ASML 一手数字，信息图最干净（整机耗电只有媒体估算，不用）
+  style_why: 回答“多少”：整机耗电和每片能耗下降都是 ASML 年报的一手数字，信息图最干净
   transition_in: cut
-  visual: 两根“每片晶圆能耗”柱：2018 年满高度，旁边 2025 年只剩 43% 高度，中间一个“−57%”标注。只画这两个有出处的数据点，不画逐年曲线。
+  visual: 左侧一只功率表指针摆到 1.26 MW；右侧两根“每片晶圆能耗”柱：2018 年满高度，旁边 2025 年只剩 43% 高度，中间一个“−57%”标注。只画有出处的数据点，不画逐年曲线。
   camera:
     move: static
     lens_mm: 0
@@ -5789,7 +5820,10 @@ shots:
   - manim:EnergyPerWafer
   fx: []
   overlays:
-  - text: 每片晶圆能耗：自 2018 年以来 −57%
+  - text: 耗电：约 1.26 MW（NXE:3800E）
+    facts:
+    - F48
+  - text: NXE 每片晶圆每次曝光的能耗：12.8 → 5.5 kWh（−57%）
     facts:
     - F49
   engine: manim
@@ -5800,27 +5834,28 @@ shots:
   segment: D
   duration: 6.0
   vo:
-  - 下一代光源，已经在实验室里冲到了 1000 瓦。
+  - 下一代光源，已经冲到了 1000 瓦。
   facts:
   - F4c
   style: infographic
   style_why: 延续 B1 出现过的功率曲线，同一张图继续向上画，回答“下一步有多远”
   transition_in: match-cut
-  visual: 功率曲线从量产约 600 W 的位置继续往上画，越过一个标着“1000 W 原理样机”的虚线节点，曲线尖端发光并继续向画面上方延伸出框。
+  visual: 三个一手数据点连成折线：约 250 W（2023 年客户现场，ASML SPIE 2023）→ NXE:3800E 超过 500 W（2024）→ 2025 年演示 1000 W（ASML 2025 年报；最后一段虚线：演示，不是量产），止于
+    1000 W，不再往上画。
   camera:
     move: tilt-up
     lens_mm: 0
     fstop: 0
-    notes: 2D；画面随曲线向上摇，曲线出框
+    notes: 2D；静止，曲线止于 1000 W
   builders:
   - manim:PowerRoadmap
   fx:
   - glow_tip
   overlays:
-  - text: 量产约 600 W
+  - text: NXE:3800E 超过 500 W
     facts:
     - F4c
-  - text: 1000 W 原理样机（实验室）
+  - text: 2025 年演示 1000 W
     facts:
     - F4c
   engine: manim
@@ -5835,7 +5870,7 @@ shots:
   style: photoreal
   style_why: 把“外星科技”的感受落在一个真实质感的意象上：一块发着光的黑色巨物
   transition_in: dissolve
-  visual: 一个抽象化的机器体块（示意，不仿制 ASML 外观）立在幽暗大厅中，像一块黑色方碑；接缝处透出极细的紫色光线，地面映出倒影，低处飘着薄雾。
+  visual: 一个抽象化的机器体块（示意，不仿制 ASML 外观）立在幽暗大厅中，一块黑色体块，比例接近双层巴士（约 10 × 3.2 × 4.5 m，示意）；接缝处透出极细的紫色光线，地面映出倒影，低处飘着薄雾。
   camera:
     move: low-angle-push
     lens_mm: 24
@@ -5880,6 +5915,9 @@ shots:
   - text: 5100 家供应商
     facts:
     - F50
+  - text: 各地区数量据 ASML 2025 年报；地区内位置为示意
+    facts:
+    - F50
   engine: cycles
   sfx:
   - 顶灯一排排点亮的继电器声
@@ -5900,7 +5938,7 @@ shots:
     move: push-in
     lens_mm: 100
     fstop: 2.0
-    notes: 复用 sample_b1 CamEstablish 构图；锡滴位置与 C_10 余烬一致
+    notes: 复用 sample_b1 CamEstablish 构图；锡滴位置与 C_10 余烬一致；start 6（跟拍从静止起步的第一帧会糊）
   builders:
   - build_source.droplet
   - build_source.droplet_stream
@@ -5940,28 +5978,3 @@ shots:
   sfx:
   - 激光逼近的高频渐强
   - 切黑瞬间完全静音
-- id: D_10
-  segment: D
-  duration: 7.8
-  vo:
-  - 下一期，我们会公开这部片子是怎么用 AI 和 Blender 做出来的。
-  facts: []
-  style: type
-  style_why: 幕后篇预告是纯信息，用片尾排版卡
-  transition_in: dissolve
-  visual: 黑底上浮出“下一期 · 幕后篇”，下方是一排风格对照缩略图（同一锡滴镜头的真实 / 透明 / 蓝图 / 能量四种语言），逐个翻转。
-  camera:
-    move: static
-    lens_mm: 0
-    fstop: 0
-    notes: 排版动画，统一思源黑体
-  builders:
-  - overlay:chapter_card
-  - overlay:style_strip
-  fx: []
-  overlays:
-  - text: 下一期 · 幕后篇：用 AI 和 Blender 做一部片子
-    facts: []
-  engine: pillow
-  sfx:
-  - 配乐尾音

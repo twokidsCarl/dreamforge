@@ -16,7 +16,7 @@
 | 标语含义 | 选主轴，看结构。主观是编辑上的选择；「主」取主轴，对应 eigen |
 | 画面 | 暗色 HUD，冷青 / 冷紫，与 E2 A0 一致 |
 
-标志已锁定（2026-10-21，STATUS APPROVED），文件在 `brand/eigenlens_logo_locked/`：`sting_open.mp4`（片头 3 秒）、`sting_end.mp4`（片尾 2 秒）、`endcard_16x9.png`、`lockup.svg` 等；路径由 `paths.BRAND` 给出。不要用其中的 `_superseded_rena_approx_2026-10-21/`（Carl 已否掉的近似重绘）。`shared/tools/edit_film.py` 默认开品牌：成片前接 `sting_open.mp4`，后接 `sting_end.mp4`（两段 sting 无声，补静音对齐，正片混音不动），此时不加 `--tail` 黑场；`--no-brand` 只出正片，独立短片再加 `--tail`。
+标志已锁定（现行：程序重绘稿 03s6 琥珀金 → `brand/eigenlens_logo_locked/`；Carl 2026-10-22 确认不是草稿）。文件包括：`sting_open.mp4`（片头 3 秒）、`sting_end.mp4`（片尾 2 秒）、`endcard_16x9.png`、`lockup.svg` 等；路径由 `paths.BRAND` 给出。不要用其中的 `_superseded_rena_approx_2026-10-21/`（Carl 已否掉的近似重绘）。`shared/tools/edit_film.py` 默认开品牌：成片前接 `sting_open.mp4`，后接 `sting_end.mp4`（两段 sting 无声，补静音对齐，正片混音不动），此时不加 `--tail` 黑场；`--no-brand` 只出正片，独立短片再加 `--tail`。
 
 **环境变量仍用旧前缀 `DREAMFORGE_`。** 这些名字由 `shared/tools/paths.py` 和调用它的脚本读取，这次只记录，不改代码。后续可以再迁前缀。仍在使用的名字：
 
@@ -40,7 +40,7 @@
 
 ### 1.2 内容与真实性（详见第 2 节）
 - 画面和旁白里的每个工程、结构、光学细节，都必须出自一手资料：ASML、ZEISS、TRUMPF、Intel 等厂商的官方资料，SPIE / EUVL Symposium / EUVL Workshop 的论文和报告，同行评审论文，专利。**不准凭印象或“看起来合理”来画。**
-- **不说“据报道”“据估算”**：这是科普片，讲的是道理。资料不够硬的内容（C 级、只有媒体来源）直接删掉，不要靠加限定词保留。
+- **不说“据报道”“据估算”**：这是科普片，讲的是道理。只有媒体来源的数字（C 级），先去找一手来源（厂商年报、技术报告常常就有），找到就升级成 A/B 级照原文用；找不到就删掉，不要靠加限定词保留。
 - 公开资料里没有的细节（例如精确尺寸），画面标“示意”，在核查表里写明依据。
 - 不暗示不实的对应关系。例如 ZEISS 说的“比指尖略大的面积上有 1840 亿个元件”是泛指，不能配一颗具体芯片说“这颗芯片里有 1840 亿个”。
 
@@ -147,11 +147,13 @@
 
 ### 4.4 配音规范
 - 模型 `qwen3-tts-flash`，音色 Andre，**整段合成**（paragraph 模式，一段一个请求，保证语气统一）。
-- 每段合成 7 版：`python3 shared/tools/tts.py --voice Andre --attempts 7 --asr all`。
+- 每段最多合成 10 版：`.venv/bin/python shared/tools/tts.py --voice Andre --attempts 10 --asr all`。
 - 选版规则：
   - 语速、音高接近目标（全片统一 107 Hz）；
-  - **同时看每一版中最难听清的那一句**：用语音识别逐句打分，取最低分。例如“极紫外”“这是一滴锡”被念含糊，就靠这一步淘汰。
-  - 识别结果按文件缓存，重跑不会重复识别。
+  - **同时看每一版中最难听清的那一句**：用语音识别逐句打分，取最低分。
+  - **按拼音比，不按汉字比**：识别结果和剧本都转成不带声调的拼音再比较。“掩模/眼膜”“锡滴/溪滴”这类同音字算对；“激光→机关”“氢气→亲戚”这种韵母念错才扣分。
+  - **术语检查**：`episodes/<期>/script/asr_terms.txt` 里列出全片术语（也作为识别器的上下文提示）。句子里出现的术语，拼音必须完整出现在识别结果里，否则每漏一个扣 0.05 分。
+  - 识别结果缓存在每一版配音文件旁边的 `.asr.txt` 里，重跑只重新打分，不重新识别。
 - 然后依次运行：`.venv/bin/python shared/tools/vo_align.py`（按识别结果切句）→ `retime.py` → `.venv/bin/python shared/tools/asr_check.py`。
 - 分镜字段：`hold: 秒` 表示最后一个字说完后还留多少秒纯画面（例如片名停顿、爆闪后的停顿）；`lead: 秒` 表示镜头开始后第一个字从第几秒说起（冷开场先留一拍安静）。
 
@@ -258,8 +260,13 @@
 | 浅色画面上字幕看不清 | 字幕只有阴影 | 字幕加深色描边 |
 | 关键词被音效盖住 | 音效压在词上 | 音效侧链压缩，冲击挪到旁白空档 |
 | 配音把“这是一滴锡”念含糊 | 选版只看语速和音高 | 选版时用语音识别打分，取最难听清那句的分数 |
+| 核对报告里一大半是“掩模→眼膜”这类误报 | 按汉字比较，同音字被算成错 | 按不带声调的拼音比较，另加术语检查 |
 | 混音成片没有生成 | 新音效请求遇到 SSL 证书错误 | 已在 eleven.py 里修复；剪辑后要确认 mp4 确实生成了 |
 | 两个同名 `after_style`，后一个覆盖前一个 | 复制粘贴 | 一个模块只写一个 after_style，内部再按镜头分支 |
+| 整机耗电写成“据行业估算” | 只找了媒体来源 | ASML 年报里就有一手数字（NXE:3800E 约 1.26 MW）。遇到 C 级数字，先找一手来源，找不到再删 |
+| 后台配音任务出错，后面的步骤还在用旧数据跑 | 用管道过滤输出，错误被吞掉 | 长链条命令加 `set -e -o pipefail`，完整日志写进文件 |
+| 只重配一段（`--segments B1`）后，其他段的配音全部“找不到” | tts.py 局部运行时用这一段覆盖了 timing.json 和 sentences.json | tts.py 已改为局部运行时保留其他段；跑完后台任务必须看日志结尾，不能只看外层退出码 |
+| 改坏了 facts.yaml，校验却显示“通过” | 跑校验时只用 grep 筛 ERROR/WARN，Python 报错被筛掉 | 校验命令不过滤输出，看退出码；改完 YAML 立刻 `yaml.safe_load` 一遍 |
 | 语音识别整段输出乱码（「点击点击」、夹英文碎词），所有版本得分 0 | 部分 x86 CPU 上 faster-whisper 的 int8 计算出错（2026-10-21 在 box 的 Xeon 上复现；float32 正常） | 在 Linux box 上设 `DREAMFORGE_ASR_COMPUTE=float32`；识别缓存 `*.asr.txt` 若是乱码要删掉重识别 |
 
 ---
@@ -294,7 +301,7 @@ eigenlens/
 2. 设置 `DREAMFORGE_EPISODE=E<n>-<短名>`。
 3. 从 P1 调研开始，按第 3 节逐个阶段推进，第 1、2 节的规则同样适用。
 
-E2《光遗传学》在 `episodes/E2-optogenetics/`。检查点①、检查点②（全片动态分镜）都已于 2026-10-21 通过，见该期 README。P7 建模与镜头已完成；下一步是 P8 第一批试渲：Carl 按 [RUNPOD.md](RUNPOD.md) 开 GPU，镜头和命令见该期 `FIRST_BATCH.md`。
+E2《光遗传学》在 `episodes/E2-optogenetics/`。检查点①、检查点②（全片动态分镜）都已于 2026-10-21 通过，见该期 README。P7 建模与镜头已完成；下一步是 P8 第一批试渲：按 [RUNPOD.md](RUNPOD.md) 用 API 开 GPU，镜头和命令见该期 `FIRST_BATCH.md`。
 
 ## 12. 拉取请求审查
 

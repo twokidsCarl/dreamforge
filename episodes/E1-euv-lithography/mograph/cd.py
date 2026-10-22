@@ -1,5 +1,5 @@
-"""C/D 2D shots: four flash inserts cut from earlier renders, the chip dive in warm white, one droplet /
-two pulses / ~10 mirrors (F4, F7), energy per wafer (F48, F49), source power (F4c, reported), next episode."""
+"""C/D 2D shots: four flash inserts cut from the recap's own renders, the chip dive in warm white, one droplet /
+two pulses / ~10 mirrors (F4, F7), NXE power and energy per wafer pass (F48, F49), source power (F4c), next episode."""
 import math
 import os
 import random
@@ -25,7 +25,10 @@ def shot_frame(sid, idx, W, H):
     return None
 
 
-INSERTS = [("B1_13", 6), ("B2_01", 20), ("B8_04", 30), ("B8_03", 100)]
+# (shot, first frame): the main pulse igniting the plasma (B1_13), the plain collector mirror in grazing light (B1_15),
+# the mask and wafer stages scanning 8:1 under the slit (C_04), the latent field filling in behind the slit (C_04).
+# Not B8 (4:1 NXE stage ratio, clay) and not B2_01 (embers, no collector). Re-render those shots before C_07.
+INSERTS = [("B1_13", 6), ("B1_15", 6), ("C_04", 150), ("C_04", 250)]
 
 
 @shot("C_07")
@@ -75,7 +78,7 @@ def one_two_ten(t, dur, W, H):
     c.text((420, 650), "1 滴锡", 32, INK, a * on, anchor="mm")
     c.text((420, 300), "2 发激光", 32, ORANGE, a * ease(seg(t, 1.2, 1.6)), anchor="mm")
     c.text((1200, 850), "约 10 面镜子", 32, VIOLET, a * ease(seg(t, 3.4, 3.9)), anchor="mm")
-    c.text((1880, 1030), "F4 · F7", 18, INK2, a, anchor="rm")
+    c.text((1880, 1030), "来源：ASML · 伊利诺伊大学教材（约 10 面镜子）", 18, INK2, a, anchor="rm")
     return c.finish(glow_radius=10, glow_gain=1.0)
 
 
@@ -83,7 +86,7 @@ def one_two_ten(t, dur, W, H):
 def energy(t, dur, W, H):
     c = Canvas(W, H)
     a = fade(t, 0.0, dur, dur, 0.3)
-    # left: a power dial with no precise scale, needle swinging into the "megawatt class" band
+    # left: a power dial, needle swinging into the megawatt band: NXE:3800E 1.26 MW (ASML Annual Report 2025, F48)
     cx, cy, R = 520, 560, 280
     l = ease(seg(t, 0.2, 1.0))
     c.circle((cx, cy), R, outline=INK2, width=3, a=a * l)
@@ -97,8 +100,8 @@ def energy(t, dur, W, H):
     v = 0.79 * ease_out(seg(t, 0.8, 2.4)) + 0.01 * math.sin(t * 7) * (t > 2.4)
     th = a0_ + (a1_ - a0_) * v
     c.line((cx, cy), (cx + 0.82 * R * math.cos(th), cy - 0.82 * R * math.sin(th)), INK, 6, a * l, glow=True)
-    c.text((cx, cy + 120), "兆瓦量级", 44, ORANGE, a * ease(seg(t, 2.0, 2.6)), anchor="mm", weight_glow=True)
-    c.text((cx, cy + 180), "行业估算（F48）", 22, INK2, a * ease(seg(t, 2.0, 2.6)), anchor="mm")
+    c.text((cx, cy + 120), "约 1.26 MW", 44, ORANGE, a * ease(seg(t, 2.0, 2.6)), anchor="mm", weight_glow=True)
+    c.text((cx, cy + 180), "NXE:3800E · ASML 2025 年报", 22, INK2, a * ease(seg(t, 2.0, 2.6)), anchor="mm")
     # right: energy per wafer, two data points only
     r = ease(seg(t, 5.2, 6.4))
     base, hmax = 860, 520
@@ -107,31 +110,65 @@ def energy(t, dur, W, H):
     c.text((1260, base + 40), "2018", 28, INK2, a * r, anchor="mm")
     c.text((1580, base + 40), "2025", 28, INK, a * r, anchor="mm")
     dd = ease(seg(t, 7.6, 8.4))
-    c.text((1580, base - hmax * 0.43 - 70), "−57%", 64, CYAN, a * dd, anchor="mm", weight_glow=True)
-    c.text((1420, 200), "每片晶圆的能耗（ASML · F49）", 28, INK, a * r, anchor="mm")
+    c.text((1580, base - hmax * 0.43 - 100), "−57%", 64, CYAN, a * dd, anchor="mm", weight_glow=True)
+    c.text((1420, 200), "NXE 每片晶圆每次曝光的能耗", 28, INK, a * r, anchor="mm")
+    c.text((1260, base - hmax * r - 30), "12.8 kWh", 24, INK2, a * r, anchor="mm")
+    c.text((1580, base - hmax * 0.43 * ease(seg(t, 6.4, 7.6)) - 30), "5.5 kWh", 24, INK, a * ease(seg(t, 7.0, 7.6)),
+           anchor="mm")
+    c.text((1420, 244), "ASML 2025 年报 · 2018 年基准 → 2025 年", 20, INK2, a * r, anchor="mm")
     return c.finish(glow_radius=8, glow_gain=0.7)
 
 
 @shot("D_05")
 def power_curve(t, dur, W, H):
+    """EUV source power, three first-party data points only, and nothing past 1000 W (ASML gives no figure beyond it):
+    ~250 W at customers (ASML, SPIE 2023), >500 W on the NXE:3800E (ASML, SPIE 2024), 1000 W demonstrated in April 2025
+    (ASML Annual Report 2025). The last step is dashed: a demonstration, not a production source."""
     c = Canvas(W, H)
     a = fade(t, 0.0, dur, dur, 0.3)
-    pan = 380 * ease(seg(t, 1.6, dur - 0.2))
+    x0, x1 = 300, 1500
+
     def Y(w):  # noqa: E306
-        return 900 - (w - 200) * 0.9 + pan
-    p = ease_out(seg(t, 0.0, dur - 0.4))
-    pts = [(200 + 1500 * u, Y(250 + 1350 * u ** 1.6)) for u in [i / 80 for i in range(81)]]
-    n = int(80 * p)
-    for i in range(n):
-        c.line(pts[i], pts[i + 1], VIOLET, 4, a, glow=True)
-    if n:
-        c.circle(pts[n], 10, fill=(240, 230, 255), a=a, glow=True)
-    for w, lab in ((600, "量产约 600 W"), (1000, "1000 W 原理样机（实验室）")):
-        y = Y(w)
-        for x in range(160, 1760, 30):
-            c.line((x, y), (x + 16, y), INK2, 2, a * 0.7)
-        c.text((1780, y), lab, 26, INK, a, anchor="rm")
-    c.text((80, 1030), "F4c · 数据为媒体报道", 18, INK2, a, anchor="lm")
+        return 900 - (w - 0) * 0.62
+
+    def X(year):  # noqa: E306
+        return x0 + (year - 2023) / 2 * (x1 - x0)
+    ax = ease(seg(t, 0.0, 0.5))
+    c.line((x0 - 60, 900), (x1 + 120, 900), INK2, 2, a * ax)                     # time axis
+    for yr in (2023, 2024, 2025):
+        c.line((X(yr), 900), (X(yr), 912), INK2, 2, a * ax)
+        c.text((X(yr), 945), f"{yr}", 24, INK2, a * ax, anchor="mm")
+    pts = [(X(2023), Y(250)), (X(2024), Y(500)), (X(2025), Y(1000))]
+    labs = [("约 250 W · 客户现场", 0.4), ("NXE:3800E 超过 500 W", 1.2), ("2025 年演示 1000 W", 2.7)]
+    reach = [0.4, 1.2, 2.7]                                                    # "1000 瓦" is spoken at ~2.8-3.1 s
+    for i in range(2):
+        u = ease(seg(t, reach[i], reach[i + 1]))
+        if u <= 0:
+            continue
+        p0, p1 = pts[i], pts[i + 1]
+        pe = (p0[0] + (p1[0] - p0[0]) * u, p0[1] + (p1[1] - p0[1]) * u)
+        if i == 0:
+            c.line(p0, pe, VIOLET, 5, a, glow=True)
+        else:                                                                  # demo: dashed
+            n = 14
+            for k in range(n):
+                s0, s1 = k / n, (k + 0.55) / n
+                if s0 > u:
+                    break
+                s1 = min(s1, u)
+                q0 = (p0[0] + (p1[0] - p0[0]) * s0, p0[1] + (p1[1] - p0[1]) * s0)
+                q1 = (p0[0] + (p1[0] - p0[0]) * s1, p0[1] + (p1[1] - p0[1]) * s1)
+                c.line(q0, q1, VIOLET, 5, a, glow=True)
+    for i, (p, (lab, t0)) in enumerate(zip(pts, labs)):
+        on = ease(seg(t, t0, t0 + 0.35))
+        if on <= 0:
+            continue
+        r = 10 + (8 * max(0.0, 1 - (t - t0) / 0.6) if i == 2 else 0)
+        c.circle(p, r, fill=(240, 230, 255), a=a * on, glow=True)
+        off, anc = ((-26, -34), "rb") if i == 2 else ((14, 30), "lt")        # labels off the line
+        c.text((p[0] + off[0], p[1] + off[1]), lab, 32 if i == 2 else 26, VIOLET if i == 2 else INK, a * on,
+               anchor=anc, weight_glow=(i == 2))
+    c.text((80, 1030), "来源：ASML SPIE 2023 · ASML SPIE 2024 · ASML 2025 年报", 18, INK2, a, anchor="lm")
     return c.finish(glow_radius=10, glow_gain=0.9)
 
 

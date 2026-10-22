@@ -1,0 +1,267 @@
+# Visual fact audit, segment B6 (the reflective mask and its pellicle). One row per engineering / structural / optical
+# detail the PICTURE, the narration or the on-screen text shows. Checked 2026-10-21.
+# status: sourced | wrong | unsourced | simplified | artistic   (see docs/WORKFLOW.md 2.3)
+# Quotes: research/visual/B6B7_sources.md. Sources:
+#   S1  ASML, EUV lithography systems page            https://www.asml.com/en/products/euv-lithography-systems
+#   S2  ASML, "Indistinguishable from magic: the EUV pellicle" (Brunton, 14 Sep 2022)
+#       https://www.asml.com/en/news/stories/2022/the-euv-pellicle-indistinguishable-from-magic
+#   S3  ASML, Wilton CT location page                 https://www.asml.com/en/company/about-asml/locations/wilton-ct
+#   S4  ASML, Computational lithography page          https://www.asml.com/en/products/computational-lithography
+#   S5  Brouns (ASML), "Development and performance of EUV pellicles", Adv. Opt. Techn. 6 (2017) 221-227
+#       https://www.frontiersin.org/articles/10.1515/aot-2017-0023/pdf
+#   S6  van de Kerkhof et al. (ASML), EUVL Workshop 2019, slides 3/7  https://www.euvlitho.com/2019/P23.pdf
+#   S7  Philipsen et al. (imec), "EUV masks: prospects and challenges", EUVL Workshop 2021  https://euvlitho.com/2021/P11.pdf
+#   S8  AGC patent US 8,288,062 B2 (mask blank: 152 mm x 0.25 in; Mo 2.3 nm / Si 4.5 nm; 30-60 pairs)
+#       https://patents.google.com/patent/US8288062B2/en
+#   S9  Brion/ASML patent US 7,694,267 B1 (line-end pull-back; hammerheads, serifs)  https://patents.google.com/patent/US7694267B1/en
+#   S10 ZEISS, Kaumanns et al., EUVL Workshop 2024, slide 9 (6 deg vs 5.4 deg)  https://euvlitho.com/2024/P22.pdf
+#   S11 ASML, van Schoot, EUVL Workshop 2021, slides 34-36  https://www.euvlitho.com/2021/P3.pdf
+#   S12 ASML, van Schoot, EUVL Workshop 2022, slides 12/14/34/39  https://euvlitho.com/2022/P3.pdf
+#   S13 ZEISS, Heil et al., EUVL Symposium 2015, slides 9/11/21/24
+#       https://euvlsymposium.lbl.gov/pdf/2015/Oral_Wednesday/Session9_EUV%20Lithography%20Extendibility/S9.2_Heil.pdf
+#   S14 ZEISS, Conradi et al., EUVL Symposium 2011, slide 20 (NXE CRAO 6 deg)
+#       https://euvlsymposium.lbl.gov/pdf/2011/pres/Olaf%20Conradi.pdf
+#   D   derived physics, worked in B6B7_sources.md section D
+# Previews reviewed as 3x3 contact sheets in renders/review/refs/B6B7/sheets/. Every B6 preview is dated 10-17. The
+# mograph previews predate screen_text() (10-21 16:05), so the fact IDs they show are already stripped in code.
+# B6_17 predates the High-NA re-layout of build_machine.py (10-19, 10-21).
+# Machine rule: the film's scanner is the High-NA EXE:5000. B6 talks about the mask in general, but any NXE-only number
+# (6 deg, 4x) must be labelled NXE.
+
+B6_01:
+  - item: chapter card 章节 · 掩模：芯片的底片
+    status: artistic
+    note: ASML calls the mask the "blueprint of the desired end result" (S4)
+  - item: mask plate 3.0 x 3.0 units, thickness 0.042 of the side (6-inch reticle, 152 mm square, 6.35 mm thick)
+    status: sourced
+    source: S8 ("6 inches (152 mm) square", "0.25 inches (6.3 mm) thick"); S13 slide 21 ("6'' mask"); S11 slide 34 (reticle blank unchanged vs NXE)
+  - item: pattern area a square 0.8 of the plate (122 x 122 mm)
+    status: wrong
+    source: S11 slide 34 ("Image field size at reticle level (104 x 132 mm)")
+    fix: "b6_scenes._mask(): make the pattern plane a rectangle size*0.684 x size*0.868 (104 x 132 mm), long side along the scan direction. The same _mask() feeds B6_08, B6_12, B6_13 and B6_14."
+  - item: smooth rainbow bands sweeping across the pattern (mask_material thin_film 250-1100 nm mapped along X)
+    status: wrong
+    source: "D (the Mo/Si period of 6.8 nm (S8) and the few-nm Ru cap give no visible thin-film colour; dense mask pitches of 104-160 nm are below the ~200 nm needed for a visible diffraction order); WORKFLOW s.9 lesson (芯片表面整片是平滑的彩虹渐变)"
+    note: the storyboard text asks for 彩虹般的衍射色带 too. Real reticles can show colour only from um-scale periodic blocks.
+    fix: "drop the Thin Film Thickness map in b6_scenes.mask_material(). Either keep a neutral metallic-grey multilayer with dark absorber, or build block-wise gratings (um periods, each block its own pitch and orientation, colour from the grating equation) as done for the chip. Edit the storyboard visual (p2_B2-B6.yaml B6_01) to 局部区块的衍射色."
+  - item: dark holder, four pins, cradle
+    status: artistic
+
+B6_02:
+  - item: overlay 掩模 = 多层膜反射镜 + 吸收层
+    status: sourced
+    source: S1 ("reticles are multilayer reflectors that use interference to reflect light from the pattern"); S7 slide 2 ("Ru cap", "Mo/Si ML mirror", "Absorber")
+    note: F14 cites only S1, which never mentions an absorber; add S7 (grade B) to F14
+  - item: thin capping layer on top of the stack (b2_scenes.multilayer cap 0.077 units = ~2.4 nm at this scale)
+    status: sourced
+    source: S7 slide 2 ("Ru cap")
+  - item: Mo thinner than Si (b2_scenes.multilayer in the working tree, 23:4x on 10-21, Mo 0.8*t / Si 1.2*t; committed code still has equal layers)
+    status: sourced
+    source: S8 ("Mo layer ... 2.3±0.1 nm and a Si layer ... 4.5±0.1 nm", Gamma 0.34); B4B5_sources.md (Liu 2023, Gamma ~0.4), used by the concurrent edit
+    note: the change is uncommitted and the B6_02 preview (10-17) predates it, so re-render
+  - item: 20 Mo/Si pairs
+    status: simplified
+    source: S8 ("number of repeating units becomes 30 to 60"); TSMC US 8,691,476 ("forty pairs")
+    note: the camera never shows the bottom of the stack, so the count is not read; acceptable
+  - item: absorber blocks 0.52 units tall on a 0.22-unit period (about 16 nm if the period is 6.8 nm)
+    status: wrong
+    source: S7 slides 8 and 11 (reference TaBN / "60nm Ta"); S8 gives 20-50 nm for its absorber
+    fix: "b6_scenes.section(): absorber height 1.9 units (60 nm at this scale), centre z 0.95; on_absorber test and z_hit (0.52) follow"
+  - item: absorber lines 0.6 wide at 1.2 pitch (19 nm lines at 38 nm pitch on the mask = 9.5 nm pitch on the wafer)
+    status: wrong
+    source: S1 (4x reduction; NXE resolution 13 nm, i.e. >= 26 nm wafer pitch -> >= 104 nm mask pitch)
+    fix: "absorber pitch >= 3.3 units (104 nm), width ~1.6; fewer, wider blocks (e.g. xs = -3.3, 0, 3.3) so a viewer sees the absorber is several layers thick and much wider than a layer"
+  - glitch: the absorber blocks are only on screen around frames 60-70; the dive (frames 79-127) ends inside the bare stack, so the promised 一排深色的吸收层方块 is barely seen. End the move on a frame that shows absorber and stack together.
+
+B6_03:
+  - item: narration 有图案的地方反射光，吸收层的地方把光“关掉”
+    status: simplified
+    source: S1, S7
+    note: the pattern is etched into the absorber. The openings reflect and the remaining absorber is the dark part. Saying "pattern reflects, absorber blocks" treats pattern and absorber as different things.
+    fix: optional re-voice 吸收层上刻出图形：开口处反射光，留下吸收层的地方把光“关掉”。 Otherwise make the overlay say 开口 = 反射 · 吸收层 = 关
+  - item: rays tilted 6 deg from the normal
+    status: sourced
+    source: S14 slide 20 ("CRAO = 6°", NXE); S10 slide 9
+    note: correct for NXE; the film's EXE uses 5.4 deg (B7_11 makes that point)
+  - item: reflection drawn at the top surface
+    status: simplified
+    note: real reflection is an interference sum from the whole Mo/Si stack (S1 "use interference"); fine for an energy diagram
+  - item: overlay 反射 = 亮 · 吸收 = 关
+    status: sourced
+    source: S1, S7
+  - glitch: in the energy style the absorber blocks render as faint outlines (frames 63-126), so half the beams seem to stop in mid-air. Give the absorber a visible energy silhouette or a dim fill.
+
+B6_04:
+  - item: chief-ray angle ≈ 6° on the mask, caption 入射角 ≈ 6°（主光线相对法线）
+    status: simplified
+    source: S14 slide 20 ("CRAO = 6°" for NXE 3300); S13 slide 11; S10 slide 9
+    note: 6 deg is the NXE value; the High-NA machine the film follows uses 5.4 deg (S10; ASML ~5.3 deg, S11 slide 34). Shown unlabelled in a film about the EXE, it reads as the EXE value.
+    fix: "mograph/b6.py incidence(): heading 入射角 ≈ 6°（NXE，主光线相对法线）; storyboard overlay NXE：入射角 ≈ 6°. Narration may stay (B7_11 gives 6 -> 5.4)."
+  - item: cone half-angle 2.6 deg (cone_diagram default half_deg=2.6)
+    status: wrong
+    source: "D: NXE mask-side NA = 0.33/4 -> asin = 4.73 deg (S1 NA 0.33, 4x). B7_07/08 draw the same NA with 4.73 deg, so the film contradicts itself."
+    fix: "cone_diagram(c, t, a, 6.0, '≈ 6°', half_deg=4.73) in incidence(). The two cones then sit only ~2.6 deg apart, which also sets up B7_07."
+  - item: violet/white stripes in the reflected cone (pattern carried by the light)
+    status: artistic
+  - glitch: stale preview heading shows "F40" (screen_text now strips it); re-render
+
+B6_05:
+  - item: top-down SEM of mask features with sine-wobbled edges, bulbous ends and loose dots; label 掩模图形（示意）
+    status: simplified
+    source: S4 ("intentionally deforming the patterns"); S9 (hammerheads, serifs at line ends)
+    note: a continuous sinusoidal width modulation along long dense lines is not a known OPC result (dense line/space needs little 2D correction); the "rivers" are ours
+    fix: "sem_field(): straight lines with hammerheads at the ends, serifs at corners, a few jogs and separate assist bars (S9); keep 示意"
+  - item: scale bar 200 nm (implies a 120 nm mask pitch / 46 nm lines)
+    status: unsourced
+    fix: tie it to a sourced pitch (104 nm on the mask = 26 nm on the wafer, NXE 13 nm x 4, S1) and label 掩模上（4×）, or drop the bar
+
+B6_06:
+  - item: three beats (target -> drawn as-is prints rounded and short -> pre-distorted mask prints straight); arrow 衍射 + 光刻胶
+    status: sourced
+    source: S4 ("diffraction of the light as well as physical and chemical effects in the photosensitive layer deform the image"; "intentionally deforming the patterns to compensate")
+  - item: beat 2 corner rounding and line-end shortening
+    status: sourced
+    source: S9 ("Line ends have a tendency to \"pull back\"")
+  - item: beat 3 hammerheads, corner serifs, separate assist bars
+    status: sourced
+    source: S9 ("Extra structures (or assist features) known as \"hammerheads\" or \"serifs\" are routinely added to line ends")
+    note: the separate assist bars (SRAF) come from the same patent family's assist-feature language, not quoted separately
+  - item: printed result drawn with crisp corners (rounded=4)
+    status: simplified
+    note: even corrected corners print slightly rounded; caption 示意 covers it
+  - glitch: stale footer "（示意，F38）"; re-render
+
+B6_07:
+  - item: the mask shapes morph in place into wafer resist lines under the same 200 nm scale bar
+    status: wrong
+    source: S1 ("shrinking the reticle pattern by a factor of four")
+    note: the wafer lines should be 4x smaller than the mask shapes; at a fixed scale bar the morph says the mask is printed 1:1
+    fix: "mograph/b6.py opc_morph(): scale the field down 4x during the morph and change the bar to 50 nm, or keep the scale and relabel the end state 晶圆上的线条（已按 4× 放大显示）"
+
+B6_08:
+  - item: a dust grain drifting through a slanted light shaft above a defocused mask
+    status: artistic
+    note: inside the scanner the reticle is in vacuum (S3 "into and out of the vacuum chamber"; S5 "entering the scanner into vacuum"); the drifting mote reads as air, so treat it as a mood shot
+  - glitch: the grain is a smooth low-poly egg filling a big part of the frame, and neither the beam nor the mask reads (the right half is a dark wedge). Make the grain smaller and irregular, and show the shaft and a hint of the mask below.
+
+B6_09:
+  - item: narration 被复制到整片晶圆的每一颗芯片上
+    status: sourced
+    source: S6 slide 3 ("A particle on reticle front side is repeated on every wafer for each die")
+  - item: overlay 1 颗颗粒 → 每一颗芯片 · 良率损失 100%; on-screen 良率损失 100%
+    status: simplified
+    source: S6 slide 3 ("(100% yield loss for full field dies)")
+    fix: storyboard overlay 1 颗颗粒 → 每一颗芯片 · 满场芯片良率损失 100%; mograph/b6.py every_die() text 良率损失 100%（满场芯片）
+  - item: 96 exposure fields lit one by one, counter 96/96, one red defect box per field
+    status: simplified
+    source: F45 (96 full fields per wafer); S12 slide 12 (26 x 33 mm full field)
+    note: "fields are drawn 60 x 80 px against 74.5 x 94.6 px for 26 x 33 mm on a 430 px = 150 mm wafer (about 81 %), so that 96 whole fields fit inside the circle; real 96 includes edge fields"
+    fix: "_fields(): fw, fh = 74.5, 94.6 and keep edge fields clipped to the circle (count them to 96), or label 场的尺寸示意"
+  - glitch: stale footer "（F35）"
+
+B6_10:
+  - item: clay SCARA-style reticle handler (base, two links, fork) picking and placing a reticle between pedestals
+    status: artistic
+    source: S3 (performance only, no design)
+    fix: add overlay 机械手外形示意 (the robot's shape is not public)
+  - item: overlay and counter 每 100 万次搬运 · 最多 1 个颗粒; narration 每移动 100 万次，最多只允许落下 1 个颗粒
+    status: sourced
+    source: S3 ("For every one million movements, the reticle handler can't generate more than one particle that lands on the reticle.")
+  - glitch: the preview has no motion trails and no counter (both are planned as post overlays); verify after compositing
+
+B6_11:
+  - item: 1000 x 1000 dots with one red dot; 1 / 1,000,000
+    status: sourced
+    source: S3
+    note: a ratio graphic; the star-field look is artistic
+
+B6_12:
+  - item: narration 掩模上方还罩着一层保护膜
+    status: wrong
+    source: S2 ("They are positioned inside the lithography machine just below the reticle"); the film's own machine draws the reticle face down (build_machine RETICLE)
+    fix: "re-voice 掩模的图形面前还罩着一层保护膜，叫 pellicle，只有 13 纳米厚， (script_zh.md and p2_B2-B6.yaml together, then tts -> vo_align -> retime -> asr_check)"
+  - item: overlay pellicle 厚 13 nm; comparison with a 13.5 nm EUV wavelength
+    status: sourced
+    source: S2 ("13 nanometers thick"); F1
+    glitch: the 13 nm vs 13.5 nm side-by-side comparison the storyboard asks for is not in the preview (post overlay); verify
+  - item: square frame 2.6 x 2.6 units (~132 mm) with four 0.2-unit (10 mm) walls standing on the mask
+    status: wrong
+    source: S5 p.222-223 and Fig. 3/4 (rectangular full-field membrane; low frame on four studs glued to the reticle; "a small slit (≈0.2 mm) between the reticle and the pellicle frame")
+    note: the standoff height is not public (overlay 支架与间距示意 is already planned)
+    fix: "b6_scenes.pellicle(): a rectangular membrane just larger than the 104 x 132 mm image field, a thin border, a low frame lifted on four small studs with a visible gap to the mask; keep 支架与间距示意"
+  - item: iridescent membrane (PellicleFilm thin_film 420 nm) showing colour at grazing angles
+    status: wrong
+    source: "D (a 13 nm film is far below a quarter visible wavelength, so no interference colours); S2 only says \"shimmering film\"; S5 Fig. 4 photos show a faintly tinted film"
+    fix: "remove thin_film from PellicleFilm and hot_membrane(); give it a faint warm-grey tint, weak specular, high transmission; change the storyboard text 掠射角泛出淡淡的虹彩 to 掠射角泛出一层淡淡的反光"
+  - item: violet pulse beams in and out of the mask at about 22 deg from the normal (PulseIn (-1.2,0,3.0) -> (0,0,0.03))
+    status: wrong
+    source: S14 slide 20 (6 deg NXE); S10 slide 9 (5.4 deg EXE)
+    fix: "pellicle(): beam end points (-0.28, 0, 3.0) and (0.28, 0, 3.0) for 5.4 deg (or 0.31 for 6 deg); thin the beams so the in/out pair reads as a narrow V"
+  - item: mask pattern under the membrane shows rainbow bands
+    status: wrong
+    note: same mask_material as B6_01; fixed by the B6_01 fix
+  - glitch: "the pulse beams are visible in frames 19, 55 and 91 although after_style() hides them for B6_12: their hide_render is keyframed in pellicle(), so the F-curves override the static value. Clear their animation_data (ob.animation_data_clear()) before setting hide_render in after_style."
+
+B6_13:
+  - item: overlay 真空中 最高 500 °C; narration 却要在真空中承受最高 500 摄氏度
+    status: sourced
+    source: S2 ("can withstand temperatures of up to 500 degrees Celsius in a high-vacuum environment")
+  - item: membrane glows salmon-orange (hot_membrane Blackbody 1050 K = 777 °C)
+    status: wrong
+    source: "D (500 °C = 773 K, about the Draper point; at most a barely visible dull red)"
+    fix: "hot_membrane(): Blackbody 773 K at a much lower emission strength, or keep the stylised glow and add overlay 发光为示意（500 °C 时肉眼几乎看不到红光）"
+  - item: violet hydrogen-plasma rim above the membrane (H2RimVol)
+    status: artistic
+    source: S5 p.226 ("under EUV/H2"); S6 slide 7 ("Reduce plasma lift-off", "Plasma charging")
+    note: EUV-induced hydrogen plasma exists near the reticle; its visible look is ours
+  - item: pulse beams at ~22 deg, blinking about twice a second
+    status: wrong
+    note: angle wrong as in B6_12; the blink rate is artistic (the source fires at 50 kHz, F2)
+    fix: as B6_12
+  - glitch: frame 40 shows a solid black V (the beams are visible while their emission is 0); key hide_render and emission together so an unlit beam is never on screen
+
+B6_14:
+  - item: interference colour bands flowing over the hot membrane
+    status: wrong
+    source: D (13 nm film, no visible interference colours)
+    fix: as B6_12 (no thin_film); let the shot carry only the heat glow and shimmer
+  - item: heat shimmer, slight billow
+    status: artistic
+  - item: overlay 13 nm · 500 °C
+    status: sourced
+    source: S2
+
+B6_15:
+  - item: grain on the pellicle sits out of the focal plane, so its shadow spreads and vanishes while the mask pattern stays sharp
+    status: sourced
+    source: S5 p.221 ("particles will land on the pellicle membrane (which is not in focus)"); Fig. 1 caption ("particles are kept out of focus reducing printability")
+  - item: narration 灰尘落在膜上，离开了焦点，就印不出来 (absolute)
+    status: simplified
+    source: S5 p.221 ("Although small particles on the film do not print, the film still needs to be free of larger particles that can be up to several micrometers in size.")
+    fix: overlay 小颗粒离焦 → 印不出来（示意）; optional re-voice 小颗粒落在膜上……
+  - item: illumination cones symmetric about the normal, single pass
+    status: simplified
+    note: the real light passes the pellicle twice at ~6 deg (S5 Fig. 1 "double light pass"); fine for a focus diagram
+
+B6_16:
+  - item: subtitle line The EUV pellicle — indistinguishable from magic · ASML, 2022
+    status: wrong
+    source: "S2 (title: \"Indistinguishable from magic: the EUV pellicle\", 14 Sep 2022)"
+    fix: "mograph/b6.py magic() and the storyboard overlay: Indistinguishable from magic: the EUV pellicle · ASML, 2022"
+  - item: big type 与魔法无异; narration ASML 给介绍它的文章取名叫：“与魔法无异”
+    status: sourced
+    source: S2
+  - item: red bokeh of the hot membrane
+    status: artistic
+  - glitch: stale preview shows "（F36）" (screen_text strips it now)
+
+B6_17:
+  - item: xray machine; violet path from the pupil facet mirror up to the face-down reticle (5.4 deg) and down to M1
+    status: sourced
+    source: build_machine.py header (S10 slide 13 light train, S11 slide 35 PO, 5.4 deg S10 slide 9)
+    note: "bevel_factor_start = 4/n starts at PATH[4] = the pupil facet mirror (PATH = collector, IF, fold, field facet, pupil facet, reticle, M1...), not at the reticle as the code comment says. The shot therefore also shows the incoming ray; acceptable, but fix the comment or use 5/n if only the reflected light should grow."
+  - item: machine mirrors use M.multilayer_mirror (concentric rainbow bands), kept by the xray style
+    status: wrong
+    source: S11 slide 35, S14 slide 20 (grey mirror blanks); WORKFLOW s.9 / audit_B1 B1_15 (no rainbow on EUV mirrors)
+    fix: "materials.multilayer_mirror(): drop the thin film and band tint (metallic, roughness ~0.03, faint warm tint), as already decided for the collector; this fixes every scene that uses it (B2, B4, B5, B7, build_machine)"
+  - glitch: the preview (10-17) predates the High-NA re-layout of build_machine.py (10-19/10-21). It shows the old path and a white beam. Re-render and check the frame on BM.RETICLE / BM.PO_MIRRORS (CamB6_17 aims at (0.5, 0, 2.4) -> (0.5, 0, 1.0); the reticle is now at z 3.45 and M1 at z 1.76).

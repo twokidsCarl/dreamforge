@@ -20,6 +20,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 sys.path.insert(0, os.path.dirname(__file__))
 from overlay_labels import font  # noqa: E402
+from richtext import draw_text, text_bbox  # noqa: E402
 
 from paths import AUDIO, EP, REPO, RENDERS, SHARED, timed_shots  # noqa: E402,F401
 RENDERS = RENDERS
@@ -72,6 +73,27 @@ def fade(t, a, b, dur, f=0.35):
     return ease(seg(t, a, a + f)) * (1 - ease(seg(t, b - f, b))) if b < dur else ease(seg(t, a, a + f))
 
 
+_FACT_ID = r"F\d+[a-z]?"
+
+
+def screen_text(s):
+    """What a viewer may read: fact-library IDs (F44, F4c...) are internal and never drawn. They are dropped with
+    their separators; a line that was nothing but IDs becomes the sources' organisations ("来源：ASML")."""
+    import re
+    ids = re.findall(_FACT_ID, s)
+    if not ids:
+        return s
+    out = re.sub(r"\s*[·,，、]\s*" + _FACT_ID, "", s)
+    out = re.sub(_FACT_ID + r"\s*[·,，、]\s*", "", out)
+    out = re.sub(_FACT_ID, "", out)
+    out = re.sub(r"\s*[（(]\s*[)）]", "", out).strip(" ·,，、")
+    if out:
+        return out
+    from story_reel import fact_orgs
+    orgs = fact_orgs(ids)
+    return f"来源：{orgs}" if orgs else ""
+
+
 # ---- drawing helpers -----------------------------------------------------------------------
 class Canvas:
     def __init__(self, W, H, bg=BG):
@@ -86,8 +108,10 @@ class Canvas:
         return v * self.k
 
     def text(self, xy, s, size, color=INK, a=1.0, anchor="la", weight_glow=False):
-        if a <= 0:
+        s = screen_text(s)
+        if a <= 0 or not s:
             return
+        size = max(size, 26)            # nothing smaller than 26 px at 1080p: footers and sources must be readable
         self.text_font(xy, s, font(int(self.px(size))), color, a, anchor, 0.6 if weight_glow else 0.0)
 
     def text_font(self, xy, s, f, color=INK, a=1.0, anchor="la", glow=0.0):
@@ -96,15 +120,15 @@ class Canvas:
         if a <= 0:
             return
         x, y = self.px(xy[0]), self.px(xy[1])
-        l, t, r, b = ImageDraw.Draw(self.img).textbbox((x, y), s, font=f, anchor=anchor)
+        l, t, r, b = text_bbox(ImageDraw.Draw(self.img), (x, y), s, f, anchor=anchor)
         l, t, r, b = int(l) - 3, int(t) - 3, int(r) + 4, int(b) + 4
         mask = Image.new("L", (r - l, b - t), 0)
-        ImageDraw.Draw(mask).text((x - l, y - t), s, font=f, fill=255, anchor=anchor)
+        draw_text(ImageDraw.Draw(mask), (x - l, y - t), s, f, fill=255, anchor=anchor)
         if a < 1.0:
             mask = mask.point(lambda v: int(v * a))
         self.img.paste(color, (l, t, r, b), mask)
         if glow > 0:
-            self.g.text((x, y), s, font=f, fill=tuple(int(c * a * glow) for c in color), anchor=anchor)
+            draw_text(self.g, (x, y), s, f, fill=tuple(int(c * a * glow) for c in color), anchor=anchor)
 
     def line(self, p0, p1, color=LINE, width=2, a=1.0, progress=1.0, glow=False):
         if a <= 0 or progress <= 0:

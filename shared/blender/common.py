@@ -7,7 +7,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 # preset -> (resolution_x, resolution_y, eevee taa samples, cycles samples)
 PRESETS = {
     "preview": (640, 360, 16, 32),
-    "sample": (960, 540, 64, 64),
+    "sample": (960, 540, 64, 32),          # review renders: 32 spp + OIDN (finals keep 256)
     "final": (1920, 1080, 128, 256),
 }
 
@@ -129,7 +129,7 @@ def setup_render(engine, preset, motion_blur=True):
         raise ValueError(engine)
 
 
-def setup_compositor(glare_strength=0.25, glare_size=7, dispersion=0.012, glare_threshold=2.0, no_glare=False):
+def setup_compositor(glare_strength=0.25, glare_size=7, dispersion=0.004, glare_threshold=2.0, no_glare=False):
     """Bloom + subtle chromatic dispersion. Blender 5.x uses a scene-level node group.
     Bloom 只让发光体（emitter）过阈值：Threshold 默认 2.0（不低于 2.0），Strength 默认 0.25
     （E2 STYLE_REVIEW P0-3；原 0.8 / 0.6 让浅色世界整片泛光）。

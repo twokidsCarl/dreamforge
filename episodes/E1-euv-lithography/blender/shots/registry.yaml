@@ -5,8 +5,8 @@
 # Shot length always comes from storyboard.timed.yaml.
 
 B1_02: {scene: b1_source, args: {vessel: true, rays: true}, camera: CamB1_02, start: 1, style: xray, engine: cycles}
-B1_03: {scene: b1_source, camera: CamB1_03, start: 1, style: photoreal, engine: cycles}
-B1_04: {scene: b1_source, camera: CamB1_04, start: 1, style: photoreal, engine: cycles}
+B1_03: {scene: b1_source, camera: CamB1_03, start: 1, step: 0.87, style: photoreal, engine: cycles}   # last frame sim ~94: ends before the pre-pulse (sim 95), lasers come in B1_09
+B1_04: {scene: b1_jet, camera: CamB1_04, start: 300, step: 0.25, style: photoreal, engine: cycles}   # flow LAM/8 per frame
 B1_07: {scene: b1_source, camera: CamB1_07, start: 1, style: photoreal, engine: cycles}
 B1_08: {scene: b1_source, camera: CamB1_08, start: 1, style: photoreal, engine: cycles}
 B1_10: {scene: b1_source, camera: CamB1_10, start: 65, style: photoreal, engine: cycles}
@@ -16,7 +16,7 @@ B1_13: {scene: b1_source, camera: CamB1_13, start: 186, style: photoreal, engine
 B1_14: {scene: b1_source, camera: CamB1_14, start: 200, style: energy, engine: eevee}
 B1_15: {scene: b1_source, camera: CamB1_15, start: 205, style: photoreal, engine: cycles}
 B1_21: {scene: b1_source, camera: CamB1_21, start: 260, style: photoreal, engine: cycles}
-B1_05: {scene: b1_jet, camera: CamB1_05, start: 25, style: photoreal, engine: cycles}
+B1_05: {scene: b1_jet, camera: CamB1_05, start: 498, style: photoreal, engine: cycles}
 B1_17: {scene: b1_atom, args: {variant: atom}, camera: CamB1_17, start: 1, style: energy, engine: eevee}
 B1_19: {scene: b1_atom, args: {variant: web}, camera: CamB1_19, start: 1, style: energy, engine: eevee}
 B1_20: {scene: b1_atom, args: {variant: web}, camera: CamB1_20, start: 150, style: energy, engine: eevee}
@@ -29,7 +29,7 @@ B1_28: {scene: b1_machine, camera: CamB1_28, start: 1, style: xray, engine: cycl
 B1_29: {scene: b1_machine, camera: CamB1_29, start: 100, style: energy, engine: eevee}
 B2_01: {scene: b1_source, camera: CamB2_01, start: 205, style: photoreal, engine: cycles}
 B2_02: {scene: b2_scenes, args: {variant: air}, camera: CamB2_02, start: 1, style: xray, engine: eevee}
-B2_03: {scene: b1_source, camera: CamB2_03, start: 188, style: photoreal, engine: cycles}
+B2_03: {scene: b1_source, camera: CamB2_03, start: 191, style: photoreal, engine: cycles}   # opens on the main pulse striking the sheet (the bare 300 um sheet, wider than the laser hole, is not the first thing seen)
 B2_04: {scene: b2_scenes, args: {variant: ions}, camera: CamB2_04, start: 1, style: energy, engine: eevee}
 B2_05: {scene: b2_scenes, args: {variant: micro}, camera: CamB2_05, start: 1, style: sem, engine: eevee}
 B2_06: {scene: b2_scenes, args: {variant: ions_h2}, camera: CamB2_06, start: 1, style: energy, engine: eevee}
@@ -39,7 +39,7 @@ B2_09: {scene: b2_scenes, args: {variant: pumps}, camera: CamB2_09, start: 1, st
 B2_11: {scene: b2_scenes, args: {variant: glow}, camera: CamB2_11, start: 1, style: photoreal, engine: cycles}
 B2_12: {scene: b1_source, camera: CamB2_12, start: 262, style: photoreal, engine: cycles}
 B3_01: {scene: b3_scenes, args: {variant: burst}, camera: CamB3_01, start: 1, style: energy, engine: eevee}
-B3_02: {scene: b1_source, camera: CamB3_02, start: 1, style: photoreal, engine: cycles}
+B3_02: {scene: b1_source, camera: CamB3_02, start: 1, step: 0.8, style: photoreal, engine: cycles}   # last frame sim 97: ends before the pre-pulse sheet (sim 106) and before the pre-pulse front leaves the hole
 B3_05: {scene: b3_scenes, args: {variant: focus}, camera: CamB3_05, start: 1, style: energy, engine: eevee}
 B3_06: {scene: b3_scenes, args: {variant: handoff}, camera: CamB3_06, start: 1, style: xray, engine: eevee}
 B3_07: {scene: b3_scenes, args: {variant: nave}, camera: CamB3_07, start: 1, style: photoreal, engine: cycles}
@@ -83,17 +83,16 @@ B8_02: {scene: b8_scenes, args: {variant: slit}, camera: CamB8_02, start: 1, sty
 B8_03: {scene: b8_scenes, args: {variant: scan}, camera: CamB8_03, start: 1, style: clay, engine: eevee}
 B8_04: {scene: b8_scenes, args: {variant: scan}, camera: CamB8_04, start: 161, style: clay, engine: eevee}
 B8_07: {scene: b8_scenes, args: {variant: car}, camera: CamB8_07, start: 1, style: photoreal, engine: cycles}
-B8_08: {scene: b8_scenes, args: {variant: car}, camera: CamB8_08, start: 230, style: photoreal, engine: cycles}
+B8_08: {scene: b8_scenes, args: {variant: car}, camera: CamB8_08, start: 400, style: photoreal, engine: cycles}
 B8_10: {scene: b8_scenes, args: {variant: sync}, camera: CamB8_10, start: 1, style: xray, engine: eevee}
-B8_14: {scene: b8_scenes, args: {variant: actuator}, camera: CamB8_14, start: 1, style: photoreal, engine: cycles}
+B8_14: {scene: b8_scenes, args: {variant: maglev}, camera: CamB8_14, start: 1, style: photoreal, engine: cycles}
 B8_15: {scene: b8_scenes, args: {variant: layers}, camera: CamB8_15, start: 1, style: clay, engine: eevee}
 B8_16: {scene: b8_scenes, args: {variant: dual}, camera: CamB8_16, start: 1, style: xray, engine: eevee}
 B9_04: {scene: b9_scenes, args: {variant: rain}, camera: CamB9_04, start: 1, style: energy, engine: eevee}
 B9_05: {scene: b9_scenes, args: {variant: rain}, camera: CamB9_05, start: 141, style: energy, engine: eevee}
 B9_06: {scene: b9_scenes, args: {variant: rain}, camera: CamB9_06, start: 261, style: energy, engine: eevee}
-A0_01: {scene: b1_source, camera: CamA0_01, start: 1, step: 0.764, style: photoreal, engine: cycles}
+A0_01: {scene: b1_source, camera: CamA0_01, start: 1, step: 0.730, style: photoreal, engine: cycles}
 A0_02: {scene: a0_scenes, args: {variant: cargo}, camera: CamA0_02, start: 1, style: photoreal, engine: cycles}
-A0_04: {scene: a0_scenes, args: {variant: convoy}, camera: CamA0_04, start: 1, style: photoreal, engine: eevee}
 A0_05: {scene: a0_scenes, args: {variant: assemble}, camera: CamA0_05, start: 1, style: xray, engine: eevee}
 A0_07: {scene: a0_scenes, args: {variant: print}, camera: CamA0_07, start: 1, style: energy, engine: eevee}
 A0_08: {scene: a0_scenes, args: {variant: chip}, camera: CamA0_08, start: 1, style: photoreal, engine: cycles}
@@ -102,7 +101,7 @@ A1_02: {scene: a1_scenes, args: {variant: cut}, camera: CamA1_02, start: 1, styl
 A1_03: {scene: a1_scenes, args: {variant: spin}, camera: CamA1_03, start: 1, style: photoreal, engine: cycles}
 A1_04: {scene: a1_scenes, args: {variant: expose}, camera: CamA1_04, start: 1, style: energy, engine: eevee}
 A1_06: {scene: a1_scenes, args: {variant: process}, camera: CamA1_06, start: 1, style: clay, engine: eevee}
-A1_07: {scene: a1_scenes, args: {variant: process}, camera: CamA1_07, start: 181, style: clay, engine: eevee}
+A1_07: {scene: a1_scenes, args: {variant: process}, camera: CamA1_07, start: 191, style: clay, engine: eevee}
 A1_09: {scene: a1_scenes, args: {variant: stack}, camera: CamA1_09, start: 1, style: xray, engine: eevee}
 A2_08: {scene: a23_scenes, args: {variant: ribbon}, camera: CamA2_08, start: 1, style: energy, engine: eevee}
 A3_04: {scene: a23_scenes, args: {variant: lens}, camera: CamA3_04, start: 1, style: photoreal, engine: cycles}
@@ -111,14 +110,14 @@ A3_06: {scene: a23_scenes, args: {variant: tour}, camera: CamA3_06, start: 1, st
 C_01: {scene: c_scenes, args: {variant: assemble}, camera: CamC_01, start: 1, style: clay, engine: eevee}
 C_02: {scene: b1_source, camera: CamC_02, start: 1, step: 0.73, style: photoreal, engine: cycles}
 C_03: {scene: c_scenes, args: {variant: ride}, camera: CamC_03, start: 1, style: xray, engine: eevee}
-C_04: {scene: c_scenes, args: {variant: ride}, camera: CamC_04, start: 411, style: energy, engine: eevee}
+C_04: {scene: c_scenes, args: {variant: ride}, camera: CamC_04, start: 431, style: energy, engine: eevee}
 C_05: {scene: c_scenes, args: {variant: ride}, camera: CamC_05, start: 911, style: energy, engine: eevee}
 C_06: {scene: c_scenes, args: {variant: pulses}, camera: CamC_06, start: 1, style: energy, engine: eevee}
 C_08: {scene: c_scenes, args: {variant: accents}, camera: CamC_08, start: 1, style: xray, engine: eevee}
 C_09: {scene: c_scenes, args: {variant: accents}, camera: CamC_09, start: 241, style: xray, engine: eevee}
 C_10: {scene: c_scenes, args: {variant: heart}, camera: CamC_10, start: 1, style: energy, engine: eevee}
-D_08: {scene: b1_source, camera: CamA0_01, start: 4, style: photoreal, engine: cycles}
-D_09: {scene: b1_source, camera: CamD_09, start: 42, black_tail: 2, style: photoreal, engine: cycles}
+D_08: {scene: b1_source, camera: CamA0_01, start: 6, style: photoreal, engine: cycles}
+D_09: {scene: b1_source, camera: CamD_09, start: 90, step: 0.155, black_tail: 2, style: photoreal, engine: cycles}
 D_01: {scene: d_scenes, args: {variant: foup}, camera: CamD_01, start: 1, style: photoreal, engine: cycles}
 D_06: {scene: d_scenes, args: {variant: monolith}, camera: CamD_06, start: 1, style: photoreal, engine: eevee}
 D_07: {scene: d_scenes, args: {variant: crowd}, camera: CamD_07, start: 1, style: photoreal, engine: eevee}

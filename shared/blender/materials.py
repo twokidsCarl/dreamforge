@@ -39,46 +39,10 @@ def dark_anodized(name="DarkMetal"):
 
 
 def multilayer_mirror(name="MoSiMirror", r_max=7.0):
-    """Mo/Si coated mirror: near-perfect polish; thin-film interference whose thickness drifts
-    with radius gives concentric iridescent bands. The visible-light rainbow is an artistic cue
-    for the multilayer, not a physical EUV effect."""
-    m = principled(name, (0.62, 0.60, 0.66), metallic=1.0, roughness=0.035,
-                   thin_film=420.0, thin_film_ior=2.0)
-    nt = m.node_tree
-    tc = nt.nodes.new("ShaderNodeTexCoord")
-    radial = nt.nodes.new("ShaderNodeVectorMath")
-    radial.operation = "MULTIPLY"
-    radial.inputs[1].default_value = (0, 1, 1)        # distance from the optical (X) axis
-    length = nt.nodes.new("ShaderNodeVectorMath")
-    length.operation = "LENGTH"
-    rng = nt.nodes.new("ShaderNodeMapRange")
-    rng.inputs["From Max"].default_value = r_max
-    rng.inputs["To Min"].default_value = 300.0
-    rng.inputs["To Max"].default_value = 620.0
-    nt.links.new(tc.outputs["Object"], radial.inputs[0])
-    nt.links.new(radial.outputs["Vector"], length.inputs[0])
-    nt.links.new(length.outputs["Value"], rng.inputs["Value"])
-    nt.links.new(rng.outputs["Result"], nt.nodes["Principled BSDF"].inputs["Thin Film Thickness"])
-    rng.inputs["To Min"].default_value = 250.0
-    rng.inputs["To Max"].default_value = 900.0
-    # faint concentric tint so the bands survive AgX desaturation
-    bands = nt.nodes.new("ShaderNodeMath")
-    bands.operation = "MULTIPLY"
-    bands.inputs[1].default_value = 3.0 / r_max
-    nt.links.new(length.outputs["Value"], bands.inputs[0])
-    frac = nt.nodes.new("ShaderNodeMath")
-    frac.operation = "FRACT"
-    nt.links.new(bands.outputs[0], frac.inputs[0])
-    tint = nt.nodes.new("ShaderNodeValToRGB")
-    els = tint.color_ramp.elements
-    els[0].position, els[0].color = 0.0, (0.72, 0.62, 0.48, 1)
-    els[1].position, els[1].color = 1.0, (0.72, 0.62, 0.48, 1)
-    for pos, col in ((0.25, (0.52, 0.62, 0.78)), (0.5, (0.68, 0.52, 0.74)), (0.75, (0.5, 0.72, 0.66))):
-        e = els.new(pos)
-        e.color = (*col, 1)
-    nt.links.new(frac.outputs[0], tint.inputs["Fac"])
-    nt.links.new(tint.outputs["Color"], nt.nodes["Principled BSDF"].inputs["Base Color"])
-    return m
+    """Mo/Si coated EUV mirror as ZEISS and ASML photograph it: a plain, mirror-bright surface with a faint warm
+    metallic cast. The ~7 nm Mo/Si period gives no visible interference colour, so there are no rainbow bands
+    (audit_B1 B1_15, audit_B4 B4_04). r_max is kept for callers; it no longer changes anything."""
+    return principled(name, (0.80, 0.78, 0.74), metallic=1.0, roughness=0.03)
 
 
 def beam(name, color, radius, length):

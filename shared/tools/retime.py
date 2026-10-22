@@ -134,7 +134,10 @@ def wav_for(text, voice):
         p = os.path.join(AUDIO, "vo", voice, "sentences.json")
         _MANIFEST[voice] = json.load(open(p, encoding="utf-8")) if os.path.exists(p) else {}
     if text in _MANIFEST[voice]:
-        return _MANIFEST[voice][text]
+        p = _MANIFEST[voice][text]
+        if not os.path.exists(p):   # manifest written on another machine: same file name under this AUDIO
+            p = os.path.join(AUDIO, "vo", voice, "sentences", os.path.basename(p))
+        return p
     return os.path.join(AUDIO, "vo_cache", f"{tts.cache_key(text, voice)}.wav")
 
 

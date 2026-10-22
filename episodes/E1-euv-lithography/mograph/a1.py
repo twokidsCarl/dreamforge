@@ -4,12 +4,20 @@ import math
 import os
 import random
 
+import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 from mograph import CYAN, INK, INK2, VIOLET, Canvas, ease, ease_out, fade, seg, shot
 
 HERE = os.path.dirname(__file__)
 CIRCUIT = os.path.join(os.path.dirname(HERE), "blender", "textures", "circuit.png")
+
+
+def _after_vignette(c, out):
+    """Point the canvas at the finished frame so corner notes drawn next are not greyed by the vignette."""
+    c.img = out
+    c.d = ImageDraw.Draw(out, "RGBA")
+    return out
 
 
 @shot("A1_01")
@@ -19,12 +27,29 @@ def chapter(t, dur, W, H):
     k = c.k
     bg = Image.new("RGB", (W, H), (4, 5, 8))
     d = ImageDraw.Draw(bg)
-    for i in range(60):                                          # rainbow sheen on a wafer edge
+    # rainbow sheen on a wafer edge: a band of touching arcs (no gaps, so no moire once the blur drops). The arc
+    # runs 185-335 deg about a centre below the frame, so both ends lie outside the picture (no cut edge)
+    # the wafer: a dark disc whose rim arcs across the upper third, centre far below the frame
+    cxp, cyp, rw = 1250 * k, 2620 * k, 2520 * k
+    d.ellipse((cxp - rw, cyp - rw, cxp + rw, cyp + rw), fill=(13, 14, 19))
+    for i in range(60):                                            # the sheen hugs the rim, just inside it
         hue = i / 60
         col = tuple(int(90 + 80 * math.sin(2 * math.pi * (hue + o))) for o in (0.0, 0.33, 0.66))
-        r = (1500 + i * 6) * k
-        d.arc((W * 0.75 - r, H * 1.6 - r, W * 0.75 + r, H * 1.6 + r), 200, 280, fill=col, width=max(1, int(5 * k)))
-    blur = 26 * (1 - ease(seg(t, 0.8, dur - 0.4))) + 2
+        r = rw - (12 + i * 2.5) * k
+        d.arc((cxp - r, cyp - r, cxp + r, cyp + r), 200, 340, fill=col, width=max(2, int(5 * k)))
+    d.ellipse((cxp - rw, cyp - rw, cxp + rw, cyp + rw), outline=(70, 74, 88), width=max(1, int(3 * k)))   # bevel
+    # soft angular falloff: the colours peak right of centre and die away before either frame edge's arc end
+    yy, xx = np.mgrid[0:H, 0:W]
+    ang = np.degrees(np.arctan2(yy - cyp, xx - cxp)) % 360
+    ramp = np.clip(np.minimum(ang - 240, 305 - ang) / 22.0, 0, 1)
+    ramp = ramp * ramp * (3 - 2 * ramp)
+    rr = np.hypot(yy - cyp, xx - cxp)
+    sheen = ((rr < rw - 6 * k) & (rr > rw - 190 * k))[..., None]
+    base = np.asarray(bg, dtype=np.float32)
+    floor = np.array((13, 14, 19), np.float32)
+    arr = np.where(sheen, (base - floor) * ramp[..., None] + floor, base)
+    bg = Image.fromarray(arr.clip(0, 255).astype(np.uint8))
+    blur = 26 * (1 - ease(seg(t, 0.8, dur - 0.4))) + 6                # never sharper than 6 px: one smooth sheen
     bg = bg.filter(ImageFilter.GaussianBlur(blur * k))
     c.img = Image.blend(Image.new("RGB", (W, H), (4, 5, 8)), bg, 0.7 * a)
     c.d = ImageDraw.Draw(c.img, "RGBA")
@@ -46,31 +71,37 @@ def latent(t, dur, W, H):
     top, bot = int(300 * k), int(780 * k)
     d.rectangle((0, top, W, bot), fill=96)                         # the resist layer in section
     d.rectangle((0, bot, W, H), fill=60)                           # substrate below
-    scan = ease(seg(t, 0.2, dur - 0.6))
+    # a thin resist is exposed almost uniformly through its thickness from the start (MicroChemicals, A1_sources S10
+    # p6): the exposed columns change everywhere at once, a little weaker near the substrate; no descending front
+    e = ease(seg(t, 0.3, dur - 1.0))
     blocks = [(160 + 320 * i, 160 + 320 * i + 160) for i in range(6)]
+    if e > 0:                                                      # the changed columns brighten as a whole
+        for j in range(16):
+            y0 = top + (bot - top) * j / 16
+            y1 = top + (bot - top) * (j + 1) / 16
+            v = int(96 + 34 * e * (1 - 0.3 * (j + 0.5) / 16))
+            for b0, b1 in blocks:
+                d.rectangle((b0 * k, y0, b1 * k, y1), fill=v)
     for _ in range(2600):                                          # the polymer network
         x, y = rnd.uniform(0, W), rnd.uniform(top, bot)
         exposed = any(b0 * k <= x <= b1 * k for b0, b1 in blocks)
-        changed = exposed and y < top + (bot - top) * scan
-        v = 175 if changed else 120
+        depth = (y - top) / (bot - top)
+        v = 120 + 55 * e * (1 - 0.3 * depth) if exposed else 120
         L = rnd.uniform(4, 12) * k
         ang = rnd.uniform(0, math.pi)
-        d.line((x, y, x + L * math.cos(ang), y + L * math.sin(ang)), fill=v, width=max(1, int(2 * k)))
-    if scan > 0:                                                   # the latent image outline
+        d.line((x, y, x + L * math.cos(ang), y + L * math.sin(ang)), fill=int(v), width=max(1, int(2 * k)))
+    if e > 0:                                                      # the latent image outline, full height
         for b0, b1 in blocks:
-            yy = top + (bot - top) * scan
-            d.line((b0 * k, top, b0 * k, yy), fill=210, width=max(1, int(2 * k)))
-            d.line((b1 * k, top, b1 * k, yy), fill=210, width=max(1, int(2 * k)))
+            for xb in (b0, b1):
+                d.line((xb * k, top, xb * k, bot), fill=int(96 + 114 * e), width=max(1, int(2 * k)))
     im = im.filter(ImageFilter.GaussianBlur(1.2 * k))
     im = Image.blend(im, Image.effect_noise((W, H), 30), 0.2)
     c.img = Image.merge("RGB", (im, im, im))
     c.d = ImageDraw.Draw(c.img, "RGBA")
     c.g = ImageDraw.Draw(c.glow)
-    sy = 300 + 480 * scan
-    c.line((0, sy), (1920, sy), INK, 2, a * (scan < 1))
-    c.text((80, 260), "光刻胶", 26, INK, a, anchor="lm")
-    c.text((80, 830), "衬底", 26, INK2, a, anchor="lm")
-    c.text((1840, 260), "潜像（示意）", 28, INK, a * ease(seg(t, 1.6, 2.2)), anchor="rm")
+    c.text((80, 260), "光刻胶", 30, INK, a, anchor="lm")
+    c.text((80, 830), "衬底", 30, INK, a * 0.85, anchor="lm")
+    c.text((1824, 260), "潜像（示意）", 30, INK, a * ease(seg(t, 1.6, 2.2)), anchor="rm")
     return c.finish(glow_radius=4, glow_gain=0.4)
 
 
@@ -84,12 +115,12 @@ def hundred_layers(t, dur, W, H):
     w = 300                                                         # one straight column, like the tower
     for i in range(n):
         y = base - (i + 1) * lh
-        fine = i < 22                                               # the finest ~20 layers sit at the bottom
+        fine = i < 22                                               # the finest layers sit at the bottom (count illustrative)
         col = VIOLET if fine else (110 + i // 2, 116 + i // 2, 140 + i // 3)
         c.rect((640 - w / 2, y, 640 + w / 2, y + lh - 1.4), fill=tuple(min(255, v) for v in col), a=a * 0.9)
     if n >= 22:
-        c.text((640 + w / 2 + 24, base - 11 * lh), "最精细的约 20 层", 22, VIOLET, a, anchor="lm")
-    c.text((640, base + 50), f"约 {n} 层", 40, INK, a, anchor="mm", weight_glow=n >= 100)
+        c.text((640 + w / 2 + 24, base - 11 * lh), "最精细的那几层", 30, VIOLET, a, anchor="lm")
+    c.text((640, base + 50), "上百层" if n >= 100 else f"{n} 层", 40, INK, a, anchor="mm", weight_glow=n >= 100)
     # a 100-storey tower lighting floor by floor
     tx, tw = 1300, 160
     for i in range(100):
@@ -98,8 +129,9 @@ def hundred_layers(t, dur, W, H):
         c.rect((tx, y, tx + tw, y + lh - 1.6), fill=(250, 220, 150) if on else (36, 40, 52), a=a * (0.85 if on else 0.8))
     c.rect((tx + tw / 2 - 4, base - 100 * lh - 60, tx + tw / 2 + 4, base - 100 * lh), fill=(80, 86, 100), a=a)
     c.text((tx + tw / 2, base + 50), "100 层的楼", 30, INK2, a, anchor="mm")
-    c.text((1880, 1050), "一颗芯片最多约 100 层图形（F44）· 示意", 18, INK2, a, anchor="rm")
-    return c.finish(glow_radius=8, glow_gain=0.6)
+    out = _after_vignette(c, c.finish(glow_radius=8, glow_gain=0.6))   # corner note keeps full brightness
+    c.text((1824, 76), "ASML：一颗芯片有上百层图形 · 层数示意", 28, INK, a * 0.9, anchor="rm")   # action-safe
+    return out
 
 
 @shot("A1_10")
@@ -134,8 +166,10 @@ def overlay(t, dur, W, H):
     if freeze > 0:
         c.rect((0, 0, 1920, 1080), outline=CYAN, width=6, a=a * freeze)
     c.text((960, 120), "套刻 overlay：每一层都要对准下面那层", 32, INK, a * ease(seg(t, 0.2, 0.8)), anchor="mm")
-    c.text((1860, 1030), "SEM 风格示意", 18, INK2, a, anchor="rm")
-    return c.finish(glow_radius=6, glow_gain=0.8)
+    out = _after_vignette(c, c.finish(glow_radius=6, glow_gain=0.8))
+    c.rect((1824 - 196, 1000 - 26, 1824 + 14, 1000 + 26), fill=(6, 8, 12), a=a * 0.6, radius=10)   # scrim: legible
+    c.text((1824, 1000), "SEM 风格示意", 28, INK, a, anchor="rm")
+    return out
 
 
 _CIRC = None
@@ -172,7 +206,7 @@ def finer_pen(t, dur, W, H):
         c.img.paste(vio, (int(660 * k), int(240 * k)), mask)
         c.d = ImageDraw.Draw(c.img, "RGBA")
     labels = {1: "粗笔：1 个字", 2: "细一点：4 个", 4: "16 个", 8: "64 个", 16: "256 个", 32: "1024 个……"}
-    c.text((960, 900), labels[n] if tex < 0.5 else "→ 真正的电路版图", 34, INK, a, anchor="mm")
+    c.text((960, 900), labels[n] if tex < 0.5 else "→ 电路版图（示意）", 34, INK, a, anchor="mm")
     c.text((960, 150), "笔越细 → 字越小 → 装得越多", 40, INK, a * ease(seg(t, 0.3, 0.9)), anchor="mm", weight_glow=True)
     return c.finish(glow_radius=8, glow_gain=0.6)
 

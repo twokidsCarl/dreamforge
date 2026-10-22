@@ -1,0 +1,225 @@
+# Visual fact audit, segment D (ending). One row per engineering / structural / numeric detail the PICTURE, the
+# on-screen text or the narration shows. Checked 2026-10-21 against storyboard.timed.yaml, blender/shots/d_scenes.py,
+# b1_source.py (D_08/D_09), mograph/cd.py (D_02-D_05, D_10), mograph/a0.py (chip_dive), blender/textures/make_worldmap.py
+# and the previews. status: sourced | wrong | unsourced | simplified | artistic (docs/WORKFLOW.md 2.3); `glitch:` = defect.
+#   status glitch = rendering / readability problem still open; status fixed = glitch seen resolved by the verification pass
+# Sources (quotes in research/visual/CD_sources.md; same numbering as audit_C.yaml):
+#   S1  ASML Annual Report 2025 (SEC EDGAR)  https://www.sec.gov/Archives/edgar/data/937966/000162828026011377/asml-2025xannualxreportx.htm
+#   S2  ASML AR2025 story "60,000 times per second in our latest commercial sources" (= B1-S3)  https://investor.asml.com/annual-reports/2025/strategy-and-stories
+#   S3  Hummler et al. (ASML), Proc. SPIE 12953 (2024) ">500W"; Umstadter et al. (ASML), Proc. SPIE 12494 (2023) "~250 Watt"  https://doi.org/10.1117/12.3010463 , https://doi.org/10.1117/12.2657772
+#   S10 ZEISS EUV page (F19, "184 billion components ... slightly larger than a fingertip")  https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
+#   S11 ASML "Light and lasers" (25 um, two pulses)  https://www.asml.com/en/technology/lithography-principles/light-and-lasers
+#   S13 Univ. of Illinois textbook ch.18 (F7 "about 10 mirrors")  https://cpmi.illinois.edu/files/2023/10/Ch18-1.pdf
+#   S15 Asyst/Murata US 7,410,340 (OHT cable hoist lowers a FOUP onto the load port at ~900 mm)  https://patents.google.com/patent/US7410340B2/en
+#   S16 Miraial FOUP / FOSB product pages (26 slots, PC; FOSB 389.5 x 327 x 341.8 mm)  https://www.miraial.co.jp/en/product/kt-3003/
+#   S17 DLR clean room PR-13 (yellow light protects UV-sensitive resist)  https://www.dlr.de/en/images/large-scale-research-facilities/clean-room-pr-13/
+#   S18 Intel on the EXE:5000 ("as big as a double-decker bus"), via high_na_optics.md §3.2
+#   chips.md (Zen 5 CCD, TSMC 4 nm, CC0 photo), shipment_suppliers.md B1 (AR2025 p.239 supplier regions)
+# EVERY D preview is stale: D_01/D_06/D_07 (10-18) predate d_scenes.py changes of 10-21 (D_07 still shows the old
+# cylinder people) and are 8-9 frames shorter than their timed durations (D_01 111/119, D_06 75/83, D_07 145/154);
+# D_02-D_05 and D_10 (10-18 09:15) predate cd.py of 10-21 (they still show 据报道 / 行业估算 / 600 W); D_08 (10-18) and
+# D_09 (10-17) predate the 10-21 B1 source fixes. Re-render all before the next review.
+# 2D shots (D_02-D_05, D_10) get no edit_film label: their storyboard `overlays` are documentation only, the
+# text that viewers see is what cd.py draws.
+# VERIFIED 2026-10-22 (research/visual/verify_B2-D.md): fresh sample renders renders/shots/D_*/sample (960x540,
+# rendered 09:00-09:12 on 10-22, after d_scenes.py 01:00, cd.py 00:41 and the b1_source D_08/D_09 changes; frame
+# counts = timed durations). Labels / chapter card checked by running edit_film functions on sample frames.
+
+D_01:
+  - item: yellow-lit clean-room bay
+    status: sourced
+    source: S17 ("Yellow lighting prevents accidental exposure of UV-sensitive photoresist layer")
+    note: stylised; no specific fab copied (project rule). Which tool the pod comes from is not specified, which is right - an EUV scanner normally receives wafers through its track, but that is not shown or claimed
+  - item: load-port plate at 0.9 m height
+    status: sourced
+    source: S15 ("lowers a FOUP onto the kinematic plate of the load port at approximately 900 mm height")
+  - item: wafer pod = plain amber translucent box 0.42 x 0.38 x 0.34 m with bevelled edges; no front door, latch keys or top handling flange
+    status: simplified
+    source: 'S16 (FOUP: 26 slots, PC shell; FOSB 389.5 x 327 x 341.8 mm as a size reference); SEMI E47.1 envelope not public free of charge'
+    note: size is plausible; an OHT grips the pod by its top flange, so the flange should exist for the hoist to make sense
+    fix: add a top handling flange (thin mushroom plate on a short neck) and a darker front door face toward the tool
+    verified: "2026-10-22: flange and door added - frames 1-60 each pod carries a thin plate on a short neck and a dark door face toward the tool; the gripper closes on the flange (frame 45). Envelope still approximate (simplified)."
+  - item: the hero pod "slides out" of the tool face by 0.5 m (keys y 1.1 → 0.6), starting half inside the tool wall
+    status: sourced
+    note: a FOUP sits on the load port outside the tool and only docks/undocks against the port opening; it never comes out of the machine (S15). The undock stroke is not public
+    fix: "d_scenes.foup: start the pod on the load-port plate at y ≈ 0.75 (front face against the tool face at 1.1 - 0.35), undock by ≤ 0.08 (示意), then the hoist lifts it"
+    verified: "2026-10-22: fixed - frames 1-31 the pod rests on the load port; it only leaves when the gripper lifts it (45-60)."
+  - item: overhead hoist lifts the pod 1.8 m to the rail; pods behind travel along the rail at z 2.9
+    status: sourced
+    note: "an OHT vehicle runs on the rail and lowers a gripper on a cable hoist onto the pod (S15 \"cable hoist vehicles\"). In the code the hoist box never descends and the pod rises with nothing attached (preview frames 61-71: the pod floats in mid-air); the five pods behind hang in the air with no vehicles at all"
+    fix: lower a gripper plate on 2-4 thin belts from the hoist to the pod top (keys 30-50), lift with the belts shortening; give every following pod its own hoist vehicle on the rail, carried inside or just under it
+    verified: "2026-10-22: fixed - four belts lower a gripper (frames 31-45), the pod rises on them (60) into its vehicle (75), and every pod on the rail hangs under its own vehicle (89-119)."
+  - item: chapter card 章节 · 收束：回到那一滴锡
+    status: fixed
+    glitch: kind chapter overlays are never drawn (edit_film skips them; see audit_C C_01)
+    verified: "2026-10-22: edit_film.draw_chapter composited on D_01 sample frame 36 renders 章节 / 收束 / 回到那一滴锡 lower left over the yellow room (0.2-2.8 s)."
+  - item: preview
+    status: fixed
+    glitch: stale (10-18) and 8 frames short (111 of 119)
+    verified: "2026-10-22: fresh sample, 119 frames = 4.96 s."
+
+D_02:
+  - item: chip on a fingertip (A0_08 last frame) dissolving into a dive into the AMD Zen 5 CCD die photo (TSMC 4 nm, EUV node), rows lit warm white; caption AMD Zen 5 CCD（台积电 4 nm，EUV 工艺）· 显微照片：Fritzchens Fritz（CC0）
+    status: sourced
+    source: chips.md B1/B2 (AMD spec page "TSMC 4nm FinFET"; Commons CC0); audit_A0 A0_08/A0_09
+    verified: "2026-10-22: frame 1 chip on the fingertip, 14-55 the full-die photo, 68-108 the close-up of the cell array (both Fritzchens Fritz images via a0.chip_dive)."
+  - item: narration 比指尖略大的面积上，1840 亿个元件
+    status: sourced
+    source: 'S10 / F19 (ZEISS wording: components, an area slightly larger than a fingertip, no chip named)'
+    note: "the storyboard overlay 1840 亿个元件 is not drawn (2D shot) - keep it that way: printing 1840 亿 over the Zen 5 CCD would present that die as the 184-billion chip, which WORKFLOW 1.2 forbids (chips.md A3: ZEISS names no chip)"
+    verified: "2026-10-22: no 1840 亿 in frames 1-108."
+  - item: warm-white strokes lighting the cell rows
+    status: artistic
+  - item: storyboard visual / builders (灰阶 SEM 风格的晶体管阵列, pdk_patterns.transistor_array, style sem)
+    status: simplified
+    note: outdated text - the code now dives into the real die photo
+    fix: update storyboard parts (D_02 visual, builders, style) to the die-photo dive
+    glitch: the preview (10-18) still shows the old grey SEM-style layout (SKY130-like bars, a 130 nm process) - re-render; that version must not come back, since it shows a non-EUV layout under "最精细的那几层"
+    verified: "2026-10-22: render fixed (no SKY130 layout, frames 1-108); storyboard visual updated to the Zen 5 CCD dive, but builders still list pdk_patterns.transistor_array and style is still sem."
+  - item: NEW - die-photo caption 16 px at 1080p (a0.chip_dive l.258) - the credit and the 'TSMC 4 nm, EUV' qualifier are unreadable
+    status: glitch
+    fix: '>= 24 px for the credit line (CC0 does not require it, but the EUV-node qualifier is the claim)'
+
+D_03:
+  - item: one silver droplet, two orange pulses (thin then thick) from the left, then ten mirror points joined into a zig-zag; texts 1 滴锡 / 2 发激光 / 约 10 面镜子
+    status: sourced
+    source: S11 / F4 (two pulses), F7 / S13 ("about 10 mirrors", textbook); the drawn EXE path has exactly 10 mirrors plus the mask (collector, fold, two facet mirrors, M1-M6; build_machine.PATH)
+    verified: "2026-10-22: frames 19-144 droplet, pulse (37), zig-zag with ~10 points running off the right edge; labels 1 滴锡 / 2 发激光 / 约 10 面镜子 at 32 px."
+  - item: narration 最精细的那几层，都来自一滴锡、两发激光、大约 10 面镜子
+    status: sourced
+    source: chips.md B0 (only the critical layers use EUV), F4, F7
+  - item: zig-zag of equal hops, all points identical
+    status: artistic
+  - item: both pulses arrive on the same line and hit the same round droplet
+    status: simplified
+    note: as audit_B1 B1_09 (the main pulse hits the expanded sheet downstream)
+    fix: none needed for this summary shot; B1_10-B1_13 show the real sequence
+  - item: on-screen text F4 · F7 (bottom right)
+    status: sourced
+    note: internal fact IDs on screen (WORKFLOW 5.5 "来源行写机构名，不写事实编号"; same defect fixed in A3_02)
+    fix: cd.py one_two_ten - replace "F4 · F7" with "来源：ASML · ZEISS"
+    verified: "2026-10-22: fixed - cd.py l.81 '来源：ASML · 伊利诺伊大学教材（约 10 面镜子）'; no fact ID in frames 19-144."
+  - item: NEW - source line 18 px at 1080p (cd.py l.81) - unreadable
+    status: glitch
+    fix: '>= 24 px'
+
+D_04:
+  - item: power dial, needle into an orange band, 约 1.26 MW, NXE:3800E · ASML 2025 年报; narration ASML 测得，最新一代 NXE 一台耗电约 1.26 兆瓦
+    status: sourced
+    source: S1 ("For the TWINSCAN NXE:3800E, the total power consumption decreased 0.06 MW to 1.26 MW")
+    note: NXE only - correctly labelled. The EXE figure is not public as a power (S1 gives one EXE:5000A test, 25.2 kWh/wafer at 53 wph); do not put the 1.26 MW next to an EXE picture. Resolves audit_backlog D item (narration restored)
+    verified: "2026-10-22: frames 74-293 约 1.26 MW / NXE:3800E · ASML 2025 年报."
+  - item: dial has no scale; band 0.68-0.9 and needle at 0.79 are decorative
+    status: artistic
+  - item: bars 2018 (full height) and 2025 (43%), label −57%
+    status: sourced
+    source: S1 ("energy per wafer pass decreased from 5.9 to 5.5 kWh, a reduction of 57% ... versus our 2018 baseline of 12.8 kWh/wafer"; 5.5/12.8 = 0.43)
+    verified: "2026-10-22: frames 183-293 bars 12.8 kWh / 5.5 kWh, measured height ratio ~0.44, −57%."
+  - item: chart title 每片晶圆的能耗（ASML · F49）; narration 每片晶圆的能耗已经下降了 57%
+    status: sourced
+    note: ASML's metric is "energy per wafer pass" for NXE systems (S1), i.e. per exposure pass, not per finished wafer (which gets many EUV layers). Also the title shows a fact ID
+    glitch: fact ID "F49" on screen (WORKFLOW 5.5)
+    fix: "cd.py energy: title → NXE 每片晶圆每次曝光的能耗（ASML 2025 年报）, optionally 12.8 → 5.5 kWh under the bars; narration may stay (每片晶圆 is ASML's own shorthand \"per wafer\" in the KPI name kWh/wafer)"
+    verified: "2026-10-22: fixed - title 'NXE 每片晶圆每次曝光的能耗', sub 'ASML 2025 年报 · 2018 年基准 → 2025 年', 12.8 / 5.5 kWh over the bars (frames 147-293); no ID."
+  - item: preview
+    status: fixed
+    glitch: stale - still shows 兆瓦量级 · 据报道 · 行业估算 (F48); cd.py now draws 约 1.26 MW. Re-render
+    verified: "2026-10-22: fresh sample, no 据报道 / 行业估算."
+  - item: NEW - secondary text 20-24 px (cd.py l.104, 115-118 - NXE:3800E · ASML 2025 年报, kWh values, the 2018 baseline line) is hard to read at 1080p
+    status: glitch
+    fix: '>= 26 px for the source/qualifier lines (they carry the NXE-only qualifier)'
+
+D_05:
+  - item: labels NXE:3800E 超过 500 W and 2025 年演示 1000 W; source line 来源：ASML 2025 年报 · ASML SPIE 2024; narration 下一代光源，已经冲到了 1000 瓦
+    status: sourced
+    source: S1 p.30 ("demonstrating the first ever 1,000-watt light source for EUV lithography"), S3 (">500W" for NXE:3800E)
+    verified: "2026-10-22: frames 30-117 约 250 W · 客户现场 (2023) / NXE:3800E 超过 500 W (2024) / 2025 年演示 1000 W; source line 来源：ASML SPIE 2023 · ASML SPIE 2024 · ASML 2025 年报."
+  - item: storyboard D_05 visual and overlays still read 量产约 600 W and 1000 W 原理样机（实验室）
+    status: sourced
+    note: 600 W in production and 原理样机/实验室 come only from media (B1-S4, F4c notes); the code no longer draws them but the storyboard (the record the next agent reads) still says so
+    fix: storyboard parts D_05 visual/overlays → NXE:3800E 超过 500 W（ASML SPIE 2024）/ 2025 年演示 1000 W（ASML 2025 年报）
+    verified: "2026-10-22: fixed in storyboard.timed.yaml (visual: three first-hand points, stops at 1000 W; overlays NXE:3800E 超过 500 W / 2025 年演示 1000 W). Minor: camera move still 'tilt-up' while the notes say static."
+  - item: continuous rising curve from an unlabelled ~250 W start, no time axis, its tip glowing past 1000 W and running out of frame
+    status: sourced
+    note: ASML says only that the 1,000 W demo "shows path to higher productivity" (S1); no ASML figure beyond 1,000 W was found. A curve running on past 1,000 W implies a roadmap number nobody published. The ~250 W start matches "Sources at customers operate at ~250 Watt" (S3, 2023) but is not labelled
+    fix: "cd.py power_curve: stop the curve (and the glowing tip) at the 1000 W line; optionally mark the start 约 250 W · 2023 年客户现场（ASML SPIE 2023）; drop the tilt-up past the frame"
+    verified: "2026-10-22: fixed - three-point polyline on a 2023/2024/2025 axis, last segment dashed, ends on the 1000 W point (frames 73-117); heights above the axis 52 : 103 : 207 px = 250 : 500 : 1000 W (linear)."
+  - item: preview
+    status: fixed
+    glitch: stale - still shows 据报道 · 量产约 600 W, 据报道 · 1000 W 原理样机（实验室）, F4c · 数据为媒体报道. Re-render
+    verified: "2026-10-22: fresh sample, none of these strings."
+  - item: NEW - point labels 26 px and source line 18 px (cd.py l.169-171) - the source line is unreadable
+    status: glitch
+    fix: '>= 24 px source line, >= 30 px point labels'
+
+D_06:
+  - item: abstract black monolith with violet light at irregular seams, dark hall, low mist
+    status: artistic
+    note: deliberately not the ASML exterior (project rule)
+  - item: monolith 6.0 x 3.2 x 6.0 m - with people beside it in D_07 it reads as the machine at real scale
+    status: simplified
+    note: 'Intel - "as big as a double-decker bus" (S18): long and lower, not a 6 m cube; exact dimensions not public'
+    fix: lengthen to about 10 x 3.2 x 4.5 (bus-like) or keep the cube but never show people beside it
+    verified: "2026-10-22: fixed - d_scenes BLOCK = (10.0, 3.2, 4.5); frames 1-83 a long low block. Dimensions not public (simplified, bus-like per S18)."
+  - item: rendering
+    status: fixed
+    glitch: in the preview the violet seams read as white lines and the mist is invisible; frames 75 of 83; stale (10-18)
+    verified: "2026-10-22: seams violet (frames 1-83), 83 frames; the low mist is still barely visible (storyboard 低处飘着薄雾) - minor."
+
+D_07:
+  - item: hall lights up row by row; ~36 near-black faceless figures around the block (standing / working / walking)
+    status: sourced
+    source: project rule (silhouettes only, WORKFLOW 1.3); figures.person metaball suits, matte black
+    glitch: preview (10-18) still shows the old cylinder people; re-render after the 10-21 figures change
+    verified: "2026-10-22: frames 39-154 metaball suit silhouettes, no cylinder people; lamp rows come on from frame ~58."
+  - item: label 5100 家供应商
+    status: sourced
+    source: S1 p.4/p.41 ("5,100 Total number of suppliers"); F50
+    verified: "2026-10-22: composited label 5100 家供应商 / sub 各地区数量据 ASML 2025 年报；地区内位置为示意 / 来源 ASML."
+  - item: world map with 5100 dots on the far wall (blender/textures/worldmap_dots.png)
+    status: sourced
+    note: "the texture was generated 10-17 (make_worldmap.py from a0._supplier_points), two days before A0 switched to the AR2025 regional split (1,600 NL / 700 rest of EMEA / 1,350 North America / 1,450 Asia; commit e471cb2, 10-19). It has not been regenerated, so the regional counts are not guaranteed to match the report. A0_06 also carries the caption 各地区数量据 ASML 2025 年报；地区内位置为示意, which D_07 lacks"
+    fix: "re-run python3 blender/textures/make_worldmap.py (uses the current REGIONS), and add 地区内位置为示意 to the D_07 overlay sub-line"
+    verified: "2026-10-22: fixed - worldmap_dots.png / worldmap_land.png regenerated 10-22 00:04 (after a0.py REGIONS of 10-21); texture shows NL, rest-of-EMEA, North America and Asia clusters; the 地区内位置为示意 sub-line is in the label."
+  - item: dots "converge on the machine" (storyboard)
+    status: artistic
+    note: not implemented
+    verified: "2026-10-22: still not built; storyboard visual still says 汇向这台机器 (drop the phrase or build it)."
+  - item: rendering - white quad lower right
+    status: fixed
+    glitch: a bright white quad sits at the lower right from preview frame 66 to the end (a lamp strip or area light seen in the floor reflection) - find and hide it; frames 145 of 154
+    verified: "2026-10-22: no white quad in frames 58-154; 154 frames. Two soft lavender backlight patches (MistBack) flank the block ends - reads as backlight."
+  - item: NEW - the top of the world map is hidden by the lamp rows - the Netherlands / Europe cluster sits at the top edge of the visible map and everything north of ~55 deg N (Scandinavia, most of Canada/Russia) is cut (frames 97-154)
+    status: glitch
+    fix: lower the map plane (z 8 -> ~6.5) or scale it down so the whole map, especially the 1,600-supplier NL cluster, sits below the lamps
+
+D_08:
+  - item: the cold-open droplet again (CamA0_01, pure black, studio reflections, satin sheet); label ≈ 25 μm
+    status: sourced
+    source: S11 / F3 (25 um); audit_A0 A0_01
+    verified: "2026-10-22: label ≈ 25 μm / 来源 ASML (composited)."
+  - item: slow motion; droplet surface reflecting far lights
+    status: artistic
+  - item: rendering
+    status: fixed
+    glitch: preview (10-18) - a crescent "moon" and a soft blob beside the droplet in frames 1-16 (the WORKFLOW s.9 lesson), then a bright vertical bar sweeps past at frame 37 and the background turns flat grey-blue to the end; something the _cold_open() hide list misses (nozzle / generator or the next stream droplet) is in frame. The nozzle moved off-screen on 10-21; re-render and confirm pure black throughout
+    verified: "2026-10-22: frames 1-81 pure black background, droplet steady in frame, no crescent card, bokeh ball or bar."
+
+D_09:
+  - item: tight on the droplet, an orange pre-pulse closing in, cut to black before the hit
+    status: artistic
+    note: CO2 light is infrared; orange is the film's convention (B1_09 caption)
+  - item: the approaching pulse
+    status: fixed
+    glitch: "the pre-pulse starts at sim 95 and the shot covers sim 42-101 with 2 black-tail frames, so orange shows only in frames 56-58 (8-38 px in the preview) - 逼近 never reads. Start the shot later (start ≈ 60) or key a slower pulse front for this shot"
+    verified: "2026-10-22: registry start 90 / step 0.155 - orange glow on the left from frame 1, growing (25 % -> 40 % of the frame, front x 489 -> 570) until the cut to black at 59-60."
+  - item: rendering
+    status: fixed
+    glitch: "frame 17 is pure black (dropped frame) mid-shot; a large blurred sphere outline behind the droplet (old 375 um stream spacing) in every frame; stale (10-17) - re-render"
+    verified: "2026-10-22: no near-black frame before 59; no sphere outline behind the droplet."
+
+D_10:
+  - item: card 下一期 · 幕后篇 / 用 AI 和 Blender 做一部片子 and four style thumbnails (真实 / 透明 / 蓝图 / 能量) from renders/style_test
+    status: artistic
+    note: no technical claims; glyphs render correctly in the preview
+    verified: "2026-10-22: frames 27-206 title, subtitle, four thumbnails flip in. Thumbnails show the collector style test, while the storyboard says 同一锡滴镜头 (minor text mismatch - change the storyboard to 同一收集镜镜头)."

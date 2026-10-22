@@ -1,0 +1,245 @@
+# Visual fact audit, segment B7 (projection optics and High-NA). One row per engineering / structural / optical detail
+# the PICTURE, the narration or the on-screen text shows. Checked 2026-10-21.
+# status: sourced | wrong | unsourced | simplified | artistic   (see docs/WORKFLOW.md 2.3)
+# Quotes: research/visual/B6B7_sources.md. Sources:
+#   S1  ASML, EUV lithography systems page (4x, NXE NA 0.33 / 13 nm, EXE NA 0.55 / 8 nm)
+#       https://www.asml.com/en/products/euv-lithography-systems
+#   S10 ZEISS, Kaumanns et al., EUVL Workshop 2024, slides 8/9  https://euvlitho.com/2024/P22.pdf
+#   S11 ASML, van Schoot, EUVL Workshop 2021, slides 34/35/36 (NA 0.33 vs 0.55 design examples; Tatians)
+#       https://www.euvlitho.com/2021/P3.pdf
+#   S12 ASML, van Schoot, EUVL Workshop 2022, slides 12/14/27/34/39  https://euvlitho.com/2022/P3.pdf
+#   S13 ZEISS, Heil et al., EUVL Symposium 2015, slides 9/19/20/24/25 (M5/M6, "We drill a hole into the mirror")
+#       https://euvlsymposium.lbl.gov/pdf/2015/Oral_Wednesday/Session9_EUV%20Lithography%20Extendibility/S9.2_Heil.pdf
+#   S14 ZEISS, Conradi et al., EUVL Symposium 2011, slide 20 (NXE 6-mirror PO, CRAO 6 deg)
+#       https://euvlsymposium.lbl.gov/pdf/2011/pres/Olaf%20Conradi.pdf
+#   S15 ASML, Davydova et al., SPIE 11517 (2020) p.6 ("central obscuration of approximately 20% of the pupil plane")
+#       https://goldberg.lbl.gov/papers/Davydova_SPIE_11517(2020).pdf
+#   S16 ZEISS, EUV lithography page ("projection optics - with six mirrors", NXE)
+#       https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
+#   S17 ZEISS SMT magazine, High-NA (12 t, > 40,000 parts, mirrors "about twice as large")
+#       https://www.zeiss.com/semiconductor-manufacturing-technology/smt-magazine/high-na-euv-lithography.html
+#   S18 Intel newsroom 18 Apr 2024 + Intel video WHmRj2mZ-dk (shipment; see shipment_suppliers.md A1-A3)
+#       https://www.intel.com/content/www/us/en/newsroom/news/intel-foundry-opens-new-frontier-chipmaking.html
+#   S19 ASML, "5 things you should know about High NA EUV lithography" (4x/8x)  https://www.asml.com/en/news/stories/2024/5-things-high-na-euv
+#   D   derived physics, worked in B6B7_sources.md section D
+# Rules applied: the film's machine is the EXE:5000. Do not state an EXE projection-mirror count in narration (WORKFLOW
+# 2.5, high_na_optics.md s.5). B7 must compare the NXE and EXE projection optics from the published design examples
+# (audit_backlog.yaml ALL). Previews are 3x3 contact sheets in renders/review/refs/B6B7/sheets/; all are dated
+# 10-17/10-18. b7_scenes.py changed on 10-19 and screen_text on 10-21. Twelve B7 previews no longer match the timed
+# durations: B7_01 167/157 frames, B7_02 114/107, B7_03 170/148, B7_04 166/161, B7_05 105/92, B7_07 108/106,
+# B7_08 174/151, B7_10 162/153, B7_11 144/127, B7_13 246/231, B7_14 171/151, B7_16 297/266. Re-render all of B7.
+
+B7_01:
+  - item: narration 进入投影物镜——由六面反射镜组成; overlay 投影物镜：6 面反射镜
+    status: wrong
+    source: S16 and S14 slide 20 give six mirrors for the NXE (0.33 NA) projection optics only; no ASML/ZEISS text gives the EXE count (high_na_optics.md s.5.1); WORKFLOW 2.5 "旁白里不说 EXE 的镜片总数"
+    note: this chapter follows the High-NA machine (chapter card 投影物镜与 High-NA), so an unqualified 六面 is presented as the EXE count
+    fix: "re-voice either 从掩模反射出的光，进入投影物镜——一组弯曲的反射镜。 or 现役 NXE 的投影物镜由六面反射镜组成。 (script_zh.md and p3_B7-D.yaml, then tts/vo_align/retime/asr_check); overlay NXE 投影物镜：6 面反射镜（ZEISS） or drop the count"
+  - item: invented zig-zag PO_PATH (six equal flat discs bouncing left-right across a 3.4-unit-wide box, M6 not holed, wafer below and beside M6); overlay M1–M6 排布示意（非真实设计）
+    status: wrong
+    source: S11 slide 35 and S13 slides 9/19/20 (published design examples); build_machine.py already encodes them (BM.PO_MIRRORS, PO_FOCUS, M6_HIT, M6_R, M5_R)
+    note: "WORKFLOW s.9 lesson: draw only the published structure. A \"非真实设计\" label does not excuse an invented layout when a published design exists."
+    fix: "b7_scenes.po(): build PO_PATH from BM ([BM.RETICLE] + BM.PO_MIRRORS[:4] + [BM.PO_FOCUS, BM.PO_MIRRORS[4], BM.M6_HIT, BM.WAFER]) scaled to the shot. Sizes come from the drawing widths (M6 0.39, M3 0.18, M5 0.16, M1/M2/M4 ~0.08-0.09 of the reticle-wafer height). Make M5 and M6 annuli (BM._annulus); use curved faces. Overlay 按 ASML/ZEISS 公开设计示例绘制（示意）."
+  - item: no NXE vs EXE projection-optics comparison anywhere in B7
+    status: wrong
+    source: audit_backlog.yaml ALL ("B7 must show NXE (Conradi 2011 s.5/20) vs EXE (van Schoot 2021 s.35) projection optics from the published design examples"); S11 slide 35 draws both side by side
+    fix: "add a blueprint beat (e.g. turn B7_02 into it, or insert after B7_04): trace S11 slide 35, NA 0.33 left (M5 off-axis beside the focus, no holes) and NA 0.55 right (big holed M6, M5 just above the wafer), same scale as on the slide, label 设计示例 · ASML/ZEISS; no mirror count in the narration"
+  - item: mirrors drawn as flat discs
+    status: simplified
+    source: S11 slide 35 ("Extreme aspheres")
+    fix: give the faces a visible curvature (as BM._holed_cap-style caps)
+  - item: Mo/Si rainbow rings on each mirror (multilayer_mirror) plus 亮起一圈虹彩 in the storyboard text
+    status: wrong
+    source: S11 slide 35, S14 slide 20 (plain grey mirror blanks); S12 slide 39 (photo of a coated mirror, metallic); audit_B1 B1_15 / A3_04 decision
+    fix: "plain metallic mirror material (see audit_B6 B6_17 fix to materials.multilayer_mirror); the 'mirror lights up' cue can be a brief violet rim glow; edit p3_B7-D.yaml B7_01 visual text"
+  - item: ghost-glass housing 5.0 x 7.4 units
+    status: artistic
+  - glitch: the emission rings are at strength 0 until the beam arrives, so they render as black ellipses (frames 1-84). Hide each ring until its frame. The stale preview also has a white beam (xray now renders rays saturated violet).
+
+B7_02:
+  - item: isotropic 缩小 4× with 4 份 / 1 份 dimension lines; narration 它把图形缩小 4 倍，投向晶圆
+    status: wrong
+    source: "S1 (NXE: \"shrinking the reticle pattern by a factor of four\"); S10 slide 9, S12 slide 27, S19 (EXE: 4x in x, 8x in the scan direction)"
+    note: right after entering the High-NA projection optics, an unqualified isotropic 4x is presented as the EXE value. B7_10 later says 4x/8x, so the film contradicts itself.
+    fix: "re-voice 现役 NXE 把图形缩小 4 倍，投向晶圆。, or keep the voice and change the graphic title to NXE：缩小 4× (mograph/b7.py reduce4() and the storyboard overlay)"
+  - item: dashed straight rays from the mask corners to the wafer (no mirrors)
+    status: simplified
+    note: the folded six-mirror path is replaced by straight lines; label 光路简化 or reuse the S11 slide 35 trace
+  - item: SKY130-style cell drawing
+    status: artistic
+    note: labelled 电路图形示意（标准单元风格，非真实版图）
+  - glitch: stale footer "· F11"; frame count 114 vs 107
+
+B7_03:
+  - item: NXE · NA 0.33 · 约 13 nm; narration 现役 NXE 的数值孔径是 0.33，能分辨约 13 纳米的线条
+    status: sourced
+    source: S1 ("a numerical aperture (NA) of 0.33"; "a resolution of 13 nm")
+  - item: line panel at 26 nm pitch (13 nm lines), cleanly separated
+    status: sourced
+    source: S1
+  - item: NA cone half-angle drawn as atan(0.55·tan(asin NA)) = 10.9 deg instead of asin(0.33) = 19.3 deg
+    status: simplified
+    source: D
+    note: "the 0.33 : 0.55 ratio of widths is kept; the absolute angles are flattened. Add 张角示意 or draw true asin(NA)."
+  - glitch: stale footer "F13"; frame count 170 vs 148
+
+B7_04:
+  - item: High-NA EXE · NA 0.55 · 约 8 nm; narration 新一代 High-NA 把数值孔径提高到 0.55，分辨率达到约 8 纳米
+    status: sourced
+    source: S1 ("With an (NA) of 0.55 ... print with a resolution of just 8 nm"); S19
+  - item: NXE lines forced to 8 nm blur into grey, EXE stays sharp
+    status: artistic
+    note: physically right in direction (NXE resolution 13 nm, S1); the blur model is illustrative
+  - item: flattened cone angles
+    status: simplified
+    note: as B7_03
+  - glitch: stale footer "F12 · F13"; frame count 166 vs 161
+
+B7_05:
+  - item: caption 首台 High-NA 发货 · 2023.12; narration 第一台在 2023 年底发往英特尔
+    status: sourced
+    source: F20 (shipped Dec 2023, arrived Jan 2024, installed Apr 2024)
+    note: S1 now says "delivered in December 2023"; keep 发货 per WORKFLOW 2.5
+  - item: a white plywood crate on a yellow forklift pushed into a blue steel ISO container at a wet night loading dock
+    status: wrong
+    source: S18 ("250 crates inside 43 freight containers ... loaded onto multiple cargo planes"; Intel video, shipment_suppliers.md A3, shows white ASML shipment boxes with bevelled tops and aluminium extrusions nose-loaded into 747 freighters from a scissor highloader, ordinary crates on netted air-cargo pallets, flatbed trailers); WORKFLOW s.9 lesson (彩色海运集装箱、胶合板箱)
+    fix: "rebuild b7_scenes.crate() from the A0/A1 shipment-box model: a white bevelled-top box with aluminium corner posts on a scissor highloader at a 747F nose door (night apron), or on a flatbed trailer; no blue ISO container, no forklift; edit p3_B7-D.yaml B7_05 visual text"
+  - item: stencil EXE 示意 / 2023.12 on the box
+    status: artistic
+  - glitch: frame count 105 vs 92
+
+B7_06:
+  - item: clay High-NA projection-optics module (drum, box, tall side tower, ribs, bolt ring) with a 1.75 m clay figure reaching its waist; overlay High-NA 投影光学（外形示意，人形为比例参考）
+    status: unsourced
+    source: S12 slide 39 (ZEISS photo of the PO frame on a crane, a wide, low, angular frame); S12 slide 34 (PO in an angular housing, wider at the top); high_na_optics.md s.5 (absolute size not public); S10 slide 8 / S17 (~12 t, > 40,000 parts)
+    note: the drum-and-tower shape matches none of the published images, and 人形为比例参考 states a scale nobody has published
+    fix: "b7_scenes.turntable(): model the silhouette after S12 slide 34/39 (wide, low, angular frame); drop the figure or change the overlay to 外形示意 · 尺寸未公开; optionally add 约 12 吨 · 4 万多个零件（ZEISS）"
+  - item: storyboard promises an explode (explode_stagger, 爆炸峰值) but the code only turns the model
+    status: artistic
+    note: production note; the storyboard text should match what is rendered
+
+B7_07:
+  - item: mask on top, incident and reflected cones; NA slider 0.33 -> 0.49 widens both at a fixed 6 deg; they touch near NA 0.42; caption 角度放大示意
+    status: sourced
+    source: S10 slide 9; D (half-angle asin(NA/4); touch at NA = 4·sin 6° = 0.42)
+
+B7_08:
+  - item: at NA 0.55 with 4x/4x the cones overlap; orange hatched wedge; caption 4× / 4×：入射光锥与反射光锥重叠
+    status: sourced
+    source: "S10 slide 9 (\"4x/4x demagnification\", \"6°\", \"NOK: overlapping light cones\")"
+  - item: blueprint fading to black
+    status: artistic
+
+B7_09:
+  - item: two violet volume cones on a dark mask plane, angles exaggerated x3 (tilt 18 deg, half 23.7 deg), overlap wedge; overlay 示意
+    status: simplified
+    source: S10 slide 9; D (7.9 deg half-angle at 4x/4x)
+    note: here the mask lies below with light from above, while B7_07/08 and the machine have the reticle face down and light from below. Pick one orientation.
+  - item: white interference ripples where the cones overlap, cones "devouring" each other
+    status: artistic
+    note: the real problem is geometric (the incoming and outgoing beams cannot be separated, S10 "overlapping light cones"), not interference. 示意 is on screen. The storyboard fx list also has chromatic_dispersion; do not add it (13.5 nm light is narrow-band).
+
+B7_10:
+  - item: contact holes drawn as 2:1 ellipses on the mask, ÷4 across and ÷8 along the scan, round on the wafer; scan direction vertical
+    status: sourced
+    source: S10 slide 9 ("4× reduction in non-scan direction 8× reduction in scan direction"); S12 slide 27 ("X=4x mag Y=8x mag"); S19
+  - glitch: stale footer "F12"; frame count 162 vs 153
+
+B7_11:
+  - item: narration 入射角从 6 度降到 5.4 度，两只光锥恰好错开; overlay 入射角 6° → 5.4°
+    status: simplified
+    source: S10 slide 9 (6° NOK vs 5.4° OK; the 4x/8x cones are drawn narrower); D (8x halves the scan-direction cone to 3.94 deg; lowering the angle to 5.4 deg narrows the gap, it does not open it)
+    note: the picture does the right thing (X-scale 3.9/7.9 and tilt 6 -> 5.4 deg), but the words credit the angle change with the separation
+    fix: "overlay 扫描方向光锥减半（≈3.9°）· 入射角 6° → 5.4°; optional re-voice 扫描方向的光锥细了一半，入射角还能从 6 度降到 5.4 度，两只光锥恰好错开；"
+  - item: drawn angles are x3 the real ones, with no 示意 on this shot
+    status: simplified
+    fix: add 角度放大示意 to the B7_11 overlays
+  - glitch: in the stale preview (10-18) the ripple sheet turns into black squiggles around frame 72 (scene frame ~172). b7_scenes now hides the sheet at 176, but its emission fades out over 130-175, so a few dark frames may remain; check after re-render (hide it at 150 or fade alpha, not emission). Frame count 144 vs 127.
+
+B7_12:
+  - item: close on the dark gap between two cone edges; a photon
+    status: artistic
+  - glitch: at frame 42 the photon is a large white blob inside the dark gap, as if there were light in the gap; the storyboard wants it sliding along a cone edge. Put it on the reflected cone's inner edge (th = (5.4 - 3.94) deg x3 from the axis).
+
+B7_13:
+  - item: beat 1, the whole mask icon grows 2x taller (扫描方向 ×2); overlay 掩模图形：扫描方向拉长 2×
+    status: wrong
+    source: S11 slide 34 ("Unchanged vs 0.33NA ... Image field size at reticle level (104 x 132 mm)"); S12 slide 27 ("Half-field mask 104 mm ... 132 mm")
+    note: the reticle and its image field keep their size; the pattern is stretched 2x in the scan direction, so only half a wafer field fits. A growing mask icon breaks the cause-and-effect the narration needs.
+    fix: "mograph/b7.py half_fields() beat 1: keep the mask outline fixed, stretch the pattern inside it 2x so half of it spills past the edge, then cut"
+  - item: beat 2, a full field cut in half across the scan direction; 一次只曝光半个场
+    status: sourced
+    source: S12 slide 12 ("0.55NA prints a Half Field", 26 x 16.5 mm vs 26 x 33 mm)
+  - item: counter to 188 half fields; narration 一片晶圆要曝光 188 次
+    status: sourced
+    source: S12 slide 14 ("188 half fields per wafer")
+    note: F52 is grade B in facts.yaml but its source is ASML; raise to A
+  - item: half fields drawn 62 x 42 px (21.6 x 14.6 mm) on a 430 px = 150 mm wafer; NXE inset 60 x 80 px for 26 x 33 mm
+    status: simplified
+    source: S12 slide 12; D (true size 74.5 x 47.3 px and 74.5 x 94.6 px)
+    note: the fields are ~83-89 % of scale so that 188 (and 96) whole fields fit; the real counts include edge fields
+    fix: "true sizes, with edge fields clipped to the circle and counted, or label 场的尺寸示意"
+  - item: inset 对照 NXE：96 个满场
+    status: sourced
+    source: F45
+  - glitch: stale footer "F40 · F52 · F45"; frame count 246 vs 231
+
+B7_14:
+  - item: narration 最后两面镜子的正中间，开了一个洞; overlay 中心开孔 · 示意
+    status: sourced
+    source: S13 slide 9 ("We drill a hole into the mirror", M5/M6); S10 slide 9 ("Last mirror", "Second to last mirror", "High NA obscured"); S15
+  - item: geometry, a large concave holed mirror in front and a smaller holed mirror 7 units behind it on the same axis, both concave toward the camera (-Y)
+    status: wrong
+    source: S13 slide 9; S11 slide 35
+    note: in the design examples the last mirror M6 is the large one, high up, concave and facing down; the second-to-last M5 is small, sits just above the wafer and faces up toward M6. The two face each other, and M5 is about 9x closer to the wafer than to M6 (h 0.035 vs 0.34, high_na_optics.md s.1.3). Here the large mirror is on the wafer side and faces away from the small one.
+    fix: "b7_scenes.holed(): M6 = large cap (r 3.0) concave toward the wafer; M5 = small cap (r ~1.2, 0.16/0.39 of M6) close to the wafer, facing M6; wafer point just past M5's hole; keep the camera arc"
+  - item: hole radius 15-16 % of each mirror
+    status: simplified
+    source: S15 ("central obscuration of approximately 20% of the pupil plane"); S13 slide 24 ("below ~20% radius")
+    note: the real hole diameters are not public; on M6 the hole only has to pass the narrow beam near the intermediate focus (S11 slide 35), so it can be smaller than M5's
+  - item: Mo/Si rainbow bands across both mirrors (multilayer_mirror) and 泛着淡淡的虹彩 in the storyboard
+    status: wrong
+    source: S11 slide 35, S14 slide 20 (grey blanks); S12 slide 39 (coated-mirror photo); audit_B1 B1_15
+    fix: plain metallic material (audit_B6 B6_17 fix); edit p3_B7-D.yaml B7_14 visual text
+  - item: dark vacuum chamber surroundings, rim lights
+    status: artistic
+
+B7_15:
+  - item: the violet cone converges from the far, smaller mirror through the near, larger mirror's hole to the wafer point
+    status: wrong
+    source: S13 slide 9 (right; the full cone from M6 converges through M5's gap to the wafer); S11 slide 35
+    note: in reality the narrow beam passes through M6's hole and the wide converging cone passes through M5's hole. The model swaps the two mirrors' sizes and roles (see B7_14). The ray starts (r 2.4 at y 6.6) also lie outside the r 2.2 mirror.
+    fix: "after the B7_14 fix: rays from the M6 annulus (r_in..r_out), reflected down through M5's hole to the wafer point; the fly-through can follow the narrow beam from M4 through M6's hole (S11 slide 35), then turn to see the cone"
+  - item: converging cone half-angle about 11 deg (NA ~0.19)
+    status: wrong
+    source: S1 (NA 0.55); D (asin 0.55 = 33.4 deg)
+    fix: place the ray starts so the cone half-angle at the wafer is ~33 deg (hollow in the middle for the ~20 % obscuration, S15)
+  - item: Mo/Si rainbow on the mirror during the approach (frames 18-54)
+    status: wrong
+    fix: as B7_14
+  - item: motion blur, 180 deg look-back, whoosh
+    status: artistic
+  - glitch: a bright flat wedge appears at the lower right in frames ~90 and ~108 (mirror rim or a rig card catching the light); find and hide it
+
+B7_16:
+  - item: Zernike maps on a full pupil crossed out, Tatian maps on an annular pupil; overlay Zernike 多项式 → Tatian 多项式（环形光瞳）
+    status: sourced
+    source: S11 slide 36 ("Zernike wave front description replaced by Tatians ... For high-NA machines, projection lens has a central obscuration (CO) ... Tatian (or annular-Zernike) is a basis that ASML uses to express aberration with CO")
+  - item: narration 蔡司和 ASML 只好换用另一套多项式
+    status: sourced
+    source: S11 slide 36 (ASML); S12 slide 27 ("Tatians Zernikes"); de Winter et al. JM3 21(2) 023801 (2022), ASML + ZEISS authors (high_na_optics.md dW22)
+  - item: narration 却也让描述镜头误差的标准数学工具失效了
+    status: simplified
+    note: Zernikes are no longer orthogonal on an annulus, so ASML "replaced" them (S11); 失效 is a strong word for that
+    fix: optional re-voice ……标准数学工具不再适用……; the on-screen 在圆环上不再正交 is accurate
+  - item: narration 这样能让更多光通过
+    status: sourced
+    source: S13 slide 9 ("significantly increases the transmission"); S10 slide 9 ("High-transmission design solution")
+  - item: obscuration drawn as 30 % of the pupil radius (hole 170*0.3, eps = 0.3)
+    status: wrong
+    source: S15 ("approximately 20% of the pupil plane"); S13 slides 24/25 ("below ~20% radius", "20% obscuration")
+    fix: "mograph/b7.py tatian(): hole 170*0.2, _zmap(..., eps=0.2), inner circle radius 15 (=75*0.2)"
+  - item: "\"Tatian\" maps made by radially remapping Zernike polynomials onto the annulus"
+    status: simplified
+    note: real annular-Zernike (Tatian) radial polynomials differ from a linear remap; the maps are illustrative and 示意 is on screen
+  - glitch: stale footer "（F39）"; frame count 297 vs 266

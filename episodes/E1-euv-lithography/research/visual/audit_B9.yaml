@@ -1,0 +1,184 @@
+# Visual fact audit, segment B9 (photon budget, photon shot noise, stochastic defects, ledger). One row per detail the
+# PICTURE, on-screen text or narration shows. Checked 2026-10-21 against storyboard.timed.yaml (B9_01-B9_10),
+# blender/shots/b9_scenes.py, mograph/b9.py and the preview frames.
+# Previews: all renders/shots/B9_*/preview were made on 2026-10-17 (05:55-06:16). mograph/b9.py changed on 10-21
+# (ledger "约 1.26 MW", B9_08 ">500 W -> 1000 W"), mograph.py strips fact IDs since 10-21 and styles.py changed 10-21,
+# so every B9 preview is stale (they still show "据报道", "兆瓦量级", "600 W", "原理样机", "F47", "F59").
+# status: sourced | wrong | unsourced | simplified | artistic   (see docs/WORKFLOW.md 2.3)
+# Sources (quotes, URLs, page/slide): research/visual/B8B9_sources.md. HNA [tag] = research/visual/high_na_optics.md.
+#   S1  ASML Wilton CT page (reticle stage >15 g, >3 m/s, >10,000 N, car, few pm, maglev)
+#       https://www.asml.com/en/company/about-asml/locations/wilton-ct
+#   S2  ASML "5 things about High NA" 2024 (4x/8x, half field, 2x exposures, 8 g / 32 g, >185 wph)
+#       https://www.asml.com/en/news/stories/2024/5-things-high-na-euv
+#   S3  ASML "Mechanics and mechatronics" (60 pm NXT, 20,000/s, maglev tables, opposite directions, nm + ns sync)
+#       https://www.asml.com/en/technology/lithography-principles/mechanics-and-mechatronics
+#   S4  ASML EUV systems page (wafer positioned to 1/4 nm, adjusted 20,000 times per second)
+#       https://www.asml.com/en/products/euv-lithography-systems
+#   S5  ASML "Measuring accuracy" (31 TB/week, 3x Hubble a year)
+#       https://www.asml.com/en/technology/lithography-principles/measuring-accuracy
+#   S6  ASML Mathijssen story 2021 (80 um ~ hair; alignment marks are gratings; TENS of alignment marks; >1,000 = overlay metrology)
+#       https://www.asml.com/en/company/stories/2021/fellow-simon-mathijssen-aligning-lithography-nanometer
+#   S7  ASML "TWINSCAN 20 years" 2021 (two wafer stages, expose / align+map, swap)
+#       https://www.asml.com/en/news/stories/2021/twinscan-20-years-innovation
+#   S8  ASML EXE:5000 / EXE:5200B product pages (dual-stage, half field, wph "At dose: 50 mJ/cm²")
+#       https://www.asml.com/en/products/euv-lithography-systems/twinscan-exe-5000
+#   S9  Maas et al. (ASML), EUVL Workshop 2023 P62 (NXE:3800E >=220 wph, 96 full fields, 30 mJ/cm², >500 W at IF, reticle clamp)
+#       https://euvlitho.com/2023/P62.pdf
+#   S10 Intel Foundry blog Dec 2025 (EXE:5200B acceptance test: 175 wph, overlay 0.7 nm)
+#       https://community.intel.com/t5/Blogs/Intel-Foundry/Systems-Foundry-for-the-AI-Era/How-Collaboration-in-High-NA-EUV-and-Transistor-R-D-Are-Shaping/post/1730050
+#   S11 Stoeldraijer et al. (ASML), EUVL Symposium 2009, slide 7 (wafer stage "Dual planar stage + balance mass; E-clamp"; reticle stage "E-clamp", "REMA (X and Y)")
+#       https://euvlsymposium.lbl.gov/pdf/2009/pres/O_ET-01_Stoeldraijer_ASML.pdf
+#   S12 ZEISS patents US8717541B2 / US7126137B2 (arc-shaped field facets; curved slit = ring-field segment); HNA [Z21] s.11 slit 26 x 1.6 mm² arc
+#       https://patents.google.com/patent/US8717541B2/en  https://patents.google.com/patent/US7126137B2/en
+#   S13 US5831716A slit-scanning exposure (reticle and wafer scanned in opposite directions at constant speed)
+#       https://patents.google.com/patent/US5831716A/en
+#   S14 Ruzic group, SPIE ebook ch.18 "Tin Mitigation in EUV Sources" p.751 (68 % max reflectivity; hypothetical 100 W in -> 1 W at wafer; ~10 mirrors; ~1 %)
+#       https://cpmi.illinois.edu/files/2023/10/Ch18-1.pdf
+#   S15 imec Magazine Jul 2019 "sailing along the stochastic cliffs" (microbridges, broken lines; higher dose does not move the broken-line cliff)
+#       https://www.imec-int.com/en/imec-magazine/imec-magazine-july-2019/euv-lithography-sailing-along-the-stochastic-cliffs
+#   S16 ASML AR2025 story "1,000-watt ... path to higher productivity"; Hummler et al. SPIE 12953 (2024) ">500W" for "+60 WPH"
+#       https://investor.asml.com/annual-reports/2025/strategy-and-stories  https://doi.org/10.1117/12.3010463
+#   S17 NIST/CODATA hc = 1239.84198 eV nm; Si a = 543.102 pm; derived Si [110] geometry (dumbbell 135.8 pm, cell 384.0 x 543.1 pm)
+#       https://physics.nist.gov/cgi-bin/cuu/Value?hcev  https://www.physics.nist.gov/cuu/pdf/xray_2014.pdf
+#   S18 SVMI 300 mm wafer datasheet SV029 citing the SEMI standard (775 um thick; notch 1.0 mm deep, 90°; 3 mm edge exclusion)
+#       https://svmi.com/wp-content/uploads/2021/01/SV029.pdf
+# Machine depicted = High-NA EXE:5000. NXE numbers (96 fields, 220 wph, 4x, >15 g stage, 10,000 N) must be labelled NXE.
+# Glyphs: every non-ASCII character in the B8/B9 mograph text, overlays and VO was rendered in STHeiti (overlay_labels.FONT);
+#   none falls back to the .notdef box (nm², mJ/cm², µ/μ, ≈, ≤, →, −, × are all fine; ₂ and ⁰⁶⁻ would fail but are not used).
+
+B9_01:
+- item: ledger row 电力 约 1.26 MW
+  status: sourced
+  source: F48 (ASML AR2025, NXE:3800E)
+  glitch: preview (10-17) still reads 兆瓦量级（据报道）; b9.py now says 约 1.26 MW; re-render
+- item: ledger row 驱动激光 最高 40 kW
+  status: sourced
+  source: F6 (TRUMPF)
+- item: ledger rows EUV 产生 几百瓦 → 进入扫描仪 约 100 W
+  status: wrong
+  source: 'S9 p.17 (">500W EUV power at IF"); S16 (Umstadter: "Sources at customers operate at ~250 Watt power"); S14 ("If
+    100 W of EUV photons are created by the LPP and make it into the scanner, the wafer will see 1.0 W at best")'
+  note: ASML's source power is measured at the intermediate focus, which is the scanner entrance, so there is no 'few hundred
+    W -> 100 W' loss step. The 100 W is the textbook's hypothetical round number, now placed under NXE:3800E's 1.26 MW as
+    if it were that machine's value
+  fix: 'mograph/b9.py LEDGER: merge into one row ("EUV 进入扫描仪", "500 W 以上 · NXE:3800E") and change the wafer row to ("到达晶圆",
+    "约 1% · 推算约几瓦"), or keep the textbook example but label it ("假设 100 W", "教科书示例") and remove the 1.26 MW / 40 kW machine
+    numbers from the same column'
+- item: ledger row 约 10 面反射镜 · 每面损失三成以上
+  status: simplified
+  source: S14 ("reflect only up to 68% of the incident flux"; "there are 10 mirrors total")
+  note: generic textbook figure, not the EXE (its mirror count is not public, WORKFLOW 2.5)
+  fix: add 教科书示例 or change to 十几次反射 without a number
+- item: overlay 到达晶圆：约 1%; last cell 18 % lit like the last sand in an hourglass
+  status: sourced
+  source: S14 ("Only 1% of the light that exits the source reaches the wafer"); F33 (grade B)
+  glitch: row labels are 20-26 px at 1080p and the footnote 20 px; too small for a 2D information shot (WORKFLOW 6.2)
+B9_02:
+- item: overlays EUV 光子 ≈ 92 eV, DUV（193 nm）光子 ≈ 6.4 eV, × 14; energy bars strictly to scale
+  status: sourced
+  source: S17 (1239.84/13.5 = 91.8 eV; 1239.84/193 = 6.42 eV; ratio 14.3)
+- item: EUV photon drawn as a large bright ball, DUV photon as a small pink dot
+  status: artistic
+  note: photons have no size; showing the shorter-wavelength photon as bigger can read as 'larger'. DUV at 193 nm is invisible
+    too, so pink is a colour code
+  fix: draw both the same size and show energy only by brightness and the bars, or keep and add 示意
+  glitch: preview shows "F47" (stale)
+B9_03:
+- item: 'same-dose boxes: 14 DUV photons vs 1 EUV photon; overlay 同样剂量：EUV 光子数 ≈ DUV 的 1/14'
+  status: sourced
+  source: S17 (derived)
+  glitch: preview caption ends （F47） (stale)
+B9_04:
+- item: overlay 30 mJ/cm² 剂量下：每 nm² ≈ 20 个光子（推算）
+  status: sourced
+  source: S17 (3.0e-16 J/nm² / 1.471e-17 J = 20.4); F47
+- item: narration 按常用的剂量算 (= 30 mJ/cm²)
+  status: simplified
+  source: 'S9 p.16 (30 mJ/cm² is the NXE:3800E throughput-spec dose); S8 (EXE:5000/5200B wph quoted "At dose: 50 mJ/cm²");
+    HNA [A22] s.16 ("185wph@20mJ/cm2")'
+  note: 30 mJ/cm² is ASML's NXE spec dose, not 'the' common dose; on the EXE depicted, ASML quotes 50 mJ/cm², which gives
+    about 34 photons/nm² (S17). These are incident photons, and only part is absorbed in the resist
+  fix: overlay 按 NXE 标定剂量 30 mJ/cm²：每 nm² ≈ 20 个光子（推算 · 入射）; narration may stay, or 按 NXE 标定产能用的剂量算
+- item: a 1 nm x 1 nm cyan cell, photons as glowing streaks, ripple rings where they land
+  status: artistic
+  glitch: the storyboard's corner counter stopping at ~20 is not in the render; neighbouring cells stay black, which implies
+    photons fall only into this one cell; light them faintly
+B9_05:
+- item: ultra slow motion; camera falls with one photon; violet splash rings on the resist
+  status: artistic
+  note: absorption makes no splash; keep it as an obvious metaphor
+B9_06:
+- item: 20 x 20 cells with Poisson(20) counts; narration 有的格子多几个，有的格子少几个; overlay 随机分布（泊松）· 平均约 20 · 示意
+  status: sourced
+  source: S17 (Poisson SD = √20 ≈ 4.5); S15 ("photon shot-noise effect")
+- item: tile brightness = 0.07 * (count - 9)^1.1, so cells under ~10 photons go black
+  status: artistic
+  note: contrast exaggerated on purpose (code comment); covered by 示意
+B9_07:
+- item: overlay / narration 线边缘粗糙 · 断线 · 桥连, 成为随机缺陷; SEM-style lines with a break and a bridge circled
+  status: sourced
+  source: S15 ("microbridges, locally broken lines and missing or merging contacts"); F59
+- item: narration 于是 (photon randomness alone causes the rough edges and defects)
+  status: simplified
+  source: S15 ("Besides this so-called photon shot-noise effect, stochastic effects originate from the molecular nature
+    of matter")
+  note: photon shot noise is one cause; resist chemistry adds its own randomness. Acceptable as a simplification in a popular
+    film
+- item: edge roughness as low-frequency waviness plus grain; scale bar with no value
+  status: artistic
+  glitch: a scale bar without a number means nothing; give it a value consistent with the line pitch (e.g. 20 nm) or drop
+    it; preview caption ends （F59） (stale)
+B9_08:
+- item: narration 这也是为什么，ASML 要把光源从几百瓦推向一千瓦——多一个光子，线条就稳一分
+  status: unsourced
+  source: 'S16 (ASML: 1,000 W "shows path to higher productivity"; NXE:3800E ">500W" for "+60 WPH")'
+  note: the watts are sourced (F4c), but ASML gives productivity as the reason, not stochastics. More power can buy more
+    dose at the same throughput (wph is specified at a dose, S8/S9), and more dose pushes back microbridges (S15). That
+    link is ours, not ASML's
+  fix: narration 光源更亮，就能在不降产能的情况下多给光子——多一个光子，线条就稳一分。(re-voice), source chain S16 + S15; or keep ASML 要把光源推向一千瓦 for productivity
+    and make the stochastics point separately
+- item: storyboard overlay 量产约 600 W → 1000 W 原理样机
+  status: wrong
+  source: F4c (NXE:3800E >500 W grade B; 1000 W demo grade A; 600 W in production and 原理样机 are media only), audit_B1.yaml
+    B1_27
+  note: mograph/b9.py already draws NXE:3800E 超过 500 W → 2025 年演示 1000 W（ASML）· 画面示意; the storyboard text and the stale
+    preview still say 600 W / 原理样机
+  fix: storyboard/parts/p3_B7-D.yaml B8/B9 overlay text -> NXE:3800E 超过 500 W → 2025 年演示 1000 W（ASML）, re-merge, re-render
+- item: 'right panel: as watts go 500 -> 1000 the line roughness drops to 25 % and the line break disappears'
+  status: wrong
+  source: 'S17 (relative shot noise ∝ 1/√N: 2x photons -> ~0.71x); S15 (higher dose "does push back one of the cliffs (the
+    microbridges) but ... does not appear to have an effect on the second cliff (the broken-line cliff) nor on the floor")'
+  note: 'the picture overclaims: doubling photons cannot make the edges almost smooth, and imec found more dose does not
+    cure broken lines'
+  fix: 'mograph/b9.py more_power: rough = 1 - 0.29 * p (0.71 at 1000 W); keep the line break, and instead show a microbridge
+    (or several of them) disappearing'
+- item: split screen, photon rain density
+  status: artistic
+  glitch: left density is fixed at 40 drops (an old '600 W' basis) while the right starts at 500 W with 40 x 500/600 = 33,
+    so at t = 0 the 'same' power shows fewer photons on the right; use dens = watts/500 for both
+B9_09:
+- item: overlay 电力：约 1.26 MW（NXE:3800E）
+  status: sourced
+  source: F48
+- item: overlay 驱动激光：最高 40 kW
+  status: sourced
+  source: F6 (TRUMPF)
+- item: overlay 进入扫描仪约 100 W → 晶圆约 1 W（约 1%）; page cell EUV 进入扫描仪 约 100 W
+  status: wrong
+  source: as B9_01 (S9 p.17 >500 W at IF; S14 100 W is hypothetical)
+  fix: 'storyboard overlay EUV 进入扫描仪：500 W 以上（NXE:3800E）→ 到达晶圆约 1%（推算）; mograph/b9.py PAGE row 3 likewise; F33 notes: 100
+    W is the textbook''s example'
+- item: overlay / final cell 每 nm² ≈ 20 个光子
+  status: sourced
+  source: S17; F47 (at the NXE spec dose, see B9_04)
+- item: boxes shrinking left to right, last cell a violet dot
+  status: artistic
+  glitch: the title says 宽度为示意 but the boxes shrink in height while their width stays 380 px; change to 高度为示意，不按比例. Preview
+    (10-17) still shows 兆瓦量级 · 据报道 · 行业估算 (stale); source lines are 18 px
+B9_10:
+- item: big 20 with 个光子 / nm²
+  status: sourced
+  source: F47 / S17
+  note: the ² glyph renders correctly in STHeiti
+  glitch: the page-close squeeze leaves a 2 px vertical sliver on screen for the last ~0.6 s (w = max(2, ...)); output black
+    once close >= 1

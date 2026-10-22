@@ -1,0 +1,309 @@
+# Visual fact audit, segment A1 (光刻是什么). One row per engineering / process / structural detail the PICTURE or
+# on-screen text shows (narration numbers live in research/facts.yaml). status:
+#   sourced    - matches a primary source cited here
+#   wrong      - contradicts a source; must change
+#   unsourced  - invented or unchecked; may not reach the final render
+#   simplified - deliberate simplification; the difference and where the film corrects it are written down
+#   artistic   - deliberate convention, flagged on screen as 示意 where a viewer could take it literally
+#   glitch     - rendering / layout defect (not a fact question); must change
+# Quotes and URLs for every source tag (S1..S14): research/visual/A1_sources.md
+# Downloads (not committed): renders/review/refs/A1/
+# Checked against: storyboard/parts/p1_A0-B1.yaml (A1_*), blender/shots/a1_scenes.py, mograph/a1.py, preview frames
+# renders/shots/A1_*/preview (A1_08 preview is stale: it shows a widening trapezoid, the code now draws a straight column).
+# Verification pass 2026-10-22: code at HEAD a393fa0 and renders/shots/A1_*/sample (960x540). Sample staleness:
+#   A1_04 (17:20 10-21) STALE - its beam material comes from b7_scenes._cone_mat, whose colour changed to the
+#     saturated EUV (0.42, 0.16, 1.0) in abcc28b (10-22 00:57); the sample still shows the old pastel lavender wash.
+#   A1_06 (17:21) STALE in principle - 7437649 (22:42) added the transparent FlashSheet at z=0.3 on the film top of the
+#     same 'process' scene; it should be invisible at strength 0 in A1_06, re-render to confirm.
+#   A1_02 / A1_03 / A1_09 (17:14-17:25): content current (cut/spin/stack code unchanged since 1689bef; A1_09 has no
+#     'rays' role object, so the 23:24 xray-rays change does not touch it). Like every 3D sample before 10-22 00:57 they
+#     still carry the old compositor dispersion 0.012 (now 0.004) - minor.
+#   A1_07 (22:49) current except the dispersion. Mograph A1_01/05/08/10/11/12 (17:12-17:13) current (code 16:07).
+#   3D samples carry no edit_film labels; storyboard overlays were checked against the code and picture separately.
+# Counts (after verification): sourced 19, simplified 11, artistic 13, wrong 3, unsourced 0, glitch 9 (55 rows; 12 new).
+A1_01:
+  - item: chapter card over a defocused rainbow sheen on a wafer edge
+    status: artistic
+    source: chips.md C (patterned wafers show diffraction colours from coarse periodic structures)
+    note: mood only; nothing a viewer would read as a measurement
+  - item: NEW - the sheen is a 60-line arc band that ends in a hard straight radial cut inside the frame (upper right)
+      once the blur drops, and the separate arc lines show as fine ringing/moire at the end of the shot
+    status: glitch
+    verified: "2026-10-22: sample 0040-0084 - straight cut-off edge at the band's 280 deg end, clearly visible upper right
+      from 0060; 0076-0084 the individual arc lines read as moire rings. It reads as a cut rainbow ribbon, not a wafer edge."
+    fix: extend the arc span so both ends lie outside the frame (e.g. 180-300 deg with the centre moved) or fade the ends
+      with an angular alpha ramp; keep the final blur >= 4 px (1080p) so the 60 discrete arcs merge into a smooth sheen.
+A1_02:
+  - item: wafer = substrate with thin films built on top, one layer at a time (cut-away shows substrate plus three film layers)
+    status: sourced
+    source: S3 (ASML Annual Report 2021 - "layers about 50 to 150 nm thick that are built on the semiconductor substrate one layer at a time")
+    verified: "2026-10-22: claim stands, but see the new glitch below - in the sample the section faces show no layers."
+  - item: proportions - drawn diameter/thickness about 8.5:1 (r 2.0, total thickness 0.47); films 1/5-1/8 of the substrate thickness
+    status: simplified
+    note: real 300 mm wafer is 775 um thick (S13), diameter/thickness about 390:1; films are 50-150 nm (S3), about 1/10,000 of the substrate.
+      Necessary for a readable section; no number is shown.
+    fix: none needed for the shot; do not add a dimension label. If a caption is added later use 示意（未按比例）
+  - item: NEW - the wedge's cut faces render as one uniform grey slab; substrate and the three films cannot be told apart
+      on the section (the shot's whole point). The layers only show as grooves on the outer rim
+    status: glitch
+    verified: "2026-10-22: sample 0090, 0120, 0145 (zoomed crop of 0145) - both cut faces a single flat tone, no boundary
+      lines; the four L0-L3 greys (0.62/0.78/0.70/0.85) are flattened by the clay look."
+    fix: give each layer a distinct clay value that survives the clay style (or tag films so the style keeps their colour),
+      and add a thin dark seam at each boundary (small bevel / inset of 0.005 per film) so the section reads as substrate
+      + 3 films; keep 示意-free since nothing is measured.
+A1_03:
+  - item: spin coating - resist dispensed at the centre of a spinning wafer (dynamic dispense), spreads into a uniform film, excess leaves at the edge
+    status: sourced
+    source: S9 p1 (MicroChemicals, Spin-coating - dispensed on a substrate brought to "several 1000 rpm before (dynamic spin-coating) or shortly thereafter (static)"; "excess resist is spun off the edge")
+  - item: rotation speed as drawn - 9 turns in 174 frames (7.25 s) = about 75 rpm, visibly slow through the edge threads
+    status: sourced
+    source: S9 p1 ("several 1000 rpm"); S9 p2 ("2000 - 4000 rpm for 20 - 30 seconds")
+    fix: key the spinner at about 3000 rpm (50 rev/s; at 24 fps this must read as motion blur, so add a radial/tangential blur streak on the film edge and on the spun-off resist instead of trackable rotation). Keep the slow-motion idea out, the VO does not say 慢动作.
+    verified: "2026-10-22: a1_scenes.spin keys 60 deg by frame 60 (dispense), ramps to 750 deg/frame (=3000 rpm at
+      24 fps) from frame 90 to 174, motion blur on. Sample 0060 notch sharp (slow phase); 0092-0130 notch blurred out,
+      wafer edge smeared. Fixed - but the spin stops dead at frame 175, see the freeze glitch below."
+  - item: fine threads (细丝) flung from the wafer edge
+    status: sourced
+    source: S9 p1 ("excess resist is spun off the edge")
+    note: was unsourced; replaced by 14 droplets flung tangentially. Storyboard `visual:` still says 边缘甩出细丝 - change to 边缘甩出细小液滴 (not drawn on screen)
+    verified: "2026-10-22: code - 14 Fling droplets, one every 5 frames from 92, tangential path, no cylinders. Sample 0092
+      and 0096 show a single small amber droplet leaving near the bowl rim; legible only as a speck (one at a time,
+      0.025 radius). Acceptable; a denser ring would read better."
+  - item: yellow-light room
+    status: sourced
+    source: S10 p1 (resists are sensitive "in the near-UV range, and with most resists, also in the visible short-wavelength (blue) spectral range") - yellow light carries no blue/UV
+  - item: amber resist colour; generic steel catch bowl and chuck
+    status: artistic
+    note: resist colour varies by chemistry; no specific coater copied
+  - item: NEW - the shot freezes for its last 22 frames - spinner and camera keys end at 174, the timed shot is 197 frames;
+      a wafer at 3000 rpm halts instantly and the picture is a still for 0.9 s
+    status: glitch
+    verified: "2026-10-22: frame-difference of sample 0176-0197 is exactly 0.00 (identical frames); notch sharp and static
+      at 0176-0197 while it was blurred out at 0170."
+    fix: carry the spin keys (750 deg/frame, LINEAR) and the camera drift to frame >= 200 (shot length 8.21 s = 197
+      frames; read the length from storyboard.timed.yaml instead of hard-coding 174).
+  - item: NEW - the wafer orientation notch is a black cube standing on top of the wafer edge (0.12 x 0.12 x 0.06 box,
+      taller than the wafer is thick), not a notch
+    status: wrong
+    source: SEMI M1 / S13 (a 300 mm wafer carries a small V-notch cut into its edge, no raised feature)
+    verified: "2026-10-22: sample 0060 (zoom) - dark block protruding above the wafer surface at the rim; again in the frozen
+      tail 0176-0197."
+    fix: cut a small V into the wafer rim with a boolean (about 1 mm deep in a 300 mm wafer, exaggerate to ~0.03 here) or
+      drop the notch and let the resist puddle's edge show the slow phase.
+  - item: NEW - the resist "film" is a rigid disc of constant thickness with a vertical side wall that slides outward;
+      after spin-off it stays 0.012 thick (40 % of the wafer thickness)
+    status: glitch
+    note: real spun films are ~1 um on a 775 um wafer; the spreading puddle has a thin wetting edge, not a wall
+    verified: "2026-10-22: sample 0075, 0092, 0096 - sharp-walled amber coin on the wafer, wall as tall as the wafer edge;
+      0130-0197 film still a visible slab edge."
+    fix: thin the film after spin-up (scale z towards ~0.1 by frame 150) and bevel/taper its rim so the spreading edge reads
+      as a meniscus; optionally a slightly thicker edge bead at the rim.
+A1_04:
+  - item: light passes through a patterned mask; where it lands, the resist's chemistry (solubility) changes
+    status: sourced
+    source: S10 p1 ("result in an increased (positive resists) or reduced (negative resists) solubility in the developer")
+  - item: mask is transmissive (light passes through a plate)
+    status: simplified
+    note: true for DUV masks; EUV masks are reflective. Storyboard already defers this to B6; overlay carries 示意
+    fix: keep 示意; B6 must show the reflective EUV mask
+    verified: "2026-10-22: storyboard overlay 掩模 = 电路的“底片”（示意） still present (drawn by edit_film on this 3D shot)."
+  - item: geometry - parallel beam, the pattern on the resist is the same size as the mask pattern (shadow / contact printing, 1:1)
+    status: simplified
+    source: S10 p2 (1:1 is the mask-aligner case; "Using a stepper ... By reduction optics, the dimensions of the exposed resist areas are, however, smaller"); S4 (ASML scanners shrink "the reticle pattern by a factor of four")
+    note: corrected in B7 (p3_B7-D.yaml - 它把图形缩小 4 倍 / 缩小 4×)
+    fix: cheap improvement - taper the patterned beam below the mask (BeamBelow) so the glowing pattern on the resist is visibly smaller than the mask pattern; never call it 影子 in on-screen text
+    verified: "2026-10-22: not done - BeamBelow is still a straight 4 x 4 box; sample 0040-0090 mask pattern and resist
+      pattern the same size. Stays simplified (B7 corrects it)."
+  - item: mask pattern = circuit.png (stylised - gates, local metal, vias and power rails all on one plate)
+    status: simplified
+    source: blender/textures/make_circuit.py header ("Illustrative only, not a real design")
+    note: a real mask carries one layer only
+    fix: use a single-layer pattern (e.g. one metal layer of the open SkyWater SKY130 PDK, which the storyboard already names as pdk_patterns.sky130_layout), or keep 示意 (present)
+    verified: "2026-10-22: unchanged (circuit_emission on both mask and resist, sample 0060); 示意 in the overlay covers it."
+  - item: violet-white beam; latent pattern glowing in the resist
+    status: artistic
+    note: the colour code stands for "the exposure light"; a latent image does not glow
+  - item: NEW - the last 21 frames are a frozen still (camera keys end at 170, shot is 191 frames), and from ~0130 the
+      camera sits inside the beam box, so the frame is a flat lavender wash with a dark rectangle (mask underside) at the top
+    status: glitch
+    verified: "2026-10-22: frame-difference 0171-0191 = 0.00; 0130-0191 flat violet field, the resist pattern a thin strip
+      along the bottom third."
+    fix: extend the camera move to frame >= 191 and stop it above the BeamBelow volume (or make BeamBelow's faces
+      back-face culled) so the final frames show the glowing pattern on the resist, not the inside of a translucent box.
+      Re-render needed - the sample predates the saturated EUV beam colour (abcc28b).
+A1_05:
+  - item: latent image - in a positive resist on a substrate, the exposed columns (matching the mask openings) change chemically; unexposed resist stays
+    status: sourced
+    source: S10 p1
+  - item: the change sweeps down through the resist from top to bottom over time (scan line moving down)
+    status: simplified
+    source: S10 p6 ("optically thin resist films ... an almost homogeneous exposure occurs from the exposure start"; the top-down front applies only to optically thick, bleaching resists)
+    note: advanced-node resists are thin; a moving front implies a thick DNQ resist
+    fix: fade the exposed columns in through the full thickness at once (optionally slightly weaker near the substrate) instead of the descending scan line
+    verified: "2026-10-22: NOT applied - mograph/a1.py latent() still keys `changed = y < top + (bot-top)*scan` and draws
+      the white scan line; sample 0020, 0040, 0060, 0080 show the front descending. Still open."
+  - item: grey "molecular network" texture, perfectly vertical latent walls, resist thickness about 3x the line width
+    status: artistic
+    note: on-screen 潜像（示意） (code) covers it; a latent image is not visible in an SEM
+    verified: "2026-10-22: 潜像（示意） visible from sample 0040 upper right."
+A1_06:
+  - item: develop - the exposed resist dissolves and opens windows (positive tone)
+    status: sourced
+    source: S10 p1
+  - item: etch - trenches cut through the film down to the layer below
+    status: sourced
+    source: S11 p33 Fig. 3 (dual-damascene - line/via definition in the insulator over an etch-stop)
+  - item: deposit + strip order as drawn - metal fills the trenches exactly flush while the resist is still on, then the remaining resist is stripped
+    status: sourced
+    source: S11 p33 (Damascene - patterned insulator, blanket barrier + seed, plating everywhere, "excess material is deposited on top of the useful wiring structure (called 'overburden') and must be removed by ... chemical mechanical planarization (CMP)")
+    note: the drawn sequence matches neither damascene (resist gone before metal) nor through-mask plating (metal grows in resist openings on a seed, no trench etch)
+    fix: after etch, strip the resist first; then a blanket metal layer overfills the trenches and covers the top; then polish flat so metal stays only in the trenches. Labels 显影 · 刻蚀 · 沉积 · 抛光 (VO unchanged - 洗掉一部分胶，再刻蚀、再沉积 still holds)
+    verified: "2026-10-22: code - develop 20-55, etch 60-95, strip 98-118, blanket Overburden + trench metal 124-145,
+      CMP 152-174. Sample 0030-0050 resist windows open, 0070-0090 trenches, 0115 resist gone, 0125-0140 gold blanket
+      over the top, 0185 flat top with gold only in the trenches. Overlay 显影 · 刻蚀 · 去胶 · 沉积 · 抛光 matches. Fixed."
+  - item: wiring drawn in light gold
+    status: artistic
+    note: storyboard says so for contrast; copper is the real metal (S11)
+  - item: NEW - a thin gold sheet already lies on each trench floor before the resist is stripped (the trench metal is
+      keyed at scale 0.001 from frame 1 instead of being hidden), so metal appears to precede the strip
+    status: glitch
+    verified: "2026-10-22: sample 0100 - gold floor visible in all four trenches while the unexposed resist is still on
+      top (strip runs 98-118)."
+    fix: key hide_render on Metal{k} until frame 122 (as the A1_07 stack layers do), so no metal is visible before the
+      blanket deposition.
+  - item: NEW - storyboard `visual:` still describes the old order (沉积，金属填进沟槽，余胶被剥离)
+    status: wrong
+    note: not drawn on screen; the overlay and the picture are right
+    fix: storyboard text - 显影 → 刻蚀 → 去胶 → 沉积（金属盖满并填进沟槽）→ 抛光，只在沟槽里留下导线
+A1_07:
+  - item: the cycle repeats layer after layer and the stack grows
+    status: sourced
+    source: S3 ("this process is repeated layer after layer, stacking the patterns")
+  - item: every new layer is a full, continuous slab; metal layers are unbroken gold sheets across the whole section
+    status: sourced
+    source: S3, S11 Fig. 3 (each level patterned - lines in dielectric, vias between)
+    note: was wrong; now wire levels with alternating line direction and via levels with plugs
+    fix: build each new metal level as separate lines in dielectric (alternate line direction level to level, a few vias down to the level below), same damascene steps as A1_06
+    verified: "2026-10-22: code - 9 levels, even levels 7 lines (direction alternating), odd levels 5 via plugs, no metal
+      sheet. Sample 0060-0151: rows of small gold squares (lines along y cut by the front face), line ends on the right
+      side face, layer seams from the bevel. No gold sheet anywhere. Fixed; see visibility glitch below."
+  - item: all layers equally thick (0.3)
+    status: simplified
+    source: S3 ("Typically, the most complex layers are at the bottom and the least complex at the top")
+    fix: let the upper levels get thicker and coarser as they rise, which also sets up A1_09
+    verified: "2026-10-22: not done - th = 0.3 for all 9 levels (sample 0151). A1_09 shows the coarsening instead."
+  - item: violet flash per exposure; accelerating rhythm
+    status: artistic
+    verified: "2026-10-22: flash now only on the newest layer's top face (sample 0017, 0044, 0115), no full-frame
+      blow-out, no clipped pixels (0 pixels >= 250 in the flash frames). The sheet (8.1 x 2.1) overhangs the 8.0 x 2.0
+      slab by a sliver at the corners (0044) and reads pale white-lavender rather than violet - cosmetic."
+  - item: NEW - the wire levels whose lines run along x (levels 0, 4, 8) and all via levels show nothing on the front
+      cut face, so 6 of the 9 new levels read as blank white slabs; only levels 2 and 6 show (as dots)
+    status: glitch
+    verified: "2026-10-22: sample 0001-0040 two new levels with no visible metal at all; 0151 three rows of dots, the rest
+      plain white."
+    fix: put one along-x line flush with the cut face (y = -0.935) on those levels so it shows as a long gold bar, as in
+      TEM cross-sections (bars for one direction, dots for the other), and let one via per via level sit at the face.
+A1_08:
+  - item: VO + overlay 最多约 100 层图形; counter stops at 100
+    status: sourced
+    source: S1, S2, S5 (ASML web - "up to 100 layers" / "As many as 100 of these patterns") vs S3 (ASML Annual Report 2021 - "the most complex can have over 150 layers"; "up to 150 or more layers")
+    note: ASML contradicts itself; the cap 最多约 100 is contradicted by ASML's annual report. Both are compatible with 上百层
+    fix: VO 一颗先进芯片，要叠上百层图形；overlay 多达上百层图形; counter ends on 100+ (tower comparison still works). Update F44 notes with the conflict
+    verified: "2026-10-22: VO now 一颗芯片，要叠上百层图形; picture counter runs 0..99 层 and ends on 上百层 (sample 0100
+      '95 层', 0115 and 0134 '上百层'); footer ASML：一颗芯片有上百层图形 · 层数示意. Picture fixed. The storyboard overlay
+      still says 最多约 100 层图形 - see the new item below."
+  - item: bottom 22 layers violet with label 最精细的约 20 层
+    status: simplified
+    note: label is now 最精细的那几层 (no number); the 22 violet bands are an illustrative count under 层数示意
+    fix: label 最精细的那几层 (no number), or drop the violet tint here and let A1_09 introduce it
+    verified: "2026-10-22: sample 0040-0134 label 最精细的那几层 (zoomed 0134), no number; footer 层数示意."
+  - item: mask-pattern layers drawn as stacked physical storeys
+    status: simplified
+    source: S3 (ASML itself frames layers as built one at a time)
+    note: many patterning steps (implants, cuts) do not add a storey; acceptable at this level, 示意 is on screen
+  - item: 100-storey tower lighting floor by floor
+    status: artistic
+  - item: presentation - the footer printed the internal fact ID (一颗芯片最多约 100 层图形（F44）· 示意)
+    status: sourced
+    verified: "2026-10-22: footer is ASML：一颗芯片有上百层图形 · 层数示意 (sample 0134 zoom), no fact ID. Readable but
+      small (18 px at 1080p) and only 40 px from the right edge - outside the action-safe margin; move to x <= 1824."
+  - item: NEW - storyboard overlay for A1_08 is still 最多约 100 层图形 (facts F44) and `visual:` says the counter stops
+      at 约 100, contradicting the picture (上百层), the VO and the A1 audit fix
+    status: wrong
+    source: S3 (over 150 layers on the most complex chips)
+    fix: storyboard overlay text 上百层图形 (or 多达上百层图形); visual 计数器滚到“上百层”. Not drawn by edit_film on this 2D
+      shot, but the storyboard is the record the reel and subtitles check against.
+A1_09:
+  - item: finest layers at the bottom next to the transistors, coarser toward the top
+    status: sourced
+    source: S3 ("the most complex layers are at the bottom and the least complex at the top"); S4 (NXE prints "the highly complex foundation layers")
+  - item: overlay 先进芯片约二十多层用 EUV 曝光 (and VO 其中最精细的二十多层)
+    status: sourced
+    source: S4 (NXE prints "the highly complex foundation layers"); S3 (most complex at the bottom)
+    note: was unsourced (grade C count). VO now 其中最精细、最关键的那几层，要交给极紫外光刻机来画; overlay
+      最精细的那几层用 EUV 曝光 + 示意; no number anywhere
+    verified: "2026-10-22: storyboard.timed.yaml A1_09 vo/overlays as above; 3D sample 0001-0169 carries no number. The
+      picture still glows 22 of 60 layers - see the new glitch below."
+  - item: the violet (EUV) layers form one unbroken block at the bottom
+    status: simplified
+    source: S6 (immersion systems "used in seamless combination with EUV systems to print different layers on the same chip"); S5 ("even most of the layers on advanced chips, are printed on dry lithography machines")
+    fix: within the bottom zone, leave some layers non-violet (EUV and DUV interleave); keep 示意
+    verified: "2026-10-22: not done - stack() still makes k < 22 all emitting; sample 0001 / 0169 one solid glowing block."
+  - item: 60 layers drawn (storyboard and A1_08 say about 100)
+    status: simplified
+    fix: optional - draw 100 to match A1_08, or leave (示意 on screen)
+    verified: "2026-10-22: unchanged (n = 60)."
+  - item: transparent "city in glass" x-ray look
+    status: artistic
+  - item: NEW - the EUV layers render as a near-white glowing slab (mean RGB 229/226/243 in sample 0001, saturation ~7 %)
+      with no visible banding, and they are 22 of 60 layers (37 % of the stack) - neither "EUV violet" nor "那几层"
+    status: glitch
+    verified: "2026-10-22: sample 0001, 0080, 0120, 0169 - bottom block bright white-lavender, individual layers invisible
+      inside it; storyboard asks for 染成 EUV 紫并发光."
+    fix: drop the emission (3.0 -> ~0.6) and use the saturated EUV violet (0.42, 0.16, 1.0) so the bands stay readable;
+      make only the lowest ~8 levels violet, with one or two of them left grey (interleaving, S5/S6), so the glow reads
+      as 'a few critical layers'.
+A1_10:
+  - item: box-in-box overlay marks; inner box on the new layer, outer box on the layer below; overlay = offset between the box centres
+    status: sourced
+    source: S12 (US20160025650A1 - "The inner box 11 is formed on a current layer"; "the outer box 12 is formed on a previous layer"; error = distance between centres)
+  - item: every layer must line up with the one below (VO, caption)
+    status: sourced
+    source: S2 ("the patterns in different layers have to line up with extreme accuracy"; overlay "better than 2 nm")
+  - item: SEM-style grey top view
+    status: artistic
+    note: overlay is measured optically (ASML YieldStar optical metrology, S6); on-screen SEM 风格示意 covers it
+    verified: "2026-10-22: the SEM 风格示意 tag is present but illegible - see new glitch."
+  - item: large offset that slides into place
+    status: simplified
+    source: S2 (wafer arrives at ~80 um, alignment marks correct it before exposure; result better than 2 nm)
+    note: exaggerated by many orders of magnitude, and the sliding suggests a printed layer is moved afterwards; really the wafer is aligned before exposure and the marks verify the result
+    fix: none required (示意 on screen); if the caption is edited, 曝光前先对准 is the accurate wording
+  - item: upper-layer lines run perpendicular to the lower layer's
+    status: artistic
+  - item: NEW - the disclaimer SEM 风格示意 (18 px, INK2) sits on the grey stripe pattern and is practically unreadable
+    status: glitch
+    verified: "2026-10-22: sample 0141 zoom of the lower-right corner - grey text on grey stripes, contrast ~1.3:1."
+    fix: draw it at 24 px in INK on a small dark scrim (as other 示意 tags), inside the action-safe area (x <= 1824).
+A1_11:
+  - item: finer pen -> 1, 4, 16, 64, 256, 1024 characters in the same square
+    status: sourced
+    note: arithmetic - halving the linear size quadruples the count per area (n x n grid, n = 1..32)
+    verified: "2026-10-22: sample 0010 1, 0045 4, 0080 16, 0105 64, 0130 256, 0150-0175 1024, labels match."
+  - item: label "→ 真正的电路版图" over circuit.png
+    status: artistic
+    source: blender/textures/make_circuit.py header - "a stylised standard-cell layout mask ... Illustrative only, not a real design"
+    fix: either change the label to → 电路版图（示意）, or swap in a real open layout (SkyWater SKY130 PDK, as the storyboard's pdk_patterns.sky130_layout intends) and keep 真正的电路版图
+    verified: "2026-10-22: label is → 电路版图（示意） (sample 0190-0272). Fixed as the 示意 option. Storyboard `visual:` still
+      says 真正的电路版图 - change it to 电路版图（示意） (not drawn on screen)."
+  - item: the "pen" analogy for lithographic resolution
+    status: artistic
+    source: F53 (resolution set by k1 * lambda / NA) carries the physics in A2
+A1_12:
+  - item: a line of light that gets thinner and blurs / frays at its finest
+    status: artistic
+    source: F53 (ASML Rayleigh page); S10 p9 (diffraction makes the intensity at the resist inhomogeneous even in contact)
+    note: lead-in to A2's diffraction limit; no scale is shown
+    verified: "2026-10-22: sample 0020-0084 line thins and frays to the right, pen tip dot, no text; first ~4 frames black
+      (fade-in from A1_11) - fine."

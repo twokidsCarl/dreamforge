@@ -106,7 +106,7 @@ GRATING_LIGHT = (-0.25, 0.6, 2.45)        # the lamp whose diffraction the die s
                                           # its direction changes across the die and colour bands sweep through blocks
 
 
-def chip_material(name="ChipSurface", die="zen5_ccd_full", light=GRATING_LIGHT, strength=4.0):
+def chip_material(name="ChipSurface", die="zen5_ccd_full", light=GRATING_LIGHT, strength=3.0):
     """Bare die under a lamp. Its colours are diffraction, not a coating: each functional block is a grating
     (regular metal lines of one pitch, horizontal or vertical as in a layout), so a block lights up only
     when lamp and eye satisfy the grating equation, and then in one pure hue that sweeps as the eye moves.
@@ -115,7 +115,7 @@ def chip_material(name="ChipSurface", die="zen5_ccd_full", light=GRATING_LIGHT, 
         upper metal) that do diffract visible light; the EUV-printed critical layers (23-50 nm pitch) are far
         too fine to show colour (research/visual/chips.md, C);
         wavelength of order m:  lambda = d * |V.t + L.t| / m      (V to the eye, L to the lamp)
-        brightness ~ exp(-((V.b + L.b) / 0.45)^2), b along the lines (light spreads little along them).
+        brightness ~ exp(-((V.b + L.b) / 0.32)^2), b along the lines (light spreads little along them).
     The rest of the die is a dark, faintly glossy metal surface showing the photographed layout."""
     m = M.principled(name, (0.05, 0.05, 0.06), metallic=0.6, roughness=0.3)
     nt = m.node_tree
@@ -189,7 +189,7 @@ def chip_material(name="ChipSurface", die="zen5_ccd_full", light=GRATING_LIGHT, 
     L_(wn.outputs["Color"], rnd.inputs["Color"])
     pitch = mth("MULTIPLY_ADD", rnd.outputs["Red"], 1000.0, 800.0)                 # nm
     horiz = mth("GREATER_THAN", rnd.outputs["Green"], 0.5)
-    active = mth("GREATER_THAN", rnd.outputs["Blue"], 0.22)                         # most blocks are periodic
+    active = mth("GREATER_THAN", rnd.outputs["Blue"], 0.5)                          # about half the blocks are periodic
     # line-normal t and line direction b in world space
     mixt = N.new("ShaderNodeMix")
     mixt.data_type = "VECTOR"
@@ -217,7 +217,7 @@ def chip_material(name="ChipSurface", die="zen5_ccd_full", light=GRATING_LIGHT, 
     st = mth("ADD", vmath("DOT_PRODUCT", V, t_w), vmath("DOT_PRODUCT", Ldir, t_w))
     sb = mth("ADD", vmath("DOT_PRODUCT", V, b_w), vmath("DOT_PRODUCT", Ldir, b_w))
     lam1 = mth("MULTIPLY", mth("ABSOLUTE", st), pitch)
-    lobe = mth("EXPONENT", mth("MULTIPLY", mth("POWER", mth("DIVIDE", sb, 0.45), 2.0), -1.0))
+    lobe = mth("EXPONENT", mth("MULTIPLY", mth("POWER", mth("DIVIDE", sb, 0.32), 2.0), -1.0))
     total = None
     for order, w, spread in ((o, w, k) for o, w in ((1, 1.0), (2, 0.7), (3, 0.45)) for k in (0.94, 1.0, 1.06)):
         w = w / 3
@@ -845,8 +845,8 @@ def assemble(sc, rnd):
         home = o.location.copy()
         k = i % nt
         start = Vector((BM.CENTER[0] - 9.0 + 3.6 * k, -7.5, -1.0))
-        f0 = 1 + 8 * i                                             # the first module is already rising at the cut
-        _key(o, 1, location=start, scale=(0.3, 0.3, 0.3))
+        f0 = -18 + 7 * i                                           # several modules are already in the air at the cut
+        _key(o, min(f0, 1) - 1, location=start, scale=(0.3, 0.3, 0.3))
         _key(o, f0, location=start, scale=(0.3, 0.3, 0.3))
         _key(o, f0 + 14, location=Vector((home.x, home.y - 3.0, home.z + 2.2)), scale=(1, 1, 1))
         _key(o, f0 + 28, location=home)
@@ -949,7 +949,7 @@ def title(sc, rnd):
     before = set(bpy.data.objects)
     path, pmat = BM.machine(with_path=False)
     mods = BM.attach_small([o for o in bpy.data.objects if o not in before])
-    # VO (shot time): "外星科技" 2.5-3.2 s, "拆" 4.66 s; the shot holds ~2.4 s after the last word.
+    # VO (shot time): "外星科技" 3.14-3.84 s, "拆" 5.78 s; the shot holds ~2.8 s after the last word.
     # On "拆开" the casing goes and the machine separates into ASML's four independently testable subsystems
     # [van Schoot, EUVL Workshop 2022, slide 34]: mask tier up, optics (illuminator + PO) stays, wafer tier
     # (wafer stage + base frame) drops, source unit slides out sideways.
@@ -958,35 +958,35 @@ def title(sc, rnd):
     host_module = {v: k for k, v in BM.HOSTS.items()}
     for o in mods:
         if o.name == "Housing":                                   # the casing swells and is gone in 6 frames
-            _key(o, 112, scale=o.scale.copy())
-            _key(o, 118, scale=o.scale * 1.18)
+            _key(o, 139, scale=o.scale.copy())
+            _key(o, 145, scale=o.scale * 1.18)
             for ob in [o] + list(o.children_recursive):
                 _key(ob, 1, hide_render=False)
-                _key(ob, 118, hide_render=True)
+                _key(ob, 145, hide_render=True)
             continue
         off = tier.get(host_module.get(o.name, o.get("module")), Vector((0, 0, 0)))
         home = o.location.copy()
-        _key(o, 112, location=home)
-        _key(o, 124, location=home + off)
-        _key(o, 190, location=home + off * 1.15)                   # keep drifting apart through the hold
+        _key(o, 139, location=home)
+        _key(o, 151, location=home + off)
+        _key(o, 216, location=home + off * 1.15)                   # keep drifting apart through the hold
     chars = "一台光刻机里发生了什么"
     size = 0.9
     x0 = BM.CENTER[0] - size * (len(chars) - 1) / 2
     for i, ch in enumerate(chars):
         m = M.emission(f"Glyph{i}", (0.92, 0.9, 1.0), 0.0)
         _text(ch, (x0 + i * size, -3.2, 6.6), (math.pi / 2, 0, 0), size, m)
-        M.set_emission_strength(m, 62 + 2 * i, 0.0)                    # lights up, glyph by glyph, on "外星科技"
-        M.set_emission_strength(m, 72 + 2 * i, 5.0)
+        M.set_emission_strength(m, 75 + 2 * i, 0.0)                    # lights up, glyph by glyph, on "外星科技"
+        M.set_emission_strength(m, 85 + 2 * i, 5.0)
     sub = M.emission("SubGlyph", (0.6, 0.62, 0.7), 0.0)
     _text("ASML EUV 光刻机", (BM.CENTER[0], -3.2, 5.85), (math.pi / 2, 0, 0), 0.38, sub)
-    M.set_emission_strength(sub, 96, 0.0)
-    M.set_emission_strength(sub, 110, 2.0)
+    M.set_emission_strength(sub, 108, 0.0)
+    M.set_emission_strength(sub, 122, 2.0)
     # framed so the title line is always in shot: slow push-in, a kick back on the burst, then a slow drift out
     cx = BM.CENTER[0]
     B._camera("CamA0_10", [(1, (cx, 0, 2.2), (cx, -23.6, 3.2), 40, 11.0),
-                           (110, (cx, 0, 2.2), (cx, -22.6, 3.1), 40, 11.0),
-                           (130, (cx, 0, 2.3), (cx, -25.2, 3.5), 40, 11.0),
-                           (190, (cx, 0, 2.3), (cx, -26.2, 3.6), 40, 11.0)])
+                           (137, (cx, 0, 2.2), (cx, -22.6, 3.1), 40, 11.0),
+                           (157, (cx, 0, 2.3), (cx, -25.2, 3.5), 40, 11.0),
+                           (216, (cx, 0, 2.3), (cx, -26.2, 3.6), 40, 11.0)])
 
 
 def after_style(style, shot_id):

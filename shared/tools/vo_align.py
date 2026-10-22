@@ -21,6 +21,7 @@ import sys
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(__file__))
+from asr_prompt import asr_prompt  # noqa: E402
 import tts  # noqa: E402
 import vo_split  # noqa: E402
 from asr_check import load16k, norm  # noqa: E402
@@ -30,9 +31,12 @@ from speech_text import normalize  # noqa: E402
 from paths import AUDIO, EP, REPO  # noqa: E402
 
 
-def char_times(model, wav):
+PLAIN_PROMPT = "以下是普通话科普旁白，使用简体中文。"
+
+
+def char_times(model, wav, prompt=None):
     segs, _ = model.transcribe(load16k(wav), language="zh", word_timestamps=True, beam_size=5,
-                               initial_prompt="以下是普通话科普旁白，使用简体中文。")
+                               initial_prompt=prompt or asr_prompt())
     chars, times = [], []
     for s in segs:
         for w in s.words:
@@ -47,10 +51,17 @@ def char_times(model, wav):
     return "".join(chars), times
 
 
+def _char_sounds(text):
+    """One toneless-pinyin token per character (other characters as themselves), so homophones align."""
+    from pypinyin import Style, lazy_pinyin
+    return [lazy_pinyin(c, style=Style.NORMAL)[0] if "\u4e00" <= c <= "\u9fff" else c for c in text]
+
+
 def align_spans(script_sentences, asr_text, asr_times, pauses):
     keys = [norm(s) for s in script_sentences]
     full = "".join(keys)
-    sm = difflib.SequenceMatcher(None, full, asr_text, autojunk=False)
+    # match by sound, character for character: 掩模 heard as 眼膜 still anchors its timestamps
+    sm = difflib.SequenceMatcher(None, _char_sounds(full), _char_sounds(asr_text), autojunk=False)
     mapping = {}
     for a, b, n in sm.get_matching_blocks():
         for k in range(n):
@@ -72,8 +83,8 @@ def align_spans(script_sentences, asr_text, asr_times, pauses):
     for i in range(len(spans) - 1):
         gap_mid = (spans[i][1] + spans[i + 1][0]) / 2
         near = [p for p in pauses if abs(p[0] - gap_mid) < 0.6]
-        if near:
-            p = min(near, key=lambda p: abs(p[0] - gap_mid))
+        if near:                                    # a sentence break is the longest pause around, not a comma
+            p = max(near, key=lambda p: (round(p[1], 2), -abs(p[0] - gap_mid)))
             spans[i][1], spans[i + 1][0] = p[2] + 0.02, p[3] - 0.02
     return [tuple(s) for s in spans]
 
@@ -102,8 +113,17 @@ def main():
         if a.reuse and seg.get("spans"):
             spans = [tuple(v) for v in seg["spans"]]
         else:
-            asr_text, asr_times = char_times(model, wav)
-            spans = align_spans(spoken, asr_text, asr_times, vo_split.pauses(x, min_len=0.08))
+            pz = vo_split.pauses(x, min_len=0.08)
+            for prompt in (None, PLAIN_PROMPT):          # glossary prompt first; it can make the recogniser drop a line
+                asr_text, asr_times = char_times(model, wav, prompt)
+                spans = align_spans(spoken, asr_text, asr_times, pz)
+                short = [i for i, (s0, s1) in enumerate(spans) if s1 - s0 < 0.3]
+                if not short:
+                    break
+                print(f"  {seg['id']}: ASR alignment lost sentence(s) {short} ({'glossary' if prompt is None else 'plain'} prompt)",
+                      flush=True)
+            if short:                                    # still lost: fall back to the pause-based split
+                spans, _ = vo_split.split(wav, [spoken_len(sp) for sp in spoken])
         seg["spans"] = [list(v) for v in spans]
         src = {}                                   # line index -> (samples, span) from another take
         for li, take in (seg.get("line_takes") or {}).items():
