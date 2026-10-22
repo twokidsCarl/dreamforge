@@ -6,8 +6,8 @@ B1:
   - (resolved) plasma 约 50 万开尔文: now grade A from ASML's "hot machines" page (F5); ZEISS's 22 万 ℃ conflict noted in F5.
   - (resolved) droplet speed: use ASML's website figure 70 m/s (F3; same page); decks' ~80 m/s are operating conditions, not used.
 D:
-  - D_04 narration: restore the power line with the sourced figure once the voice job is idle (F48 now grade A: NXE:3800E 1.26 MW, ASML AR2025), e.g. "ASML 测得，最新一代 NXE 一台耗电约 1.26 兆瓦；" + "自 2018 年以来，每片晶圆的能耗下降了 57%。" Graphics (b1.py, b9.py, cd.py) and overlays already updated.
+  - "(resolved 2026-10-22) D_04 narration restored with the sourced power line: ASML 测得，最新一代 NXE 一台耗电约 1.26 兆瓦（F48, grade A, ASML AR2025）"
 ALL:
-  - every scene that uses build_machine (B1_28, B2, B5, B6, B8, C, A3) must be re-framed for the High-NA layout (machine centre BM.CENTER, source unit on +x).
-  - B7 must show NXE (Conradi 2011 s.5/20) vs EXE (van Schoot 2021 s.35) projection optics from the published design examples; do not state an EXE mirror count in narration (not public in text).
+  - (resolved 2026-10-22, re-framed on BM.CENTER / BM.PLASMA) every scene that uses build_machine (B1_28, B2, B5, B6, B8, C, A3) must be re-framed for the High-NA layout (machine centre BM.CENTER, source unit on +x).
+  - (resolved 2026-10-22, B7_02 blueprint) B7 must show NXE (Conradi 2011 s.5/20) vs EXE (van Schoot 2021 s.35) projection optics from the published design examples; do not state an EXE mirror count in narration (not public in text).
   - run the same visual audit (audit_<SEG>.yaml) for every segment before its render.
