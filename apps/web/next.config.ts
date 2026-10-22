@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   // Do not turn on the default image optimizer: on Cloudflare it needs
   // a separate Images binding. See README.
   poweredByHeader: false,
+  // View transitions are stable in Next 16.4 / React 19.3.
+  // `experimental.viewTransition` was removed; <ViewTransition> needs no flag.
 };
 
 export default nextConfig;

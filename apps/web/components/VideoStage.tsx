@@ -1,11 +1,15 @@
+import { ViewTransition } from "react";
 import type { Episode } from "@/lib/types";
 import { resolvePlayback } from "@/lib/video";
 
 export function VideoStage({ episode }: { episode: Episode }) {
   const playback = resolvePlayback(episode.video);
+  const name = `ep-${episode.slug}`;
 
   return (
     <figure>
+      <ViewTransition name={name} share="morph" default="none">
+      <div className="stage-break vt-share" style={{ viewTransitionName: name, ["--vt-name" as string]: name }}>
       <div className="stage">
         {playback ? (
           <video
@@ -37,6 +41,8 @@ export function VideoStage({ episode }: { episode: Episode }) {
           </p>
         ) : null}
       </div>
+      </div>
+      </ViewTransition>
       {playback?.mock ? (
         <figcaption className="mt-3 text-sm leading-7 text-mist">
           这是一条示例 mp4，用来看播放器。不是《{episode.titleZh}》的成片。

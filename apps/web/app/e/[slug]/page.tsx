@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StatusBadge } from "@/components/StatusBadge";
+import { RevealZh } from "@/components/text/RevealZh";
 import { VideoStage } from "@/components/VideoStage";
 import { formatPublishedAt, getEpisode, getEpisodes } from "@/lib/episodes";
 import { playbackNote } from "@/lib/video";
@@ -52,7 +53,7 @@ export default async function EpisodePage({ params }: EpisodePageProps) {
             </p>
           ) : null}
         </div>
-        <h1 className="font-serif mt-4 text-[clamp(2.1rem,6vw,4rem)] leading-[1.12] font-semibold text-cream">{episode.titleZh}</h1>
+        <RevealZh text={episode.titleZh} className="font-serif mt-4 text-[clamp(2.1rem,6vw,4rem)] leading-[1.12] font-semibold text-cream" />
         <p className="font-latin mt-3 text-sm tracking-[0.16em] text-mist uppercase">{episode.titleEn}</p>
       </header>
 

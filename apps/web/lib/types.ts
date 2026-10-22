@@ -35,6 +35,11 @@ export type Episode = {
   status: EpisodeStatus;
   /** ISO date (YYYY-MM-DD) once the episode is public. Null while unpublished. */
   publishedAt: string | null;
+  /**
+   * Optional Eigen Field preset id (`euv`, `opto`, `default`).
+   * Missing means the default field. Playback does not read this.
+   */
+  theme?: string;
 };
 
 export const STATUS_LABEL: Record<EpisodeStatus, string> = {
