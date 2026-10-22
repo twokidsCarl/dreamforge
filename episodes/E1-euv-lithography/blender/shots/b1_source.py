@@ -74,8 +74,8 @@ def build(vessel=False, rays=False):
     cam("CamD_09", B._follow_keys(hero, 86, B.T_ARRIVE, (1.9, -1.1, 0.35), (1.8, -1.05, 0.33), 100, 4.0))
     # ---- B2 reuses the same simulation ---------------------------------------------------
     # B2_01 — after the flash: the collector's iridescent face, embers drifting toward it
-    cam("CamB2_01", [(205, (-2.2, 3.4, 1.4), (6.0, 2.0, 2.2), 45, 2.8),
-                     (308, (-2.2, 3.0, 1.2), (5.0, 1.8, 1.9), 45, 2.8)])
+    cam("CamB2_01", [(205, (-1.8, 1.2, 0.6), (9.0, 7.0, 3.0), 32, 4.0),      # wide enough that the mirror never
+                     (308, (-1.8, 1.0, 0.5), (7.8, 6.2, 2.6), 32, 4.0)])     # fills the frame as a flat colour
     # B2_03 — the main-pulse moment again, wider, debris shell heading for the mirror
     c3 = cam("CamB2_03", [(188, (PX - 0.6, 0, 0), (5.0, 7.2, 2.0), 32, 4.0),
                           (348, (PX - 1.2, 0, 0), (5.6, 7.8, 2.2), 32, 4.0)])
