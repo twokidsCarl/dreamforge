@@ -39,4 +39,4 @@ E2《光遗传学》v8 · 第 18 轮 · 状态（2026-10-23）
   (a) 以「单张全过、均分约 91」结束样张阶段；或 (b) 正式分改为固定一组审稿人（如第 14 轮那两位校准审稿人）以减小方差。
 
 花费：image2 本轮 ≈ $0.47（累计 ≈ $9.68）；Wan 本轮 $0（累计 ≈ $10.15）；GPU / Tripo $0
-PR：见 PR 行
+PR：#51 已合并；第 18 轮在 PR #52（https://github.com/twokidsCarl/eigenlens/pull/52，分支 e2/v8-visual，已开 auto-merge）
