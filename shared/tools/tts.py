@@ -286,7 +286,11 @@ def build_paragraph(voice, segments, out_dir, attempts=3, asr=None):
             key = hashlib.sha1(f"{MODEL}|{voice}|para|{k}|{text}".encode()).hexdigest()[:16]
             wav = os.path.join(cache, f"{seg['id']}_{key}.wav")
             if not os.path.exists(wav):
-                request(text, voice, wav)
+                try:
+                    request(text, voice, wav)
+                except RuntimeError as e:                 # one failed take (network) must not end the whole run
+                    print(f"  {seg['id']} take {k + 1}: skipped ({e})", flush=True)
+                    continue
             spans, x = vo_split.split(wav, weights)
             rate, f0 = take_stats(x, spans, weights)
             ref = TARGET_PITCH                        # one pitch for the whole film, not per segment
@@ -299,6 +303,8 @@ def build_paragraph(voice, segments, out_dir, attempts=3, asr=None):
                 best = (score, wav, spans, x, rate, f0, k)
             if abs(rate / TARGET_RATE - 1) <= RATE_TOL and abs(f0 / ref - 1) <= PITCH_TOL and clear >= 0.97:
                 break
+        if best is None:
+            raise SystemExit(f"{seg['id']}: no take could be synthesised")
         score, wav, spans, x, rate, f0, k = best
         ref_pitch = ref_pitch or f0
         rows, t = [], 0.0
