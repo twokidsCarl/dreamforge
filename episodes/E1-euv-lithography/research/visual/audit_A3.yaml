@@ -5,125 +5,215 @@
 #   unsourced  - invented or unchecked
 #   simplified - deliberate simplification; difference from reality and where it is corrected
 #   artistic   - deliberate convention, flagged on screen as 示意 where a viewer could take it literally
+#   glitch     - render / layout fault (not a fact question); must be fixed before final
 # Quotes, URLs and CXRO query parameters: research/visual/A3_sources.md (S1-S12). Audited 2026-10-21 against the
 # storyboard (p1_A0-B1.yaml), blender/shots/a23_scenes.py, mograph/a3.py and the preview frames in renders/shots/A3_*.
 # Not shown anywhere in A3 (no calendar dates, no source-power history, no mirror-reflectivity number on screen):
 # the 1997 EUV LLC, 2013 NXE:3300, 2019 HVM and 2023 High-NA milestones are recorded in A3_sources.md (S9-S11) only
 # as verified reference in case dates are added to the A3_05 time bar.
+# Verification pass 2026-10-22 against the code at a393fa0 and the sample renders (960x540) in renders/shots/A3_*/sample:
+#   A3_01/02/03/07 mograph samples 10-21 17:14, after mograph/a3.py (16:07) and mograph.py screen_text (16:07): current.
+#   A3_03 is drawn by mograph/a3.py problem2() (2D), not by Blender (not in registry.yaml).
+#   A3_04 sample 10-21 17:26-17:35: lens() unchanged since 1689bef (16:07); it uses M.polished_steel, not
+#     M.multilayer_mirror, so cb57857 does not touch it. Only the compositor dispersion change (abcc28b, 0.012 -> 0.004,
+#     10-22 00:57) is missing - minor colour fringe; re-render when the A3_04 fixes below are made anyway.
+#   A3_05 sample 10-22 00:38-00:58: after 7437649 (montage, figures), cb57857 (build_machine, materials): current
+#     (dispersion change lands at the very end of that window - negligible).
+#   A3_06 sample 10-22 09:12-09:14: after every build_machine / styles change: current.
+#   3D samples carry no edit_film labels; label text checked against storyboard overlays + shared/tools/edit_film.py.
+# Counts (after verification, 42 rows): sourced 15, simplified 4, artistic 8, unsourced 1, wrong 2, glitch 12 (13 rows new on 2026-10-22: 1 wrong, 12 glitch).
 A3_01:
   - item: chapter card 三道难题, three numbered cards face down
     status: artistic
     note: no technical content
+    verified: "2026-10-22: frames 10-72 title 三道难题 and cards 1/2/3 fade in left to right, no fact content; matches storyboard"
 A3_02:
   - item: card title / overlay ① 没有现成的 13.5 nm 强光源
     status: sourced
     source: S1 ASML light-and-lasers ("uses light with a wavelength of 13.5 nanometers"; "EUV light occurs naturally in outer space. But to make EUV lithography possible, we needed to engineer a way to create such light within a system")
+    verified: "2026-10-22: frames 40-135 card title reads ① 没有现成的 13.5 nm 强光源, matches storyboard overlay"
   - item: subtitle / narration 自然界里没有现成的 13.5 纳米强光源
-    status: wrong
+    status: sourced
     source: S1 ("EUV light occurs naturally in outer space")
     note: ASML says EUV does occur in nature (space, e.g. the solar corona); what is missing is a usable source on Earth / inside a machine
-    fix: 第一，地球上没有现成的 13.5 纳米强光源。 (re-voice the sentence, or 第一，没有现成的 13.5 纳米强光源。 which matches the card); add S1 wording to F1 or a new fact
+    fix: (done) narration now 第一，地球上没有现成的 13.5 纳米强光源。 Still open on the facts side - F1 does not carry the S1 wording yet (facts.yaml, not this file)
+    verified: "2026-10-22: storyboard.timed.yaml A3_02 vo and script_zh.md l.57 read 第一，地球上没有现成的 13.5 纳米强光源。; consistent with S1"
   - item: spectrum band - a continuous rainbow (green -> orange -> red -> violet -> blue -> green) with a dark gap at 13.5 nm placed inside the colours
-    status: wrong
+    status: sourced
     source: S2 ZEISS EUV page ("The light visible to humans has wavelengths between 400 and 800 nanometers. The range of ultraviolet light begins below 400 nanometers"); S1 (13.5 nm, 193 nm DUV)
-    note: 13.5 nm is ~30x shorter than the shortest visible light; drawing it as a gap between green and orange tells the viewer it sits among visible colours. The band has no axis, so the gap position means nothing
-    fix: 'draw a labelled log wavelength axis (~5 nm to ~1000 nm): only 400-800 nm in rainbow colours (label 可见光), 193 nm (DUV) and 13.5 nm (EUV) marked in the UV region in grey/violet, with the dark notch at 13.5 nm. Card text unchanged'
+    note: rebuilt as a log wavelength axis 10-1000 nm; colour only across 400-800 nm (可见光), the UV part dark grey (紫外 · 肉眼看不见), 193 nm DUV cyan and 13.5 nm EUV violet tick marks at their log positions
+    verified: "2026-10-22: mograph/a3.py problem1() X(nm) log10 axis; frames 40/80/135 show 10/100/1000 nm ticks, rainbow only right of 400 nm, 193 nm DUV and 13.5 nm EUV markers far left in the dark UV band; positions check out (13.5 nm at ~6.5 % of the axis, 193 nm at 64 %)"
   - item: on-screen "（F1）" bottom right of the card
-    status: wrong
-    note: internal fact-ID leaked into the picture (visible in preview frame 0100); viewers cannot use it
-    fix: delete the c.text((1640, 760), "（F1）", ...) line in mograph/a3.py
+    status: sourced
+    note: internal fact-ID leak - removed; nothing internal is drawn now
+    verified: "2026-10-22: the c.text '（F1）' line is gone from mograph/a3.py; frames 24, 40, 80, 135 show only 难题 1 / 3 bottom left, no fact ID"
 A3_03:
   - item: overlay ② 几乎所有物质都吸收它，连空气也不例外
     status: sourced
     source: S3 ASML EUV systems page ("EUV light is absorbed by everything, even air"); S2 ZEISS ("absorbed by all materials – including air")
     note: 几乎 is a fair softening (multilayer mirrors reflect, thin pellicles partly transmit)
+    verified: "2026-10-22: frames 20-137 title reads ② 几乎所有物质都吸收它，连空气也不例外 (top centre), matches storyboard overlay"
   - item: violet beam dies out in a sparse gas; each molecule it meets lights up and takes a bite (exp(-hits/9))
     status: artistic
     source: 'S4 CXRO gas transmission - air, 760 Torr, 295 K, 13.5 nm: 49.9 % left after 0.1 mm, 0.096 % after 1 mm (attenuation length ~0.14 mm)'
     note: physics matches (Beer-Lambert absorption by N2/O2), but molecule size/spacing and the screen-width path length are not to scale - in real air the beam is gone within about a millimetre; violet = film colour code for EUV. 示意 is on screen
+    verified: "2026-10-22: frames 20-60 the beam narrows and fades as molecules flash; 示意 bottom right (18 px at 1080p, house size, small but legible). Render faults logged as new glitch items below"
   - item: on-screen "示意 · F10" bottom right
-    status: wrong
-    note: 示意 is required, the fact-ID is not (internal label)
-    fix: change the string to "示意" only in mograph/a3.py problem2()
+    status: sourced
+    note: the source string still says "示意 · F10" in mograph/a3.py, but mograph.screen_text() strips fact IDs with their separator, so only 示意 is drawn
+    verified: "2026-10-22: crop of frame 90 bottom right shows 示意 only, no F10"
   - item: storyboard says 3D (build_vacuum.gas_absorption, eevee); rendered as 2D mograph
     status: artistic
     note: production note only, no factual impact
+    verified: "2026-10-22: still 2D (mograph/a3.py problem2); storyboard still lists style energy / eevee / build_vacuum.gas_absorption"
+  - item: (new 2026-10-22) beam drawn as 20 px line segments of stepped width; the first ~40 % is a flat light-grey/white bar, not violet
+    status: glitch
+    note: frames 20, 60 - zoom shows a staircase of rectangular segments with visible seams and a near-white core (200,170,255 at width 26 + glow clips); reads as a white tube rather than the film's EUV violet
+    fix: in problem2() draw the beam as one polygon whose half-width follows exp(-hits/9) smoothly (or many 2 px steps with round caps), core colour VIOLET at reduced glow gain so it stays violet; no hard width steps
+  - item: (new 2026-10-22) molecules keep flashing where the beam has already faded to nothing, and the last 3-4 molecules on the right stay lit until the end of the shot
+    status: glitch
+    note: frames 60-100 molecules at x ~1500-1800 (1080p) flash although the drawn beam ended near x ~600; frames 100-137 four molecules at the right edge glow continuously because the front stops at x=1800 and flash = 1-(front-x)/160 never decays. Contradicts the point (the light is gone)
+    fix: scale each flash by the local beam level lv at that molecule (flash *= exp(-hits_before_x/9)) and make it time-based (decay over ~0.3 s after the front passes) so nothing stays lit once the front stops
 A3_04:
   - item: glass lens - violet beam stops at the entry surface
     status: sourced
     source: S2 ZEISS ("absorbed by all materials"); S5 CXRO attenuation length of SiO2 (2.2 g/cm3) at 13.5 nm = 0.0997 um, i.e. ~100 nm
     note: the light is gone within the first ~0.1 um of glass, so ending the beam at the surface is right
+    verified: "2026-10-22: frames 24-90 the beam ends at the lens's entry face"
   - item: warm orange glow ring at the entry point
     status: artistic
-    note: absorbed EUV becomes heat, but glass would not visibly glow at scanner power levels; reads literally in a photoreal studio
-    fix: keep the glow subtle and add 示意 to the shot, or make it a brief heat-shimmer rather than an orange emitter
+    note: absorbed EUV becomes heat, but glass would not visibly glow at scanner power levels
+    fix: no longer visible (see verified); if a heat cue is wanted, put it on the camera side of the lens. The torus left behind is logged as a glitch below
+    verified: "2026-10-22: frames 40, 60, 90 crops - no orange anywhere; the camera (x=+2.4) looks at the lens's exit side, the entry ring sits on the far face behind the opaque-looking lens. Only a violet-white bloom at the beam end"
   - item: the violet beam travels ~6 scene units (metres in look) through the open studio air to the lens and mirror
     status: wrong
     source: 'S4 (air at 1 atm: half the EUV gone in 0.1 mm, 99.9 % in 1 mm); S3 ("the whole light path ... from source to wafer – must be in high vacuum")'
-    note: directly after A3_03 says air eats the beam, this shot shows it crossing metres of air; contradicts the point being made
-    fix: stage the bench inside a vacuum chamber (chamber wall / viewport / bellows visible, matte steel interior) or at minimum put 真空中 · 示意 on screen
+    note: code now wraps the bench in a transmissive cylinder (VacChamber, IOR 1.05) with two dark end flanges, but in the picture nothing reads as a vacuum chamber - a featureless light-grey surround and two black discs at the frame edges; a viewer still sees a beam crossing an open grey studio
+    fix: make the chamber legible - matte or brushed-steel chamber wall seen from inside with a round viewport / CF ports / bellows (or camera outside looking through a visible viewport rim), or put 真空中 · 示意 into the A3_04 overlay (storyboard overlay text, drawn by edit_film)
+    verified: "2026-10-22: a23_scenes.lens() has VacChamber + VacFlange; frames 1, 60, 150 show uniform light grey background, black flange disc at left edge (and right edge from frame 121); no chamber wall, port or viewport readable. NOT fixed in the picture"
   - item: Mo/Si multilayer mirror replaces the lens and reflects the beam (EUV mirrors are glass substrates with a Mo/Si coating)
     status: sourced
     source: S3 ("several multilayer mirrors instead of lenses"); S2 ("thin layers of silicon and molybdenum ... vapor-deposited onto the glass surface ... up to 100 layers")
+    verified: "2026-10-22: frames 112-195 the mirror slides in, the beam reflects from it"
   - item: reflected beam as bright as the incoming beam
     status: simplified
     source: 'S2 ("a reflectivity that makes up to 70 percent of the light usable"); S6 CXRO multilayer calc, Mo/Si d=6.9 nm, 40 bilayers, normal incidence: R=0.729 at 13.5 nm (ideal interfaces)'
-    note: real mirror returns at most ~70 %; ledger corrects this from B4 on
-    fix: cheap and honest - drop the outgoing beam emission to ~0.7x the incoming (8.0 -> 5.6), so the loss is visible before the ledger starts
+    note: code sets the outgoing emission to 8.0 x 0.7 = 5.6, but both beams clip to the same white core in the render, so the 30 % loss does not read; the ledger from B4 on carries the number
+    fix: lower both emissions (e.g. 2.5 and 1.75) so neither clips and the outgoing beam is visibly dimmer (see clipped-beam glitch below)
+    verified: "2026-10-22: code A3BeamReflected 8.0*0.7; frames 145, 170, 195 incoming and outgoing beams both near-white, no visible difference"
   - item: angle of incidence 25 deg (normal bisects incoming +X and outgoing 50 deg up-left)
     status: simplified
     source: S6 - a 6.9 nm normal-incidence Mo/Si stack at 25 deg reflects only ~1 % at 13.5 nm; a stack tuned for 25 deg (d~7.6 nm) reaches ~57 % at 13.5 nm; EUV imaging mirrors work near normal incidence (high_na_optics.md - CRAO 5.4 deg at the mask)
     note: physically possible only with a mirror designed for that angle; not wrong for a generic demo, but closer to normal incidence reads truer
     fix: optional - reduce AOI to ~10 deg (outgoing beam 20 deg from the incoming); then nothing to footnote
+    verified: "2026-10-22: unchanged - mirror rot 90+25 deg, outgoing beam 50 deg up-left (frames 145-195)"
   - item: rainbow thin-film iridescence on the mirror face (thin_film_iridescence fx, M.multilayer_mirror)
-    status: artistic
-    source: S8 slide 18 (photo), S6
-    note: Mo/Si period is ~7 nm (S6 design), far below visible wavelengths, and 40 Mo layers make the stack opaque - the coating itself gives no visible interference colours; a real EUV mirror looks like a plain metallic mirror. ZEISS's own photo of a finished Starlith 3400 mirror (S8 slide 18) shows a plain silvery mirror reflecting the worker's face, no rainbow
-    fix: drop thin_film_iridescence to a faint tint or remove it; a clean silver mirror is what ZEISS shows
+    status: sourced
+    source: S8 slide 18 (ZEISS photo of a finished Starlith 3400 mirror - plain silvery, reflects the worker's face), S6
+    note: replaced by a plain polished-steel face (M.polished_steel "A3MirrorSilver"); no rainbow. The storyboard visual text and fx list still ask for 彩虹干涉色 / thin_film_iridescence - see storyboard item below
+    verified: "2026-10-22: a23_scenes.lens() mirror material polished_steel; frames 121, 150, 195 show a plain grey-silver disc, no colour bands"
+  - item: (new 2026-10-22) the optical-glass lens renders as an opaque black disc
+    status: glitch
+    note: frames 1, 24, 60, 90 - a thick glossy black lens with a dark reflection, nothing seen through it; the point of the shot is that clear glass (transparent to visible light) still swallows EUV - a black puck reads as a filter or an absorber and undercuts it. Likely the ray path through the lens and the VacChamber transmissive shell exhausts the sample preset's transmission bounces
+    fix: raise transmission/glossy bounces for A3_04 (or render the shell with camera-ray visibility only / as a thin wall so it does not stack glass), give the lens a light backdrop behind it so its clarity reads; check one frame that the bench edge is visible through the lens
+  - item: (new 2026-10-22) both beams clip to white with a violet halo, not the film's EUV violet
+    status: glitch
+    note: frames 12-195 the beam core is white (emission 8.0 / 5.6 on a 0.07 radius cylinder); the A-segment colour code is violet = EUV (cf. B1 fix 'xray style keeps rays saturated violet')
+    fix: drop A3Beam strength to ~2.5 and A3BeamReflected to ~1.75 (keeps the 0.7 ratio) or use a saturated colour (0.30, 0.06, 1.0) as styles.xray does; check the core stays violet in Cycles with AgX
+  - item: (new 2026-10-22) after the lens moves away the beam still stops in mid-air at the old lens surface, ending in a dark torus
+    status: glitch
+    note: frames 97-120 the lens slides off (keys 90-112) but BeamIn still ends at x=-0.42 and BeamIn2 only appears at 121 - the beam is cut off by nothing; frame 100 shows it ending at a floating dark ring. The EntryGlow torus (emission 0 after frame 100) stays visible as a dark unlit ring floating in front of the mirror through frames 100-195
+    fix: hide the torus (hide_render) from frame 100; show BeamIn2 (or extend BeamIn) as soon as the lens has cleared the axis (~frame 100), or let the mirror slide in while the lens leaves so the beam is never cut by empty air
+  - item: (new 2026-10-22) staging - the camera sees the back of the mirror; the bounce point is hidden and the reflected beam appears from behind the rim. Lens post left behind, lens and mirror float
+    status: glitch
+    note: camera at x=+2.4 looks at the mirror's rear face (normal points to -X/+Z); frames 121-195 the incoming beam disappears behind the disc and the outgoing beam emerges from above its upper rim, so the reflection itself is never seen. The lens Post is not keyed with the lens (frames 100-195 a lone black post stands on the bench; the lens hangs in mid-air), and the mirror has no mount at all
+    fix: put the camera on the reflecting side (e.g. eye at (-3.5, -6, 2.6) aiming at the mirror) or flip the set-up so the beam comes from +X; parent Post to LensRing so it leaves with the lens; give the mirror a post/fork mount that slides in with it
+  - item: (new 2026-10-22) frame 1 shows the beam's start cap as a lone white dot in the air
+    status: glitch
+    note: BeamIn is keyed scale 0.001 at frame 1, its emissive end cap renders as a bright dot left of the lens (frame 1)
+    fix: hide_render BeamIn at frame 1 (key visible from frame 2) or start its growth from the flange face
+  - item: (new 2026-10-22) storyboard text no longer matches the picture
+    status: glitch
+    note: storyboard A3_04 visual still says 暗色摄影棚 and 一面泛着彩虹干涉色的多层膜反射镜, fx still lists thin_film_iridescence and caustics; the render is a light-grey surround with a plain silver mirror (the plain mirror is the sourced choice, S8). The overlay text ③ 一片透镜都不能用 · 只能用反射镜 does match the picture
+    fix: storyboard (p1_A0-B1.yaml A3_04) - visual 一面朴素银亮的多层膜反射镜 in a vacuum chamber, drop thin_film_iridescence; decide dark vs light surround and render to match
 A3_05:
   - item: time bar 1 -> 17 年 and counter 60 多亿欧元 / overlay 投入 60 多亿欧元
     status: sourced
     source: S3 ASML EUV systems page ("ASML invested more than €6 billion in EUV R&D over 17 years")
-    note: F20; ASML gives no start/end year for the 17 years, so the bar must stay in relative years (no calendar dates)
+    note: F20; ASML gives no start/end year for the 17 years, so the bar must stay in relative years (no calendar dates). No time bar or rolling counter exists in the picture or in edit_film - only a static label (see storyboard item below)
+    verified: "2026-10-22: edit_film.labels_for() draws one upper-right label 17 年 / 投入 60 多亿欧元 ｜ ASML · 蔡司 ZEISS · 通快 TRUMPF 等伙伴 from 0.4 s to 5.4 s; numbers match S3/F20, no calendar dates anywhere"
   - item: 'overlay ASML · 蔡司 ZEISS · 通快 TRUMPF 等伙伴 (facts: [])'
     status: sourced
     source: S2 ZEISS ("in 2019, together with strategic partner ASML, TRUMPF, the Fraunhofer Institute IOF and around 1,200 other partners"); S7 TRUMPF drive-laser page ("ASML, Zeiss, and TRUMPF joined forces")
-    fix: add a fact entry (e.g. F50) with these two quotes and point the overlay's facts at it
+    fix: still open - add a fact entry with these two quotes and point the overlay's facts at it (storyboard still facts []; the label's source line therefore shows only F20's organisation)
+    verified: "2026-10-22: storyboard A3_05 overlay facts still []; facts.yaml has no partners entry. Wording itself is sourced"
   - item: narration 才把它送进芯片工厂
     status: sourced
     source: S3 ("The first EUV production system – the TWINSCAN NXE:3300 – was shipped in 2013"; "At the beginning of 2020, we celebrated the 100th EUV system shipment"); S2 (2019 = EUV in production)
+    verified: "2026-10-22: vo unchanged"
   - item: vignette 1 - optical bench with a flashing chrome sphere ("early source chamber") and a row of cylindrical optics
     status: artistic
-    note: generic lab; no specific historical source is depicted. The cylinders must not read as transmissive EUV optics - they are posts, fine
+    note: now a vertical stainless vacuum chamber with CF-style radial ports and flanges, the plasma flash behind a viewport, three optic mounts on posts. Generic lab, no specific historical set-up claimed
+    verified: "2026-10-22: frames 1-64 steel chamber with 4 radial ports, top port, base flange on an optical table; viewport flashes white-violet at frames 5-7, 14-15 (bursts every 9 frames); no chrome ball"
   - item: vignette 2 - a large blank already showing the multilayer (iridescent) coating while it is being polished on a turntable
-    status: wrong
+    status: sourced
     source: 'S2 (layers "vapor-deposited onto the glass surface"); S8 ZEISS Kaiser, VLSI-TSA 2019, slide 19 (substrate figuring: computer-controlled polishing + ion beam figuring + interferometry in iterative loops) and slide 23 (Mo/Si Bragg coating drawn on the substrate, >50 bilayers)'
-    note: the coating goes on after the substrate is polished and figured; a coated surface would be destroyed by polishing
-    fix: give the blank a bare glass-ceramic substrate material (pale, matte-to-polished glass, no iridescence) in a23_scenes.montage(); multilayer_mirror material only for finished mirrors
+    note: blank is now bare, pale amber, translucent glass-ceramic (SubstrateGlass) turning under a spindle-mounted polishing head with pad; coating comes later
+    verified: "2026-10-22: frames 65-129 translucent pale-amber blank with chamfered edge rotating, steel head on a spindle with a pad touching the surface; no iridescence"
   - item: vignette 3 - six white amplifier cabinets in a straight row with an open orange beam above them
     status: simplified
     source: S7 TRUMPF (seed module with two seed lasers, a pre-amplifier, an amplification chain of "four resonators"; beam transport "up to 30 meters"); euv_source.md (FOM17 p.176 - laser in the sub-fab; scale drawing shows four large enclosures in a T/L plan and an enclosed beam-transport tube)
-    note: six units ~ seed + pre-amp + 4 amplifiers is consistent; the straight hall layout and the free beam are not - the 10.6 um CO2 beam is infrared (invisible) and runs inside enclosed beam tubes. Orange = film colour code for the CO2 laser
-    fix: put the orange beam inside a tube (glowing only through a slot, or drawn as a 示意 line) ; layout may stay a stylised row
+    note: beam now inside a closed steel tube with small orange view ports (film colour code for the CO2 laser); cabinets have door seams, LEDs and beam feeds. The straight-row hall layout stays stylised
+    verified: "2026-10-22: frames 131-194 six white cabinets, steel beam tube above with 7 small orange glowing ports, no free beam"
   - item: vignette 4 - clean-room assembly of the machine with backlit people
     status: simplified
-    note: preview frames (rendered 2026-10-18) still show the old generic machine box; build_machine.machine() is now the High-NA EXE:5000 - re-frame and re-render (audit_backlog.yaml item for A3). Exterior must stay generic (project rule)
+    note: re-framed on the current build_machine.machine() (High-NA layout, generic panelled housing, source vessel on its pedestal) with metaball clean-room-suit figures; exterior generic per project rule. Figures are ~5 % of frame height - suits are not readable, they read as silhouettes for scale
+    verified: "2026-10-22: frames 195-246 panelled white scanner block, black source vessel with cone and flanges on a pedestal, optical platform frame at right, cable trays along the base, 3-4 silhouettes and one walking figure in a light shaft; no cylinder people, no old machine box"
   - item: whip-cut montage, film grain, light leaks
     status: artistic
+    note: the render uses hard cuts (constant-interpolated camera keys at 64/65, 129/130, 194/195); no whip pans, grain or light leaks are visible in the sample (storyboard fx promises them - edit_film does not add them either)
+    verified: "2026-10-22: frames 64/65, 129/130, 194/195 are hard cuts; no grain or leaks"
+  - item: (new 2026-10-22) motion-blur ghost of the previous set-up on the first frame after two cuts
+    status: glitch
+    note: frame 130 shows a grey translucent curved smear across the upper right (the polishing set-up blurred into the hall), frame 195 a similar smear over the clean room; frame 65 a faint haze. Motion blur samples the camera across the jump
+    fix: in montage() set scene.render.motion_blur_position = 'START' (shutter opens on the frame) or key each cut so the jump falls before the shutter opens (e.g. old pose at 129.6, new pose at 129.75), or disable motion blur on the cut frames
+  - item: (new 2026-10-22) laser-hall set edge and floating ceiling lamps
+    status: glitch
+    note: frames 131-194 the hall floor ends in a visible edge on the right with black void beyond; the five ceiling strips hang in black with no ceiling
+    fix: extend HallFloor3 beyond the camera's view (or add a back wall) and add a ceiling plane / wall so the hall reads as a room
+  - item: (new 2026-10-22) storyboard promises a rolling 1 -> 17 年 time bar and a euro counter; the film draws neither
+    status: glitch
+    note: storyboard visual (画面底部一条时间轴从 1 年滚到 17 年，右上角欧元计数器滚到"60 多亿") and fx counter_roll; edit_film only draws the static upper-right label 17 年 / 投入 60 多亿欧元 for 5 s. Content is sourced either way
+    fix: either implement the time bar and counter as an A3_05 overlay (relative years only, no calendar dates) or rewrite the storyboard visual to the static label
 A3_06:
   - item: x-ray tour - violet path lights source -> collector -> IF -> illuminator facet mirrors -> mask -> projection mirrors -> wafer; label 示意
     status: sourced
     source: high_na_optics.md (ZEISS Kaumanns et al. 2024 s.13 optical train; ASML van Schoot 2022 s.34 module tiers) - order of modules
-    note: preview (rendered 2026-10-17) shows the superseded model (vertical 6-mirror zig-zag PO, flat collector); camera keys use BM.PLASMA / BM.FACET2 and fixed eye points that predate the EXE:5000 rebuild - RE-FRAME and re-render before audit can close. 示意 stays (illuminator spacing, source-axis elevation not public)
+    note: re-framed and re-rendered on the EXE:5000 model; the drawn line starts at the collector centre and runs along the source axis through the (unmarked) plasma point to the IF - an axial ray, acceptable under 示意. 示意 label comes from the storyboard overlay via edit_film
+    verified: "2026-10-22: BM.PATH = collector, IF, fold, field facet, pupil facet, reticle, M1-M4, PO focus, M5_HIT, M6_HIT, wafer; frames 15-45 the line grows from the collector out of the cone to the fold mirror, 60-105 up to the field facet (top) and pupil facet, 105-157 reticle, M1-M4 zig-zag, down through M6's hole to M5 and onto the wafer; saturated violet, no clipping; camera follows source -> facet -> PO"
   - item: machine size / proportions
     status: unsourced
     note: as A0_05 - exact dimensions not public; 示意 on screen covers it
+    verified: "2026-10-22: unchanged; 示意 overlay present in storyboard"
   - item: exterior as ghost glass
     status: artistic
+    verified: "2026-10-22: frames 1-157 xray light-studio look, housings as pale glass, optics silver, path violet"
+  - item: (new 2026-10-22) collector drawn as a flat disc
+    status: wrong
+    source: B2_sources.md / audit_B2 (collector is an ellipsoidal normal-incidence mirror, e=0.64, with a central laser hole; the B2 blueprint and b1_source 3D mirror already follow it); euv_source.md
+    note: build_machine.machine() makes the collector with _disc("Collector", ..., 0.9, 0.08) - a flat plate; frames 20 and 60 show it as a flat tilted plate at the wide end of the vessel. A flat plate cannot focus to the IF, and the A3 audit already called the flat collector superseded
+    fix: replace the disc with a concave ellipsoidal shell section (e.g. reuse the b1_source collector geometry scaled to 0.9 radius, with the central hole), opening toward the IF
+  - item: (new 2026-10-22) storyboard describes a scan-band reveal and glowing module cores that are not in the picture
+    status: glitch
+    note: storyboard visual - 洁净室里那台机器被扫描光带扫过，外壳变成幽灵玻璃；光源、照明、掩模台、投影物镜、晶圆台以发光核心标出. The sample starts already in the xray look (frame 1) and only the violet path glows; no module cores. The reticle leaves the top of frame from ~frame 120 on, so the whole path is never seen at once
+    fix: either rewrite the storyboard visual to what is rendered (xray from the cut, path lighting module after module), or add the scan transition; consider pulling the last camera key back so reticle-to-wafer is in frame at the end (A3_07 is meant to continue from this last frame)
 A3_07:
   - item: light ledger bar starts full, base icon lightning + 起点：电
     status: sourced
     note: concept only (all EUV light starts as electrical power); the MW figure is not shown here. F48 (ASML AR2025 NXE:3800E 1.26 MW) available if a number is added later
+    verified: "2026-10-22: frames 12-139 bar line draws, fills violet by ~frame 60, 光的账本 on top, lightning + 起点：电 at the base; no number on screen; matches overlay 光的账本 · 起点：电"
   - item: dim rectangle standing for the machine, cyan dashed link from the light-path start
     status: artistic
-    note: should reuse A3_06's last frame (storyboard) once that shot is re-rendered on the EXE:5000 model
+    note: should reuse A3_06's last frame (storyboard) - still a plain dim rectangle on black, so the cut from A3_06's light-grey xray frame to a black card is a visible continuity jump
+    fix: composite A3_06's last sample frame (darkened) behind the bar, with the dashed link starting at the source on that frame
+    verified: "2026-10-22: mograph/a3.py ledger_intro() still draws rect (160,360)-(1100,760) and a violet dot; frames 60-139 show it; A3_06 now exists on the EXE model, so the reuse can be done"

@@ -249,7 +249,34 @@ def machine(with_path=True):
     _tag_module(cone)
     for k, u in enumerate((0.25, 0.5, 0.75)):
         _ring(f"ConeRib{k}", tuple(drum - ax * (0.8 + span * u)), 1.1 - 0.92 * u + 0.02, 0.03, steel, rot=arot)
-    _disc("Collector", COLLECTOR, 0.9, 0.08, mirror, rot=arot)
+    # collector: a concave (ellipsoidal) shell with a central hole for the drive laser, facing the IF
+    # (euv_source.md s.5; a flat disc read as a plate). Depth ~0.28 of the radius, drawn as a paraboloid.
+    import bmesh
+    bmc = bmesh.new()
+    nr, ns, r_out, r_in, depth = 10, 96, 0.9, 0.14, 0.26
+    rings = []
+    for i in range(nr + 1):
+        r = r_in + (r_out - r_in) * i / nr
+        z = depth * (r * r) / (r_out * r_out)              # rim leans toward the IF (local +Z)
+        rings.append([bmc.verts.new((r * math.cos(2 * math.pi * k / ns), r * math.sin(2 * math.pi * k / ns), z))
+                      for k in range(ns)])
+    for i in range(nr):
+        for k in range(ns):
+            j = (k + 1) % ns
+            bmc.faces.new((rings[i][k], rings[i][j], rings[i + 1][j], rings[i + 1][k]))
+    mec = bpy.data.meshes.new("Collector")
+    bmc.to_mesh(mec)
+    bmc.free()
+    col = bpy.data.objects.new("Collector", mec)
+    bpy.context.scene.collection.objects.link(col)
+    col.location = Vector(COLLECTOR) - (-ax) * depth * 0.5
+    col.rotation_euler = arot
+    col.modifiers.new("Thick", "SOLIDIFY").thickness = -0.05
+    for pl in mec.polygons:
+        pl.use_smooth = True
+    mec.materials.append(mirror)
+    styles.tag(col, "structure")
+    _tag_module(col)
     _box("SrcPedestal", (drum.x, 0, -1.05), (2.6, 2.6, 2.7), dark)          # up to the vessel's underside
     plat = PLASMA[0] + 2.6
     _box("OpticalPlatform", (plat, 0, 1.0), (2.2, 2.0, 0.25), steel)

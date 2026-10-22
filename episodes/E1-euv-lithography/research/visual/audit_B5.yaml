@@ -3,6 +3,7 @@
 # against storyboard.timed.yaml, blender/shots/b5_scenes.py (+ build_machine), mograph/b5.py and the preview frames
 # in renders/shots/B5_* (3x3 contact sheets in renders/review/refs/B4B5/sheets/).
 # status: sourced | wrong | unsourced | simplified | artistic   (see docs/WORKFLOW.md 2.3)
+#   glitch = rendering / readability problem still open; fixed = glitch seen resolved by the verification pass
 # Quotes for every S-number: research/visual/B4B5_sources.md (same numbering as audit_B4.yaml). HNO = high_na_optics.md,
 # ES = euv_source.md.
 # Sources:
@@ -22,30 +23,41 @@
 # previews show fact IDs that mograph.screen_text now strips.
 # Generation mixing: the "lossless / 100 % efficiency" statement (B5_07) and the B5_08 pitches are ZEISS's NXE
 # (Starlith 3300/3400) data; ZEISS only says the High-NA illuminator reuses that technology.
+# VERIFIED 2026-10-22 (research/visual/verify_B2-D.md): sample renders renders/shots/B5_*/sample (960x540, rendered
+# 08:31-09:00 on 10-22, after b5_scenes.py 00:06, mograph/b5.py 00:09, build_machine 23:54, materials 23:51; frame
+# counts = timed durations). Labels checked by running edit_film.labels_for / draw_label on sample frames.
 
 B5_01:
   - item: x-ray machine, violet path from the intermediate focus into the illuminator, reticle stage above; overlay 照明系统（示意）
     status: sourced
     source: HNO §2 and §3.1; S7 s.13 (current 0.55 NA - IF, small fold mirror, field facet mirror on top, pupil facet mirror below, then the reticle); S9 s.36; build_machine PATH follows these
+    verified: "2026-10-22: frames 30-116 path from the source cone to the fold mirror, up to the field facet mirror, down to the pupil facet mirror; chapter card 照明系统 / 会变形的镜子墙 0.2-2.8 s, then label 照明系统（示意） from 3.0 s (composited)."
   - item: illuminator drawn with three mirrors (fold, field facet, pupil facet)
     status: simplified
     note: taken from stylised ZEISS renders [M]; the real EXE illuminator mirror count is not public (HNO §5 item 3); 示意 on screen covers it
   - item: camera keys
-    status: wrong
+    status: fixed
     note: CamB5_01 ends on (-1.45, 0, 1.2), a hard-coded point from the pre-10-19 layout; the illuminator now sits at x ≈ 1.75-2.85 (BM.FACET1, BM.FOLD), so the last frame centres the projection-optics column instead of the illuminator
     fix: b5_scenes.machine() - aim CamB5_01 at the mean of BM.ILLUM (or BM.FACET1) and derive eye points from BM.CENTER, then re-render
+    verified: "2026-10-22: CamB5_01 now keyed from BM.IF to the mean of IF/FACET1/FACET2; frames 44-116 have the illuminator mirrors in the middle of the frame."
   - item: path growth stops at PATH index 3 (FACET1, the field facet mirror) although the comment says FACET2
-    status: simplified
+    status: fixed
     glitch: the field-facet → pupil-facet leg never lights, in B5_01 or in B5_09, where the dipole then starts from the dark pupil facet mirror; use 4 / (len(BM.PATH) - 1)
+    verified: "2026-10-22: bevel_factor_end -> 4/(n) at frame 80; frames 73-116 the field facet -> pupil facet leg is lit."
   - item: mirrors use materials.multilayer_mirror (rainbow bands)
-    status: wrong
+    status: sourced
     note: as audit_B4.yaml B4_04 (S10 s.18, S6 s.19, S9 s.39 - EUV mirrors look like plain mirrors); check whether the xray style overrides it, otherwise fix the material
-  - glitch: the 10-17 preview is the old machine - the path kinks in empty space near the frame centre (frame 41) and runs into a vertical zig-zag of small mirrors; stale
+    verified: "2026-10-22: fixed - multilayer_mirror is plain (materials.py l.41-45); frames 1-116 plain grey mirrors."
+  - item: stale 10-17 preview of the old machine
+    status: fixed
+    glitch: the 10-17 preview is the old machine - the path kinks in empty space near the frame centre (frame 41) and runs into a vertical zig-zag of small mirrors; stale
+    verified: "2026-10-22: fresh sample (08:31) on the High-NA layout; no kink in empty space."
 
 B5_02:
   - item: overlay 照明系统 NXE：1.5 万零件 · 1.5 吨 → High-NA：2.5 万+ 零件 · 6 吨以上
     status: sourced
     source: S1 ("15,000 individual parts weighing 1.5 tonnes"); S2 ("more than 25,000 parts and weighs over six tons"; "around six tons – four times more than before"); S3; S7 s.8
+    verified: "2026-10-22: composited label fits on one line upper left of the frame, sub 内部结构示意, 来源 ZEISS · EUVL 研讨会."
   - item: narration 它的任务，是把光变得极其均匀，再按需要整形
     status: sourced
     source: S1 ("the EUV light from the source is converted into the appropriate illumination for the structures on the mask"); S8 s.4 ("Actuated fly's eye unit" - a fly's-eye integrator homogenises; "Standard pupil shapes")
@@ -54,24 +66,40 @@ B5_02:
     status: sourced
     source: S8 s.4, S9 s.36, S6 s.13
   - item: both plates built from identical square facets (9 x 7 grid each)
-    status: wrong
+    status: simplified
     source: "S8 s.4, S9 s.36, S6 s.13 (field facets are long curved arc-shaped strips on an elliptical carrier; pupil facets are small round mirrors on short cylinders); HNO §1.5 (the field facets are imaged onto the arc-shaped slit, 104 x 12.8 mm at the reticle)"
     fix: b5_scenes._plate() - field plate = elliptical carrier with ~12-16 thin arc-shaped facets (aspect ratio ≥ 8:1); pupil plate = grid of round facets
+    verified: "2026-10-22: code fixed (_field_plate: 3 x 10 arc facets 0.46 x 0.06 on an elliptical carrier; _pupil_plate: round facets on a hex grid). In frames the pupil plate shows round facets (1-141) but the field plate is seen only from the back of its carrier (crop of frame 141), so the arcs never appear - see new glitch."
   - item: light arrives at the field facets as a near-parallel bundle from a 0.5-radius disc
-    status: wrong
+    status: sourced
     source: S8 s.4, S9 s.36 (the beam diverges in a cone from the intermediate focus, a point, to the field facet mirror)
     fix: start the RIn rays at one point (the IF) and fan them out to the field facets
+    verified: "2026-10-22: fixed - all RIn rays start at IN; frames 19-141 a cone from one point to the field plate."
   - item: each pupil facet sends one thin ray to a random point of the exit field
     status: simplified
     note: in a fly's-eye each pupil facet images its field facet onto the whole slit, so every channel covers the full field - that is why the field becomes uniform; one ray per channel to a random spot shows the opposite
     fix: from each pupil facet draw a thin cone (or rays to the four corners) covering the whole OUT patch
+    verified: "2026-10-22: code fixed (every 3rd channel drawn to the four corners of OUT); but OUT is outside the frame - the rays leave the top-right edge (frames 89-141), so the uniform field is never seen (new glitch)."
   - item: facets with rainbow multilayer material
-    status: wrong
+    status: sourced
     note: as B4_04
+    verified: "2026-10-22: fixed - plain material; frames 1-141 grey facets."
   - item: no fold mirror between the IF and the field facet mirror
     status: simplified
     note: S7 s.13 shows one in the 0.55 NA layout; 内部结构示意 is on screen
-  - glitch: a black slab (housing edge) intrudes at the top right of frames 1-71; pale lavender rays on a light grey ghost-glass background have little contrast
+  - item: black slab at top right; low contrast
+    status: fixed
+    glitch: a black slab (housing edge) intrudes at the top right of frames 1-71; pale lavender rays on a light grey ghost-glass background have little contrast
+    verified: "2026-10-22: slab gone (frames 1-71 clean). Contrast still low (pale violet on light grey) but readable."
+  - item: NEW - the field facet plate faces away from the camera - only the dark back of its carrier is seen (frames 1-141), so the arc-shaped field facets, the point of B5_02, are invisible
+    status: glitch
+    fix: CamB5_02 from the IF side (eye on -x / the IN side of P1) or flip the plate so its facets face the camera; keep both plates' faces in view
+  - item: NEW - the uniform exit field (OUT) is out of frame; the storyboard's "变成一片均匀的光，从模块上方射出" is not shown
+    status: glitch
+    fix: pull CamB5_02 back / re-aim so OUT and its lit patch are inside the frame by frame 90
+  - item: NEW - frame ~71 the OUT card appears unlit as a small dark diamond at the right edge before its emission ramps (hide_render keyed off at 71, emission 0 until 70-90)
+    status: glitch
+    fix: un-hide OUT at frame 76 or start its emission at 71
 
 B5_03:
   - item: intensity as a terrain - random peaks and valleys flattened into a mesa; overlay 不均匀 → 均匀（示意）
@@ -79,38 +107,59 @@ B5_03:
     source: ES §6 (PUR20 slide 11 far field at the IF - an annulus with a dark centre and a dark horizontal band); HNO §1.5 (the uniform field is an arc-shaped slit, 26 x 1.6 mm at the wafer, 104 x 12.8 mm at the reticle)
     note: real input non-uniformity is a ring with a dark centre, not random hills; the flat end state is a square rather than a slit
     fix: optional - make the input a ring with a dark centre and the end mesa a curved slit; 示意 already on screen
+    verified: "2026-10-22: unchanged - frames 1-55 random hills, 68-108 a flat square."
 
 B5_04:
   - item: narration 里面是大量可以单独转动的小镜片; overlay 分面镜阵列（示意，数量未公开）
     status: sourced
     source: S6 s.13 and S5 s.10 ("High-NA illuminator will utilize 0.33NA technology with actuated facet mirrors"); S8 s.4 ("Actuated fly's eye unit"); HNO §5 item 10 (facet count not public)
+    verified: "2026-10-22: composited label 分面镜阵列（示意，数量未公开）/ 来源 EUVL 研讨会."
   - item: flat rectangular wall of square tiles
-    status: wrong
+    status: sourced
     source: S8 s.4, S9 s.36, S6 s.13 (field facets are arc-shaped strips on an elliptical carrier)
     fix: as B5_02 - arc-shaped facets on an elliptical plate for the tilting (field facet) mirror
+    verified: "2026-10-22: fixed - frames 1-108 long arc-shaped facets (1.15 x 0.1, aspect ~11:1) on an elliptical carrier; round pupil facets visible at the top right."
   - item: rainbow iridescence on every facet (storyboard 每片都带着钼硅虹彩)
-    status: wrong
+    status: sourced
     note: as B4_04; edit the storyboard text too
+    verified: "2026-10-22: fixed - plain grey facets (frames 1-108); storyboard now says 每片都是一条细长的弧形镜条."
   - item: continuous travelling wave of small tilts
     status: simplified
     source: S8 s.5 (Starlith 3350 "2 pupil facets per field facet", Starlith 3400 "many pupil facets per field facet" - facets switch between set positions)
     note: fine as a visual cue; the facets do not ripple during exposure
-  - glitch: preview frames show blown-out white squares on black with no visible facet edges in focus; reads as a pixel wall rather than mirrors
+  - item: blown-out white squares
+    status: fixed
+    glitch: preview frames show blown-out white squares on black with no visible facet edges in focus; reads as a pixel wall rather than mirrors
+    verified: "2026-10-22: frames 1-108 readable arc edges and reflections; no clipped squares."
 
 B5_05:
   - item: the facets of the moving wall themselves light up in the shape of a ring, then two poles
-    status: wrong
+    status: sourced
     source: S8 s.4-5, S9 s.36, S6 s.13 (the actuated facets are the field facets; tilting one selects WHICH pupil facet it lights - the ring or dipole appears as the lit round facets of the separate pupil facet mirror, red in the drawings)
     note: the field facet mirror never shows the pupil pattern; the shot presents the wrong mechanism of the one subsystem B5 is about
     fix: b5_scenes.facets() - keep the arc-facet wall tilting and add a second plate of round pupil facets on which the lit facets spell ring → dipole (or relabel the wall as the pupil facet mirror and show the tilting on a separate field-facet plate); light the pattern by beams from the tilted facets, not by the facets facing the camera
+    verified: "2026-10-22: fixed - arc-facet wall on the left, round pupil facet mirror on the right; lit pupil facets spell a ring (frames 46-75) then a top/bottom dipole (90-105). But the channel rays from the wall to the pupil are invisible (new glitch), so the 'sent by the tilting facets' link is not seen."
   - item: stadium-wave flip across the wall
     status: artistic
-  - glitch: frames 1-30 are almost black; afterwards the 26 x 18 square grid reads as a pixel display
+  - item: frames 1-30 almost black; pixel-display look
+    status: fixed
+    glitch: frames 1-30 are almost black; afterwards the 26 x 18 square grid reads as a pixel display
+    verified: "2026-10-22: frames 1-16 lit macro arcs, 31 onward wall + pupil plate; no pixel-display look."
+  - item: NEW - the channel rays (FacetRay, radius 0.008, strength 2) from field facets to the pupil facets are sub-pixel at this distance - no ray visible in frames 31-120
+    status: glitch
+    fix: radius ~0.03 and strength ~6 for the Ch* curves, or draw a few representative channels thicker
+  - item: NEW - last frame (120) the dipole switches off (pupil plate dark, luma 24 -> 18) - a pop at the cut
+    status: glitch
+    fix: in facets() skip the (t1-1, 5.0)/(t1, 0.0) keys when t1 == FRAMES so the dipole holds through the cut
+  - item: NEW - the lit pupil facets bloom to white rather than EUV violet (frames 46-105)
+    status: glitch
+    fix: lower Pupil emission strength (5 -> ~2) or bloom so the violet convention survives
 
 B5_06:
   - item: pupil mosaic morphing disc → annulus → dipole → quadrupole → freeform; labels 圆盘 / 圆环 / 两极 / 四极 / 自由形状
     status: sourced
     source: S6 s.13 (High-NA "Standard Illumination Settings" - conventional, annular, dipoles, quadrupoles, hexapoles, slim dipoles - and "Tachyon SMO pupils"); S8 s.4, s.6, s.10 (pupil shapes built from dots = lit pupil facets; freeform pupils)
+    verified: "2026-10-22: frames 25-196 disc, ring, dipole (top/bottom), quadrupole, freeform with matching 40 px labels."
   - item: caption 光瞳（示意）：每一小块光斑来自一片可转动的小镜片
     status: sourced
     source: S8 s.4-5 (each lit pupil spot is a pupil facet fed by one actuated field facet)
@@ -121,21 +170,35 @@ B5_06:
   - item: square tiles
     status: simplified
     note: ZEISS draws the pupil as round dots (S8 s.10, S9 s.36)
-  - glitch: mid-morph frames (50, 124) scramble the tiles into noise; stale "（F34）" in the preview
+  - item: mid-morph scramble; stale F34
+    status: fixed
+    glitch: mid-morph frames (50, 124) scramble the tiles into noise; stale "（F34）" in the preview
+    verified: "2026-10-22: the caption ends '……小镜片' with no ID (screen_text strips the （F34） still in b5.py l.91); the brief scramble at frames 50 / 123 is the morph itself - acceptable."
+  - item: NEW - caption 22 px at 1080p (b5.py l.91) - unreadable at the bottom of frames 25-196
+    status: glitch
+    fix: '>= 30 px; also remove the literal （F34） from the source string so it cannot leak if screen_text changes'
 
 B5_07:
   - item: narration 按蔡司的数据，这样改变照明形状时，几乎不损失光; footer ZEISS：照明效率接近 100%; ledger bar level while the pupil changes
-    status: simplified
+    status: sourced
     source: S8 s.4 ("Actuated fly's eye unit enables lossless setting changes", Starlith 3300); S8 s.10 ("all examples without light loss (100% illuminator efficiency) on Starlith 3400 illumination system"); S8 s.13 ("without loss of light down to 20% PFR"); C11 ("Off-axis illumination enables lossless setting"); S5 s.10 / S6 s.13 (High-NA reuses the technology, 20 % pupil fill ratio)
     note: ZEISS's lossless statements are for the NXE illuminators; nothing says so explicitly for the EXE
     fix: footer → ZEISS（NXE:3400 照明系统数据）：照明效率 100%; keep 几乎 in the narration
-  - glitch: stale "（F34）" in the preview
+    verified: "2026-10-22: fixed - footer 'ZEISS（NXE:3400 照明系统数据）：照明效率 100%' (b5.py l.114; frames 18-134); ledger bar level with 光量不变."
+  - item: stale F34
+    status: fixed
+    glitch: stale "（F34）" in the preview
+    verified: "2026-10-22: no ID in frames 18-134."
+  - item: NEW - footer 22 px, 光的账本 28 px - the source line that carries the NXE qualifier is unreadable
+    status: glitch
+    fix: footer >= 30 px (it is the generation qualifier, it must be readable)
 
 B5_08:
   - item: triptych - horizontal lines with a Y-dipole (poles above and below) sharp; the same lines with a conventional disc blurred; contact-hole array with a quasar (diagonal poles) sharp; overlay 图案 × 照明 匹配（示意）
     status: sourced
     source: S8 s.6 ("Quasar – Contact Hole array 18 nm half-pitch"; dipoles for 13 nm hp lines); S8 s.4 (conventional for 22 nm hp, off-axis for < 22 nm hp); S8 s.8 ("Dipole Y" for horizontal lines); C11 (off-axis illumination)
     note: pole orientation is right - horizontal lines need poles above and below
+    verified: "2026-10-22: frames 57-150 dipole icon vertical over horizontal lines, disc icon over blurred lines, 4-pole icon over the hole array; title 图案 × 照明 匹配（示意）."
   - item: scale bar 50 nm with a line pitch of ~29 nm and a hole pitch of ~37 nm
     status: sourced
     source: S8 s.6 (13 nm hp lines, 18 nm hp contact holes)
@@ -146,18 +209,29 @@ B5_08:
   - item: grey "SEM" resist images
     status: artistic
     note: synthetic; 示意 on screen
+  - item: NEW - '50 nm' scale label 18 px (b5.py l.176) - unreadable'
+    status: glitch
+    fix: '>= 26 px'
+  - item: NEW - each panel's caption and 50 nm label pop in at full strength before the SEM image fades in (frame 38 - 横线 × 圆盘 → 发糊 and 50 nm on black while panel 2 stays dark until ~42)
+    status: glitch
+    fix: tie caption/scale alpha to the same `on` ramp as the pasted image (the Image.blend panel lags the text)
 
 B5_09:
   - item: dipole light leaving the illuminator and climbing to the reticle, drawn as two parallel strands 0.24 apart from FACET2 to RETICLE that hit the reticle at two different points
-    status: wrong
+    status: sourced
     source: S9 s.36 (pupil @ mask - a dipole is two lit regions of the pupil, i.e. two directions of light); S8 s.4 (every pupil facet illuminates the same field)
     note: a dipole is an angular distribution - light from two separated lit regions of the pupil facet mirror converges onto the SAME illuminated slit on the mask from two directions. Two parallel beams landing side by side say there are two separate illuminated spots
     fix: b5_scenes.machine() - start the two Pole strands at two points on the pupil facet mirror (±offset across the plate) and end both at BM.RETICLE
+    verified: "2026-10-22: fixed - Pole strands from FACET2 ± 0.16 across the plate to the single BM.RETICLE point; frames 16-120 two strands converge on one spot of the mask."
   - item: path from the pupil facet mirror straight up to the reticle
     status: sourced
     source: S7 s.13; HNO §2 (in the 0.55 NA renders the pupil facet mirror sends light directly to the reticle)
   - item: camera keys
-    status: wrong
+    status: fixed
     note: CamB5_09 starts on the stale point (-1.45, 0, 1.2) like B5_01; re-frame on BM.FACET2 → BM.RETICLE (reticle now at about (0.25, 0, 3.45))
     fix: derive the keys from BM.FACET2 and BM.RETICLE, then re-render
-  - glitch: 10-17 preview is the old machine; the field-facet → pupil-facet leg is dark (see B5_01)
+    verified: "2026-10-22: CamB5_09 keyed from the B5_01 end framing to (FACET2+RETICLE)/2; frames 1-120 tilt from the illuminator to the reticle stage."
+  - item: stale preview / dark leg
+    status: fixed
+    glitch: 10-17 preview is the old machine; the field-facet → pupil-facet leg is dark (see B5_01)
+    verified: "2026-10-22: fresh render; the leg is lit in frames 1-120."

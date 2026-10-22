@@ -282,6 +282,12 @@ def _non_photoreal(style, sc, objs, roles, line_px):
         for o in objs:
             if roles[o] in ("structure", "shell"):
                 _set_material(o, rim)
+            elif roles[o] == "rays":                     # a strong pastel emitter clips to a white bar on black;
+                for slot in o.material_slots:          # saturated violet at a moderate strength stays violet
+                    em = slot.material and slot.material.use_nodes and slot.material.node_tree.nodes.get("Emission")
+                    if em:
+                        em.inputs["Color"].default_value = (0.40, 0.16, 1.0, 1.0)
+                        em.inputs["Strength"].default_value = min(em.inputs["Strength"].default_value, 2.2)
         _lights(False)
         return
 

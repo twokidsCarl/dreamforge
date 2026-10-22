@@ -112,7 +112,14 @@ class Canvas:
             return
         f = font(int(self.px(size)))
         x, y = self.px(xy[0]), self.px(xy[1])
-        self.d.text((x, y), s, font=f, fill=(*color, int(255 * a)), anchor=anchor)
+        # draw through an alpha mask: ImageDraw on an RGB image ignores the fill alpha (Pillow 12), so fades popped
+        x0, y0, x1, y1 = (int(v) for v in self.d.textbbox((x, y), s, font=f, anchor=anchor))
+        x0, y0 = max(0, x0 - 2), max(0, y0 - 2)
+        x1, y1 = min(self.W, x1 + 2), min(self.H, y1 + 2)
+        if x1 > x0 and y1 > y0:
+            mask = Image.new("L", (x1 - x0, y1 - y0), 0)
+            ImageDraw.Draw(mask).text((x - x0, y - y0), s, font=f, fill=int(255 * min(1.0, a)), anchor=anchor)
+            self.img.paste(Image.new("RGB", mask.size, color), (x0, y0), mask)
         if weight_glow:
             self.g.text((x, y), s, font=f, fill=tuple(int(c * a * 0.6) for c in color), anchor=anchor)
 

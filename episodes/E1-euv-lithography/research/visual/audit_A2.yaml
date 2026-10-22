@@ -5,9 +5,18 @@
 #   unsourced  - invented or unchecked
 #   simplified - deliberate simplification; difference from reality and where it is corrected are stated
 #   artistic   - deliberate convention, flagged on screen as 示意 where a viewer could take it literally
+#   glitch     - render / layout fault (not a fact question); must change
 # Quotes, URLs and recomputations: research/visual/A2_sources.md (S1-S8). Code: mograph/a2.py, blender/shots/a23_scenes.py.
 # Audited against preview frames renders/shots/A2_*/preview (contact sheets in renders/review/refs/A2/).
+# Verified 2026-10-22 against renders/shots/A2_*/sample (960x540; contact sheets and crops in $CLAUDE_JOB_DIR/tmp/A2).
+#   A2_01-07, A2_09, A2_10 are Pillow graphics (mograph/a2.py, @shot); their samples (10-21 17:13-17:14) post-date the
+#   last a2.py / mograph.py change (10-21 16:01 / 16:07) and match the timed durations - current.
+#   A2_08 (a23_scenes.ribbon, eevee) sample 10-21 22:31 shows the committed ribbon (7437649, 22:42) but predates the
+#   compositor dispersion change 0.012 -> 0.004 (abcc28b, 10-22 00:57): STALE, red/blue fringes visible.
+#   Frame numbers below are 1-based sample frames at 24 fps.
 # No NA 0.33 / 0.55 / 1.35 value, computed EUV resolution or photon-energy statement is drawn anywhere in A2.
+# Fact IDs: mograph.screen_text strips every F-number before drawing (checked: "(F53)", "(F1 · F54)", "F54" -> "来源：ASML").
+# Counts (2026-10-22): sourced 18, simplified 4, artistic 7, wrong 1, glitch 7, unsourced 0.
 A2_01:
   - item: plane wavefronts hit a slit and leave it as circular arcs spreading into a fan (Huygens wavelets from the opening)
     status: sourced
@@ -15,13 +24,21 @@ A2_01:
   - item: fan half-angle drawn = 1.4 x the first-minimum angle (slit a = 1.5 lambda -> first minimum 41.8 deg, drawn 58.5 deg), arcs of uniform brightness ending sharply, no side lobes
     status: simplified
     note: real intensity is concentrated in the central lobe with weak side lobes out to 90 deg; acceptable for a 示意 diagram. Optional fix in waves() - drop the 1.4 factor and fade arc brightness with angle (e.g. alpha * sinc^2(pi a sin(th)/lambda)).
+    verified: "2026-10-22: unchanged and still a deliberate simplification - waves() keeps the 1.4 factor, arcs fade only with radius, not with angle; frames 15-157 show the same ~58 deg fan with sharp ends"
   - item: phase continuity at the slit
     status: sourced
     fixed: "plane fronts now laid out back from the slit (mograph/a2.py waves), in phase with the first arc"
     note: plane crests sit at x = phase + n*60 from x=0, arcs at r = phase + n*60 from cx=820; 820 mod 60 = 40, so the arcs jump 2/3 lambda (240 deg) at the slit. Barely visible, but a sharp-eyed viewer sees crests not joining. Fix - start the plane-wave loop at x = cx - lam*ceil(cx/lam) + phase so a crest reaches cx exactly when an arc is born.
+    verified: "2026-10-22: code lays plane fronts at cx + phase - n*lam and arcs at r = phase + n*lam; crop of frame 40 (and 100) shows the last plane crest exactly one wavelength before the first arc at the slit"
   - item: violet-white visible wavefronts; label "衍射 diffraction · 示意"
     status: artistic
     note: diffraction applies to every wavelength; the colour is the film's light code; 示意 is on screen
+  - item: "NEW 2026-10-22: the chapter card 章节 · 为什么要短波长 (storyboard overlay kind: chapter) is never drawn - edit_film.chapter_of() skips every mograph shot ('2D graphics draw their own chapter cards'), and mograph/a2.py diffraction() draws none; frames 1-157 carry only the waves and the corner label, so the A2 chapter has no title on screen (A1_01 and A3_01 do)"
+    status: glitch
+    fix: draw the chapter card inside diffraction() for t 0.2-2.8 s with 0.5 s fades, in the same lower-left layout edit_film.draw_chapter uses on 3D shots (章节 / 为什么要短波长), keeping the waves behind at reduced alpha; or make edit_film draw chapter overlays on mograph shots that do not draw their own
+  - item: "NEW 2026-10-22, A2-wide: small grey corner text - 衍射 diffraction · 示意 (20 px at 1080p, INK2 grey), A2_02 SEM 风格示意 (18 px), A2_05 footer 单次曝光极限约 40 nm (20 px), A2_06 footer 来源：ASML (18 px), A2_09 (ASML 引用 imec 研究) (24 px); at the 960x540 sample they are 9-12 px high and barely legible (crop of A2_01 frame 100, A2_06 frame 100), and on a phone screen they will not be read"
+    status: glitch
+    fix: raise every footer/示意 tag in a2.py to at least 28 px (1080p) at INK (not INK2) alpha >= 0.85; source footers that carry the claim (A2_05 40 nm, A2_09 imec) at 30-32 px
 A2_02:
   - item: inset - slit narrows from 1.5 lambda to 0.33 lambda and the fan opens to ~85 deg; caption 缝越窄 → 散得越开
     status: sourced
@@ -30,8 +47,12 @@ A2_02:
     status: simplified
     source: S6 (Smith, SPIE 5040, 2003, p.2 and Fig.2 - image detail exists only while the lens captures the first diffraction order, pitch > lambda/(NA(1+sigma)))
     note: the real mechanism is that finer mask features diffract to wider angles and a lens of finite NA misses those orders, so contrast falls to zero (uniform exposure). The lens/NA half of that story is told in A2_03-A2_04, so the narration line (缝越窄 → 线越糊) is an honest first step. Optional fix - let the line pitch shrink together with the slit so the panel reads "finer lines -> blurrier", which is what actually happens.
+    verified: "2026-10-22: unchanged - sem_lines() keeps gap=140 and width 180 (fixed pitch); frames 1-146 show the two lines blurring at constant pitch into one band. Inset crop frame 10 vs 146: slit narrows and the fan opens to ~85 deg as stated"
   - item: SEM greyscale look, label "SEM 风格示意"
     status: artistic
+  - item: "NEW 2026-10-22: caption 缝越窄 → 散得越开 (24 px, near-white) is drawn at x 640-920 (1080p), straight on top of the left resist line (x 730-910); crop of frame 30 shows 散得越开 white-on-light-grey, nearly unreadable, and over the blurred band later (frames 80-146)"
+    status: glitch
+    fix: in narrower() move the caption under the inset (e.g. (60, 410), anchor lm) or onto a dark scrim; keep it clear of the 730-1190 px line zone
 A2_03:
   - item: formula CD = k₁ · λ / NA; CD 能画多细, λ 光的波长, NA 数值孔径 · 镜头收光的能力, k₁ 工艺因子
     status: sourced
@@ -44,6 +65,7 @@ A2_03:
     status: sourced
     fixed: "note now draws k with subscript 1, matching the formula"
     note: fix in a2.py rayleigh() - draw the note as "工艺因子 k" + a small subscript "1" (same trick as the formula, the font lacks ₁), or write "k1"; the storyboard text is "k₁ 的物理极限：0.25"
+    verified: "2026-10-22: zoom of frame 296 reads 工艺因子 k₁ 的物理极限：0.25 with a drawn subscript 1, matching k₁ in the formula; '(F53)' is stripped by screen_text and not on screen (frames 242-296)"
 A2_04:
   - item: route two - converging light cone whose half-angle opens (14 deg -> 36 deg), labelled NA 越大
     status: sourced
@@ -55,9 +77,13 @@ A2_04:
   - item: the optic is drawn and labelled as a 镜头 (refractive lens)
     status: simplified
     note: EUV optics are mirrors; the general formula is lens-agnostic and A3_04 explicitly replaces the glass lens with a Mo/Si mirror, so the simplification is corrected one segment later
+    verified: "2026-10-22: still a bare line labelled 镜头 (frames 16-168); the A3_04 correction is outside this file's scope"
   - item: wavelength ruler shortens 220 px -> 70 px (ratio 3.1), unlabelled
     status: artistic
     note: concept only; the true 14.3x ratio is shown to scale in A2_07
+  - item: "NEW 2026-10-22: the light cone grows wider than the lens - the lens is a fixed 520 px line (half-width 260) while the cone's rays start at L*tan(th) = 520*tan(36 deg) = 378 px from the axis, so from about frame 45 to 168 both rays begin in empty space outside the lens ends (visible in every late frame). Light cannot converge from outside the optic; a bigger NA means a bigger/closer lens, which the picture should show"
+    status: wrong
+    fix: in two_routes() tie the lens half-width to the cone (half-width = L*tan(th) + 20) so the lens visibly widens as NA grows (matches 镜头'张得'更大 in the VO), or keep the lens and shorten L so the rays start on it. Optional - put route one (λ) on the left and route two (NA) on the right so reading order matches 路线一/路线二 and the VO order
 A2_05:
   - item: '"193 nm DUV" pen, finest single-exposure line 约 40 nm; footer 单次曝光极限约 40 nm'
     status: sourced
@@ -68,12 +94,17 @@ A2_05:
     fixed: "label now 193 nm 浸没式 (40 nm single exposure needs immersion)"
     source: S3b (ASML lenses-and-mirrors - "Without the water, reaching an NA of more than 1 was impossible. With it, our systems' optics reach an NA of 1.35.")
     note: ~40 nm needs water immersion; dry ArF with NA < 1 cannot go below 0.25 x 193 / 1.0 = 48 nm. ASML's own sentence also omits immersion, so it is acceptable; optional fix - pen text "193 nm DUV（浸没式）"
+    verified: "2026-10-22: zoom of frame 217 reads 193 nm 浸没式 on the pen (frames 21-217); see the new layout item below - the word DUV is now gone from the picture"
   - item: the "two finer lines" the pen fails to draw - two cyan outlines 12 px tall, 44 px apart, while the 40 nm line is 80 px tall (scale 2 px/nm -> lines ~6 nm wide at 22 nm pitch)
     status: sourced
     fixed: "now two 20 nm lines with a 20 nm gap at the shot's own 2 px/nm scale"
     note: unlabelled, but inconsistent with the stated scale and with A2_06 (next level is 20 nm). Fix in duv_marker() - draw them as 20 nm lines with a 20 nm gap at the same scale (40 px tall, centres +-40 px about y2), so the 80 px stroke still covers both
+    verified: "2026-10-22: frames 119-217 - two cyan outlines each half the height of the 40 nm stroke with a gap equal to their height (code: 40 px at +-40 px about y2 = 20 nm lines, 20 nm gap at 2 px/nm); the 80 px stroke (frames 138-178) covers the gap and merges them"
   - item: fat marker metaphor (pen tip = smallest printable width)
     status: artistic
+  - item: "NEW 2026-10-22: the pen label 193 nm 浸没式 (20 px) is wider than the 80 px pen barrel and spills off both sides onto the grid (zoom of frame 217); the barrel is a small 80x160 px block that does not read as the 粗大的马克笔 of the storyboard, and the storyboard overlay / visual both say DUV (DUV 193 nm, 193 nm 深紫外 DUV) while the picture no longer shows DUV anywhere"
+    status: glitch
+    fix: in duv_marker() draw a real marker (barrel ~360x110 px angled up-right from the tip, cap at the end) and set 193 nm DUV（浸没式） along the barrel at 26-28 px, fully inside it; the second stroke (frames 138-178) should be drawn by the same pen, not appear on its own
 A2_06:
   - item: 一次曝光 约 40 nm -> 两次曝光 约 20 nm -> 四次曝光 + 额外工序 约 10 nm; the process bar repeats the same steps
     status: sourced
@@ -81,9 +112,14 @@ A2_06:
   - item: one cycle drawn as 涂胶 · 曝光 · 刻蚀 plus grey "extra" blocks
     status: simplified
     note: develop, deposition, clean and metrology steps are omitted; industrial ~10 nm-class pitch splitting is mostly self-aligned (SAQP - one exposure plus spacer deposition/etch), not four litho-etch passes. The picture follows ASML's own simplified wording (S2), which is the cited source; no fix required
+    verified: "2026-10-22: unchanged (frames 18-188); still ASML's wording"
   - item: footer shows only "F54"
     status: sourced
     note: film-wide convention of printing fact IDs (A0 does it too); a bare ID tells a viewer nothing - suggest "ASML 2022 年报 · F54"
+    verified: "2026-10-22: mograph.screen_text turns the ID-only line into 来源：ASML; crop of frame 100 reads 来源：ASML, no F-number anywhere in frames 18-188 (text size: see A2_01 small-text item)"
+  - item: "NEW 2026-10-22: in stage 3 the bar chases left (chase = total - 1700) and the legend 涂胶 · 曝光 · 刻蚀 travels with it, so it is cut at the left frame edge - frame 171 reads 胶 · 曝光 · 刻蚀, frame 188 only 曝光 · 刻蚀 partly; the bar also stops inside the frame instead of 冲出画面右侧 as the storyboard says"
+    status: glitch
+    fix: in multipatterning() fade the legend out before the chase starts (a * (1 - ease(seg(t, 4.4, 4.8)))) or pin it at x=120 above the bar; optionally let the bar run past x=1920 to match the storyboard
 A2_07:
   - item: 193 nm and 13.5 nm waves drawn to scale - one 193 nm period = 1400 px, 13.5 nm period = 97.9 px, crests counted to 14
     status: sourced
@@ -94,10 +130,17 @@ A2_07:
   - item: wave colours (DUV deep blue-violet, EUV bright violet) and amplitudes (120 vs 60 px)
     status: artistic
     note: both are invisible UV; amplitude carries no meaning. Vacuum wavelengths (in the immersion water ArF is 134 nm; not shown, not needed)
+  - item: "NEW 2026-10-22: the crest counter shows a large 0 at the right (64 px, full alpha) from frame ~6 to frame 38, before any EUV crest exists (n = int(14.3*ease(seg(t,1.6,5.6))) is 0 until t = 1.6 s; frames 24 and 47 in the contact sheet). Storyboard also asks for the short-wave pen to draw a much finer line at the end; frames 160-253 hold the static comparison instead (no fact issue)"
+    status: glitch
+    fix: in to_scale() draw the counter only when n >= 1 (or fade it in with the first crest)
 A2_08:
   - item: 13.5 nm wave as a glowing violet ribbon, no scale or label
     status: artistic
     note: quality, not fact - the WOOD/BANDS displacement makes notched, doubled crests (visible in every preview frame); a sine displacement driven by a proper wave (or a curve with a bevel) would give clean "knife-edge" crests as the storyboard intends
+    verified: "2026-10-22: sample frames 1-60 (10-21 22:31) show a smooth exact sine ribbon (code: 2400-vertex mesh, z = 0.45 sin(2πx/2)) in a 3/4 view receding into black, round clean crests, no notches or doubled crests; colour reads pale lavender-violet (brightest pixels ~197/187/230 sRGB, nothing clipped to white)"
+  - item: "NEW 2026-10-22: stale render - red/blue chromatic fringes along both edges of the ribbon, strongest at the lower-left frame edge (crop of frame 22; also frames 12-33), from compositor dispersion 0.012; common.setup_compositor now uses 0.004 (abcc28b, 10-22 00:57) but the sample predates it"
+    status: glitch
+    fix: re-render A2_08 (sample and final) with the current code; check the fringes are gone at the frame edges
 A2_09:
   - item: EUV replaces several exposures and steps with one exposure for some critical layers
     status: sourced
@@ -105,11 +148,14 @@ A2_09:
   - item: overlay 部分关键层：非光刻工序最多减少 3–5 倍（ASML 引用 imec 研究）
     status: sourced
     source: S2 (AR 2022 p.82 - "According to a study conducted by imec, EUV enables the number of non-lithography processing steps for some critical layers to be reduced by up to three to five times")
+    verified: "2026-10-22: frames 81-177 read 部分关键层：非光刻工序最多减少 3–5 倍 / (ASML 引用 imec 研究), matching the storyboard overlay; no F-number on screen"
   - item: the collapse itself - 4 cycles x (coat, expose, etch + 2 grey extras) = 20 blocks, of which 12 are non-litho (4 etch + 8 extra), collapse to one 3-block cycle with 1 non-litho block
     status: sourced
     fixed: "after the collapse one cycle + 2 grey blocks remain: 12 -> 3 non-litho steps = 4x, inside the 3-5x caption"
     note: 'the picture shows a 12x cut in non-litho steps (6.7x in all steps) right under a caption that says "up to 3-5x". Fix in collapse() - after the sweep keep one cycle plus two grey extra blocks (_steps(c, 120, 600, 1, 2, ...)): 12 -> 3 non-litho blocks = 4x, inside ASML/imec''s range'
+    verified: "2026-10-22: frames 65-177 hold one coat/expose/etch cycle plus two grey blocks (12 -> 3 non-litho = 4x) labelled EUV：一次曝光; frames 17-49 show the 4-cycle bar being swept and grey blocks popping out"
 A2_10:
   - item: the violet light pen flickers and goes out
     status: artistic
     note: render bug, not fact - pen_fails() uses fade(t, 0.0, 0.2, dur, 0.05), which is 1 only inside [0, 0.2 s]; 128 of 132 preview frames are pure black (750-byte PNGs), so the flicker never shows. Fix - fade(t, 0.0, dur, dur, 0.05)
+    verified: "2026-10-22: fixed - code uses fade(t, 0.0, dur, dur, 0.05); the pen is visible frames 2-16 steady, flickers frames 17-62 (peak brightness per frame 127-242, random per frame), dims out by frame ~100, a faint ember at frames 100-113, black from ~118 to 124 (the half-second silence)"
