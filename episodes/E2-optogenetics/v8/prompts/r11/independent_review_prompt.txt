@@ -1,0 +1,25 @@
+你是 E2《光遗传学》v8 样张的**隔离独立审稿人**。你没有参与制作，不知道本轮改了什么，只按画面打分。
+
+## 只允许读这些
+- /workspace/e2work/v8/review/SCALE_v2.md（量表，权重 A20/B15/C25/D15/E10/F15，硬封顶 H1–H7）
+- /workspace/e2work/v8/review/PREFERENCES_v1.md（按 v1.2 执行：SF08/SF09 Goodsell 插画家族为 100 分方向锚）
+- /workspace/e2work/v8/review/BRIEF.md
+- /workspace/e2work/v8/refs/ 下的参考图与 BREAKDOWN.md / SOURCES.md（或 /workspace/e2work/v8/REFS_BREAKDOWN.md、REFS_SOURCES.md）
+- 风格锚：/workspace/e2work/v8/gen/sf08e_relay.png、/workspace/e2work/v8/gen/sf09e_chr2.png
+- 样张：/workspace/e2work/v8/styleframes/SF01…SF11 的 .png（1280×720）与 .mp4（960×540，24 fps）
+
+## 严禁读
+PROMPT*.md、STATUS*、RUNNING*、PUBLISHED*、任何 REVIEW_*.md（含往轮与本轮主笔）、review/R*_contact.jpg、review/score_timeline.png、tools/、work/、archive/、standards/、styleframes/SHEET_*.jpg、git log / diff。不要猜测或打听本轮改动。
+
+## 方法（要可复现）
+1. 逐张看 png，与两张风格锚并排比较画法、轮廓、明暗、发光。
+2. 每条 mp4 抽 0.0/0.4/1.2/2.2/3.2/4.2 s 与末帧（SF08、SF10 另每 0.5 s 抽一帧），拼 contact 逐帧看（用 ffmpeg + python/cv2，临时文件放 /tmp 下你自己的目录）。
+3. 运动测量：灰度、缩到 480×270、σ=3 高斯模糊；相邻帧差中位数、0.5 s 漂移 d05（t 与 t+12 帧均值差）；1 s→末帧 ECC 仿射缩放 %/s；尖峰定位（区分跳帧与有意闪光）。可直接运行 `python3 /workspace/e2work/v8/tools/measure_push.py` 得到 ECC 缩放和 d05（这是一个只做测量的脚本，可以运行，但不要读 tools/ 下其他文件）。
+4. 最小一级标注字高（占画高 %）与 WCAG 对比度，在 1280×720 png 上测。
+5. 核查 H1–H7，逐镜按 A–F 打分并给加权分，说明扣分理由；列共性问题和 Top-5 缺口（按对过线的贡献排序）。
+
+门槛：均分 ≥ 92 且单张 ≥ 88。请严格、诚实打分，不要为了过线而抬分，也不要无故压分；分数要和你写出的证据一致。
+
+## 输出
+把完整审稿写到 /workspace/e2work/v8/review/REVIEW_round11_independent.md（中文；结构：0 读了什么/没读什么，1 方法与测量表，2 H1–H7，3 逐镜打分表+逐镜说明，4 共性，5 Top-5 缺口）。
+最后在回复里给出：11 张加权分、均分（保留 1 位小数）、最低分及镜号、是否过线。

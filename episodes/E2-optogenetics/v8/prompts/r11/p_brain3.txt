@@ -1,0 +1,7 @@
+Edit this illustration. Keep exactly the same mouse brain: same outline, same anatomy (olfactory bulbs on the left, cerebral hemispheres, midbrain, foliated cerebellum on the right), same position and size, same background and the same Goodsell bead style.
+Changes:
+1) Recolour into one harmonious warm family instead of rainbow colours: cerebral hemispheres coral pink and peach with lilac shadows, olfactory bulbs warm rose, the midbrain region between cortex and cerebellum muted rose-violet, cerebellum lilac-pink with its folia clearly visible. Keep soft 3D shading and dark outlines.
+2) Make the cortex surface read as smooth (fine bead texture only, no large lumps that look like folds).
+3) Add a thin vertical optical fiber (dark grey cable with a metal ferrule) coming straight down from the top edge of the image and touching the upper hemisphere at about 52% from the left edge of the image, with a bright cyan glow at its tip.
+4) From the fiber tip, a branching network of glowing cyan-blue neurons (cell bodies with thin dendrites) spreads through the upper hemisphere, brightest near the tip and fading with distance.
+No text, no labels.
