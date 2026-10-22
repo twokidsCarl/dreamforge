@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit } from "next/font/google";
 import { Analytics } from "@/components/Analytics";
+import { ScanLine } from "@/components/ScanLine";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SmoothScroll } from "@/components/SmoothScroll";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -38,6 +40,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="zh-Hans" className={outfit.variable}>
       <body>
+        <SmoothScroll />
+        <ScanLine />
         <a className="skip-link" href="#content">
           跳到内容
         </a>

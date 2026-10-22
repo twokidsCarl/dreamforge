@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { isThemeId } from "./themes";
 import { mp4Source } from "./video";
 import {
   EPISODE_STATUSES,
@@ -117,6 +118,11 @@ function parseEpisode(file: string, value: unknown): Episode {
     fail(file, "published episodes need a publishedAt date");
   }
 
+  const theme = optionalString(file, value, "theme");
+  if (theme && !isThemeId(theme)) {
+    fail(file, "theme must be one of euv, opto, default");
+  }
+
   return {
     slug,
     number,
@@ -127,6 +133,7 @@ function parseEpisode(file: string, value: unknown): Episode {
     video: parseVideo(file, value.video),
     status: status as EpisodeStatus,
     publishedAt,
+    theme,
   };
 }
 
