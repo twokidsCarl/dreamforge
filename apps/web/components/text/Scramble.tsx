@@ -44,7 +44,8 @@ export function Scramble({ value, play }: { value: string; play: boolean }) {
   }, [play, value]);
 
   return (
-    <span className="scramble" style={{ ["--chars" as string]: value.length }} aria-label={value}>
+    <span className="scramble" style={{ ["--chars" as string]: value.length }}>
+      <span className="sr-only">{value}</span>
       <span ref={ref} aria-hidden="true">
         {value}
       </span>

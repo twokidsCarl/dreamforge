@@ -1,5 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
+import euvLithography from "@/content/episodes/euv-lithography.json";
+import optogenetics from "@/content/episodes/optogenetics.json";
 import { isThemeId } from "./themes";
 import { mp4Source } from "./video";
 import {
@@ -11,7 +11,15 @@ import {
   type VideoType,
 } from "./types";
 
-const EPISODES_DIR = path.join(process.cwd(), "content", "episodes");
+/**
+ * Episode JSON is imported, not read from disk. The Cloudflare worker bundle
+ * has no `content/episodes` directory at request time (`process.cwd()` is
+ * `/bundle`). A new episode is a JSON file plus one entry in `SOURCES`.
+ */
+const SOURCES: Array<[string, unknown]> = [
+  ["euv-lithography.json", euvLithography],
+  ["optogenetics.json", optogenetics],
+];
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const NUMBER = /^E[1-9]\d*$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -145,24 +153,9 @@ let cached: Episode[] | null = null;
 
 export function getEpisodes(): Episode[] {
   if (cached) return cached;
-  if (!fs.existsSync(EPISODES_DIR)) {
-    throw new Error(`Missing episode directory: ${EPISODES_DIR}`);
-  }
-  const files = fs
-    .readdirSync(EPISODES_DIR)
-    .filter((name) => name.endsWith(".json"))
-    .sort();
-  if (files.length === 0) throw new Error("No episode JSON files in content/episodes");
+  if (SOURCES.length === 0) throw new Error("No episode JSON files in content/episodes");
 
-  const episodes = files.map((name) => {
-    const full = path.join(EPISODES_DIR, name);
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(fs.readFileSync(full, "utf8")) as unknown;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "invalid JSON";
-      fail(name, message);
-    }
+  const episodes = SOURCES.map(([name, parsed]) => {
     const episode = parseEpisode(name, parsed);
     const expected = `${episode.slug}.json`;
     if (name !== expected) fail(name, `filename must be ${expected}`);

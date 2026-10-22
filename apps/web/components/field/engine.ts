@@ -372,7 +372,7 @@ export function startField(canvas: HTMLCanvasElement, section: HTMLElement, onFa
     raf = 0;
     observer.disconnect();
     resizeObserver.disconnect();
-    section.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("pointermove", onPointerMove);
     document.removeEventListener("visibilitychange", onVisibility);
     canvas.removeEventListener("webglcontextlost", onContextLost);
     unsubscribe();
@@ -383,9 +383,9 @@ export function startField(canvas: HTMLCanvasElement, section: HTMLElement, onFa
   const unsubscribe = subscribeFieldTheme(() => retarget(getFieldTheme()));
   retarget(getFieldTheme());
   resize();
-  observer.observe(section);
+  observer.observe(canvas);
   resizeObserver.observe(section);
-  section.addEventListener("pointermove", onPointerMove, { passive: true });
+  window.addEventListener("pointermove", onPointerMove, { passive: true });
   document.addEventListener("visibilitychange", onVisibility);
   canvas.addEventListener("webglcontextlost", onContextLost);
   syncLoop();

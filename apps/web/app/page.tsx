@@ -12,6 +12,7 @@ export default function HomePage() {
         <div className="hero-field" data-field-root aria-hidden="true">
           <div className="field-poster" data-field-poster />
         </div>
+        <div className="hero-veil" aria-hidden="true" />
         <HeroMount />
         <div className="hero-copy relative z-[2]">
           <p className="font-latin text-[0.72rem] tracking-[0.46em] text-cyan uppercase">系列</p>
