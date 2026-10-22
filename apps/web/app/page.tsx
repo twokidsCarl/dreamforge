@@ -1,3 +1,4 @@
+import { BrandLockup } from "@/components/BrandLockup";
 import { EpisodeCard } from "@/components/EpisodeCard";
 import HeroMount from "@/components/field/HeroMount";
 import { RevealZh } from "@/components/text/RevealZh";
@@ -16,8 +17,8 @@ export default function HomePage() {
         <HeroMount />
         <div className="hero-copy relative z-[2]">
           <p className="font-latin text-[0.72rem] tracking-[0.46em] text-cyan uppercase">系列</p>
-          <img src="/brand/lockup.svg" alt="EigenLens 主观知识" width={1254} height={1254} className="brand-lockup relative mt-6" />
-          <RevealZh text="选主轴，看结构" className="font-serif relative mt-2 text-[clamp(2.5rem,8vw,5.25rem)] leading-[1.08] font-semibold text-cream" />
+          <BrandLockup />
+          <RevealZh text="选主轴，看结构" className="font-serif relative mx-auto mt-2 max-w-[4em] text-balance text-[clamp(3.7rem,8vw,5.25rem)] leading-[1.08] font-semibold text-cream sm:max-w-none" />
           <p className="relative mt-5 max-w-xl text-base leading-8 text-mist sm:text-lg">
             主观，是编辑上的选择。主，取主轴。每一期只沿一条轴，把结构看清楚。
           </p>

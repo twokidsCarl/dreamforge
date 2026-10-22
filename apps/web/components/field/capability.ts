@@ -27,8 +27,15 @@ export function fieldBudget() {
   const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
   const lowEnd = cores <= 4 || (memory !== undefined && memory <= 4);
   const count = lowEnd ? 2000 : mobile ? 4000 : 12000;
-  const dprCap = mobile ? 1.5 : 2;
-  const dpr = Math.min(dprCap, window.devicePixelRatio || 1);
+  const cssW = window.innerWidth || 390;
+  const cssH = window.innerHeight || 800;
+  // Keep the framebuffer small enough that a software GL present stays under
+  // ~12ms. Lighthouse multiplies main-thread time by 4, and a present above
+  // that becomes a long task on every frame.
+  const pixelLimit = mobile ? 140_000 : 1_100_000;
+  const dprCap = mobile ? 1.25 : 1.75;
+  const areaCap = Math.sqrt(pixelLimit / Math.max(1, cssW * cssH));
+  const dpr = Math.max(0.45, Math.min(dprCap, areaCap, window.devicePixelRatio || 1));
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  return { count, dpr, mobile: mobile || !finePointer };
+  return { count, dpr, pixelLimit, mobile: mobile || !finePointer };
 }

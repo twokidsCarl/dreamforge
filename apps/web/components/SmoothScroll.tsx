@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { afterLcpIdle } from "@/components/field/afterPaint";
 import { clearScrollMotion, setScrollMotion, setScrollReader } from "@/components/field/scrollMotion";
 import "lenis/dist/lenis.css";
 
@@ -83,11 +84,16 @@ export function SmoothScroll() {
       })();
     };
 
-    sync();
-    media.addEventListener("change", sync);
+    let listening = false;
+    const cancelIdle = afterLcpIdle(() => {
+      listening = true;
+      sync();
+      media.addEventListener("change", sync);
+    });
     return () => {
+      cancelIdle();
       generation += 1;
-      media.removeEventListener("change", sync);
+      if (listening) media.removeEventListener("change", sync);
       stop?.();
       clearScrollMotion();
     };

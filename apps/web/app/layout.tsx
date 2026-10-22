@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit } from "next/font/google";
 import { Analytics } from "@/components/Analytics";
+import { DeferredFonts } from "@/components/DeferredFonts";
 import { ScanLine } from "@/components/ScanLine";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="zh-Hans" className={outfit.variable}>
       <body>
+        <DeferredFonts />
         <SmoothScroll />
         <ScanLine />
         <a className="skip-link" href="#content">

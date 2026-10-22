@@ -64,7 +64,9 @@ export type FieldHandle = { stop: () => void };
 
 export function startField(canvas: HTMLCanvasElement, section: HTMLElement, onFallback: () => void): FieldHandle {
   const budget = fieldBudget();
+  const pixelLimit = budget.pixelLimit;
   let dpr = budget.dpr;
+  let dprCeiling = budget.dpr;
   let drawCount = budget.count;
   let downgrades = 0;
   let stopped = false;
@@ -215,11 +217,20 @@ export function startField(canvas: HTMLCanvasElement, section: HTMLElement, onFa
     blendStart = performance.now();
   }
 
+  function hostSize() {
+    const host = canvas.parentElement;
+    const width = host?.clientWidth || document.documentElement.clientWidth || window.innerWidth;
+    const height = host?.clientHeight || window.innerHeight;
+    return { width: Math.max(1, width), height: Math.max(1, height) };
+  }
+
   function resize() {
-    const width = document.documentElement.clientWidth || window.innerWidth;
-    const height = section.clientHeight || window.innerHeight;
+    const { width, height } = hostSize();
+    const areaCap = Math.sqrt(pixelLimit / (width * height));
+    const deviceCap = budget.mobile ? 1.25 : 1.75;
+    dpr = Math.max(0.45, Math.min(dprCeiling, deviceCap, areaCap, window.devicePixelRatio || 1));
     renderer.dpr = dpr;
-    renderer.setSize(Math.max(1, width), Math.max(1, height));
+    renderer.setSize(width, height);
     renderer.setViewport(gl.canvas.width, gl.canvas.height);
     const resolution = [gl.canvas.width, gl.canvas.height];
     bg.program.uniforms.uResolution.value = resolution;
@@ -230,7 +241,7 @@ export function startField(canvas: HTMLCanvasElement, section: HTMLElement, onFa
   function downgrade() {
     if (downgrades >= 2) return;
     downgrades += 1;
-    dpr = dpr > 1.5 ? 1.5 : 1;
+    dprCeiling = Math.max(0.45, dpr * 0.72);
     drawCount = Math.max(256, Math.floor(drawCount / 2));
     geometry.setDrawRange(0, drawCount);
     resize();
@@ -364,6 +375,7 @@ export function startField(canvas: HTMLCanvasElement, section: HTMLElement, onFa
   );
 
   const resizeObserver = new ResizeObserver(() => resize());
+  const host = canvas.parentElement;
 
   function stop() {
     if (stopped) return;
@@ -384,6 +396,7 @@ export function startField(canvas: HTMLCanvasElement, section: HTMLElement, onFa
   retarget(getFieldTheme());
   resize();
   observer.observe(canvas);
+  if (host) resizeObserver.observe(host);
   resizeObserver.observe(section);
   window.addEventListener("pointermove", onPointerMove, { passive: true });
   document.addEventListener("visibilitychange", onVisibility);

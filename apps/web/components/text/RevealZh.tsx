@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { afterLcpIdle } from "@/components/field/afterPaint";
 import { prefersReducedMotion } from "@/components/field/capability";
 
 /**
@@ -72,14 +73,20 @@ export function RevealZh({ text, className }: { text: string; className?: string
       split = null;
     };
 
-    if (!prefersReducedMotion()) play();
+    let opened = false;
+    const cancelIdle = afterLcpIdle(() => {
+      opened = true;
+      if (!cancel && !prefersReducedMotion()) play();
+    });
     const onChange = () => {
+      if (!opened) return;
       stop();
       if (!media.matches) play();
     };
     media.addEventListener("change", onChange);
     return () => {
       cancel = true;
+      cancelIdle();
       media.removeEventListener("change", onChange);
       stop();
     };

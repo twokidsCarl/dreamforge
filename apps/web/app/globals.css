@@ -15,37 +15,10 @@
   --font-serif: "Noto Serif SC", "Songti SC", "Source Han Serif SC", "STSong", serif;
 }
 
-@font-face {
-  font-family: "Noto Sans SC";
-  src: url("/fonts/noto-sans-sc-400.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Noto Sans SC";
-  src: url("/fonts/noto-sans-sc-700.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Noto Serif SC";
-  src: url("/fonts/noto-serif-sc-600.woff2") format("woff2");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Noto Serif SC";
-  src: url("/fonts/noto-serif-sc-700.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
+/* Noto faces live in /fonts/faces.css and are attached after first paint.
+   Keeping them out of this sheet stops the woff2 requests from landing in
+   the LCP dependency graph. The stacks below paint with a system CJK face
+   until that sheet arrives. */
 
 html {
   color-scheme: dark;
@@ -161,6 +134,12 @@ body::after {
   width: min(86vw, 28rem);
   height: auto;
   filter: drop-shadow(0 0 28px rgba(243, 194, 90, 0.18));
+}
+
+.brand-lockup svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .axis {
