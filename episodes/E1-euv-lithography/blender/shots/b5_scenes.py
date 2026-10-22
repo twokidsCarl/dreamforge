@@ -111,7 +111,7 @@ def _field_plate(name, centre, prev, nxt, cols=3, rows=10, mat=None):
     back = bpy.context.object
     back.name = name + "Carrier"
     back.rotation_euler = rot
-    back.scale = (cols * 0.5 + 0.25, rows * 0.085 + 0.25, 1.0)
+    back.scale = (cols * 0.29, rows * 0.056, 1.0)                    # the carrier just holds the facet columns
     back.data.materials.append(M.dark_anodized(name + "Dark"))
     styles.tag(back, "structure")
     me = _arc_mesh(name + "Arc", 0.46, 0.06, 0.9)
@@ -210,8 +210,9 @@ def module(sc, rnd):
     _key(o, 1, hide_render=True)                          # unlit it would be a black card
     _key(o, 71, hide_render=False)
     B._area("ModKey", (-1.5, -8, 6), (1.0, 0, 0), 10, 1200, (0.9, 0.92, 1.0))
-    B._camera("CamB5_02", [(1, (-1.4, 0, 1.4), (3.0, -9.5, 6.0), 40, 5.6),      # three-quarter view onto both plates
-                           (142, (-1.4, 0, 1.5), (2.2, -8.4, 5.2), 40, 5.6)])
+    # from the IF side: the field facets face -x (toward the IF), so the camera stands there; the exit patch in frame
+    B._camera("CamB5_02", [(1, (-0.6, 0, 1.6), (-8.5, -8.0, 3.2), 32, 5.6),
+                           (142, (-0.4, 0, 1.7), (-7.6, -7.4, 3.0), 32, 5.6)])
 
 
 # ---- B5_03 ---------------------------------------------------------------------------------
@@ -338,15 +339,15 @@ def facets(sc, rnd):
                 continue
             c = PUPIL_C + u * x + v * y
             m = M.principled(f"Pupil{len(pupil)}", (0.80, 0.78, 0.74), metallic=1.0, roughness=0.04,
-                             emission=VIOLET, emission_strength=0.0)
+                             emission=(0.40, 0.16, 1.0), emission_strength=0.0)
             bpy.ops.mesh.primitive_cylinder_add(radius=pitch * 0.42, depth=0.03, vertices=24, location=tuple(c))
             pf = bpy.context.object
             pf.rotation_euler = q.to_euler()
             pf.data.materials.append(m)
             styles.tag(pf, "structure")
             pupil.append((c, x / rad, y / rad, m))
-    ray_mat = M.emission("FacetRay", VIOLET, 2.0)
-    for pat, (t0, t1) in (("ring", (150, 196)), ("dipole", (196, FRAMES))):
+    ray_mat = M.emission("FacetRay", (0.40, 0.16, 1.0), 2.0)
+    for pat, (t0, t1) in (("ring", (150, 196)), ("dipole", (196, FRAMES + 40))):   # the dipole stays to the end
         lit = [p for p in pupil if _pupil_pattern(pat, p[1], p[2])]
         pool = field[:]
         rnd.shuffle(pool)
@@ -354,13 +355,13 @@ def facets(sc, rnd):
             f, fc, col = pool[k % len(pool)]
             on = t0 + int(col * 4)                                  # a column-by-column wave of re-tilting
             em = m.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"]
-            for fr, val in ((on - 1, 0.0), (on + 4, 5.0), (t1 - 1, 5.0), (t1, 0.0)):
+            for fr, val in ((on - 1, 0.0), (on + 4, 2.2), (t1 - 1, 2.2), (t1, 0.0)):
                 if fr > FRAMES:
                     continue
                 em.default_value = val
                 em.keyframe_insert("default_value", frame=fr)
             if k % 2 == 0:                                          # every other channel drawn as a ray
-                r = _curve(f"Ch{pat}{k}", [tuple(fc + Vector((0, -0.05, 0))), tuple(c)], ray_mat, radius=0.008)
+                r = _curve(f"Ch{pat}{k}", [tuple(fc + Vector((0, -0.05, 0))), tuple(c)], ray_mat, radius=0.03)
                 r.data.bevel_factor_end = 0.0
                 r.data.keyframe_insert("bevel_factor_end", frame=on - 2)
                 r.data.bevel_factor_end = 1.0
