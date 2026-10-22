@@ -204,19 +204,23 @@ def build():
 
     shell, vol, core, core_mat, light = S.plasma()
     shell.location = core.location = (PLASMA_X, 0, 0)
-    for f, k in ((T_MAIN - 1, 0.0), (T_MAIN, 0.1), (T_MAIN + 6, 0.65), (T_MAIN + 40, 1.05),
+    # core and shell appear one frame AFTER the main pulse arrives, when their emission is already high: at T_MAIN
+    # itself the emission is still 0 and an unlit core / dense unlit volume rendered as a black dot on the sheet
+    T_LIT = T_MAIN + 1
+    for f, k in ((T_MAIN, 0.0), (T_LIT, 0.14), (T_MAIN + 6, 0.65), (T_MAIN + 40, 1.05),
                  (FRAME_END, 1.25)):
         _key(shell, f, scale=(k, k, k))
-    _key(core, T_MAIN - 1, scale=(0, 0, 0))
-    _key(core, T_MAIN, scale=(1.6, 1.6, 1.6))
-    for fc in C.fcurves(core.animation_data.action):        # appears at the main pulse, no dark dot growing before it
-        for kp in fc.keyframe_points:
-            if kp.co[0] < T_MAIN:
-                kp.interpolation = "CONSTANT"
+    _key(core, T_MAIN, scale=(0, 0, 0))
+    _key(core, T_LIT, scale=(1.6, 1.6, 1.6))
+    for ob in (shell, core):                                 # a hard step at T_LIT, also on sub-frames (A0_01, C_02)
+        for fc in C.fcurves(ob.animation_data.action):
+            for kp in fc.keyframe_points:
+                if kp.co[0] < T_LIT:
+                    kp.interpolation = "CONSTANT"
     _key(core, T_MAIN + 30, scale=(1, 1, 1))
-    for f, e in ((T_MAIN, 0), (T_MAIN + 2, 22), (T_MAIN + 20, 4.5), (FRAME_END, 1.5)):
+    for f, e in ((T_MAIN, 0), (T_LIT, 16), (T_MAIN + 2, 22), (T_MAIN + 20, 4.5), (FRAME_END, 1.5)):
         M.set_volume_strength(vol, f, emission_strength=e)
-    for f, e in ((T_MAIN, 0), (T_MAIN + 1, 160), (T_MAIN + 35, 14), (FRAME_END, 4)):
+    for f, e in ((T_MAIN, 160), (T_LIT, 160), (T_MAIN + 35, 14), (FRAME_END, 4)):    # lit whenever it is visible
         M.set_emission_strength(core_mat, f, e)
     for f, e in ((T_MAIN, 0), (T_MAIN + 1, 4000), (T_MAIN + 14, 600), (T_MAIN + 40, 110), (FRAME_END, 45)):
         light.data.energy = e

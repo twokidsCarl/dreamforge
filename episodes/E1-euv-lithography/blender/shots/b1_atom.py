@@ -22,6 +22,25 @@ VIOLET = (0.62, 0.45, 1.0)
 WHITE_VIOLET = (0.9, 0.85, 1.0)
 
 
+def _glow(name, color, strength):
+    """Additive emitter: emission + transparent, so a line at strength 0 is invisible instead of an opaque black
+    stroke (unlit transition lines drew a black lattice over the levels; the unlit beam a dark bar, B1_19/B1_20).
+    Strength is keyed through nodes['Emission'] like materials.emission()."""
+    m = M.emission(name, color, strength)
+    nt = m.node_tree
+    em = nt.nodes["Emission"]
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    add = nt.nodes.new("ShaderNodeAddShader")
+    nt.links.new(em.outputs[0], add.inputs[0])
+    nt.links.new(tr.outputs[0], add.inputs[1])
+    nt.links.new(add.outputs[0], nt.nodes["Material Output"].inputs["Surface"])
+    if hasattr(m, "surface_render_method"):
+        m.surface_render_method = "BLENDED"
+    if hasattr(m, "use_transparency_overlap"):
+        m.use_transparency_overlap = True
+    return m
+
+
 def _ring(name, radius, mat, thickness=0.006):
     bpy.ops.curve.primitive_bezier_circle_add(radius=radius)
     ob = bpy.context.object
@@ -99,7 +118,7 @@ def build_atom(sc, rnd):
 def build_web(sc, rnd, n_levels=420, n_lines=2600, groups=12):
     """Energy levels as horizontal lines (floors), transitions as thin vertical-ish strokes."""
     levels = sorted(rnd.uniform(-3.0, 3.0) for _ in range(n_levels))
-    lvl_mat = M.emission("Level", (0.25, 0.22, 0.5), 0.5)
+    lvl_mat = _glow("Level", (0.20, 0.12, 0.62), 0.45)
     cu = bpy.data.curves.new("Levels", "CURVE")
     cu.dimensions = "3D"
     cu.bevel_depth = 0.0025
@@ -117,7 +136,7 @@ def build_web(sc, rnd, n_levels=420, n_lines=2600, groups=12):
     # transition lines in groups, each group lights up at its own time
     group_mats = []
     for g in range(groups):
-        mat = M.emission(f"Transitions{g}", VIOLET, 0.0)
+        mat = _glow(f"Transitions{g}", (0.40, 0.16, 1.0), 0.0)     # additive: thousands overlap, keep it saturated
         group_mats.append(mat)
         cu = bpy.data.curves.new(f"Trans{g}", "CURVE")
         cu.dimensions = "3D"
@@ -134,23 +153,25 @@ def build_web(sc, rnd, n_levels=420, n_lines=2600, groups=12):
         sc.collection.objects.link(ob)
         ob.data.materials.append(mat)
         styles.tag(ob, "emitter")
+        _key(ob, 1, hide_render=True)                       # and not drawn at all before its wave arrives
+        _key(ob, 10 + 12 * g, hide_render=False)
         M.set_emission_strength(mat, 1, 0.0)
         M.set_emission_strength(mat, 10 + 12 * g, 0.0)
-        peak = 0.8 + 2.4 * ((g * 7) % groups) / groups     # groups glow at different strengths
+        peak = 0.3 + 0.9 * ((g * 7) % groups) / groups     # groups glow at different strengths (additive: low)
         M.set_emission_strength(mat, 18 + 12 * g, peak)
         # B1_20 part (frames 170+): the web dims while a beam forms
         M.set_emission_strength(mat, 170, peak)
-        M.set_emission_strength(mat, 215, 0.25)
-    beam_mat = M.emission("Beam", VIOLET, 0.0)
+        M.set_emission_strength(mat, 215, 0.08)
+    beam_mat = _glow("Beam", (0.40, 0.16, 1.0), 0.0)     # saturated violet, not a pastel that clips white
     bpy.ops.mesh.primitive_cylinder_add(radius=0.06, depth=12, location=(6.0, 0, 0), rotation=(0, math.pi / 2, 0))
     beam = bpy.context.object
     beam.name = "ConvergedBeam"
     beam.data.materials.append(beam_mat)
     styles.tag(beam, "emitter")
-    for f, v in ((1, 0.0), (175, 0.0), (205, 9.0), (380, 7.0)):
+    for f, v in ((1, 0.0), (175, 0.0), (177, 1.2), (205, 5.0), (380, 4.0)):
         M.set_emission_strength(beam_mat, f, v)
-    _key(beam, 1, hide_render=True)                   # at zero emission it is a black bar across the web
-    _key(beam, 175, hide_render=False)
+    _key(beam, 1, hide_render=True)                   # unhidden once it emits (additive, so no dark bar either)
+    _key(beam, 177, hide_render=False)
     import sample_b1 as B
     # B1_19: start close on a few floors, pull back until the web fills frame
     B._camera("CamB1_19", [(1, (0.4, 0, 0.3), (0.5, -1.4, 0.35), 24, 11.0),

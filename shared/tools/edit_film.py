@@ -73,7 +73,7 @@ def labels_for(s, mg):
     if s["id"] in mg or s.get("style") == "type":
         return []
     dur = s["duration"]
-    ovs = [o for o in s.get("overlays") or [] if o.get("kind") != "chapter"]
+    ovs = [o for o in s.get("overlays") or [] if o.get("kind") not in ("chapter", "page")]
     timed = sorted((o for o in ovs if o.get("at") is not None), key=lambda o: o["at"])
     plain = [o for o in ovs if o.get("at") is None]
     out = []
@@ -97,6 +97,38 @@ def chapter_of(s, mg):
             title, _, sub = t.partition("：")
             return title.strip(), sub.strip()
     return None
+
+
+def page_of(s):
+    return next((o for o in s.get("overlays") or [] if o.get("kind") == "page"), None)
+
+
+def draw_page(img, pg, t, W, H):
+    """A 'textbook page' inserted over a 3D shot (left third): old title, struck through at `strike`, new title written
+    at `write`, a source line. Overlay keys: kind: page, at, strike, write, old, new, note."""
+    a = max(0.0, min(1.0, (t - pg["at"]) / 0.4))
+    if a <= 0:
+        return img
+    k = H / 1080
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    x0, y0, x1, y1 = 110 * k, 300 * k, 760 * k, 760 * k
+    d.rounded_rectangle([x0, y0, x1, y1], radius=10 * k, fill=(236, 232, 222, int(235 * a)))
+    for yy in range(int(y0 + 60 * k), int(y1 - 40 * k), int(34 * k)):          # faint ruled lines
+        d.line([(x0 + 30 * k, yy), (x1 - 30 * k, yy)], fill=(200, 196, 186, int(150 * a)), width=max(1, int(k)))
+    f1, f2, f3 = font(int(40 * k)), font(int(44 * k)), font(int(26 * k))
+    d.text((x0 + 40 * k, y0 + 60 * k), pg["old"], font=f1, fill=(70, 70, 76, int(255 * a)))
+    st = max(0.0, min(1.0, (t - pg["strike"]) / 0.5))
+    if st > 0:
+        tw = d.textlength(pg["old"], font=f1)
+        yy = y0 + 84 * k
+        d.line([(x0 + 36 * k, yy), (x0 + 36 * k + (tw + 8 * k) * st, yy)], fill=(200, 40, 40, int(255 * a)), width=int(4 * k))
+    wr = max(0.0, min(1.0, (t - pg["write"]) / 0.6))
+    if wr > 0:
+        txt = pg["new"][:max(1, int(len(pg["new"]) * wr))]
+        d.text((x0 + 40 * k, y0 + 190 * k), txt, font=f2, fill=(92, 50, 200, int(255 * a)))
+    d.text((x0 + 40 * k, y1 - 70 * k), pg.get("note", ""), font=f3, fill=(110, 110, 118, int(255 * a)))
+    return Image.alpha_composite(img.convert("RGBA"), layer)
 
 
 def draw_chapter(img, title, sub, a, W, H):
@@ -129,7 +161,7 @@ def picture(shots, W, H, order, tmp):
     for s in shots:
         a = round((s["start"] - t_film0) * FPS)
         b = round((s["start"] + s["duration"] - t_film0) * FPS)
-        spans.append((s, a, b, best_frames(s["id"], order), (labels_for(s, mg), chapter_of(s, mg))))
+        spans.append((s, a, b, best_frames(s["id"], order), (labels_for(s, mg), chapter_of(s, mg), page_of(s))))
     cache = {}
 
     def frame_of(span, f):
@@ -152,8 +184,10 @@ def picture(shots, W, H, order, tmp):
             prev = frame_of(spans[k - 1], f)
             img = Image.blend(prev, img, (f - a + 1) / (DISSOLVE + 1))
         img = img.convert("RGBA")
-        labs, chap = lab
+        labs, chap, pg = lab
         t = (f - a) / FPS
+        if pg:
+            img = draw_page(img, pg, t, W, H)
         if chap:                                                     # chapter card 0.2-2.8 s, 0.5 s fades
             ca = max(0.0, min(1.0, (t - 0.2) / 0.5, (2.8 - t) / 0.5))
             if ca > 0:

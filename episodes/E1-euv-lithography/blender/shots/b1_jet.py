@@ -34,7 +34,9 @@ LAM = 14.0 * UM                      # small-droplet spacing (70 m/s / 5 MHz)
 GROUP = 100                          # small droplets per final droplet
 V_FLOW = LAM / 2.0                   # slow motion: one small droplet every 2 frames
 L_BREAK = LAM * 5.25                 # breakup length (not public; ~75 um), on a wave crest
-D0, K_MERGE, W_MERGE = 1.2, 1.15, 0.9   # coalescence: member at offset o merges at D = D0 + K|o| .. + W
+D0, K_MERGE, W_MERGE = 1.2, 0.75, 2.7   # coalescence: member at offset o merges at D = D0 + K|o| .. + W
+# (a wide W: the catching-up droplets slide in gently, ~1/3 of the old per-frame jump; the whole group of 100 still
+# merges within B1_05, by sim ~640)
 META_GROW = 1.0 / 0.575              # a lone metaball's surface sits at ~0.575 of its radius (threshold 0.6)
 Y_MAX = 30.0
 RINGS, SEGS = 160, 20
@@ -187,8 +189,10 @@ def build():
     B._lights([jet, drops, tip])
     bpy.app.handlers.frame_change_pre.append(_update)
     # B1_04: nozzle macro, slow push; only the hair-thin jet and the first small droplets are in frame
+    # registry step 0.25: the shot spans sim 300-343, so the flow advances LAM/8 per rendered frame (at LAM/2 the
+    # ripple repeated every 2 frames and the jet buzzed in place); the push is keyed over that window
     B._camera("CamB1_04", [(300, (0, 0.34, 0), (1.05, -0.2, 0.36), 50, 8.0),     # frame ~140 um wide
-                           (520, (0, 0.32, 0), (0.85, -0.1, 0.29), 50, 8.0)])
+                           (343, (0, 0.325, 0), (0.90, -0.125, 0.31), 50, 8.0)])
     # B1_05: ride along with one group (g = 2) at the flow speed, centred on the drop that grows in its middle, so
     # the small droplets stream in from both sides and merge; then pull back to two final droplets 1.4 mm apart
     def yc(f, g=2):
@@ -203,3 +207,10 @@ def build():
                 kp.interpolation = "LINEAR"                   # match the flow exactly while riding along
     _update(sc)
     return sc
+
+
+def after_style(style, shot_id):
+    """The jet and the droplets are rewritten by a frame handler; Cycles' motion blur of a re-meshed tube and of
+    metaballs is not a blur of their motion but a smear between unrelated sub-frame meshes (rectangular slabs,
+    streaks). The camera move is slow, so motion blur is simply off for these shots."""
+    bpy.context.scene.render.use_motion_blur = False

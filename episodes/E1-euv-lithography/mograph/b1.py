@@ -8,6 +8,40 @@ from PIL import Image, ImageEnhance, ImageFilter
 
 from mograph import (BG, BLUE_BG, CYAN, INK, INK2, LINE, ORANGE, RENDERS, VIOLET, Canvas, ease, ease_out,
                      fade, seg, shot)
+from overlay_labels import font
+
+
+def text_w(c, s, size):
+    """Width of a string in design pixels."""
+    b = c.d.textbbox((0, 0), s, font=font(int(c.px(size))))
+    return (b[2] - b[0]) / c.k
+
+
+def rich(c, xy, parts, size, color, a, anchor="l"):
+    """Text with sub/superscripts the Heiti face lacks (₂, ⁺ are blank boxes): parts = [(str, "n"|"sub"|"sup")].
+    anchor: l / r / m on the baseline row, vertically centred like anchor 'lm'."""
+    widths = [text_w(c, s, size * (0.62 if k != "n" else 1.0)) + (0.42 * size if k != "n" else 0) for s, k in parts]
+    x = xy[0] - {"l": 0, "m": sum(widths) / 2, "r": sum(widths)}[anchor]
+    for (s, k), w in zip(parts, widths):
+        if k == "n":
+            c.text((x, xy[1]), s, size, color, a, anchor="lm")
+        else:
+            dy = 0.30 * size if k == "sub" else -0.34 * size
+            _script(c, (x + 1, xy[1] + dy), s, size * 0.62, color, a)
+        x += w
+
+
+def _script(c, xy, s, size, color, a):
+    """A sub/superscript glyph beside a >= 26 px word: drawn directly (Canvas.text would raise it to 26 px)."""
+    from PIL import Image, ImageDraw
+    f = font(int(c.px(size)))
+    x, y = c.px(xy[0]), c.px(xy[1])
+    x0, y0, x1, y1 = (int(v) for v in c.d.textbbox((x, y), s, font=f, anchor="lm"))
+    x0, y0, x1, y1 = max(0, x0 - 2), max(0, y0 - 2), min(c.W, x1 + 2), min(c.H, y1 + 2)
+    if a > 0 and x1 > x0 and y1 > y0:
+        mask = Image.new("L", (x1 - x0, y1 - y0), 0)
+        ImageDraw.Draw(mask).text((x - x0, y - y0), s, font=f, fill=int(255 * min(1.0, a)), anchor="lm")
+        c.img.paste(Image.new("RGB", mask.size, color), (x0, y0), mask)
 
 
 # ---- reusable: the light ledger ------------------------------------------------------------
@@ -20,7 +54,7 @@ def ledger_y(power):
     return LEDGER_TOP + (hi - math.log10(power)) / (hi - lo) * LEDGER_H
 
 
-def draw_ledger(c, entries, reveal, x=1640, w=46, a=1.0, title="光的账本"):
+def draw_ledger(c, entries, reveal, x=1640, w=46, a=1.0, title="光的账本", sub_size=28):
     """entries: [(power_W, label, sublabel, color)] top to bottom; reveal: 0..len(entries)."""
     c.text((x + w / 2, LEDGER_TOP - 70), title, 30, INK, a, anchor="mm")
     c.rect((x, LEDGER_TOP, x + w, LEDGER_TOP + LEDGER_H), outline=INK2, width=2, a=0.5 * a, radius=6)
@@ -30,12 +64,13 @@ def draw_ledger(c, entries, reveal, x=1640, w=46, a=1.0, title="光的账本"):
             continue
         y = ledger_y(pw)
         top = LEDGER_TOP if i == 0 else ledger_y(entries[i - 1][0])
-        c.rect((x + 4, max(LEDGER_TOP + 4, y), x + w - 4, LEDGER_TOP + LEDGER_H - 4), fill=col, a=0.55 * a * r,
-               radius=4, glow=True)
-        c.line((x - 14, y), (x + w + 14, y), col, 3, a * r)
+        # no additive glow on the fill: it washed orange to peach and violet to pink
+        c.rect((x + 4, max(LEDGER_TOP + 4, y), x + w - 4, LEDGER_TOP + LEDGER_H - 4), fill=col, a=0.62 * a * r,
+               radius=4)
+        c.line((x - 14, y), (x + w + 14, y), col, 3, a * r, glow=True)
         c.text((x - 28, y), label, 30, INK, a * r, anchor="rm")
-        if sub:
-            c.text((x - 28, y + 38), sub, 20, INK2, a * r, anchor="rm")
+        if sub:                                   # the number is the point: 28 px on 1080, light grey
+            c.text((x - 28, y + 40), sub, sub_size, (205, 210, 222), a * r, anchor="rm")
 
 
 def _blur_bg(path, W, H, dark=0.35):
@@ -84,7 +119,7 @@ def droplet_scale(t, dur, W, H):
     v = 70 * ease_out(seg(t, 2.6, dur - 0.3))
     c.text((1500, 800), f"{v:4.0f}", 120, ORANGE, a * ease(seg(t, 2.4, 2.8)), anchor="rm", weight_glow=True)
     c.text((1520, 790), "m/s", 40, INK2, a * ease(seg(t, 2.4, 2.8)), anchor="lm")
-    c.text((1520, 840), "（F3）", 22, INK2, a * ease(seg(t, 2.4, 2.8)), anchor="lm")
+    c.text((1520, 845), "（F3）", 26, INK2, a * ease(seg(t, 2.4, 2.8)), anchor="lm")
     return c.finish()
 
 
@@ -127,6 +162,30 @@ def why_prepulse(t, dur, W, H):
 
 
 # ---- B1_18 tin spectrum (UTA) --------------------------------------------------------------
+BIN = 0.05                       # nm per stacking bin (a 0.01 nm bin made one needle far above the envelope)
+PEAK_H = 600                     # design px: the tallest stack tops out ~60 px under the 13.5 nm label
+
+
+def _spectrum_lines(seed=7, per_state=170):
+    """Every line once, independent of t: (charge state index, wavelength, height, base). Stacked per BIN."""
+    rnd = random.Random(seed)
+    stacks, lines = {}, []
+    for i, q in enumerate(range(8, 15)):
+        centre = 13.5 + (q - 11) * 0.05            # every charge state lands near 13.5 nm (S12)
+        for _ in range(per_state):
+            lam = rnd.gauss(centre, 0.24)
+            if not 10.0 < lam < 18.0:
+                continue
+            key = round(lam / BIN)
+            hgt = rnd.uniform(14, 46)
+            lines.append((i, lam, hgt, stacks.get(key, 0.0)))
+            stacks[key] = stacks.get(key, 0.0) + hgt
+    return lines, PEAK_H / max(stacks.values())
+
+
+_SPEC = _spectrum_lines()
+
+
 @shot("B1_18")
 def tin_spectrum(t, dur, W, H):
     c = Canvas(W, H)
@@ -137,33 +196,48 @@ def tin_spectrum(t, dur, W, H):
     c.line((x0, yb), (x1, yb), INK2, 2, a)
     for lam in range(10, 19):
         c.line((X(lam), yb), (X(lam), yb + 12), INK2, 2, a)
-        c.text((X(lam), yb + 40), f"{lam}", 24, INK2, a, anchor="mm")
-    c.text((x1, yb + 80), "波长（nm）", 24, INK2, a, anchor="rm")
-    rnd = random.Random(7)
-    heights = {}
-    states = list(range(8, 15))
-    for i, q in enumerate(states):
-        r = ease_out(seg(t, 0.6 + 0.55 * i, 1.4 + 0.55 * i))
+        c.text((X(lam), yb + 40), f"{lam}", 26, INK2, a, anchor="mm")
+    c.text((x1, yb + 84), "波长（nm）", 26, INK2, a, anchor="rm")
+    lines, k = _SPEC
+    n_states = 7
+    rev = [ease_out(seg(t, 0.6 + 0.55 * i, 1.4 + 0.55 * i)) for i in range(n_states)]
+    # soft envelope behind the lines: the smoothed sum of what has landed so far (an unresolved array, not a comb)
+    nb = 240
+    env = [0.0] * nb
+    for i, lam, hgt, base in lines:
+        if rev[i] > 0:
+            j = int((lam - lam0) / (lam1 - lam0) * nb)
+            if 0 <= j < nb:
+                env[j] += hgt * rev[i]
+    sig = 3.0
+    kern = [math.exp(-0.5 * (d / sig) ** 2) for d in range(-9, 10)]
+    ks = sum(kern)
+    sm = [sum(env[min(nb - 1, max(0, j + d - 9))] * kern[d] for d in range(19)) / ks for j in range(nb)]
+    norm = k * BIN / ((lam1 - lam0) / nb)                      # same height scale as the stacked lines
+    if max(sm) > 0:
+        pts = [(X(lam0 + (j + 0.5) * (lam1 - lam0) / nb), yb - sm[j] * norm * 1.05) for j in range(nb)]
+        poly = [(c.px(x), c.px(y)) for x, y in [(x0, yb)] + pts + [(x1, yb)]]
+        c.d.polygon(poly, fill=(*[int(v * 0.55) for v in VIOLET], int(110 * a)))
+        c.g.polygon(poly, fill=tuple(int(v * 0.35 * a) for v in VIOLET))
+        c.d.line([(c.px(x), c.px(y)) for x, y in pts], fill=(*VIOLET, int(200 * a)), width=max(1, int(c.px(2))))
+    for i, lam, hgt, base in lines:
+        r = rev[i]
         if r <= 0:
             continue
-        shade = 0.45 + 0.55 * i / (len(states) - 1)
+        shade = 0.45 + 0.55 * i / (n_states - 1)
         col = tuple(int(v * shade) for v in VIOLET)
-        centre = 13.5 + (q - 11) * 0.05            # every charge state lands near 13.5 nm
-        for _ in range(170):
-            lam = rnd.gauss(centre, 0.24)
-            if not lam0 < lam < lam1:
-                continue
-            key = round(lam, 2)
-            base = heights.get(key, 0)
-            hgt = rnd.uniform(14, 46)
-            heights[key] = base + hgt
-            y_top = yb - (base + hgt) * r
-            c.line((X(lam), yb - base * r), (X(lam), y_top), col, 2, a * r)
-        c.text((x0 + 10, 180 + 42 * i), f"Sn{q}+", 28, tuple(min(255, int(v * 1.25)) for v in col), a * r)
+        y0 = yb - base * k * r
+        c.line((X(lam), y0), (X(lam), y0 - hgt * k * r), col, 2, a * r)
+    for i in range(n_states):
+        if rev[i] <= 0:
+            continue
+        shade = 0.45 + 0.55 * i / (n_states - 1)
+        col = tuple(min(255, int(v * (0.75 + 0.45 * i / (n_states - 1)))) for v in VIOLET)   # legible even when dim
+        rich(c, (x0 + 10, 200 + 46 * i), [("Sn", "n"), (f"{8 + i}+", "sup")], 30, col, a * rev[i])
     lab = ease(seg(t, 4.8, 5.6))
-    c.line((X(13.5), 160), (X(13.5), yb), INK, 2, a * lab, glow=True)
-    c.text((X(13.5) + 20, 170), "13.5 nm", 40, INK, a * lab, weight_glow=True)
-    c.text((x1, 130), "成千上万条谱线（示意，F24）", 24, INK2, a, anchor="rm")
+    c.line((X(13.5), 210), (X(13.5), yb), INK, 2, a * lab, glow=True)
+    c.text((X(13.5) + 20, 190), "13.5 nm", 40, INK, a * lab, anchor="lm", weight_glow=True)
+    c.text((x1, 120), "成千上万条谱线挤在一起（未分辨跃迁阵列 UTA · 示意）", 28, INK2, a, anchor="rm")
     return c.finish()
 
 
@@ -184,8 +258,8 @@ def ledger_b1(t, dur, W, H):
     for k in range(6):
         y = y600 - (y600 - y1000) * k / 6
         c.line((1090, y), (1090, y - (y600 - y1000) / 12), VIOLET, 3, a * d)
-    c.text((1120, y1000), "1000 W · ASML 2025 年演示", 28, VIOLET, a * d, anchor="lm")
-    c.text((960, 1010), "量级示意 · 对数刻度", 22, INK2, a, anchor="mm")
+    c.text((1120, y1000), "1000 W · ASML 2025 年演示", 30, VIOLET, a * d, anchor="lm")
+    c.text((1880, 1000), "量级示意 · 对数刻度", 26, INK2, a, anchor="rm")
     return c.finish()
 
 
@@ -199,16 +273,26 @@ def two_pulses(t, dur, W, H):
     c.circle((dx, dy), 60, outline=(90, 110, 150), width=3, a=a)          # the droplet's silhouette
     c.circle((dx, dy), 60, outline=(90, 110, 150), width=1, a=a * 0.4, glow=True)
     c.circle((200, dy), 46, outline=(60, 70, 96), width=2, a=a * 0.8)     # the collector's central hole
+    hole = 200
     for k, (t0, w, length, lab) in enumerate(((0.6, 6, 220, "预脉冲：细"), (1.8, 18, 300, "主脉冲：粗"))):
         p = ease(seg(t, t0, t0 + 1.4))
         if p <= 0:
             continue
-        head = 200 + (dx - 80 - 200) * p - 160 * k * (1 - p)
-        c.line((max(200, head - length), dy), (head, dy), ORANGE, w, a, glow=True)
-        la = a * min(1.0, p * 3) * (1 - ease(seg(t, 1.9, 2.3)) if k == 0 else 1.0)   # one label at a time
-        c.text((head - length / 2, dy - 50 if k == 0 else dy + 52), lab, 26, ORANGE, la, anchor="mm")
+        head = hole + (dx - 80 - hole) * p - 160 * k * (1 - p)
+        tail = max(hole, head - length)
+        if head <= tail:
+            continue
+        c.line((tail, dy), (head, dy), (255, 122, 40), w, a, glow=True)        # deep orange core, not white
+        # the label sits on the visible part of the pulse and only once enough of it is out of the hole
+        # (it used to sit at head - length/2, off the left edge while the main pulse was still entering)
+        lw = text_w(c, lab, 28)
+        lx = max(hole + lw / 2 + 10, (tail + head) / 2)
+        la = a * ease(seg(head - tail, 0.35 * length, 0.8 * length))
+        if k == 0:
+            la *= 1 - ease(seg(t, 1.9, 2.3))                       # one label at a time
+        c.text((lx, dy - 52 if k == 0 else dy + 56), lab, 28, ORANGE, la, anchor="mm")
     x2 = ease(seg(t, 2.8, 3.3))
     c.text((1760, 200), "×2", 120, ORANGE, a * x2, anchor="mm", weight_glow=True)
-    c.text((1760, 290), "每颗锡滴打两次", 28, INK, a * x2, anchor="mm")
-    c.text((1880, 1030), "CO2 激光为红外光，橙色为示意", 18, INK2, a, anchor="rm")
-    return c.finish(glow_radius=10, glow_gain=1.0)
+    c.text((1760, 290), "每颗锡滴打两次", 30, INK, a * x2, anchor="mm")
+    rich(c, (1880, 1000), [("CO", "n"), ("2", "sub"), ("激光为红外光，橙色为示意", "n")], 26, INK2, a, anchor="r")
+    return c.finish(glow_radius=10, glow_gain=0.55)

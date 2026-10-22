@@ -36,19 +36,22 @@ def five_pascal(t, dur, W, H):
             c.circle((px + d, py), 6, fill=CYAN, a=a * show * 0.9, glow=True)
     # pressure gauge settling on ~5 Pa (log dial from 0.01 to 1e5 Pa)
     g = ease(seg(t, 2.2, 3.8))
-    cx, cy, r = 1210, 880, 110
+    cx, cy, r = 1210, 845, 105                     # clear of the subtitle band at the bottom
     c.circle((cx, cy), r, outline=INK2, width=3, a=a * g)
     lo, hi = math.log10(0.01), math.log10(1e5)
-    for v, lab in ((0.01, "0.01"), (1, "1"), (100, "100"), (1e5, "1 atm")):
+    # ticks at 0.01, 1, 100 Pa and 1 atm; only the two ends are labelled (28 px labels for all four crowded the dial)
+    for v, lab in ((0.01, "0.01 Pa"), (1, ""), (100, ""), (1e5, "1 atm")):
         ang = math.pi * (1.15 - 1.3 * (math.log10(v) - lo) / (hi - lo))
         c.line((cx + 0.82 * r * math.cos(ang), cy - 0.82 * r * math.sin(ang)),
                (cx + r * math.cos(ang), cy - r * math.sin(ang)), INK2, 3, a * g)
-        c.text((cx + 1.32 * r * math.cos(ang), cy - 1.32 * r * math.sin(ang)), lab, 20, INK2, a * g, anchor="mm")
+        if lab:
+            c.text((cx + 1.45 * r * math.cos(ang), cy - 1.45 * r * math.sin(ang) + 8), lab, 28, INK2, a * g,
+                   anchor="mm")
     target = math.log10(5)
     wob = 0.06 * math.sin(t * 6) * (1 - ease(seg(t, 3.0, 4.4)))
     val = lo + (target - lo) * ease_out(seg(t, 2.4, 3.6)) + wob
     ang = math.pi * (1.15 - 1.3 * (val - lo) / (hi - lo))
     c.line((cx, cy), (cx + 0.9 * r * math.cos(ang), cy - 0.9 * r * math.sin(ang)), CYAN, 5, a * g, glow=True)
-    c.text((cx + 170, cy), "≈ 5 Pa", 52, CYAN, a * g, anchor="lm", weight_glow=True)
-    c.text((cx + 170, cy + 55), "（示意）", 22, INK2, a * g, anchor="lm")
+    c.text((cx + 210, cy - 6), "≈ 5 Pa", 52, CYAN, a * g, anchor="lm", weight_glow=True)
+    c.text((cx + 210, cy + 52), "（示意）", 28, INK2, a * g, anchor="lm")
     return c.finish()

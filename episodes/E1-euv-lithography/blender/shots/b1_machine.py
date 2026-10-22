@@ -142,5 +142,14 @@ def build(variant="machine"):
     B._camera("CamB1_28", [(1, ((px[0] + ifp[0]) / 2, 0, 1.0), (px[0] + 2.0, -8.5, 2.4), 28, 8.0),
                            (113, (1.6, 0, 1.2), (2.8, -11.0, 3.0), 28, 8.0)])
     B._camera("CamB1_29", [(100, ifp, (ifp[0] - 1.7, -2.4, ifp[2] + 0.45), 35, 4.0),
-                           (160, ifp, (ifp[0] - 1.3, -2.1, ifp[2] + 0.35), 35, 4.0)])
+                           (160, ifp, (ifp[0] - 0.95, -1.8, ifp[2] + 0.3), 35, 4.0)])     # a slow push, never still
     return sc
+
+
+def after_style(style, shot_id):
+    """B1_29 "一束细细的紫光": seen from ~3 units the 0.025 light-path bevel filled the frame as a thick bar; here the
+    beam is a thin line (the energy style already keeps it saturated violet)."""
+    if shot_id == "B1_29":
+        path = bpy.data.objects.get("LightPath")
+        if path:
+            path.data.bevel_depth = 0.008

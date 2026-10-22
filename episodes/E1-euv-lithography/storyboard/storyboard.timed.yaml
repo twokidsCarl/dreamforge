@@ -1557,7 +1557,7 @@ shots:
   style: xray
   style_why: 先给空间地图：透明剖视一次交代喷嘴、收集镜、激光入口和中间焦点的相对位置。
   transition_in: dissolve
-  visual: 光源腔透明剖视：鼓形真空容器是幽灵玻璃，里面看得见喷嘴（示意）、椭球收集镜、后方的激光入口、前方收窄到中间焦点；各部件依次亮起标签。
+  visual: 光源腔透明剖视：鼓形真空容器是幽灵玻璃，侧面是锡滴发生器的接口（喷嘴本身在约 0.3 m 外），里面是椭球收集镜、后方的激光入口、前方收窄到中间焦点；各部件依次亮起标签。
   camera:
     move: slow orbit
     lens_mm: 30
@@ -1575,13 +1575,9 @@ shots:
   - ghost_glass_fresnel
   - bloom
   overlays:
-  - text: 喷嘴（示意）
+  - text: 光源腔（示意）
     facts: []
-  - text: 收集镜
-    facts: []
-  - text: 激光入口
-    facts: []
-  - text: 中间焦点 IF
+  - text: 收集镜 · 激光入口 · 中间焦点 IF
     facts: []
   engine: eevee
   sfx:
@@ -1663,6 +1659,8 @@ shots:
   - text: 喷嘴内径 3–5 μm（按 ASML 专利描述 · 示意）
     facts:
     - F21
+  - text: 慢动作
+    facts: []
   engine: cycles
   sfx:
   - 高压细流的嘶声
@@ -1833,7 +1831,7 @@ shots:
   style: hud
   style_why: “控制与测量怎么实时发生”：HUD 细线界面叠在真实画面上。
   transition_in: cut
-  visual: 侧面看锡滴流，计量青色细线锁定框依次套住每一颗锡滴并跟随移动；框边小字跳动（装饰性滚动字符，不显示可读数值）；一颗锁定完成，框变成激光橙，表示“已瞄准”。
+  visual: 侧面看锡滴流，计量青色锁定框套住飞过的锡滴并跟随移动，框边装饰短线跳动（不显示数值）；锁定后框变激光橙，表示“已瞄准”（锡滴间距按真实比例，画面里一次只有一颗）。
   camera:
     move: lateral track with stream
     lens_mm: 70
@@ -1977,11 +1975,9 @@ shots:
   - sem_noise
   - vignette
   overlays:
-  - text: 比例尺 300 μm
+  - text: 示意（仿高速阴影成像）
     facts:
     - F4b
-  - text: 示意（仿高速阴影成像）
-    facts: []
   engine: eevee
   sfx:
   - 快门声
@@ -2331,6 +2327,16 @@ shots:
   - text: 多重激发态 → EUV 光
     facts:
     - F23
+  - text: 教科书页
+    kind: page
+    at: 5.0
+    strike: 5.6
+    write: 6.2
+    old: 单激发态 → 基态（旧解释）
+    new: 多重激发态之间的跃迁
+    note: Torretti et al. 2020 · Nature Communications
+    facts:
+    - F23
   engine: eevee
   sfx:
   - 和声收束成一个音
@@ -2645,7 +2651,7 @@ shots:
   style: xray
   style_why: “终点在哪里”：回到整机透明剖视，让观众看见光还要走多远。
   transition_in: push-through
-  visual: 计量条缩回右侧，镜头穿进透明整机：光从光源腔穿出中间焦点，沿光路钻进机器深处，镜头跟着光往前推；远处终点晶圆的位置亮起一个小小的光点。
+  visual: 镜头穿进透明整机（High-NA EXE 布局）：光从光源腔穿出中间焦点，沿光路钻进机器深处，镜头跟着光往前推；远处终点晶圆的位置亮起一个小小的光点。
   camera:
     move: push along light path
     lens_mm: 28
@@ -2659,7 +2665,7 @@ shots:
   - ghost_glass_fresnel
   - path_glow
   overlays:
-  - text: 示意
+  - text: 示意（High-NA EXE 布局）
     facts: []
   engine: eevee
   sfx:
@@ -2682,7 +2688,7 @@ shots:
   style: energy
   style_why: 段尾留白：只剩光，交给下一段“刚造出来的光，处境非常危险”。
   transition_in: cut
-  visual: 外壳和结构淡去，只剩一束细细的紫光在黑暗里穿过中间焦点向前；光的账本在右侧静止。
+  visual: 外壳和结构淡去，只剩一束细细的紫光在黑暗里穿过中间焦点向前。
   camera:
     move: slow follow
     lens_mm: 35

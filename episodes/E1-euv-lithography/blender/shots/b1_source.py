@@ -4,10 +4,13 @@ Simulation events (sim frames, 24 fps): droplets fly 1-100, pre-pulse 100, sheet
 main pulse 192, plasma/debris after, next droplet creeps in 262-346. Each CamB1_xx is keyed in
 absolute sim frames; registry.yaml gives the window each shot renders.
 """
+import math
+
 import bpy
 
 import build_source as S
 import build_vacuum as V
+import common as C
 import sample_b1 as B
 
 PX = B.PLASMA_X
@@ -42,10 +45,13 @@ def build(vessel=False, rays=False):
     cam("CamB1_09", [(80, (0, -1.6, 0), (-5.2, 0.0, 0.32), 40, 2.0),
                      (197, (PX, 0, 0), (-4.6, 0.0, 0.3), 40, 2.0)])
     # B1_10 — follow the droplet into the pre-pulse, then ease out as the sheet opens
-    cam("CamB1_10", B._follow_keys(hero, 65, B.T_ARRIVE, (1.75, 1.15, 0.32), (1.8, 1.0, 0.3), 70, 1.0)
-        + [(125, (0.1, 0, 0), (2.7, 3.1, 0.7), 50, 1.8), (189, (0.25, 0, 0), (3.5, 4.7, 1.0), 45, 2.4)])
+    cam("CamB1_10", B._follow_keys(hero, 65, B.T_ARRIVE, (1.75, 1.15, 0.32), (1.8, 1.0, 0.3), 70, 1.0,
+                                    aim_offset=(0, 0, 0.07))          # droplet a little low: clear of the caption
+        # the eased-out frame keeps the opening sheet at ~60 % of the frame height, low and left of centre: the
+        # upper-right caption (预脉冲：薄饼直径约 300 μm…) sat right on the sheet when it filled the frame
+        + [(125, (-0.28, 0.32, 0.33), (4.48, 5.99, 1.61), 50, 2.8), (189, (-0.28, 0.37, 0.45), (4.76, 7.66, 2.0), 45, 3.2)])
     # B1_11 — edge-on silhouette of the sheet (SEM freeze)
-    cam("CamB1_11", [(150, (0.25, 0, 0), (0.25, 8.6, 0.0), 55, 11.0)])          # strictly side-on: the sheet is a line
+    cam("CamB1_11", [(150, (0.25, 0, 0), (0.25, 10.4, 0.0), 55, 11.0)])         # strictly side-on: the sheet is a line; room for the tip fragments
     # B1_12 — slow arc while the sheet drifts to focus
     cam("CamB1_12", [(140, (0.25, 0, 0), (3.8, 5.0, 0.6), 50, 2.4),
                      (187, (0.3, 0, 0), (3.2, 5.5, 1.0), 50, 2.4)])
@@ -103,6 +109,120 @@ def _shadowgraph():
     sheet = bpy.data.objects["Pancake"]
     sheet.data.materials.clear()
     sheet.data.materials.append(black)
+    _rim_ligaments(sheet, black)
+    _shadowgraph_plate(black)
+
+
+def _shadowgraph_plate(black):
+    """The lab look of a shadowgram, in the frame (no post tool draws it): a backlit field with fine grain and a
+    soft vignette instead of a flat grey world, and a 300 um scale bar (2.4 units) with its figure, bottom right."""
+    import materials as M
+    m = M.emission("ShadowField", (1, 1, 1), 1.0)
+    nt = m.node_tree
+    em = nt.nodes["Emission"]
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    grad = nt.nodes.new("ShaderNodeTexGradient")
+    grad.gradient_type = "QUADRATIC_SPHERE"
+    mp = nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Location"].default_value = (-0.5, -0.5, 0)        # generated coords 0..1 -> centred
+    mp.inputs["Scale"].default_value = (1.9, 1.9, 1)
+    nt.links.new(tc.outputs["Generated"], mp.inputs["Vector"])
+    nt.links.new(mp.outputs["Vector"], grad.inputs["Vector"])
+    vig = nt.nodes.new("ShaderNodeMapRange")                     # centre 0.66, corners ~0.40
+    vig.inputs["From Min"].default_value = 0.0
+    vig.inputs["From Max"].default_value = 1.0
+    vig.inputs["To Min"].default_value = 0.40
+    vig.inputs["To Max"].default_value = 0.66
+    nt.links.new(grad.outputs["Fac"], vig.inputs["Value"])
+    noise = nt.nodes.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = 900.0
+    noise.inputs["Detail"].default_value = 0.0
+    grain = nt.nodes.new("ShaderNodeMapRange")
+    grain.inputs["To Min"].default_value = 0.93
+    grain.inputs["To Max"].default_value = 1.07
+    nt.links.new(tc.outputs["Generated"], noise.inputs["Vector"])
+    nt.links.new(noise.outputs["Fac"], grain.inputs["Value"])
+    mul = nt.nodes.new("ShaderNodeMath")
+    mul.operation = "MULTIPLY"
+    nt.links.new(vig.outputs["Result"], mul.inputs[0])
+    nt.links.new(grain.outputs["Result"], mul.inputs[1])
+    nt.links.new(mul.outputs[0], em.inputs["Strength"])
+    bpy.ops.mesh.primitive_plane_add(size=1.0, location=(0.25, -6.0, 0.0), rotation=(math.pi / 2, 0, 0))
+    plate = bpy.context.object
+    plate.name = "ShadowField"
+    plate.scale = (11.5, 6.6, 1)
+    plate.data.materials.append(m)
+    # scale bar: 300 um = 2.4 units at the sheet's depth, with end ticks and its figure
+    x0, x1, z = -0.15, -0.15 - 300 / S.UNIT_UM, -1.5              # the camera looks along -y: screen right is -x
+    for loc, size in ((((x0 + x1) / 2, 0.3, z), (x1 - x0, 0.01, 0.03)),
+                      ((x0, 0.3, z), (0.02, 0.01, 0.12)), ((x1, 0.3, z), (0.02, 0.01, 0.12))):
+        size = (abs(size[0]), size[1], size[2])
+        bpy.ops.mesh.primitive_cube_add(location=loc)
+        bar = bpy.context.object
+        bar.name = "ScaleBar"
+        bar.scale = (size[0] / 2, size[1] / 2, size[2] / 2)
+        bar.data.materials.append(black)
+    cu = bpy.data.curves.new("ScaleText", "FONT")
+    cu.body = "300 μm"
+    try:
+        cu.font = bpy.data.fonts.load("/System/Library/Fonts/STHeiti Medium.ttc")
+    except RuntimeError:
+        pass
+    cu.size = 0.17
+    cu.align_x = "CENTER"
+    txt = bpy.data.objects.new("ScaleText", cu)
+    bpy.context.scene.collection.objects.link(txt)
+    txt.location = ((x0 + x1) / 2, 0.3, z + 0.1)
+    txt.rotation_euler = (math.pi / 2, 0, math.pi)                # upright and readable from +y
+    txt.data.materials.append(black)
+
+
+def _rim_ligaments(sheet, mat, frame=150, seed=4):
+    """Edge-on shadowgrams of an expanding tin sheet (KUR16 Fig. 2, FOM17 Fig. 13B) show a hairline with a thicker
+    bounding rim, beaded at the two tips, where the rim sheds ligaments that pinch into fragments. Seen edge-on the
+    whole rim projects onto the line, so only the tips and what leaves them stand out: a bead at each tip, 3-4 liquid
+    threads leaving it (in the sheet plane, a little tilted out of it), each ending in a drop, and a few drops that
+    have already broken off. Sizes: rim ~3 um (0.025), threads ~1.5 um across, drops 2-5 um (示意)."""
+    import random
+    from mathutils import Euler, Vector
+    rnd = random.Random(seed)
+    sc = bpy.context.scene
+    sc.frame_set(frame)
+    m = sheet.matrix_world.copy()
+    sc.frame_set(1)
+    c = m.translation.copy()
+    r = S.PANCAKE_R * m.to_scale().z
+    made = []
+
+    def sphere(p, rad):
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=rad, segments=16, ring_count=8, location=p)
+        made.append(bpy.context.object)
+
+    def thread(a, b, rad):
+        a, b = Vector(a), Vector(b)
+        bpy.ops.mesh.primitive_cylinder_add(radius=rad, depth=(b - a).length, vertices=10, location=(a + b) / 2)
+        ob = bpy.context.object
+        ob.rotation_euler = (b - a).to_track_quat("Z", "Y").to_euler()
+        made.append(ob)
+
+    for side in (1, -1):
+        tip = c + Vector((0.0, 0.0, side * r))
+        sphere(tip, 0.036)
+        for k in range(5):
+            ang = rnd.uniform(-0.45, 0.45)                       # spread around the radial direction
+            d = Vector((rnd.uniform(-0.18, 0.18), 0.0, side * 1.0))
+            d.rotate(Euler((ang, 0, 0)))   # fan in the sheet plane (y-z), seen foreshortened
+            d.normalize()
+            base = tip + Vector((0, 0, -side * rnd.uniform(0.0, 0.05)))
+            length = rnd.uniform(0.12, 0.38)
+            end = base + d * length
+            thread(base, end, rnd.uniform(0.006, 0.009))
+            sphere(end, rnd.uniform(0.014, 0.022))
+            for j in range(rnd.randint(0, 2)):                    # drops already pinched off beyond the thread
+                sphere(end + d * rnd.uniform(0.06, 0.14) * (j + 1), rnd.uniform(0.009, 0.016))
+    for ob in made:
+        ob.name = "RimLigament"
+        ob.data.materials.append(mat)
 
 
 def _satin_sheet():
@@ -193,7 +313,146 @@ def _closing_droplet(shot_id):
         sc_in.keyframe_insert("default_value", frame=f)
 
 
+def _beams_only_when_lit():
+    """The pulse cylinders exist for the whole simulation; outside their emission window a beam at strength 0
+    rendered as a dark rod across the frame (B1_08 sim 1-35). Hidden except while they emit (sim_b1 keys: pre-pulse
+    T_PRE-5 .. T_PRE+9, main pulse T_MAIN-4 .. T_MAIN+8). Not used for D_08/D_09, which re-key the pre-pulse."""
+    for name, on, off in (("PrePulse", B.T_PRE - 5, B.T_PRE + 9), ("MainPulse", B.T_MAIN - 4, B.T_MAIN + 8)):
+        ob = bpy.data.objects.get(name)
+        if ob is None or ob.hide_render:
+            continue
+        for f, h in ((1, True), (on, False), (off + 1, True)):
+            ob.hide_render = h
+            ob.keyframe_insert("hide_render", frame=f)          # boolean channel: steps, also on sub-frames
+
+
+def _vessel_view():
+    """B1_02 sees the vessel from outside: the nozzle (really ~0.3 m off, NOZZLE_Y = -300) and the far end of the
+    26-droplet chain floated outside the vessel as a small dark ring. Inside the vessel only the last few droplets
+    before the plasma site are kept."""
+    for ob in bpy.data.objects:
+        if ob.name.startswith("DropletGenerator"):
+            ob.hide_render = True
+    stream = bpy.data.objects.get("DropletStream")
+    if stream and "Array" in stream.modifiers:
+        stream.modifiers["Array"].count = 3                     # 3 x 1.4 mm: all inside the drum
+
+
+def _hud_lock(cam_name="CamB1_08", appear=8, lock=60, half=0.26):
+    """B1_08 "单独成像 · 单独瞄准": a thin metrology-cyan lock box that rides on the hero droplet, facing the
+    camera. It snaps in from 1.9x, tightens, a short read-out of bars flickers beside it (decorative, no digits),
+    and at `lock` it turns laser orange (the hand-off to B1_09). Imaging/targeting details are not public: the
+    label carries 示意. Built in 3D so it tracks the droplet exactly through the follow move."""
+    import materials as M
+    import styles
+    hero = bpy.data.objects["HeroDroplet"]
+    cam = bpy.data.objects[cam_name]
+    cyan, orange = (0.05, 0.72, 0.95), (1.0, 0.30, 0.03)
+    mat = M.emission("HudLock", cyan, 0.0)
+    em = mat.node_tree.nodes["Emission"]
+    for f, col in ((lock - 1, cyan), (lock, orange)):
+        em.inputs["Color"].default_value = (*col, 1.0)
+        em.inputs["Color"].keyframe_insert("default_value", frame=f)
+    for f, s in ((appear - 1, 0.0), (appear, 3.2), (appear + 3, 1.5), (lock - 1, 1.5), (lock, 4.0), (lock + 4, 2.2)):
+        em.inputs["Strength"].default_value = s
+        em.inputs["Strength"].keyframe_insert("default_value", frame=f)
+    rig = bpy.data.objects.new("HudRig", None)
+    bpy.context.scene.collection.objects.link(rig)
+    c = rig.constraints.new("COPY_LOCATION")
+    c.target = hero
+    t = rig.constraints.new("TRACK_TO")
+    t.target = cam
+    t.track_axis = "TRACK_Z"
+    t.up_axis = "UP_Y"
+
+    def curve_obj(name, splines, bevel):
+        cu = bpy.data.curves.new(name, "CURVE")
+        cu.dimensions = "3D"
+        cu.bevel_depth = bevel
+        cu.bevel_resolution = 0
+        for pts in splines:
+            sp = cu.splines.new("POLY")
+            sp.points.add(len(pts) - 1)
+            for k, (x, y) in enumerate(pts):
+                sp.points[k].co = (x, y, 0.0, 1.0)
+        ob = bpy.data.objects.new(name, cu)
+        bpy.context.scene.collection.objects.link(ob)
+        ob.data.materials.append(mat)
+        ob.parent = rig
+        for attr in ("visible_shadow", "visible_glossy", "visible_transmission", "visible_diffuse"):
+            setattr(ob, attr, False)                 # an overlay: no reflections in the tin, no shadows
+        styles.tag(ob, "emitter")
+        return ob
+
+    arm = half * 0.42
+    corners = []
+    for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+        corners.append([(sx * half, sy * (half - arm)), (sx * half, sy * half), (sx * (half - arm), sy * half)])
+    ticks = [[(0.0, half * 0.93), (0.0, half * 1.12)], [(0.0, -half * 0.93), (0.0, -half * 1.12)],
+             [(half * 0.93, 0.0), (half * 1.12, 0.0)], [(-half * 0.93, 0.0), (-half * 1.12, 0.0)]]
+    box = curve_obj("HudLockBox", corners + ticks, 0.0042)
+    for f, k in ((appear, 1.9), (appear + 7, 1.0), (lock - 2, 1.0), (lock + 1, 0.86), (lock + 4, 0.9)):
+        box.scale = (k, k, k)
+        box.keyframe_insert("scale", frame=f)
+    # decorative read-out: three short bars beside the top-right corner, their lengths flicker (no readable values)
+    import random
+    rnd = random.Random(8)
+    for i in range(3):
+        y = half * (0.95 - 0.2 * i)
+        bar = curve_obj(f"HudBar{i}", [[(0.0, 0.0), (1.0, 0.0)]], 0.0032)
+        bar.location = (half * 1.25, y, 0.0)
+        for f in range(appear, lock + 30, 3):
+            bar.scale = (half * rnd.uniform(0.15, 0.6), 1.0, 1.0)
+            bar.keyframe_insert("scale", frame=f)
+    for ob in (box,) + tuple(bpy.data.objects[f"HudBar{i}"] for i in range(3)):
+        ob.hide_render = True
+        ob.keyframe_insert("hide_render", frame=1)
+        ob.hide_render = False
+        ob.keyframe_insert("hide_render", frame=appear)
+        if ob is not box:
+            for fc in (fc for fc in C.fcurves(ob.animation_data.action) if fc.data_path == "scale"):
+                for kp in fc.keyframe_points:
+                    kp.interpolation = "CONSTANT"
+
+
+def _energy_debris(f0=200, f1=248):
+    """B1_14 on black: at the photoreal strengths (debris 60, core 160) every fragment and the core clipped to white
+    and bloomed into a grey wash, so nothing 'cooled'. Here the fragments glow at a strength where the material's
+    white-violet -> orange ramp reads, and the core is a violet-white glow that pulses instead of a flat white disc."""
+    import math
+    deb = bpy.data.materials.get("Debris")
+    if deb:                       # EEVEE gives Particle Info age 0, so the cooling is keyed in time for the whole cloud
+        for n in deb.node_tree.nodes:
+            if n.type == "MAP_RANGE":
+                for f, v in ((f0, 3.0), (f0 + 20, 2.2), (f1, 1.4)):
+                    n.inputs["To Min"].default_value = v
+                    n.inputs["To Min"].keyframe_insert("default_value", frame=f)
+            if n.type == "VALTORGB":
+                for el in n.color_ramp.elements:
+                    for f, col in ((f0, (0.62, 0.42, 1.0, 1)), (f0 + 12, (1.0, 0.55, 0.30, 1)),
+                                   (f0 + 26, (1.0, 0.30, 0.05, 1)), (f1, (0.85, 0.14, 0.02, 1))):
+                        el.color = col                                   # white-violet -> orange -> red-orange
+                        el.keyframe_insert("color", frame=f)
+    core = bpy.data.materials.get("PlasmaCoreMat")
+    if core:
+        core.node_tree.animation_data_clear()
+        em = core.node_tree.nodes["Emission"]
+        em.inputs["Color"].default_value = (0.70, 0.52, 1.0, 1)
+        for f in range(f0, f1 + 1, 3):
+            em.inputs["Strength"].default_value = (1.5 + 4.0 * math.exp(-(f - f0) / 7)       # still hot from the flash,
+                                                   + 0.7 * math.sin((f - f0) * 0.55) * math.exp(-(f - f0) / 60))
+            em.inputs["Strength"].keyframe_insert("default_value", frame=f)
+
+
 def after_style(style, shot_id):
+    if shot_id not in ("D_08", "D_09"):
+        _beams_only_when_lit()
+    if shot_id == "B1_02":
+        _vessel_view()
+    if shot_id == "B1_08":
+        _hud_lock()
+    if shot_id == "B1_14":
+        _energy_debris()
     if shot_id == "B1_07":
         _endless_chain()
     elif shot_id == "B1_11":
