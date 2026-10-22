@@ -40,4 +40,4 @@ E2《光遗传学》v8 · 第 16 轮 · 状态（2026-10-23）
   （每镜加一个主体自身动作，逐张复打），预计每镜 +0.3–0.8。
 
 花费：image2 本轮 ≈ $0.27（累计 ≈ $8.90）；Wan 本轮 ≈ $1.95（累计 ≈ $10.15）；GPU / Tripo $0
-PR：见 PR 行
+PR：第 16 轮在 PR #50（https://github.com/twokidsCarl/eigenlens/pull/50，分支 e2/v8-visual，已开 auto-merge）
