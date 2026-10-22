@@ -1,5 +1,5 @@
 import sys; sys.path.insert(0,'/workspace/e2work/v8/tools')
-import sf_r5 as R, sf
+import importlib, sf; R=importlib.import_module(next((a.split('=')[1] for a in sys.argv if a.startswith('--mod=')),'sf_r5'))
 S=R.S; out=sys.argv[sys.argv.index('--out')+1] if '--out' in sys.argv else '/workspace/e2work/v8/styleframes'
 names=[a for a in sys.argv[1:] if not a.startswith('--') and a!=out] or list(S)
 for n in names:

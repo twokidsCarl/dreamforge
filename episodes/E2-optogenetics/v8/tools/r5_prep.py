@@ -45,3 +45,8 @@ k=cv2.GaussianBlur(cv2.dilate(m,np.ones((31,31),np.uint8)).astype(np.float32),(0
 out=out*(1-k)+out*np.array([0.45,0.6,0.95])*0.8*k
 Image.fromarray(np.clip(out,0,255).astype(np.uint8)).save(G+'sf08e_relay.png')
 print('ok')
+# --- SF09 r6: plate without retinal (drawn live so it can bend)
+im=loadu8('sf09d_chr2')
+for box in ((0.36,0.39,0.43,0.50),(0.57,0.39,0.635,0.50)):
+    im=erase(im,hsvmask(im,5,22,120,120,box),9,9)
+Image.fromarray(im).save(G+'sf09f_noret.png'); print('sf09f ok')

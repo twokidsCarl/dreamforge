@@ -169,7 +169,7 @@ def sf05(t, W, H):
         if 0 < sw < 1:
             yy, xx = np.mgrid[0:cw, 0:cw]; band = np.exp(-(((xx+yy*0.5)/cw-(-0.2+1.7*sw))/0.09)**2)
             lum = Pc.mean(2, keepdims=True); Pc = np.clip(Pc+band[..., None]*np.clip(lum-0.25, 0, 1)*np.array([1.0, 0.8, 0.45])*0.5, 0, 1)
-        x = x0+i*(cw+gap); y = y0+dy
+        x = int(x0+i*(cw+gap)+(i-1)*10*s*u); y = y0+dy-int(8*s*u)      # row slowly spreads + rises: keeps the reveal alive
         yy, xx = np.mgrid[0:cw, 0:cw]; e = np.minimum.reduce([xx/cw, (1-xx/cw), yy/cw*1.5, (1-yy/cw)*0.55]); m = (np.clip(e/0.24, 0, 1)**1.8)[..., None]*a
         rgb[y:y+cw, x:x+cw] = rgb[y:y+cw, x:x+cw]*(1-m)+Pc*m
         L.line([(x+10*s, y0+cw+18*s), (x+10*s+(cw-20*s)*ease_out(a), y0+cw+18*s)], fill=GOLD, width=1.3*s, alpha=a)
@@ -194,7 +194,7 @@ def sf06(t, W, H):
 # ---------------- SF07: rays no longer tinted brown, whole brain in frame, continuous activity ----------------
 @scene('SF07_main_title', 5.0)
 def sf07(t, W, H):
-    s = W/1280; im = img('sf07c_title_bg'); ih, iw = im.shape[:2]; u = lin(t, 5)
+    s = W/1280; im = img('sf07d_title_bg'); ih, iw = im.shape[:2]; u = lin(t, 5)
     if 'p7c' not in _cache:
         bg = np.concatenate([im[:40, :40].reshape(-1, 3), im[-40:, :40].reshape(-1, 3), im[-40:, -40:].reshape(-1, 3)]).mean(0)
         tip = (0.595, 0.245); yy, xx = np.mgrid[0:ih, 0:iw]; d = np.hypot(xx/iw-tip[0], (yy/ih-tip[1])*1.5)
@@ -203,14 +203,19 @@ def sf07(t, W, H):
         rays = np.clip((0.52-xx/iw)/0.12, 0, 1)*np.clip((0.33-yy/ih)/0.08, 0, 1)
         lum = im.mean(2, keepdims=True); kc = (cm*far)[..., None]
         tame = im*(1-kc)+(lum*np.array([0.85, 0.72, 0.82]))*kc          # stray cyan on the brain -> its own pink tone
-        poly = np.array([[0.0, 0.0], [0.44, 0.0], [0.40, 0.10], [0.31, 0.175], [0.22, 0.22], [0.0, 0.16]])*[iw, ih]
+        poly = np.array([[0.0, 0.0], [0.46, 0.0], [0.44, 0.10], [0.385, 0.155], [0.33, 0.19], [0.27, 0.235], [0.20, 0.25], [0.0, 0.18]])*[iw, ih]
         pm = np.zeros((ih, iw), np.uint8); cv2.fillPoly(pm, [poly.astype(np.int32)], 1)
         fib = (np.abs(xx/iw-0.592) < 0.012)
         pm[fib] = 0
+        sat_ = im.max(2)-im.min(2); reg = (xx/iw < 0.50) & (yy/ih < 0.34)
+        haze = (reg & (sat_ < 0.16) & (im.mean(2) > bg.mean()+0.03) & ~fib).astype(np.uint8)
+        haze = cv2.dilate(haze, np.ones((7, 7), np.uint8))
+        pm = pm*0                                   # sf07d plate: rays removed at the source (image2 edit)
         kr = cv2.GaussianBlur(pm.astype(np.float32), (0, 0), 6)[..., None]
         w_ = (1-cv2.dilate(pm, np.ones((25, 25), np.uint8))).astype(np.float32)[..., None]
         fillc = cv2.GaussianBlur(im*w_, (0, 0), 45)/np.maximum(cv2.GaussianBlur(w_, (0, 0), 45)[..., None], 1e-3)
-        tame = tame*(1-kr)+fillc*kr
+        loc = cv2.GaussianBlur(im*(1-kr), (0, 0), 25)/np.maximum(cv2.GaussianBlur(1-kr, (0, 0), 25), 1e-3)[..., None]
+        tame = tame*(1-kr)+np.minimum(loc, bg+0.03)*kr
         cm2 = cyan_mask(im, 175, 1.0)*(d < 0.16); ys, xs = np.nonzero(cm2 > 0.5); rng = np.random.default_rng(2); idx = rng.choice(len(xs), min(110, len(xs)), replace=False)
         _cache['p7c'] = (bg, tame, [(xs[i]/iw, ys[i]/ih, rng.random()) for i in idx], tip)
     bg, tame, pts, tip = _cache['p7c']
@@ -230,6 +235,7 @@ def sf07(t, W, H):
         L.dot((ox+px*Wi, oy+py*Hi), 2.2*s, fill=(170, 225, 255), alpha=min(1, a))
     # photons running down the fibre
     fx = ox+0.592*Wi; ftop = 0; fbot = oy+tip[1]*Hi
+    L.line([(fx, ftop), (ox+tip[0]*Wi, fbot)], fill=(200, 235, 255), width=2.2*s, alpha=0.55+0.35*ramp(t, 0.4, 0.8))
     for n in range(5):
         p = (t*0.9+n/5) % 1.0
         L.dot((fx+(ox+tip[0]*Wi-fx)*p, ftop+(fbot-ftop)*p), 2.6*s, fill=(210, 240, 255), alpha=ramp(t, 0.4, 0.8)*min(1, (1-p)*6))
@@ -271,7 +277,7 @@ def sf08(t, W, H):
         px = path[i][0]+(path[i+1][0]-path[i][0])*f; py = path[i][1]+(path[i+1][1]-path[i][1])*f
         X, Y = P(px, py); rgb = rgb+radial(W, H, X, Y, W*0.014, (255, 226, 176), 0.9)+radial(W, H, X, Y, W*0.05, (255, 226, 176), 0.15)
     X, Y = P(0.11, 0.30); rgb = rgb+radial(W, H, X, Y, W*0.03, CYAN, 0.6*math.exp(-((t-0.55)/0.3)**2))
-    openA = ramp(t, 2.6, 3.0); X, Y = P(0.585, 0.49); rgb = rgb+radial(W, H, X, Y, W*0.025, (255, 209, 102), 0.3*openA)
+    openA = ramp(t, 2.6, 3.0)*(1-ramp(t, 3.4, 3.9)); X, Y = P(0.585, 0.49); rgb = rgb+radial(W, H, X, Y, W*0.025, (255, 209, 102), 0.3*openA)
     # --- beat 2: free azobenzene switches drift in; violet light bends the tethered one; channel opens late
     L = Layer(W, H)
     free = [(0.775, 0.085, 20), (0.92, 0.075, -25), (0.87, 0.20, 40), (0.965, 0.25, 10), (0.70, 0.18, -15)]
@@ -331,9 +337,10 @@ def sf08(t, W, H):
             L.text((x, ay_+22*s), tk, F(SANS, 14*s), fill=(176, 186, 212), alpha=a, anchor='ms')
         L.rrect((x0-5*s, ay_-14*s, x0+(x1-x0)*0.08, ay_-4*s), 4*s, fill=CYAN, alpha=a)
         L.text((x0-5*s, ay_-24*s), '需要：毫秒级', F(SANS_B, 16*s), fill=CYAN, alpha=a, anchor='ls')
-        g = ease_out(ramp(t, 6.1, 6.8)); xa_ = x0+(x1-x0)*0.5
+        g = ease_out(ramp(t, 6.1, 6.8)); xa_ = x0+(x1-x0)*0.75
         L.rrect((xa_, ay_-14*s, xa_+(x1-xa_)*g, ay_-4*s), 4*s, fill=(255, 180, 120), alpha=a)
-        L.text((xa_, ay_-24*s), '这两条路：更慢', F(SANS_B, 16*s), fill=(255, 200, 150), alpha=a, anchor='ls')
+        L.text((xa_-40*s, ay_-24*s), '多步接力：秒级', F(SANS_B, 16*s), fill=(255, 200, 150), alpha=a, anchor='ls')
+        L.text((bx+bw-14*s, by+22*s), '化学开关：还要另外给药', F(SANS, 14*s), fill=(236, 150, 210), alpha=a*ramp(t, 6.3, 6.7), anchor='rs')
     return grade(over(rgb, L.get()), seed=int(t*24))
 
 # ---------------- SF09: retinal redrawn (beta-ionone ring + polyene + Schiff base), denser ion stream ----------------
@@ -417,12 +424,12 @@ def _sf10_prep():
     d = np.abs(cv2.GaussianBlur(A, (0, 0), 2.5)-cv2.GaussianBlur(Cn, (0, 0), 2.5)).mean(2)*255
     b = (d > 13).astype(np.uint8)
     yy, xx = np.mgrid[0:ih, 0:iw]
-    b[(xx < 0.44*iw) | (yy > 0.79*ih)] = 0
+    b[(xx < 0.44*iw) | (yy > 0.79*ih) | ((xx > 0.88*iw) & (yy < 0.56*ih))] = 0
     b = cv2.morphologyEx(b, cv2.MORPH_CLOSE, np.ones((31, 31), np.uint8))
     n, lab, st, _ = cv2.connectedComponentsWithStats(b); k = 1+np.argmax(st[1:, 4]); b = (lab == k).astype(np.uint8)
     ff = b.copy(); h2 = np.zeros((ih+2, iw+2), np.uint8); cv2.floodFill(ff, h2, (0, 0), 1); b = b | (1-ff)
     b = cv2.erode(b, np.ones((3, 3), np.uint8))
-    alpha = cv2.GaussianBlur(b.astype(np.float32), (0, 0), 1.6)
+    alpha = cv2.GaussianBlur(b.astype(np.float32), (0, 0), 1.6)*np.clip((0.995*iw-xx)/(0.05*iw), 0, 1)   # tail tip tapers out
     _cache['m10'] = (A, Cn, alpha)
 
 FEET = [((0.555, 0.625), 0.0), ((0.640, 0.715), 0.5), ((0.830, 0.712), 0.5)]
@@ -433,7 +440,7 @@ def _warp_mouse(t_wake, t_walk, iw, ih):
     """thin-plate warp: head rises after waking; feet swing/stance in a gait cycle while the body travels"""
     src = []; dsp = []
     lift = (1-ease_out(min(max(t_wake/0.6, 0), 1)))*0.035*ih
-    T = 0.52; A = 0.012*iw
+    T = 0.60; A = 0.065*iw*0.6*T/2          # stance stroke matches body speed -> planted feet
     for i, (x, y) in enumerate(ANCH):
         dy = lift if i in HEAD else 0.0
         bob = -0.004*ih*abs(math.sin(math.pi*t_walk/T*2)) if t_walk > 0 and i not in (12, 13, 14, 15, 16) else 0
@@ -442,7 +449,7 @@ def _warp_mouse(t_wake, t_walk, iw, ih):
         if t_walk <= 0: dx = 0; dy = 0
         else:
             phi = (t_walk/T+ph) % 1.0
-            if phi < 0.4: q = phi/0.4; dx = A-2*A*ease(q); dy = -0.016*ih*math.sin(math.pi*q)      # swing forward (left) and up
+            if phi < 0.4: q = phi/0.4; dx = A-2*A*ease(q); dy = -0.022*ih*math.sin(math.pi*q)      # swing forward (left) and up
             else: q = (phi-0.4)/0.6; dx = -A+2*A*q; dy = 0.0                                       # stance: foot slides back = planted
         src.append((x*iw, y*ih)); dsp.append((dx, dy))
     return np.array(src), np.array(dsp)
@@ -469,11 +476,10 @@ def sf10(t, W, H, still=False, still_frame=None):
                 q = k/35; X, Y = P(0.615, 0.355*q); Lf.dot((X, Y), 2.0*s, fill=CYAN, alpha=on*0.9)
         rgb = over(rgb, Lf.get(), shadow=0, glow_amt=1.2)
         X, Y = P(0.61, 0.34); rgb = rgb+radial(W, H, X, Y, 24*s, CYAN, 0.8*on)+radial(W, H, X, Y, 90*s, CYAN, 0.15*on)
-        fl = math.exp(-((t-TCUT)/0.12)**2); rgb = rgb+radial(W, H, X, Y, W*0.5, CYAN, 0.9*fl)
         imp = (X, Y)
     else:
-        tw = t-TCUT; t_walk = max(0.0, t-(TCUT+0.55))
-        v = 0.040*iw                                     # plate px / s
+        tw = t-TCUT; t_walk = max(0.0, t-(TCUT+0.75))
+        v = 0.065*iw                                     # plate px / s
         dxm = -v*t_walk
         src_pts, dsp = _warp_mouse(tw, t_walk, iw, ih)
         x0, x1, y0, y1 = int(0.40*iw), int(1.0*iw), 0, int(0.82*ih)
@@ -495,11 +501,11 @@ def sf10(t, W, H, still=False, still_frame=None):
         bgp = Cn*(1-0.45*sh)
         plate = bgp*(1-al)+mouse*al
         # cut-in framing that follows the walk
-        z = 1.32+0.03*tw/3.65; cxx = 0.615+dxm/iw*0.75; cyy = 0.47
+        pb = ease(ramp(tw, 0.45, 1.25))                  # cut-in on the head, then pull back as it starts walking
+        z = 2.1*(1-pb)+1.22*pb; cxx = 0.585*(1-pb)+0.60*pb+dxm/iw*0.15; cyy = 0.36*(1-pb)+0.47*pb
         rgb = cam(plate, W, H, zoom=z, cx=cxx, cy=cyy); P = lambda x, y: to_px(A, x, y, W, H, z, cxx, cyy)
         hx = 0.602*iw+dxm; hy = 0.265*ih + (1-ease_out(min(tw/0.6, 1)))*0.035*ih
         X, Y = P(hx/iw, hy/ih)
-        fl = math.exp(-((tw)/0.10)**2); rgb = rgb+radial(W, H, X, Y, W*0.5, CYAN, 0.9*fl)
         rgb = rgb+radial(W, H, X, Y, 22*s, CYAN, 0.7)+radial(W, H, X, Y, 80*s, CYAN, 0.12)
         imp = (X, Y)
     # bedding parallax foreground strip
@@ -509,7 +515,7 @@ def sf10(t, W, H, still=False, still_frame=None):
     L2.rrect((56*s, 612*s, 560*s, 684*s), 6*s, fill=(14, 20, 40), alpha=0.78*a); L2.line([(56*s, 612*s), (56*s, 684*s)], fill=GOLD, width=3*s, alpha=a)
     L2.text((76*s, 642*s), '2007 · 小鼠 · 食欲素神经元', F(SANS_B, 21*s), fill=CREAM, alpha=a, anchor='ls')
     L2.text((76*s, 670*s), '光一开：从睡眠转入清醒的概率升高', F(SANS, 16*s), fill=(176, 186, 212), alpha=a, anchor='ls')
-    st = [('睡眠中', (150, 160, 190), 0.0, 1.3), ('光开', CYAN, 1.3, TCUT), ('醒来 · 走动', GOLD, TCUT, 99)]
+    st = [('睡眠中', (150, 160, 190), 0.0, 1.3), ('光开', CYAN, 1.3, TCUT), ('这一次：醒来 · 走动', GOLD, TCUT, 99)]
     for name, col, a0, a1 in st:
         aa = ramp(t, a0, a0+0.25)*(1-ramp(t, a1, a1+0.25)) if a0 > 0 else (1-ramp(t, a1, a1+0.25))
         if aa <= 0: continue
