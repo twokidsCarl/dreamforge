@@ -7,7 +7,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 # preset -> (resolution_x, resolution_y, eevee taa samples, cycles samples)
 PRESETS = {
     "preview": (640, 360, 16, 32),
-    "sample": (960, 540, 64, 64),
+    "sample": (960, 540, 64, 32),          # review renders: 32 spp + OIDN (finals keep 256)
     "final": (1920, 1080, 128, 256),
 }
 
