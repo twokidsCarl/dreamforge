@@ -16,7 +16,7 @@
 | 标语含义 | 选主轴，看结构。主观是编辑上的选择；「主」取主轴，对应 eigen |
 | 画面 | 暗色 HUD，冷青 / 冷紫，与 E2 A0 一致 |
 
-标志已锁定（2026-10-21，STATUS APPROVED），文件在 `brand/eigenlens_logo_locked/`：`sting_open.mp4`（片头 3 秒）、`sting_end.mp4`（片尾 2 秒）、`endcard_16x9.png`、`lockup.svg` 等；路径由 `paths.BRAND` 给出。不要用其中的 `_superseded_rena_approx_2026-10-21/`（Carl 已否掉的近似重绘）。`shared/tools/edit_film.py` 默认开品牌：成片前接 `sting_open.mp4`，后接 `sting_end.mp4`（两段 sting 无声，补静音对齐，正片混音不动），此时不加 `--tail` 黑场；`--no-brand` 只出正片，独立短片再加 `--tail`。
+标志已锁定（现行：程序重绘稿 03s6 琥珀金 → `brand/eigenlens_logo_locked/`；Carl 2026-10-22 确认不是草稿）。文件包括：`sting_open.mp4`（片头 3 秒）、`sting_end.mp4`（片尾 2 秒）、`endcard_16x9.png`、`lockup.svg` 等；路径由 `paths.BRAND` 给出。不要用其中的 `_superseded_rena_approx_2026-10-21/`（Carl 已否掉的近似重绘）。`shared/tools/edit_film.py` 默认开品牌：成片前接 `sting_open.mp4`，后接 `sting_end.mp4`（两段 sting 无声，补静音对齐，正片混音不动），此时不加 `--tail` 黑场；`--no-brand` 只出正片，独立短片再加 `--tail`。
 
 **环境变量仍用旧前缀 `DREAMFORGE_`。** 这些名字由 `shared/tools/paths.py` 和调用它的脚本读取，这次只记录，不改代码。后续可以再迁前缀。仍在使用的名字：
 
