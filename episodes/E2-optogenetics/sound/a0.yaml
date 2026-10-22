@@ -1,0 +1,78 @@
+music:
+- at: 0.0
+  file: music/room_bed_v6.mp3
+  gain: -8
+  fade_in: 0.3
+  fade_out: 0.5
+  overlap: 6.0
+# v7 N13: 主配乐在 body 62 s 后自然收尾（文件只有 68 s），片名卡下面会空掉：本地合成的低频 pad 垫住，1.2 s 淡入、5 s 尾音
+- at: 60.5
+  file: music/title_bed_v7.wav
+  gain: -6
+  fade_in: 0.0
+  fade_out: 0.0
+  overlap: 6.0
+- at: 0.0
+  file: music/ef5d21f9c2443180.mp3
+  gain: -9
+  fade_out: 2.0
+  fade_in: 0.6
+  overlap: 4.0
+cues:
+- shot: A0_01a
+  at: 0.0
+  len: 4.0
+  gain: -20
+  text: quiet dark room tone, faint dust drifting in still air, very soft low hum,
+    clean
+- shot: A0_02a
+  at: 2.9
+  len: 1.2
+  gain: -22
+  text: four slow soft muffled typewriter key strikes, quiet room
+- shot: A0_03a
+  at: 3.75
+  len: 1.2
+  gain: -22
+  text: soft gentle electric blip rising, subtle bioelectric zap, clean
+- shot: A0_03a
+  at: 4.85
+  len: 1.0
+  gain: -24
+  text: soft muted low click as power switches off, quiet
+- shot: A0_04a
+  at: 4.9
+  len: 1.6
+  gain: -22
+  text: single soft glassy chime with airy shimmer, delicate, clean
+- shot: A0_04a
+  at: 6.0
+  len: 1.6
+  gain: -22
+  text: single soft glassy chime with airy shimmer, delicate, clean
+- shot: A0_04a
+  at: 7.8
+  len: 1.6
+  gain: -22
+  text: single soft glassy chime with airy shimmer, delicate, clean
+- shot: A0_05b
+  at: 0.0
+  len: 1.35
+  gain: -18
+  text: thin electric light beam sweeping, faint hum that cuts off abruptly halfway
+- shot: A0_06b
+  at: 0.0
+  len: 1.4
+  gain: -18
+  text: very soft, gentle airy whoosh of a thin light beam passing left to right,
+    quiet, smooth, no distortion, no laser zap
+- shot: A0_91
+  at: 0.0
+  len: 1.5
+  gain: -24
+  text: faint electron microscope ambience, very soft electronic hum
+- shot: A0_92
+  at: 0.0
+  len: 1.5
+  gain: -20
+  text: fast soft digital counter ticking then a single soft stop click

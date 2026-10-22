@@ -1,0 +1,156 @@
+# 分镜 id -> 怎么渲。126 镜全部登记，key 与 storyboard.timed.yaml 的 id 一一对应（shared/tools/build_check.py 核对）。
+#
+# 3D 镜头（shared/tools/render_storyboard.py）：
+#   scene: 本目录下的模块，提供 build(**args)；camera: 场景里的相机；start: 起始模拟帧；style: 画面语言；engine: eevee | cycles
+#   no_glare: true 关掉该镜 bloom（common.setup_compositor；L2 纪实和 sem 已默认关，见 e2_shot.after_style_common / styles）。
+#   raw: true 时帧写到 shots/<id>/<quality>_raw/，再由 mograph 里同 id 的后处理叠中文标注，写到 <quality>/。
+#     后处理：A0_04a 在 mograph/a0.py；B_02a、B_03a、B_04a、B_16b、B_18a 在 mograph/b.py；C_01a、C_07a 在 mograph/c.py
+#     （共用件 mograph/raw_overlay.py；要叠的字和锚点空物体 LabelAnchor_* 写在 b_scenes.py / c_scenes.py 文件头）。
+#   documentary 不是 styles.py 里的风格：场景自带灯光和世界，不再套风格。
+#   B_04a、B_06a、B_16b：分镜原写 manim（已改记 eevee），画的是膜、通道和卵母细胞（builder: parametric_blender），
+#     WORKFLOW 6.4 要求核心结构用参数化 Blender，所以改在 Blender 里用 EEVEE + blueprint 风格做。
+#   起始帧不是 1 的镜头（A0_02b、A_01b、A_06b、B_03b、B_07b、B_09b、D_01b 等）是同一场景里另一段时间表，
+#     按当前 timed 时长算出；retime 之后要重算（见各模块文件头）。
+#
+# 2D 镜头（shared/tools/mograph.py --shot <id>）：只写 mograph: <模块>（mograph/<模块>.py 里的 @shot），style、engine 照分镜。
+#   已写：mograph/a0.py、a.py、b.py、c.py、d.py——各段全部 2D 镜头（b.py、c.py 里还有 raw 镜头的叠字后处理）。
+#   engine: manim 的 2D 镜头本机没有 manim，按 Pillow mograph 实现（A_04b、A_05b、B_20a、C_16a、C_19b、C_91 已改记 pillow）。
+#
+# 镜头长度来自 storyboard.timed.yaml（没有时回退 storyboard.yaml 的 duration）。
+
+
+# ---- A0 冷开场 ----
+A0_01a: {scene: a0_scenes, args: {variant: paper}, camera: CamA0_01a, start: 1, style: documentary, engine: cycles}
+A0_01b: {mograph: a0, style: type, engine: pillow}
+A0_02a: {mograph: a0, style: type, engine: pillow}
+A0_02b: {scene: a0_scenes, args: {variant: paper}, camera: CamA0_02b, start: 201, style: documentary, engine: cycles}
+A0_03a: {mograph: a0, style: infographic, engine: pillow}
+A0_03b: {scene: a0_scenes, args: {variant: neurons}, camera: CamA0_03b, start: 1, style: clay, engine: eevee}
+A0_04a: {scene: a0_scenes, args: {variant: laureates}, camera: CamA0_04a, start: 1, style: energy, engine: eevee, raw: true}
+A0_04b: {mograph: a0, style: type, engine: pillow}
+A0_05a: {mograph: a0, style: blueprint, engine: pillow}
+A0_05b: {mograph: a0, style: energy, engine: pillow}
+A0_06a: {mograph: a0, style: type, engine: pillow}
+A0_06b: {mograph: a0, style: energy, engine: pillow}
+A0_91: {scene: a0_scenes, args: {variant: membrane}, camera: CamA0_91, start: 1, style: sem, engine: cycles}
+A0_92: {mograph: a0, style: hud, engine: pillow}
+
+# ---- A 第一幕 ----
+A_01a: {scene: a_scenes, args: {variant: spike}, camera: CamA_01a, start: 1, style: xray, engine: eevee}
+A_01b: {scene: a_scenes, args: {variant: spike}, camera: CamA_01b, start: 112, style: energy, engine: eevee}
+A_02a: {scene: a_scenes, args: {variant: recording}, camera: CamA_02a, start: 1, style: documentary, engine: cycles}
+A_02b: {mograph: a, style: infographic, engine: pillow}
+A_03a: {mograph: a, style: infographic, engine: pillow}
+A_03b: {scene: a_scenes, args: {variant: cluster}, camera: CamA_03b, start: 1, style: energy, engine: eevee}
+A_04a: {mograph: a, style: hud, engine: pillow}
+A_04b: {mograph: a, style: blueprint, engine: pillow}
+A_05a: {scene: a_scenes, args: {variant: relay}, camera: CamA_05a, start: 1, style: clay, engine: eevee}
+A_05b: {mograph: a, style: blueprint, engine: pillow}
+A_06a: {scene: a_scenes, args: {variant: opsin}, camera: CamA_06a, start: 1, style: energy, engine: eevee}
+A_06b: {scene: a_scenes, args: {variant: relay}, camera: CamA_06b, start: 355, style: clay, engine: eevee}
+A_07a: {scene: a_scenes, args: {variant: brain}, camera: CamA_07a, start: 1, style: xray, engine: eevee}
+A_07b: {mograph: a, style: infographic, engine: pillow}
+A_08a: {scene: a_scenes, args: {variant: bench}, camera: CamA_08a, start: 1, style: photoreal, engine: cycles}
+A_08b: {mograph: a, style: hud, engine: pillow}
+A_91: {scene: a_scenes, args: {variant: opsin}, camera: CamA_91, start: 1, style: sem, engine: cycles}
+A_92: {scene: a_scenes, args: {variant: cage}, camera: CamA_92, start: 1, style: documentary, engine: cycles}
+
+# ---- B 第二幕 ----
+B_01a: {scene: b_scenes, args: {variant: patch}, camera: CamB_01a, start: 1, style: sem, engine: cycles}
+B_01b: {scene: b_scenes, args: {variant: sheet}, camera: CamB_01b, start: 1, style: clay, engine: eevee}
+B_02a: {scene: b_scenes, args: {variant: br_lattice}, camera: CamB_02a, start: 1, style: sem, engine: cycles, raw: true}
+B_02b: {scene: b_scenes, args: {variant: br_lattice}, camera: CamB_02b, start: 1, style: energy, engine: eevee}
+B_03a: {scene: b_scenes, args: {variant: br_pump}, camera: CamB_03a, start: 1, style: energy, engine: eevee, raw: true}
+B_03b: {scene: b_scenes, args: {variant: br_pump}, camera: CamB_03b, start: 380, style: xray, engine: eevee}
+B_04a: {scene: b_scenes, args: {variant: pump_channel}, camera: CamB_04a, start: 1, style: blueprint, engine: eevee, raw: true}
+B_04b: {scene: b_scenes, args: {variant: pair, kinds: [pump, channel]}, camera: CamB_04b, start: 1, style: clay, engine: eevee}
+B_05a: {scene: b_cell_scenes, args: {variant: chlamy_swim}, camera: CamB_05a, start: 1, style: photoreal, engine: cycles}
+B_05b: {scene: b_cell_scenes, args: {variant: chlamy_turn}, camera: CamB_05b, start: 1, style: energy, engine: eevee}
+B_06a: {scene: b_cell_scenes, args: {variant: oocyte}, camera: CamB_06a, start: 1, style: blueprint, engine: eevee}
+B_06b: {scene: b_scenes, args: {variant: chr1}, camera: CamB_06b, start: 1, style: sem, engine: cycles}
+B_07a: {scene: b_scenes, args: {variant: truncate}, camera: CamB_07a, start: 1, style: clay, engine: eevee}
+B_07b: {scene: b_scenes, args: {variant: truncate}, camera: CamB_07b, start: 444, style: xray, engine: eevee}
+B_08a: {scene: b_scenes, args: {variant: chr2}, camera: CamB_08a, start: 1, style: energy, engine: eevee}
+B_08b: {mograph: b, style: hud, engine: pillow}
+B_09a: {mograph: b, style: infographic, engine: pillow}
+B_09b: {scene: b_scenes, args: {variant: chr2}, camera: CamB_09b, start: 265, style: energy, engine: eevee}
+B_10a: {scene: b_cell_scenes, args: {variant: dish_spikes}, camera: CamB_10a, start: 1, style: clay, engine: eevee}
+B_10b: {mograph: b, style: hud, engine: pillow}
+B_11a: {mograph: b, style: infographic, engine: pillow}
+B_11b: {mograph: b, style: type, engine: pillow}
+B_12a: {mograph: b, style: type, engine: pillow}
+B_12b: {mograph: b, style: infographic, engine: pillow}
+B_13a: {scene: b_cell_scenes, args: {variant: journal}, camera: CamB_13a, start: 1, style: documentary, engine: cycles}
+B_13b: {mograph: b, style: type, engine: pillow}
+B_14a: {scene: b_cell_scenes, args: {variant: head_fiber}, camera: CamB_14a, start: 1, style: xray, engine: eevee}
+B_14b: {scene: b_cell_scenes, args: {variant: fiber_tip}, camera: CamB_14b, start: 1, style: photoreal, engine: cycles}
+B_15a: {mograph: b, style: hud, engine: pillow}
+B_15b: {scene: b_cell_scenes, args: {variant: whisker}, camera: CamB_15b, start: 1, style: documentary, engine: cycles}
+B_16a: {scene: b_scenes, args: {variant: nphr}, camera: CamB_16a, start: 1, style: energy, engine: eevee}
+B_16b: {scene: b_scenes, args: {variant: nphr_plan}, camera: CamB_16b, start: 1, style: blueprint, engine: eevee, raw: true}
+B_17a: {mograph: b, style: infographic, engine: pillow}
+B_17b: {scene: b_scenes, args: {variant: dual}, camera: CamB_17b, start: 1, style: energy, engine: eevee}
+B_18a: {scene: b_scenes, args: {variant: spectrum}, camera: CamB_18a, start: 1, style: sem, engine: cycles, raw: true}
+B_18b: {mograph: b, style: infographic, engine: pillow}
+B_19a: {mograph: b, style: infographic, engine: pillow}
+B_19b: {mograph: b, style: type, engine: pillow}
+B_20a: {mograph: b, style: blueprint, engine: pillow}
+B_20b: {mograph: b, style: type, engine: pillow}
+B_91: {scene: b_scenes, args: {variant: dual}, camera: CamB_91, start: 1, style: xray, engine: eevee}
+B_92: {scene: b_scenes, args: {variant: pair, kinds: [channel, cl_pump]}, camera: CamB_92, start: 1, style: clay, engine: eevee}
+
+# ---- C 第三幕 ----
+C_01a: {scene: c_scenes, args: {variant: brain}, camera: CamC_01a, start: 1, style: energy, engine: eevee, raw: true}
+C_01b: {mograph: c, style: infographic, engine: pillow}
+C_02a: {scene: c_scenes, args: {variant: slice, phase: tag}, camera: CamC_02a, start: 1, style: clay, engine: eevee}
+C_02b: {scene: c_scenes, args: {variant: cage, env: A, mouse: none}, camera: CamC_02b, start: 1, style: documentary, engine: cycles}
+C_03a: {scene: c_scenes, args: {variant: cage, env: B, mouse: fiber}, camera: CamC_03a, start: 1, style: photoreal, engine: cycles}
+C_03b: {scene: c_scenes, args: {variant: cells}, camera: CamC_03b, start: 1, style: energy, engine: eevee}
+C_04a: {scene: c_scenes, args: {variant: cage, env: A, mouse: freeze}, camera: CamC_04a, start: 1, style: documentary, engine: cycles}
+C_04b: {mograph: c, style: infographic, engine: pillow}
+C_05a: {mograph: c, style: type, engine: pillow}
+C_05b: {scene: c_scenes, args: {variant: slice, phase: link}, camera: CamC_05b, start: 1, style: clay, engine: eevee}
+C_06a: {mograph: c, style: hud, engine: pillow}
+C_06b: {mograph: c, style: type, engine: pillow}
+C_07a: {scene: c_scenes, args: {variant: retina, phase: rp}, camera: CamC_07a, start: 1, style: xray, engine: eevee, raw: true}
+C_07b: {scene: c_scenes, args: {variant: retina, phase: sem}, camera: CamC_07b, start: 1, style: sem, engine: cycles}
+C_08a: {scene: c_scenes, args: {variant: eye}, camera: CamC_08a, start: 1, style: clay, engine: eevee}
+C_08b: {scene: c_scenes, args: {variant: goggles, display: outline}, camera: CamC_08b, start: 1, style: photoreal, engine: cycles}
+C_09a: {scene: c_scenes, args: {variant: objects}, camera: CamC_09a, start: 1, style: documentary, engine: cycles}
+C_09b: {scene: c_scenes, args: {variant: retina, phase: "off"}, camera: CamC_09b, start: 1, style: xray, engine: eevee}
+C_10a: {scene: c_scenes, args: {variant: pulses}, camera: CamC_10a, start: 1, style: energy, engine: eevee}
+C_10b: {mograph: c, style: type, engine: pillow}
+C_11a: {mograph: c, style: infographic, engine: pillow}
+C_11b: {mograph: c, style: type, engine: pillow}
+C_12a: {mograph: c, style: hud, engine: pillow}
+C_12b: {mograph: c, style: infographic, engine: pillow}
+C_13a: {scene: c_scenes, args: {variant: announce}, camera: CamC_13a, start: 1, style: documentary, engine: cycles}
+C_13b: {mograph: c, style: infographic, engine: pillow}
+C_14a: {mograph: c, style: type, engine: pillow}
+C_14b: {mograph: c, style: infographic, engine: pillow}
+C_15a: {mograph: c, style: infographic, engine: pillow}
+C_15b: {mograph: c, style: hud, engine: pillow}
+C_16a: {mograph: c, style: blueprint, engine: pillow}
+C_16b: {mograph: c, style: type, engine: pillow}
+C_17a: {scene: c_scenes, args: {variant: cochlea}, camera: CamC_17a, start: 1, style: xray, engine: eevee}
+C_17b: {mograph: c, style: infographic, engine: pillow}
+C_18a: {scene: c_scenes, args: {variant: desens}, camera: CamC_18a, start: 1, style: energy, engine: eevee}
+C_18b: {mograph: c, style: infographic, engine: pillow}
+C_19a: {scene: c_scenes, args: {variant: split}, camera: CamC_19a, start: 1, style: photoreal, engine: cycles}
+C_19b: {mograph: c, style: blueprint, engine: pillow}
+C_20a: {mograph: c, style: infographic, engine: pillow}
+C_20b: {mograph: c, style: type, engine: pillow}
+C_91: {mograph: c, style: blueprint, engine: pillow}
+C_92: {scene: c_scenes, args: {variant: goggles, display: "off"}, camera: CamC_92, start: 1, style: photoreal, engine: cycles}
+
+# ---- D 结尾 ----
+D_01a: {scene: d_scenes, args: {variant: switch}, camera: CamD_01a, start: 1, style: energy, engine: eevee}
+D_01b: {scene: d_scenes, args: {variant: switch}, camera: CamD_01b, start: 231, style: clay, engine: eevee}
+D_02a: {mograph: d, style: type, engine: pillow}
+D_02b: {mograph: d, style: infographic, engine: pillow}
+D_03a: {scene: d_scenes, args: {variant: paper}, camera: CamD_03a, start: 1, style: documentary, engine: cycles}
+D_03b: {mograph: d, style: type, engine: pillow}
+D_04a: {mograph: d, style: type, engine: pillow}
+D_04b: {scene: d_scenes, args: {variant: line}, camera: CamD_04b, start: 1, style: energy, engine: eevee}
+D_91: {mograph: d, style: infographic, engine: pillow}
+D_92: {scene: d_scenes, args: {variant: closing}, camera: CamD_92, start: 1, style: sem, engine: cycles}

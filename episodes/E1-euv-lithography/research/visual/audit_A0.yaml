@@ -27,7 +27,7 @@ A0_01:
 A0_02:
   - item: Boeing 747 freighter, nose door raised, shipment box rolled in from a scissor highloader, night apron
     status: sourced
-    source: shipment_suppliers.md A2 (Intel videos WHmRj2mZ-dk, 3PCtf1ONYMU: Cargolux 747-8F/-400F, nose loading)
+    source: "shipment_suppliers.md A2 (Intel videos WHmRj2mZ-dk, 3PCtf1ONYMU: Cargolux 747-8F/-400F, nose loading)"
     note: generic white plane, no airline livery copied (project rule)
   - item: white aluminium shipment boxes with chamfered roof and ribbed sides in the hold
     status: sourced

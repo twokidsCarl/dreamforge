@@ -33,8 +33,8 @@ from paths import AUDIO, EP, REPO, RENDERS, SHARED  # noqa: E402,F401
 ENDPOINTS = {"singapore": "https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation",
              "beijing": "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation"}
 MODEL = "qwen3-tts-flash"
-PAUSE_LINE = 0.4    # between sentences inside a segment (documentary breathing)
-PAUSE_SEG = 0.8     # appended after each segment
+PAUSE_LINE = 0.25    # between sentences inside a segment (documentary breathing)
+PAUSE_SEG = 0.5     # appended after each segment
 SR = 24000
 
 
@@ -79,7 +79,8 @@ def _request(body, url, hdr, wav, spoken):
             r = subprocess.run(["curl", "-s", "-m", "90", "-X", "POST", url, "-H", f"@{hdr}", "--data-binary", "@-"],
                                input=body, capture_output=True, check=True)
             d = json.loads(r.stdout)
-            audio_url = d["output"]["audio"]["url"]
+            # the result URL comes back as plain http; some networks block port 80, so fetch it over https
+            audio_url = d["output"]["audio"]["url"].replace("http://", "https://", 1)
             raw = wav + ".dl"
             subprocess.run(["curl", "-s", "-m", "90", "-o", raw, audio_url], check=True)
             # normalise to mono 24 kHz 16-bit PCM so segments concatenate cleanly
@@ -158,7 +159,7 @@ def build(voice, segments, out_dir, max_lines=None):
     return timing
 
 
-TARGET_RATE = 255.0      # spoken chars per minute, the measured natural pace of a whole-paragraph take
+TARGET_RATE = 285.0      # spoken chars per minute, the measured natural pace of a whole-paragraph take
 RATE_TOL, PITCH_TOL = 0.07, 0.04
 TARGET_PITCH = 107.0     # Hz, the film-wide median of Andre's takes: every segment is held to it
 STRETCH_IF, STRETCH_MAX = 0.15, 0.08   # stretch a sentence only if >15% off, by at most 8%
@@ -228,7 +229,7 @@ def intelligibility(wav, spoken):
     else:
         if not _ASR:
             from faster_whisper import WhisperModel
-            _ASR.append(WhisperModel("large-v3-turbo", device="cpu", compute_type="int8"))
+            _ASR.append(WhisperModel("large-v3-turbo", device="cpu", compute_type=os.environ.get("DREAMFORGE_ASR_COMPUTE", "int8")))
         segs, _ = _ASR[0].transcribe(load16k(wav), language="zh", beam_size=5, initial_prompt=asr_prompt())
         heard = "".join(x.text for x in segs)
         open(cache, "w", encoding="utf-8").write(heard)

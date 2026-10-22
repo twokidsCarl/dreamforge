@@ -1,8 +1,31 @@
-# Dreamforge 视频制作规范（所有 agent 必读）
+# EigenLens（主观知识）视频制作规范（所有 agent 必读）
 
 > 适用：本仓库所有期的科普视频（当前 E1《一台光刻机里发生了什么》，约 20 分钟中文科普片）。
 > 本文是唯一权威的流程与规范，取代 2026-10-15 的初版方案（见 git 历史）。
 > 动手之前先读完第 1、2 节：这两节是制片人（用户）的硬性要求，违反任何一条都算返工。
+
+## 品牌（2026-10-21 锁定）
+
+公开品牌由 Carl 于 2026-10-21 锁定。GitHub 仓库和项目文件夹都是 `eigenlens`（原名 dreamforge）。正文里的英文名写 **EigenLens**。
+
+| 项 | 锁定 |
+|---|---|
+| 中文主名 | 主观知识 |
+| 英文主名 | EigenLens（正文用驼峰；仓库 slug 是 `eigenlens`） |
+| 片头与片尾 | 每集片头 2–4 秒 sting，片尾 end card。不用 MetaHuman，也不用数字人主持人 |
+| 标语含义 | 选主轴，看结构。主观是编辑上的选择；「主」取主轴，对应 eigen |
+| 画面 | 暗色 HUD，冷青 / 冷紫，与 E2 A0 一致 |
+
+标志已锁定（现行：程序重绘稿 03s6 琥珀金 → `brand/eigenlens_logo_locked/`；Carl 2026-10-22 确认不是草稿）。文件包括：`sting_open.mp4`（片头 3 秒）、`sting_end.mp4`（片尾 2 秒）、`endcard_16x9.png`、`lockup.svg` 等；路径由 `paths.BRAND` 给出。不要用其中的 `_superseded_rena_approx_2026-10-21/`（Carl 已否掉的近似重绘）。`shared/tools/edit_film.py` 默认开品牌：成片前接 `sting_open.mp4`，后接 `sting_end.mp4`（两段 sting 无声，补静音对齐，正片混音不动），此时不加 `--tail` 黑场；`--no-brand` 只出正片，独立短片再加 `--tail`。
+
+**环境变量仍用旧前缀 `DREAMFORGE_`。** 这些名字由 `shared/tools/paths.py` 和调用它的脚本读取，这次只记录，不改代码。后续可以再迁前缀。仍在使用的名字：
+
+- `DREAMFORGE_EPISODE`：当前期，默认 E1
+- `DREAMFORGE_RENDER_DIR`：渲染根目录
+- `DREAMFORGE_CYCLES_DEVICE`：Cycles 设备
+- `DREAMFORGE_ASR_COMPUTE`：语音识别计算精度
+
+分镜总览的 `kicker`（`episodes/*/storyboard/page.yaml`）、审查评论标记 `dreamforge-review`、素材请求的 User-Agent 仍是旧名，和上面的环境变量一起留到后续迁移。
 
 ---
 
@@ -31,10 +54,11 @@
 - 关键词必须听得清，用语音识别逐句验证（见 4.4、5.3）。
 
 ### 1.5 工程纪律
-- **每完成一个阶段就 git commit，不 push**。提交信息写清楚改了什么，结尾加 `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`。
-- **API key 只放在仓库根目录的 `.env`**（权限 600，已加入 gitignore），回复里不要复述 key。目前有 `DASHSCOPE_API_KEY`（Qwen TTS）、`ELEVENLABS_API_KEY`（配乐和音效）。
+- **每完成一个阶段，在功能分支上 git commit，然后 push，向 `main` 开拉取请求**。GitHub Actions 的 `review` 检查必须通过（`shared/tools/review_pr.py`，说明见 [REVIEW.md](REVIEW.md)）。仓库已打开 squash 自动合并；`main` 受保护，必需检查就是 `review`，自动合并会等它通过。不要直接 push 到 `main`，不要用 `--admin` 绕过保护。提交信息写清楚改了什么，结尾加 `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`。
+- **API key 只放在仓库根目录的 `.env`**（权限 600，已加入 gitignore），回复里不要复述 key。目前有 `DASHSCOPE_API_KEY`（Qwen TTS）、`ELEVENLABS_API_KEY`（配乐和音效）。Tripo 或 Meshy 的 key 也只放这里；`.env` 里没有该服务的 key，就不能调用。
 - **网络请求里不放用户的邮箱或任何个人信息**。有些网站要求请求头里带联系方式（例如 SEC EDGAR），一律用占位地址。给调研子任务写提示词时要明确写上这一条。
-- 付费工具只用已开通的：Qwen TTS（DashScope 国际版）、ElevenLabs Creator 档。Meshy、Tripo 等 3D 生成服务不用。免费素材只用 Poly Haven（CC0），以及逐张核实为 CC0 的 Wikimedia Commons 图片。
+- 付费工具只用已开通的：Qwen TTS（DashScope 国际版）、ElevenLabs Creator 档。免费图片和 HDRI 只用 Poly Haven（CC0），以及逐张核实为 CC0 的 Wikimedia Commons 图片。三维资产的分工见下一条，也见第 6.4 节。
+- **三维资产**：核心科学结构必须用参数化 Blender Python 建模。包括蛋白和通道（如 ChR2）、神经元、膜、离子流、视网膜剖面，以及任何结构必须准确、或要做精确动画的对象。周边写实道具可以用 AI 三维生成（Tripo 或 Meshy），例如实验小鼠、光纤植入器件、护目镜、实验台和日常物件。调用前要同时满足：`.env` 里已经配好该服务的 key；在该期 `research/visual/assets.yaml` 记下工具、prompt 和日期；核对产出的许可和商用条款；在 Blender 里对齐全片风格并清掉多余几何。仍然不做写实真人面孔。Tripo 和 Meshy 哪一个为主还没定，对比做完之前不要写死。
 
 ---
 
@@ -87,7 +111,7 @@
 
 ---
 
-## 3. 制作流程（按阶段，每个阶段完成后 commit）
+## 3. 制作流程（按阶段；每阶段在功能分支上提交并开 PR，见 1.5）
 
 | 阶段 | 产出 | 工具 / 命令 | 进入下一阶段的条件 |
 |---|---|---|---|
@@ -97,7 +121,7 @@
 | P4 配音 | `audio/vo/<音色>/` | 见 4.4 节 | 语音识别逐句核对通过 |
 | P5 定时 | `storyboard.timed.yaml`、`subs/zh.srt` | `python3 shared/tools/retime.py` | 全片时长在目标 ±1.5 分钟内 |
 | P6 画面核查 | `research/visual/audit_<段>.yaml` | 人工对照调研报告 | 没有 `wrong` 和 `unsourced` 的项 |
-| P7 建模与镜头 | `blender/scripts/`、`blender/shots/`、`mograph/` | 见第 8 节 | 单帧试渲通过 |
+| P7 建模与镜头 | `blender/scripts/`、`blender/shots/`、`mograph/` | 见第 6.4、8 节 | 单帧试渲通过 |
 | P8 渲染 | `renders/shots/<镜头>/<质量>/` | `shared/tools/render_batch.sh`、`mograph.py` | 帧数齐全，日志里没有报错 |
 | P9 声音设计 | `sound/<段>.yaml`（配乐和音效） | `shared/tools/eleven.py` | 关键音效对准词的时间戳 |
 | P10 剪辑 | `renders/edit/<段>_vN.mp4` | `python3 shared/tools/edit_film.py` | 第 5 节自审清单全部通过 |
@@ -177,6 +201,13 @@
 - 重要的冲击（爆闪、炸开）放在旁白的空档里，不要压在词上。
 - 片名镜头的片名要一直在画面内，后面留足停顿。
 
+### 6.4 建模：什么必须手写，什么可以用生成
+- **核心科学结构用参数化 Blender Python**，不用 Tripo 或 Meshy 的网格代替。范围：蛋白和通道（如 ChR2）、神经元、膜、离子流、视网膜剖面，以及任何结构必须准确、或要做精确动画的对象。
+- **周边写实道具可以用 Tripo 或 Meshy**：实验小鼠、光纤植入器件、护目镜、实验台、日常物件。哪一个为主还没定，对比做完之前不要写死。
+- 调用生成服务前，`.env` 里要有该服务的 key。没有 key 就不生成。
+- 每件生成资产写入该期 `research/visual/assets.yaml`：工具、prompt、日期。核对许可和商用条款；进镜头前在 Blender 里对齐风格并清理几何。
+- 人物仍只做逆光剪影。不用生成模型做写实人脸，也不做真人肖像。
+
 ---
 
 ## 7. 声音规范
@@ -192,6 +223,7 @@
 ## 8. 技术规范
 
 ### 8.1 渲染
+- 建模分工见 6.4 节：核心科学结构只写 Blender Python；Tripo / Meshy 只用于周边道具。
 - Blender 5.2：EEVEE 用于风格化镜头，Cycles 用于真实渲染。Metal 显存不够时会自动改用 CPU 重试。
 - 质量预设：preview 640×360，sample 960×540，final 1920×1080；24 fps。
 - 镜头登记在 `episodes/<期>/blender/shots/registry.yaml`。常用字段：
@@ -199,12 +231,14 @@
   - `start`：从模拟的第几帧开始，可以是小数，也可以小于 1；
   - `step`：每帧前进几个模拟帧，小于 1 就是慢动作；
   - `black_tail`：结尾留几帧黑场。
-- **单帧试渲**：`DREAMFORGE_RENDER_DIR=<临时目录> blender -b --factory-startup -P shared/tools/render_storyboard.py -- --shot X --quality preview --frames 1,60`。改动后先试渲几帧，确认无误再整段渲染。
+- **单帧试渲**：`DREAMFORGE_RENDER_DIR=<临时目录> blender -b --factory-startup -P shared/tools/render_storyboard.py -- --shot X --quality preview --frames 1,60`（也可写 `1,mid,last`；批量用 `FRAMES=1,mid,last shared/tools/render_batch.sh preview <id>...`）。改动后先试渲几帧，确认无误再整段渲染。
+- **不开 GPU 的冒烟**：`blender -b --factory-startup -P shared/tools/build_check.py -- [--shots X,Y | --segment B]`。逐镜 build、套风格、切到首 / 中 / 尾帧，检查相机存在、视野里有东西，并核对 registry 覆盖 timed.yaml 的全部镜头 id；不渲染（`--render X` 才渲 1 帧）。registry 里只有 `mograph:` 的条目是 2D 镜头，跳过。
 - 渲染时会在开头读取场景脚本；**渲染进行中改脚本，可能导致同一批镜头用的不是同一版代码**。改完要确认哪些镜头需要重渲。
 - 共用中心点和位置用常量（例如 `BM.CENTER`、`BM.RETICLE`），不要在各个镜头里硬写坐标。
 
 ### 8.2 环境坑
 - 系统 python3 有 Pillow，但缺 SSL 证书；`.venv` 有 certifi、faster-whisper、PyMuPDF，但没有 Pillow。需要联网下载的用 `.venv/bin/python`，或依赖 `eleven.py` / `fetch_assets.py` 里已加的 CA 处理。
+- 语音识别的计算精度由环境变量 `DREAMFORGE_ASR_COMPUTE` 决定（默认 `int8`；box 上用 `float32`，见第 9 节）。
 - `.venv` 没有 pip，装包用 `uv pip install --python .venv/bin/python <包名>`。
 - 素材下载：`shared/tools/fetch_assets.py`。会校验 Poly Haven 文件的 md5，Wikimedia 图片的授权必须是 CC0，否则报错。下载目录 `shared/assets/` 不入库。
 - 后台长任务用工具自带的后台运行方式，不要用 `&` 自己挂起，否则完成时收不到通知。
@@ -233,12 +267,13 @@
 | 后台配音任务出错，后面的步骤还在用旧数据跑 | 用管道过滤输出，错误被吞掉 | 长链条命令加 `set -e -o pipefail`，完整日志写进文件 |
 | 只重配一段（`--segments B1`）后，其他段的配音全部“找不到” | tts.py 局部运行时用这一段覆盖了 timing.json 和 sentences.json | tts.py 已改为局部运行时保留其他段；跑完后台任务必须看日志结尾，不能只看外层退出码 |
 | 改坏了 facts.yaml，校验却显示“通过” | 跑校验时只用 grep 筛 ERROR/WARN，Python 报错被筛掉 | 校验命令不过滤输出，看退出码；改完 YAML 立刻 `yaml.safe_load` 一遍 |
+| 语音识别整段输出乱码（「点击点击」、夹英文碎词），所有版本得分 0 | 部分 x86 CPU 上 faster-whisper 的 int8 计算出错（2026-10-21 在 box 的 Xeon 上复现；float32 正常） | 在 Linux box 上设 `DREAMFORGE_ASR_COMPUTE=float32`；识别缓存 `*.asr.txt` 若是乱码要删掉重识别 |
 
 ---
 
 ## 10. 目录结构
 ```
-dreamforge/
+eigenlens/
 ├── README.md
 ├── docs/WORKFLOW.md              本文件
 ├── shared/
@@ -248,7 +283,7 @@ dreamforge/
 │   ├── blender/                  common（场景、HDRI）、materials（含 Poly Haven PBR）、styles（画面语言）
 │   └── assets/                   下载的 CC0 素材（不入库）
 └── episodes/E<n>-<短名>/
-    ├── research/                 facts.yaml；visual/（调研报告、audit_<段>.yaml、audit_backlog.yaml）
+    ├── research/                 facts.yaml；visual/（调研报告、audit_<段>.yaml、audit_backlog.yaml、assets.yaml）
     ├── script/                   script_zh.md、pronunciation.yaml
     ├── storyboard/               parts/*.yaml → storyboard.yaml → storyboard.timed.yaml
     ├── sound/                    <段>.yaml（配乐和音效）
@@ -259,7 +294,15 @@ dreamforge/
     └── renders/                  shots/、edit/、review/（审片和参考资料，不入库）
 ```
 
+根目录名是 `eigenlens`。树里的 `DREAMFORGE_EPISODE` 是仍在使用的旧环境变量，见文首「品牌」。
+
 ## 11. 新开一期
 1. 复制 `episodes/E1-*/` 的目录骨架，不复制 audio 和 renders。
 2. 设置 `DREAMFORGE_EPISODE=E<n>-<短名>`。
 3. 从 P1 调研开始，按第 3 节逐个阶段推进，第 1、2 节的规则同样适用。
+
+E2《光遗传学》在 `episodes/E2-optogenetics/`。检查点①、检查点②（全片动态分镜）都已于 2026-10-21 通过，见该期 README。P7 建模与镜头已完成；下一步是 P8 第一批试渲：按 [RUNPOD.md](RUNPOD.md) 用 API 开 GPU，镜头和命令见该期 `FIRST_BATCH.md`。
+
+## 12. 拉取请求审查
+
+`main` 受保护，必需检查是 `review`。仓库已打开 squash 自动合并，会等 `review` 通过。检查项见 [REVIEW.md](REVIEW.md)。用 `gh pr merge --auto --squash`，不要加 `--admin`，不要直接 push 到 `main`。

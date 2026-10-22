@@ -14,6 +14,7 @@ import os
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 SHARED = os.path.join(REPO, "shared")
+BRAND = os.path.join(REPO, "brand", "eigenlens_logo_locked")   # APPROVED logo, stings, end card (all episodes)
 DEFAULT_EPISODE = "E1-euv-lithography"
 
 
@@ -33,3 +34,23 @@ def set_episode(name):
 
 EPISODE = EP = AUDIO = RENDERS = None
 set_episode(None)
+
+
+def timed_shots(segments=None, quiet=False):
+    """storyboard.timed.yaml 的镜头列表；配音定时前还没有这个文件，就回退到 storyboard.yaml
+    的 duration（按顺序累加出 start），并打印一行警告。segments: 只取这些段（如 ["A0"]）。"""
+    import sys
+    import yaml
+    timed = os.path.join(EP, "storyboard", "storyboard.timed.yaml")
+    if os.path.exists(timed):
+        shots = yaml.safe_load(open(timed, encoding="utf-8"))["shots"]
+    else:
+        if not quiet:
+            print(f"[paths] 警告：{timed} 不存在，回退到 storyboard.yaml 的 duration（配音定时后会改变）",
+                  file=sys.stderr, flush=True)
+        shots = yaml.safe_load(open(os.path.join(EP, "storyboard", "storyboard.yaml"), encoding="utf-8"))["shots"]
+        t = 0.0
+        for s in shots:
+            s["start"] = round(t, 3)
+            t += s["duration"]
+    return [s for s in shots if not segments or s["segment"] in segments]

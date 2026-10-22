@@ -1,0 +1,91 @@
+# E2 视觉事实核查表，A0 冷开场。每行是画面里出现的一项结构、文字或数字（旁白的论断在 research/facts.yaml）。
+# status: sourced / wrong / unsourced / simplified / artistic（WORKFLOW 2.3）。调研报告：research/visual/a0_cold_open.md
+# 规则：本段还有 wrong 或 unsourced 时不能出成片。
+# 2026-10-21 Carl HARD：冷开场改为 1979（要求，F3b）→ 微生物平行线（F3c）→ 1999（光 / 相当牵强，F3）→ 2026（F1）。
+# 检查点①决定 1（只用 1999）作废。光不挂 1979；不写年份差；不说「47 年」。
+A0_01a:
+  - item: 暗室桌上一页旧纸，侧光照亮其中一行；纸上只有不可读的抽象行
+    status: artistic
+    note: 示意 Crick 1979《科学美国人》一文，不是原件（我们没有原件图片）。纸上不排可读的原句，避免冒充原文
+  - item: 右上标签「Francis Crick · 1979」「《科学美国人》」
+    status: sourced
+    source: F3b（Crick 1979, Sci Am 241:219；诺奖科学背景并列引用）
+    note: 这一镜只配「只动一类神经元」的要求，不配光。不说「47 年」
+  - item: 空气里的浮尘
+    status: artistic
+A0_01b:
+  - item: HUD 标题「微生物」，两条轨道
+    status: artistic
+  - item: 刻度「1981 · 古菌 · 盐视紫红质」+ 杆状古菌剪影
+    status: sourced
+    source: F3c（诺奖科学背景；Mukohata & Kaji 1981）
+    note: 1981 是分离 halorhodopsin；不写「氯离子泵」（那是后来对 N. pharaonis 变体的鉴定）。剪影只是外形，simplified
+  - item: 刻度「1991–1996 · 衣藻 · 微秒级光电流」+ 双鞭毛绿藻剪影（琥珀眼点）
+    status: sourced
+    source: F3c（诺奖科学背景；Harz & Hegemann 1991，Harz 等 1992，Holland 等 1996）
+    note: 只给剪影和刻度，不画蛋白、不开门，不出现通道视紫红质 / 2002 / 2003（第二幕再讲）。年份在「微生物」轨道里，不读成 Crick 的年份
+A0_02a:
+  - item: 暗的「……也许是光？」（讲座里的猜测）
+    status: sourced
+    source: F3b（Deisseroth 2010：光控是 Crick 后来讲座里的推测）
+    note: 不标年份；不编 1979–1999 之间的讲座年份
+  - item: 「理想的信号会是光。」+「Crick · 1999」
+    status: sourced
+    source: F3
+    note: 中文是旁白译文（would be → 会是），不是原文排版
+  - item: 打出「相当牵强」
+    status: sourced
+    source: F3（rather far-fetched）
+A0_02b:
+  - item: 纸页近景（示意 1999 一文），照亮的那一行慢慢暗下
+    status: artistic
+  - item: 右上标签「Francis Crick · 1999」「诺奖科学背景引用」
+    status: sourced
+    source: F3（2026 诺奖科学背景，引用 Crick 1999）
+A0_03a:
+  - item: 一排通用神经元，只有被圈出的一类先亮（打开，通道蓝）再暗（关掉，琥珀），两侧保持灰
+    status: simplified
+    source: F3b、F3（只打开或关掉某一类神经元，其余大体不动）
+    note: 神经元形态通用，不代表具体脑区或细胞类型；不标比例和数量。蓝 / 琥珀是全片的开 / 关约定色，不是真实光色
+A0_03b:
+  - item: 参数化白模神经元（胞体、树突、轴突），只有被圈出的一类起伏放电
+    status: simplified
+    note: 形态通用；「起伏」只表示活动，不是真实形变
+A0_04a:
+  - item: 三个抽象光点依次亮起，旁边写 Karl Deisseroth、Peter Hegemann、Georg Nagel，以及 2026-10-05 · 诺贝尔生理学或医学奖
+    status: sourced
+    source: F1（nobelprize.org 2026 新闻稿）
+    note: 不画肖像；名字顺序按新闻稿
+A0_04b:
+  - item: 三个名字上下排列，没有第四行
+    status: sourced
+    source: F1
+A0_05a:
+  - item: 蓝图：左侧两行「只动一类神经元 · Crick · 1979」「理想的信号会是光 · Crick · 1999」，右侧三个人名，中间一个空方框写「开关」
+    status: sourced
+    source: F3b, F3, F1
+    note: 方框是叙事符号（缺的那枚开关），不是任何真实结构
+A0_05b:
+  - item: 方框里一道光走到一半熄灭
+    status: artistic
+A0_06a:
+  - item: 片名《光遗传学》
+    status: sourced
+    source: F7
+A0_06b:
+  - item: 片名下一道细光横过后熄灭；片名一直在画面内
+    status: artistic
+A0_91:
+  - item: 紫膜的二维晶格：细菌视紫红质三聚体排成六方晶格，三聚体之间是脂质；灰度电镜风格，带紫色调；不标年份
+    status: simplified
+    source: Henderson & Unwin 1975 Nature 257:28；Krebs & Isenbarger 2000 BBA 1460:15（P3，晶胞约 62 Å）；F4
+    note: 真实的电镜结果是投影密度图，这里做成带光影的表面；只闪 1.5 秒，第二幕再讲紫膜。v2：螺旋半径 4.5 → 4.0 Å、倾角 ≤ 2°，相邻螺旋至少留 1.3 Å 空隙（build_purple_membrane.assert_clear），避免镜头移动时互相穿插
+A0_92:
+  - item: HUD 计数 1979 → 1999 → 2026 两次翻牌，每个停一拍（只出现这三个年份，不逐年滚动）
+    status: sourced
+    source: F3b（1979）、F3（1999）、F1（2026）
+    note: 不在屏幕上写相差年数。取代检查点①决定 1 的「只用 1999」
+  - item: 刻度尺下暗轨上的无字小点（微生物那条线）
+    status: sourced
+    source: F3c（1981、1991、1992、1996）
+    note: 不写年份，不会被读成 Crick 的年份

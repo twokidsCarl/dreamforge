@@ -4,9 +4,10 @@
 
 Uses storyboard.timed.yaml (tools/retime.py) and the VO track. Boards are drawn with Pillow:
 style swatch and name, shot id, timecode, the visual description, planned on-screen text and the
-current subtitle. Where a rendered frame exists for a shot (shots that reuse the B1 sample
-cameras), the board shows it instead of text. As grey-box renders arrive, put them under
-renders/reel/<shot_id>.png (or .mp4) and they replace the board automatically.
+current subtitle. Where a rendered frame exists for a shot, the board shows it
+instead of text. A frame taken from the lithography sample_b1 cameras is marked
+「B1 样片画面」; the episode's own reel still is not. As grey-box renders arrive,
+put them under renders/reel/<shot_id>.png (or .mp4) and they replace the board.
 Output: renders/reel/story_reel.mp4
 """
 import argparse
@@ -68,6 +69,13 @@ def tc(t):
     return f"{int(t // 60):02d}:{t % 60:05.2f}"
 
 
+def is_black(s):
+    """Shots that end on a black frame: the light goes out (灭) into 黑场, e.g. E2 D_04b. A shot that merely
+    starts from black and shows a title (黑场中央只有片名…) is not one."""
+    v = s.get("visual") or ""
+    return "黑场" in v and "灭" in v
+
+
 def board(s, W, H, seg_title):
     name, bg, acc = STYLE[s["style"]]
     light = sum(bg) > 400
@@ -76,38 +84,69 @@ def board(s, W, H, seg_title):
     k = H / 720
     ref = s.get("ref", "")
     still = None
+    from_sample = False
     if ref.startswith("sample_b1:"):
         p = sample_frame(ref.split(":")[1])
         if p:
             still = Image.open(p).convert("RGB").resize((W, H), Image.LANCZOS)
+            from_sample = True
     own = os.path.join(RENDERS, "reel", f"{s['id']}.png")
     if os.path.exists(own):
         still = Image.open(own).convert("RGB").resize((W, H), Image.LANCZOS)
+        from_sample = False
     img = still if still else Image.new("RGB", (W, H), bg)
     d = ImageDraw.Draw(img, "RGBA")
     m = int(48 * k)
-    head = f"{s['id']}  ·  {seg_title}  ·  转场：{TRANSITIONS.get(s.get('transition_in'), s.get('transition_in'))}"
+    kf = max(k, 0.8)    # text never shrinks below a readable size on small previews (640x360)
+    head = f"{seg_title}  ·  转场：{TRANSITIONS.get(s.get('transition_in'), s.get('transition_in'))}"
     if still:
         d.rectangle([0, 0, W, int(110 * k)], fill=(0, 0, 0, 120))
         ink, ink2 = (240, 242, 248), (210, 214, 226)
-        head += "  （B1 样片画面）"
-    # header: style swatch + name, shot id, segment title, transition
-    d.rectangle([m, m, m + int(14 * k), m + int(14 * k)], fill=acc)
-    d.text((m + int(24 * k), m - int(5 * k)), name, font=font(int(20 * k)), fill=ink)
-    d.text((m, m + int(30 * k)), head, font=font(int(15 * k)), fill=ink2)
+        if from_sample:
+            head += "  （B1 样片画面）"
+    if not still and is_black(s):
+        # an intentional black frame stays black; only a small id so the reviewer knows where they are
+        d.text((m, m), f"{s['id']}  黑场", font=font(int(16 * kf)), fill=(90, 92, 100))
+        return img
+    # header: style swatch + name, then the shot id large on the right, segment title and transition below
+    d.rectangle([m, m, m + int(14 * kf), m + int(14 * kf)], fill=acc)
+    d.text((m + int(24 * kf), m - int(5 * kf)), name, font=font(int(20 * kf)), fill=ink)
+    fid = font(int(30 * kf))
+    d.text((W - m - d.textlength(s["id"], font=fid), m - int(10 * kf)), s["id"], font=fid, fill=acc)
+    d.text((m, m + int(26 * kf)), head, font=font(int(14 * kf)), fill=ink2)
     if not still:
-        y = m + int(90 * k)
-        fv = font(int(25 * k))
-        for para in wrap_px(d, s.get("visual", ""), fv, W - 2 * m):
-            d.text((m, y), para, font=fv, fill=ink)
-            y += int(38 * k)
-            if y > H * 0.66:
-                d.text((m, y), "……", font=font(int(25 * k)), fill=ink2)
-                break
+        # the picture area: a framed placeholder where the render will go, never an empty field
+        x0, y0, x1, y1 = m, m + int(54 * kf), W - m, int(H * 0.75)
+        tint = tuple(min(255, c + 14) for c in bg) if not light else tuple(max(0, c - 14) for c in bg)
+        d.rectangle([x0, y0, x1, y1], fill=tint, outline=acc + (150,), width=max(1, int(2 * k)))
+        for i in (1, 2):                                  # thirds guides
+            gx = x0 + (x1 - x0) * i // 3
+            gy = y0 + (y1 - y0) * i // 3
+            d.line([gx, y0, gx, y1], fill=acc + (40,), width=1)
+            d.line([x0, gy, x1, gy], fill=acc + (40,), width=1)
+        pad = int(16 * kf)
+        cam = (s.get("camera") or {}).get("move", "")
+        tag = f"画面待做 · {s.get('engine', '')} · {cam} · {s['duration']:.2f}s" + ("" if s.get("vo") else " · 纯画面")
+        ft = font(int(13 * kf))
+        d.text((x1 - pad - d.textlength(tag, font=ft), y1 - pad - int(14 * kf)), tag, font=ft, fill=ink2)
+        fv = font(int(24 * kf))
+        lines = wrap_px(d, s.get("visual", ""), fv, x1 - x0 - 2 * pad)
+        lh = int(34 * kf)
+        room = (y1 - y0 - 2 * pad - int(22 * kf)) // lh
         ovs = [o.get("text", "") for o in s.get("overlays") or [] if o.get("kind") != "chapter"]
         if ovs:
-            y = max(y + int(16 * k), int(H * 0.62))
-            d.text((m, y), "上屏：" + " ｜ ".join(ovs)[:70], font=font(int(17 * k)), fill=acc)
+            room -= 1
+        if len(lines) > room:
+            lines = lines[:max(1, room - 1)] + ["……"]
+        block = len(lines) * lh + (lh if ovs else 0)
+        y = y0 + max(pad, (y1 - y0 - int(22 * kf) - block) // 2)
+        for ln in lines:
+            d.text((x0 + (x1 - x0 - d.textlength(ln, font=fv)) / 2, y), ln, font=fv, fill=ink)
+            y += lh
+        if ovs:
+            fo = font(int(17 * kf))
+            t = ("上屏：" + " ｜ ".join(ovs))[:60]
+            d.text((x0 + (x1 - x0 - d.textlength(t, font=fo)) / 2, y + int(4 * kf)), t, font=fo, fill=acc)
     return img
 
 
@@ -146,7 +185,7 @@ def mograph_ids():
     import re
     ids = set()
     for p in glob.glob(os.path.join(EP, "mograph", "*.py")):
-        ids |= set(re.findall(r'@shot\("([A-Z0-9_]+)"\)', open(p, encoding="utf-8").read()))
+        ids |= set(re.findall(r'@shot\("([A-Za-z0-9_]+)"\)', open(p, encoding="utf-8").read()))
     return ids
 
 

@@ -1,7 +1,7 @@
 """Render storyboard shots from the shot registry.
 
   blender -b --factory-startup -P tools/render_storyboard.py -- --shot B1_10 [--quality preview|sample|final]
-      [--frames 1,60] [--engine eevee|cycles]
+      [--frames 1,60 | 1,mid,last] [--engine eevee|cycles]
 
 episodes/<episode>/blender/shots/registry.yaml maps a storyboard id to a scene module, a camera and the
 simulation frame where the shot starts:
@@ -9,7 +9,7 @@ simulation frame where the shot starts:
   B1_10: {scene: b1_source, camera: CamB1_10, start: 65, style: photoreal, engine: cycles}
   B1_11: {scene: b1_source, camera: CamB1_11, start: 150, hold: true, style: sem}
 
-The shot length comes from storyboard.timed.yaml (real VO timing). `hold: true` renders one frame
+The shot length comes from storyboard.timed.yaml (real VO timing); until that exists, from storyboard.yaml. `hold: true` renders one frame
 for a freeze. Frames go to $DREAMFORGE_RENDER_DIR/shots/<id>/<quality>/####.png (numbered from 1),
 timings to renders/times.csv; tools/encode_shots.py turns them into clips the story reel picks up.
 """
@@ -23,7 +23,7 @@ import sys
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))   # Blender -P does not add it
-from paths import AUDIO, EP, REPO, RENDERS, SHARED  # noqa: E402,F401
+from paths import AUDIO, EP, REPO, RENDERS, SHARED, timed_shots  # noqa: E402,F401
 sys.path[:0] = [os.path.join(SHARED, "blender"),
                 os.path.join(EP, "blender/scripts"),
                 os.path.join(EP, "blender/shots"),
@@ -44,7 +44,7 @@ def args():
     ap.add_argument("--shot", required=True)
     ap.add_argument("--quality", choices=list(C.PRESETS), default="preview")
     ap.add_argument("--engine", choices=["eevee", "cycles"])
-    ap.add_argument("--frames", help="comma-separated shot-relative frames (1-based) to render")
+    ap.add_argument("--frames", help="comma-separated shot-relative frames (1-based), or mid / last")
     return ap.parse_args(argv)
 
 
@@ -52,9 +52,10 @@ def main():
     a = args()
     reg = yaml.safe_load(open(os.path.join(EP, "blender/shots/registry.yaml"), encoding="utf-8"))
     spec = reg[a.shot]
-    timed = yaml.safe_load(open(os.path.join(EP, "storyboard/storyboard.timed.yaml"),
-                                encoding="utf-8"))
-    shot = next(s for s in timed["shots"] if s["id"] == a.shot)
+    if "scene" not in spec:                                       # 2D 镜头：registry 只登记 mograph 模块
+        sys.exit(f"[render_storyboard] {a.shot} 是 2D 镜头（mograph: {spec.get('mograph')}）："
+                 f"用 python3 shared/tools/mograph.py --shot {a.shot}")
+    shot = next(s for s in timed_shots() if s["id"] == a.shot)     # 没有 timed 文件时回退到分镜 duration
     n = 1 if spec.get("hold") else max(1, round(shot["duration"] * FPS))
 
     module = importlib.import_module(spec["scene"])
@@ -69,13 +70,16 @@ def main():
         styles.apply_style("photoreal")
     if hasattr(module, "after_style"):
         module.after_style(style, a.shot)
-    C.setup_compositor()
+    C.setup_compositor(no_glare=bool(spec.get("no_glare")))   # registry 逐镜 no_glare: true
     if any(o.particle_systems for o in bpy.data.objects if o.type == "MESH"):
         bpy.ops.ptcache.bake_all(bake=True)
 
-    out = os.path.join(C.render_root(), "shots", a.shot, a.quality)
+    # raw: true 的镜头先写到 <quality>_raw，由 mograph 里同 id 的后处理（叠字等）再写 <quality>
+    out = os.path.join(C.render_root(), "shots", a.shot, a.quality + ("_raw" if spec.get("raw") else ""))
     os.makedirs(out, exist_ok=True)
-    rel = [int(f) for f in a.frames.split(",")] if a.frames else range(1, n + 1)
+    # --frames 1,60 或 1,mid,last（mid = 中帧，last = 尾帧，按本镜帧数算）
+    named = {"mid": (n + 1) // 2, "last": n}
+    rel = [named[f] if f in named else int(f) for f in a.frames.split(",")] if a.frames else range(1, n + 1)
     log = os.path.join(C.render_root(), "times.csv")
     new = not os.path.exists(log)
     with open(log, "a", newline="") as fh:

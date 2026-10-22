@@ -14,7 +14,7 @@ from asr_prompt import asr_prompt  # noqa: E402
 
 pcm = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", sys.argv[1], "-ac", "1", "-ar", "16000", "-f", "f32le", "-"],
                      capture_output=True, check=True).stdout
-m = WhisperModel("large-v3-turbo", device="cpu", compute_type="int8")
+m = WhisperModel("large-v3-turbo", device="cpu", compute_type=os.environ.get("DREAMFORGE_ASR_COMPUTE", "int8"))
 segs, _ = m.transcribe(np.frombuffer(pcm, dtype=np.float32), language="zh", initial_prompt=asr_prompt())
 for s in segs:
     print(f"{s.start:6.2f} {s.end:6.2f} {s.text}")

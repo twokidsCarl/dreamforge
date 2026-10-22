@@ -1,11 +1,15 @@
 """Four visual languages rendered from the same scene.
 
   photoreal  real materials in the vacuum chamber           "this is a real thing"
-  xray       light studio, ghost-glass shells, glowing core   "what it looks like inside"
-  blueprint  white linework on blue, Freestyle               "how it is designed"
-  energy     black, only light / plasma / particles / rays   "the invisible physics"
-  clay       matte warm-white models on a soft studio cyc      "how it is assembled / moves"
+  xray       dark studio, ghost-glass shells, glowing core    "what it looks like inside"
+  blueprint  pale linework on deep-navy schematic, Freestyle "how it is designed"
+  energy     near-black, only light / plasma / particles / rays "the invisible physics"
+  clay       matte warm-white models in the dark studio       "how it is assembled / moves"
   sem        greyscale, edge-bright, electron-microscope look  "what the nanoscale looks like"
+
+Look rules (E2 STYLE_REVIEW §4.3, P0-3): every non-photoreal style renders through AgX + Base Contrast
+(no "Standard" view transform); xray and clay share one dark studio gradient (L1_WORLD_*) instead of a
+near-white / mid-grey cyc, so a style change no longer flips the frame's brightness.
 
 Builders tag objects with a `role` custom property; apply_style() swaps materials, world,
 lights and line rendering per role. Untagged objects are classified automatically:
@@ -19,9 +23,23 @@ import materials as M
 ROLES = ("structure", "shell", "emitter", "env", "rig", "rays")
 STYLES = ("photoreal", "xray", "blueprint", "energy", "clay", "sem")
 
-BLUEPRINT_BG = (0.010, 0.055, 0.20)
-BLUEPRINT_FILL = (0.016, 0.075, 0.25)
-BLUEPRINT_LINE = (0.86, 0.93, 1.0)
+# All colours below are LINEAR (Blender world / emission / linestyle inputs), converted from sRGB with
+# the standard sRGB EOTF. The sRGB sources are the E2 "Deep Lab" palette
+# (episodes/E2-optogenetics/mograph/e2_palette.py); keep the two in sync — this module is shared by
+# every episode, so it does not import that file.
+# Blueprint = deep-navy schematic (same hue family as the 2D BG_0, not the old saturated blueprint blue,
+# which was sRGB #19427C here vs #0C347A in 2D):
+BLUEPRINT_BG = (0.0033, 0.0130, 0.0423)     # sRGB #0B1E3A  SCHEMATIC_BG
+BLUEPRINT_FILL = (0.0060, 0.0212, 0.0648)   # sRGB #122848  35% SCHEMATIC_BG -> SCHEMATIC_GRID
+BLUEPRINT_LINE = (0.521, 0.672, 1.0)        # sRGB #BFD6FF  SCHEMATIC_LINE
+# L1 "Lab Night" dark studio: top BG-1 -> bottom BG-0 (background mean stays <= ~35/255 after AgX)
+L1_WORLD_TOP = (0.0044, 0.0080, 0.0194)     # sRGB #0E1626  BG_1
+L1_WORLD_HORIZON = (0.0030, 0.0052, 0.0123)  # sRGB #0A101D  halfway BG_1 -> BG_0
+L1_WORLD_BOTTOM = (0.0021, 0.0033, 0.0070)  # sRGB #070B14  BG_0
+DARK_BG = L1_WORLD_BOTTOM                   # energy / sem flat world: BG-0, not pure black
+# S "SEM accent": cool grey ramp with ~5% violet, sRGB #0B0F18 -> #C8D0DC (was neutral 0.035 -> 0.62)
+SEM_DARK = (0.0033, 0.0048, 0.0091)
+SEM_LIGHT = (0.5776, 0.6308, 0.7157)
 
 
 def tag(obj, role):
@@ -138,9 +156,9 @@ def sem_material(name="SEM"):
     lw.inputs["Blend"].default_value = 0.5
     ramp = nt.nodes.new("ShaderNodeValToRGB")
     ramp.color_ramp.elements[0].position = 0.15
-    ramp.color_ramp.elements[0].color = (0.035, 0.035, 0.035, 1)
+    ramp.color_ramp.elements[0].color = (*SEM_DARK, 1)
     ramp.color_ramp.elements[1].position = 1.0
-    ramp.color_ramp.elements[1].color = (0.62, 0.62, 0.62, 1)
+    ramp.color_ramp.elements[1].color = (*SEM_LIGHT, 1)
     ramp.color_ramp.interpolation = "EASE"
     em = nt.nodes.new("ShaderNodeEmission")
     nt.links.new(lw.outputs["Facing"], ramp.inputs["Fac"])
@@ -243,9 +261,13 @@ def _photoreal_world(sc, objs, roles):
                     o.hide_render = o.hide_viewport = False
 
 
+def _l1_world():
+    C.set_world(top=L1_WORLD_TOP, horizon=L1_WORLD_HORIZON, bottom=L1_WORLD_BOTTOM)
+
+
 def _non_photoreal(style, sc, objs, roles, line_px):
     if style == "xray":
-        C.set_world(top=(0.92, 0.93, 0.95), horizon=(0.80, 0.81, 0.84), bottom=(0.62, 0.63, 0.66))
+        _l1_world()          # was a near-white cyc (0.92 / 0.80 / 0.62) that sat above the bloom threshold
         C.set_color_management(look="Base Contrast", exposure=0.0)
         glass = ghost_glass()
         for o in objs:
@@ -262,9 +284,7 @@ def _non_photoreal(style, sc, objs, roles, line_px):
 
     if style == "blueprint":
         _flat_world(BLUEPRINT_BG)
-        sc.view_settings.view_transform = "Standard"
-        sc.view_settings.look = "None"
-        sc.view_settings.exposure = 0.0
+        C.set_color_management(look="Base Contrast", exposure=0.0)
         fill = M.emission("BlueprintFill", BLUEPRINT_FILL, 1.0)
         for o in objs:
             if roles[o] in ("structure", "shell"):
@@ -277,7 +297,8 @@ def _non_photoreal(style, sc, objs, roles, line_px):
         return
 
     if style == "energy":
-        _flat_world((0.0, 0.0, 0.0))
+        _flat_world(DARK_BG)
+        C.set_color_management(look="Base Contrast", exposure=0.0)
         rim = dark_rim()
         for o in objs:
             if roles[o] in ("structure", "shell"):
@@ -292,8 +313,8 @@ def _non_photoreal(style, sc, objs, roles, line_px):
         return
 
     if style == "clay":
-        C.set_world(top=(0.42, 0.42, 0.41), horizon=(0.30, 0.30, 0.29), bottom=(0.14, 0.14, 0.135))
-        C.set_color_management(look="Base Contrast", exposure=-0.2)
+        _l1_world()          # was a mid-grey cyc (0.42 / 0.30 / 0.14)
+        C.set_color_management(look="Base Contrast", exposure=0.0)
         clay = clay_material()
         for o in objs:
             if roles[o] in ("structure", "shell"):
@@ -302,10 +323,8 @@ def _non_photoreal(style, sc, objs, roles, line_px):
         return
 
     if style == "sem":
-        _flat_world((0.0, 0.0, 0.0))
-        sc.view_settings.view_transform = "Standard"
-        sc.view_settings.look = "None"
-        sc.view_settings.exposure = 0.0
+        _flat_world(DARK_BG)
+        C.set_color_management(look="Base Contrast", exposure=0.0)
         mat = sem_material()
         for o in objs:
             if roles[o] in ("structure", "shell"):

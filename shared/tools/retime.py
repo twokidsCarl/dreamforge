@@ -35,6 +35,72 @@ SUB_MAX = 18                   # max characters per subtitle
 SUB_SPLIT = re.compile(r"(?<=[，；：？！。、])|(?<=——)")
 
 
+CUT_AFTER = set("的了在和与把是给从到上里中或也就都对向被让并而")   # a line may end on these
+CUT_BEFORE = set("和与或在把从到给被让并而但")                     # or start on these
+
+
+TERMS = ("食欲素", "通道视紫红质一", "通道视紫红质二", "视紫红质", "快速眼动睡眠", "慢波睡眠", "一期二期", "离不开",
+         "锋电位", "视黄醛", "嗜盐古菌", "下丘脑", "神经元", "生物制品许可申请", "主要终点", "关键次要终点",
+         "神经退行性疾病", "光遗传", "司法辖区", "上市许可", "恐惧记忆", "恐惧条件化", "兴奋性神经元")
+_WORD_EDGES = {}
+
+
+def word_edges(c):
+    """Character offsets where a word ends (jieba if installed, plus the episode's terms kept whole)."""
+    if c in _WORD_EDGES:
+        return _WORD_EDGES[c]
+    try:
+        import jieba
+        for t in TERMS:
+            jieba.add_word(t, freq=200000)
+        edges, pos = set(), 0
+        for w in jieba.lcut(c):
+            pos += len(w)
+            edges.add(pos)
+    except ImportError:
+        edges = set(range(1, len(c)))
+    for t in TERMS:                                   # never cut inside a protected term
+        i = c.find(t)
+        while i >= 0:
+            edges -= set(range(i + 1, i + len(t)))
+            i = c.find(t, i + 1)
+    _WORD_EDGES[c] = edges
+    return edges
+
+
+def best_cut(c):
+    """Where to break an over-long clause: never inside a Latin word or number, never inside 《》,
+    both halves at most SUB_MAX if possible, preferring a cut next to a particle and near the middle."""
+    best = None
+    total = spoken_len(c)
+    edges = word_edges(c)
+    for k in range(1, len(c)):
+        a, b = c[k - 1], c[k]
+        if a.isascii() and b.isascii() and (a.isalnum() or b.isalnum()) and not (a == " " or b == " "):
+            continue                                      # inside a Latin word or a number
+        # between two Latin words: keep a name like Karl Deisseroth whole unless nothing else fits
+        latin_pair = ((a == " " and k >= 2 and c[k - 2].isascii() and c[k - 2].isalpha() and b.isascii() and b.isalpha())
+                      or (b == " " and a.isascii() and a.isalpha() and k + 1 < len(c)
+                          and c[k + 1].isascii() and c[k + 1].isalpha()))
+        if b in "的了":
+            continue                                      # a line does not start on a particle
+        if k not in edges and not (a.isascii() or b.isascii()):
+            continue                                      # inside a Chinese word
+        if c[:k].count("《") != c[:k].count("》"):
+            continue                                      # inside a book title
+        if b in "，。、；：？！》）" or a in "《（":
+            continue
+        left = spoken_len(c[:k])
+        if left == 0 or left == total:
+            continue
+        over = max(0, left - SUB_MAX)
+        score = 10 * over + abs(left - total / 2) - (2.5 if a in CUT_AFTER or b in CUT_BEFORE else 0) \
+            - (2 if a == " " or b == " " else 0) + (8 if latin_pair else 0)
+        if best is None or score < best[0]:
+            best = (score, k)
+    return best[1] if best else None
+
+
 def chunk_subtitle(text):
     """Split a sentence into subtitle-sized pieces at punctuation; drop trailing ，。"""
     pieces = [p for p in SUB_SPLIT.split(text) if p.strip()]
@@ -48,13 +114,13 @@ def chunk_subtitle(text):
     if cur:
         out.append(cur)
     fixed = []
-    for c in out:  # a single clause that is still too long: cut near the middle, not inside Latin words
-        while spoken_len(c) > SUB_MAX + 4:
-            mid = len(c) // 2
-            k = next((i for d in range(len(c)) for i in (mid + d, mid - d)
-                      if 0 < i < len(c) and not (c[i - 1].isascii() and c[i].isascii() and c[i].isalnum())), mid)
+    for c in out:  # a clause that is still too long: cut it until every piece fits SUB_MAX
+        while spoken_len(c) > SUB_MAX:
+            k = best_cut(c)
+            if k is None:
+                break
             fixed.append(c[:k])
-            c = c[k:]
+            c = c[k:].lstrip()
         fixed.append(c)
     return [re.sub(r"[，。、；]+$", "", c).strip() for c in fixed if c.strip()]
 

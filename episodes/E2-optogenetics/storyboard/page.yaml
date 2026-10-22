@@ -1,0 +1,55 @@
+# 分镜总览页的外壳。标题、简介和强调色只描述《光遗传学》。
+document_title: 光遗传学分镜总览
+kicker: Dreamforge · 光遗传学 · 分镜总览
+title: 光遗传学
+lede: 12–15 分钟。冷开场从 1979 年 Crick「只动一类神经元」的要求起头，经过同期微生物的光敏膜蛋白线索，到 1999 年「理想的信号会是光」，再接到 2026 年诺奖的三个人；第一幕说明只记录活动为什么证明不了因果；第二幕把这枚开关从紫膜拆到通道视紫红质，并分开论文署名和获奖名单；第三幕只深讲小鼠海马里的虚假恐惧记忆，以及视觉临床仍然停在部分恢复、尚未获批的边界；尾声停住，不预告下一期。核心结构用参数化模型，上屏数字回到事实编号。
+frames_label: 已渲染的画面
+rules:
+  - 全片只有 3 个 look 加 1 个点缀，每镜写 look：L1 Lab Night（主 look，约 60% 时长：分子、细胞、器官的 3D 镜，暗棚渐变，背景平均亮度 ≤ 35/255）；L2 Document（纸页、期刊、公告、笼子实验，同一暗底加 3200 K 暖色实用光）；L3 Data / HUD（全部 2D 卡：信息图、HUD、排版、schematic，BG-0 底，底部 15% 留给字幕）；S SEM 点缀（晶格 / 纳米尺度书挡，每段 ≤ 1 次）。
+  - 「透视 / 内部」「能量」「白模」在 L1 里用同一暗棚表达（半透明壳、压暗主光提发光），不再换白棚、灰棚或纯黑描边世界。style 只决定渲染手法，look 才决定这一镜属于哪部片。
+  - 切换 look 的剪点全片 ≤ 25 个，且每个都要有转场理由；相邻镜头平均亮度差 ≤ 60/255（有意的闪光镜写进分镜豁免）。
+  - 调色板只有一套（mograph/e2_palette.py「Deep Lab」）：底色只有 BG-0 #070B14、BG-1 #0E1626、schematic #0B1E3A；蓝图一律是深海军 schematic，不再全幅铺饱和蓝。
+  - 语义色：通道蓝 #6F9BFF/#8EAFFF 表示打开，抑制琥珀 #FFB547 表示关掉，膜青 #4FD1B5 表示膜和标记细胞，视黄醛紫 #B784FF 只用于发色团和紫膜，警示珊瑚 #F2766B 只用于「未获批 / 无许可」，每段 ≤ 2 处。
+  - 通道、膜、神经元、离子流、视网膜和耳蜗剖面用参数化模型，不拿生成网格代替。
+  - 上屏数字必须带事实编号。人物不画写实脸，动物实验不血腥。
+acts:
+  A0: 冷开场
+  A: 第一幕 · 相关不是因果
+  B: 第二幕 · 开关从哪来
+  C: 第三幕 · 假记忆与视觉边界
+  D: 尾声
+accents:
+  - {id: channel, light: "#2f6fe0", dark: "#8eafff"}
+  - {id: amber, light: "#d99a1a", dark: "#ffb547"}
+  - {id: membrane, light: "#1c8f7a", dark: "#4fd1b5"}
+# look 规则（shared/tools/storyboard_check.py 读这一节；有这一节时不再查「同语言连续 ≤3 / 每段 ≥3 种」）。
+# 每镜在 storyboard/parts/*.yaml 写 look；旧 style → look 的映射见 /workspace/e2work/style_p0/look_map.md。
+looks:
+  ids:
+    L1: Lab Night · 主 look · 3D 分子 / 细胞 / 器官
+    L2: Document · 纸页、期刊、公告、笼子实验
+    L3: Data / HUD · 2D 信息图、HUD、排版、schematic
+    S: SEM 点缀 · 晶格 / 纳米尺度书挡
+  main: L1
+  max_switches: 25          # 切换 look 的剪点上限
+  max_per_segment: {S: 1}   # 每段最多几次
+  engine_2d: [pillow, manim]   # 2D 引擎的镜头只能是 look_2d（3D schematic 镜 B_04a/B_06a/B_16b 也归 L3）
+  look_2d: L3
+# 画面语言图例。问号由页面补上。没写的键沿用生成器里的原文。
+style_questions:
+  photoreal: 衣藻、光纤或护目镜长什么样
+  xray: 细胞膜/视网膜里面怎么排布
+  blueprint: 泵和通道为什么要分成两种设计
+  energy: 离子和电压怎么流动
+  infographic: 名单、分数和年份怎么对照
+  clay: 蛋白和细胞怎么组装、怎么运动
+  sem: 通道和紫膜在这个尺度长什么样
+  hud: 脉冲频率和试验读数是多少
+  type: 哪一句必须单独停住
+  documentary: 实验或公告发生在什么场合
+# 不沿用上一期的风格样张。以后有本片画面再往这里加。
+sample_frames: []
+ref_note: "沿用已有机位 "
+exclusive_terms:
+  - 光遗传学
+  - 通道视紫红质

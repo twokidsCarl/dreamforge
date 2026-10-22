@@ -1,0 +1,42 @@
+# v5b: C1 源头 3s 近静音 → trim_start 3 + 提前 3s（490s 小洞）；A at -5；B1/C1 截尾；B2 at 120；D overlap 2。
+A:
+- at: -5.0
+  file: music/6c7ed7397074c6d3.mp3
+  gain: -13
+  fade_out: 2.0
+  overlap: 2.0
+  fade_in: 0.8
+B:
+- at: -8.0
+  file: music/8ccbb77afb32b8c2.mp3
+  trim_start: 30.0
+  gain: -12
+  fade_in: 0.6
+  fade_out: 2.5
+  overlap: 1.0
+- at: 120.0
+  file: music/4752649dd4551025.mp3
+  gain: -15
+  fade_in: 1.5
+  fade_out: 3.0
+  overlap: 1.0
+C:
+- at: -3.0
+  file: music/3df66c240ef37997.mp3
+  gain: -16
+  fade_in: 0.8
+  fade_out: 2.0
+  trim_start: 3.0
+- at: 140.0
+  file: music/dd2c164f824cc48d.mp3
+  gain: -18
+  fade_in: 1.0
+  fade_out: 2.0
+  overlap: 1.0
+D:
+- at: -5.0
+  file: music/4aaf78f841ce46f9.mp3
+  gain: -15
+  fade_in: 0.8
+  fade_out: 3.0
+  overlap: 2.0

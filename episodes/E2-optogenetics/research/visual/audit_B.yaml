@@ -1,0 +1,253 @@
+# E2 视觉事实核查表，B 第二幕（紫膜与细菌视紫红质 → 泵和通道 → 衣藻与 ChR1/ChR2 → 2005 神经元 → 名词 → 活体光纤 → NpHR 双向
+#   → 红移工具 → 两份荣誉名单）。每行是画面里出现的一项结构、文字或数字（旁白的论断在 research/facts.yaml）。
+# status: sourced / wrong / unsourced / simplified / artistic（WORKFLOW 2.3）。几何依据见 blender/shots/b_scenes.py、b_cell_scenes.py
+#   和各 builder 文件头（build_opsin、build_bilayer、build_purple_membrane、build_cell、build_brain、build_props）。
+# 规则：本段还有 wrong 或 unsourced 时不能出成片。
+# 2026-10-21 首版（P6）。3D 镜头按场景代码核；raw 镜头（B_02a、B_03a、B_04a、B_16b、B_18a）的叠字按 mograph/b.py 核；
+#   其余 2D 镜头（mograph: b）还没写，按分镜 visual 核，写代码时照此对字。
+# 同日顺手改了 b_scenes.py 文件头里过时的事实编号（ChR1 / ChR2 / 截短 → F5，NpHR → F8），只改注释，不影响渲染。
+# 现有 unsourced：0（2026-10-21 补齐）。
+#   B_06a「加上视黄醛」→ sourced（F5 notes：Nagel 2002 摘要 in the presence of all-trans retinal；诺奖科学背景 introducing all-trans-retinal）；
+#     「细胞自己没有这套感光系统」拆出一条记 simplified。
+#   B_18a / B_18b「ChrimsonR 敏感更长波长」→ sourced（新增 F17：Klapoetke et al. 2014，Chrimson 红移约 45 nm，ChrimsonR 保留红移光谱）。
+B_01a:
+  - item: 嗜盐古菌的杆状细胞表面，几块颜色更深的膜斑（紫膜），慢推到最大一块；电镜灰度风格
+    status: simplified
+    source: F4（盐杆菌 Halobacterium halobium 的紫膜呈深紫色）；b_scenes.py 文件头
+    note: 斑块大小、形状、个数是示意；杆状外形是通用描述，facts.yaml 没有写。sem 是风格，不冒充原子分辨率照片。
+      菌名：F4 按 1971 论文写 H. halobium，b_scenes.py 写现名 H. salinarum，屏幕不上拉丁菌名就不冲突
+B_01b:
+  - item: 一张紫膜片从下方升到镜头前，上面只有 bR 三聚体一种蛋白，排成六方晶格
+    status: simplified
+    source: F4（该片段里只有这一种蛋白）；build_purple_membrane 文件头（P3，晶胞约 62 Å：Krebs & Isenbarger 2000）
+    note: 单体内 7 根螺旋的排布是示意，不是 Henderson 1990 的密度图坐标
+B_02a:
+  - item: 紫膜三聚体晶格从俯视慢推到一个单体，单体里嵌着视黄醛
+    status: simplified
+    source: F4（紫色来自视黄醛结合在一种视紫红质样蛋白上）；build_purple_membrane；build_opsin 文件头
+    note: br_lattice 的单体缩到 0.72 倍、中心距仍取 62 Å，避免螺旋穿插（比例 simplified）
+  - item: 叠字「膜片段里只有这一种蛋白」（mograph/b.py，锚点 LabelAnchor_onlyone）
+    status: sourced
+    source: F4
+B_02b:
+  - item: 视黄醛在光下闪一下，蛋白骨架不动
+    status: simplified
+    source: F4（视黄醛是生色团）
+    note: 闪光只表示「吸光的是视黄醛」，不画异构化，不标波长
+B_03a:
+  - item: 单个 bR 剖面，三次闪光，每次视黄醛光晕紫 → 黄 → 紫，一个质子从膜一侧被送到另一侧
+    status: simplified
+    source: F4b（闪光使吸收峰从 560 nm 短暂移到 415 nm，伴随质子释放和摄取；在膜上定向搬运质子）
+    note: 颜色只示意吸收变化，不标波长；中间态名称（M）不上屏，facts.yaml 没有。代码里方向是胞内 → 胞外，F4b 只写「定向」，
+      屏幕不写方向文字
+  - item: 叠字「细菌视紫红质 · 质子泵」（mograph/b.py，锚点 LabelAnchor_bR）
+    status: sourced
+    source: F4b（1973 命名 bacteriorhodopsin；光驱动的质子泵）
+    note: 不写成通道（F4b notes）
+B_03b:
+  - item: 收尾状态：膜一侧质子多、另一侧少（pH 一高一低）
+    status: simplified
+    source: F4b
+    note: 质子个数不代表浓度；不标 pH 数值
+B_04a:
+  - item: 左右两张膜，左泵（螺旋紧密、无贯通孔，箭头逆梯度），右通道（孔开，离子顺梯度）
+    status: simplified
+    source: F4b（泵）；F5（通道）；build_opsin 文件头（泵没有贯通孔，通道孔在 TM1/2/3/7 之间）
+    note: 「顺 / 逆电化学梯度」是教科书通识，facts.yaml 没有单独条目；箭头是示意。两张是两个物体，不混成一个分子
+  - item: 叠字「泵」「通道」（mograph/b.py，锚点 LabelAnchor_pump / LabelAnchor_channel）
+    status: sourced
+    source: F4b、F5
+B_04b:
+  - item: 左边泵、右边通道，两只蛋白各带一小片膜，分开托在镜头前
+    status: simplified
+    source: F4b、F5；build_opsin
+    note: 是两个物体（分镜要求）；没有手，也没有人
+B_05a:
+  - item: 一枚参数化衣藻在暗水里朝一束光游过去：卵形细胞体、两根前端鞭毛、杯状叶绿体、赤道旁橙红眼点；游动时绕长轴自转
+    status: simplified
+    source: F1（衣藻朝光游，Hegemann 想弄清它如何朝光游）；build_cell 文件头（Harris《The Chlamydomonas Sourcebook》的通用形态）
+    note: 细胞长 10 µm、鞭毛 11 µm 只是建模取值，不上屏；鞭毛拍频从约 50 Hz 放慢成每 0.5 秒一拍（artistic）；自转速度示意
+B_05b:
+  - item: 衣藻特写，眼点处一道快速电流沿细胞表面亮到鞭毛基部，随后细胞转向光源
+    status: simplified
+    source: F3c（Harz & Hegemann 1991：衣藻里潜伏期只有微秒级的感光电流）；F1
+    note: 电流的路径和颜色是示意，不是实测的电流分布；不标「微秒」以外的数字
+B_06a:
+  - item: 蓝图：衣藻蛋白的基因（DNA 双螺旋示意 + 箭头）指向一枚爪蟾卵母细胞，膜上出现通道位点
+    status: simplified
+    source: F5（Nagel 等 2002：把衣藻 Channelopsin-1 表达在爪蟾卵母细胞里）；build_cell 文件头（VI 期卵母细胞外观，Dumont 1972）
+    note: 位点个数不按真实表达密度
+  - item: 旁白「细胞自己没有这套感光系统」（画面上卵母细胞膜旁原本没有视黄醛）
+    status: simplified
+    source: F5 notes
+    note: 叙事衔接：爪蟾卵母细胞不是衣藻的天然感光系统。不是论文原句
+  - item: 加上视黄醛（锯齿小分子示意）落到膜旁（旁白：「可是加上视黄醛、再给光」）
+    status: sourced
+    source: F5 notes（Nagel 2002 摘要：in the presence of all-trans retinal；诺奖科学背景：introducing all-trans-retinal）
+    note: 锯齿小分子是示意，不是 all-trans retinal 的真实构型；不标浓度。哺乳动物脑内常不必另加视黄醛见 F8，与此不冲突
+  - item: 光线箭头打下，双电极接到一只风格化电流表，指针偏转；几颗标「H⁺」的小球经位点进入细胞
+    status: simplified
+    source: F5（ChR1 对质子有选择性的光门控电导）
+    note: 电流表是风格化表头，不是真实的电压钳记录仪；偏转幅度无刻度
+B_06b:
+  - item: ChR1 显微风格模型，孔开着，只有质子（小球）在孔里，一个更大的阳离子停在孔口外
+    status: simplified
+    source: F5（ChR1 是质子通道）；build_opsin
+    note: 「大阳离子进不去」是选择性的示意，不是孔径的实测；sem 灰度是风格
+B_07a:
+  - item: 先是「分开的感受器 + 分开的孔」两件抽象零件，光 → 信号 → 孔开；两件移走
+    status: artistic
+    note: 这是旁白里被否定的旧设想，抽象零件不对应任何具体系统（b_scenes.py 文件头）
+  - item: 全长 ChR（带胞内 C 端）升上来，光直接开孔；C 端被拿走，只剩跨膜核心，光仍开孔
+    status: simplified
+    source: F5（诺奖科学背景：保留通道部分就仍有光控电导，蛋白本身就足以作为通道）；build_opsin 文件头（cterm）
+    note: 「截去的是胞内 C 端」来自 build_opsin 文件头，facts.yaml 只写「保留通道部分」；屏幕不标「C 端」、不标氨基酸位置
+B_07b:
+  - item: 截短后的跨膜核心开着，离子在过
+    status: simplified
+    source: F5
+B_08a:
+  - item: 膜上三个 ChR2，蓝光打开，阳离子流入
+    status: simplified
+    source: F5（ChR2 是直接由光打开的阳离子通道）；F1（蓝光打开通道）
+    note: 阳离子画成同一种发光小球，不区分 Na⁺ / K⁺ / Ca²⁺
+  - item: 右上两条示意曲线：膜电位上升；电流从峰落到平台
+    status: simplified
+    source: F5（光照即去极化；持续光照下脱敏到较小的稳态电导）
+    note: 曲线没有刻度和时间常数
+B_08b:
+  - item: HUD 电压计上跳，标注「阳离子」「蓝光」「ChR2」
+    status: sourced
+    source: F5、F1
+B_09a:
+  - item: 电流对时间的示意曲线：尖峰后落到较低平台，标注「持续光照会脱敏」
+    status: sourced
+    source: F5
+    note: 曲线形状 simplified；不另造时间常数或平台比例
+B_09b:
+  - item: 光还在，ChR2 孔口从大变小（脱敏）
+    status: simplified
+    source: F5
+    note: 孔变小是脱敏的视觉比喻，不是实测的构象变化
+B_10a:
+  - item: 培养皿里一枚参数化神经元，蓝光短脉冲照在胞体上；后方记录板上脉冲标记列和锋电位曲线同步画出，每根锋电位紧跟一个脉冲
+    status: simplified
+    source: F6（Boyden 等 2005：蓝光在毫秒尺度上可靠地驱动培养神经元的锋电位）；build_neuron 文件头（通用形态）
+    note: 曲线、脉冲无刻度、无数字，不画频率上限（分镜要求）；培养皿是参数化道具
+B_10b:
+  - item: HUD 脉冲列和锋电位列对齐，不画频率上限
+    status: sourced
+    source: F6
+B_11a:
+  - item: 左列论文署名「Boyden 第一，Deisseroth 通讯」；右列「2026 新闻稿把这次发表记在 Deisseroth 名下」，两列都保留
+    status: sourced
+    source: F6（署名顺序）；F1（新闻稿措辞）
+B_11b:
+  - item: 一行「第一作者 Boyden」，下一行空着，不写得主
+    status: sourced
+    source: F6
+    note: 空行是排版（artistic），表示不把署名和得主混在一起
+B_12a:
+  - item: 三行名字 Deisseroth、Hegemann、Nagel，第四行空着
+    status: sourced
+    source: F1
+B_12b:
+  - item: 「2026 生理学或医学奖」三行，没有 Boyden
+    status: sourced
+    source: F1
+B_13a:
+  - item: 暗桌上一份风格化期刊（封面 + 目录页），目录页上一行拉丁字「optogenetic」和年份「2006」可读，其余是不可读的抽象笔画
+    status: sourced
+    source: F7（Deisseroth 等 2006 J Neurosci 使用 optogenetic 一词）
+    note: 期刊版式是 artistic，不复制任何真实期刊的刊名、版式或标志
+B_13b:
+  - item: 「optogenetics」逐字出现，年份 2006
+    status: sourced
+    source: F7（诺奖科学背景：这一组作者正式提出 optogenetics）
+B_14a:
+  - item: 啮齿动物头部矢状剖面（皮层三条带），一根光纤从颅顶插到运动皮层，只有中间那条带（兴奋性锥体神经元为主）泛蓝光
+    status: simplified
+    source: F8（Aravanis 等 2007：光纤把光送进啮齿动物运动皮层，驱动表达 ChR2 的兴奋性神经元）；build_brain 文件头（L1 / L2/3–L5 / L6 三条带）
+    note: 兴奋性神经元并不只在一层，「只亮一条带」是为了读出「只亮表达的那一类」；层宽是示意。光纤不标直径（F8 notes）
+B_14b:
+  - item: 示意光纤植入件夹在风格化支架上，蓝光只在裸光纤尖端
+    status: simplified
+    source: F8（473 nm 蓝光经光纤送入）；build_props（fiber_implant）
+    note: 不标 473 nm、直径、功率（定稿不报，F8 notes）；支架是道具
+B_15a:
+  - item: HUD 时间轴「2005 培养神经元」「2007 光纤活体」，两点之间不填月份
+    status: sourced
+    source: F6（2005）；F8（2007）；F1（新闻稿：大约两年后在活体小鼠脑中做成）
+B_15b:
+  - item: 风格化小鼠头上带光纤线缆，胡须和头部轻微偏转；不做眼部特写
+    status: artistic
+    source: build_props（mouse、fiber_implant）
+    note: F8 只写「产生行为输出」，没有指明是胡须；胡须偏转只是「有行为」的符号，不是论文里的具体行为
+B_16a:
+  - item: 黄光打在 NpHR 上，氯离子被泵进细胞；膜电位先有几次锋电位，光后往下走、锋电位消失
+    status: simplified
+    source: F8（Zhang 等 2007：黄光下 NpHR 把氯离子泵入细胞、抑制锋电位）；build_opsin（泵无贯通孔）
+    note: 曲线无刻度；氯离子是放大的琥珀小球
+B_16b:
+  - item: 蓝图 NpHR 剖面，波浪线表示黄光，箭头氯离子向内，右侧向下箭头表示电压下降
+    status: simplified
+    source: F8
+  - item: 叠字「黄光」「氯离子向内」「电压下降」（mograph/b.py，锚点 LabelAnchor_light / _cl / _v）
+    status: sourced
+    source: F8
+B_17a:
+  - item: 同一细胞两行「蓝光开」「黄光关」，下方两条分开的光谱色带
+    status: sourced
+    source: F8（NpHR 作用光谱与蓝光激活的 ChR2 分开，可在同一回路里双向光控）
+    note: 色带的位置和宽度 simplified，不标纳米数（F8 只有 473 nm 一个数，本镜不用）
+B_17b:
+  - item: 同一膜上 ChR2（蓝）和 NpHR（琥珀），先蓝光只开左边，再黄光只开右边，不同时误开
+    status: simplified
+    source: F8
+    note: 两个蛋白挨着放是为了同框，不代表真实的膜上分布
+B_18a:
+  - item: 两个通道并排，左侧冷灰（蓝敏），右侧暖灰；右侧拉丁字「ChrimsonR」
+    status: simplified
+    source: F11（2021 年用于人眼的是 ChrimsonR）；build_opsin
+    note: 两个结构都是同一参数化模型，不假装是晶体结构；冷 / 暖灰只区分左右
+  - item: 右侧代表「敏感更长波长」（旁白：「后来的工具把敏感的颜色往更长的波长推。ChrimsonR 就是其中一种」）
+    status: sourced
+    source: F17（Klapoetke et al. 2014：Chrimson 比此前通道视紫红质红移约 45 nm；ChrimsonR 保留红移光谱）
+    note: 屏幕不标波长数字；冷 / 暖灰的对比是 simplified 的区分，不是光谱色
+  - item: 叠字「2021 用于人眼」（mograph/b.py，锚点 LabelAnchor_human）
+    status: sourced
+    source: F11
+  - item: 「不是 2005 年那个蓝光通道的改名」（旁白）
+    status: sourced
+    source: F6（2005 用的是 ChR2）；F11（2021 用的是 ChrimsonR）
+B_18b:
+  - item: 箭头从蓝光通道指向更长波长的 ChrimsonR
+    status: sourced
+    source: F17；F6（2005 用的是蓝光 ChR2）
+    note: 箭头读作「敏感波长往长推」，不是谱系上的直接改造（ChrimsonR 来自 Chrimson，不是 ChR2 的突变体）。不画带纳米刻度的色带
+B_19a:
+  - item: 2013 Brain Prize 六个名字排成一行：Bamberg、Boyden、Deisseroth、Hegemann、Miesenböck、Nagel；没有肖像
+    status: sourced
+    source: F14（brainprize.org）
+B_19b:
+  - item: 六个人名分两列，不配照片
+    status: sourced
+    source: F14
+B_20a:
+  - item: 六人框里圈出 Boyden、Bamberg、Miesenböck，箭头指向「不在 2026 诺奖三人里」
+    status: sourced
+    source: F14、F1
+B_20b:
+  - item: 大字「六人奖 ≠ 三人诺奖」
+    status: sourced
+    source: F14、F1
+B_91:
+  - item: 剖视膜上蓝敏 ChR2 和黄敏氯泵 NpHR 并排（同 B_17b 场景，xray）
+    status: simplified
+    source: F8；build_opsin
+    note: 分镜里这镜 facts 为空，按画面内容补上
+B_92:
+  - item: 白模两只蛋白（ChR2 通道、NpHR 氯泵）各带一小片膜，分开托在镜头前
+    status: simplified
+    source: F5、F8；build_opsin
+    note: 分镜里这镜 facts 为空，按画面内容补上

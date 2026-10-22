@@ -1,0 +1,3983 @@
+# Retime + flash compact + VO realign
+shots:
+- id: A0_01a
+  segment: A0
+  duration: 8.52
+  lead: 1.2
+  vo:
+  - 1979 年，有人写下对研究脑的一个要求：要有办法只动某一类神经元，其余的大体不动。
+  facts:
+  - F3b
+  style: documentary
+  style_why: 冷开场先给 1979 年那条要求，用纪实纸页，不先上机制，也不提光。
+  transition_in: fade
+  visual: 暗室里一页泛黄纸，侧光只照亮其中一行；纸上是不可读的抽象行，不冒充原稿（示意 1979《科学美国人》一文，不是原件）。没有人脸，只有纸和灰尘。
+  overlays:
+  - text: Francis Crick · 1979
+    facts:
+    - F3b
+  - text: 《科学美国人》
+    facts:
+    - F3b
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx:
+  - film_grain
+  engine: cycles
+  sfx:
+  - 低噪室温
+  duration_design: 9.6
+  cues:
+  - text: 1979 年，有人写下对研究脑的一个要求：要有办法只动某一类神经元，其余的大体不动。
+    start: 1.2
+    end: 8.12
+  start: 0.0
+  subs:
+  - text: 1979 年，有人写下对研究脑的一个要求：
+    start: 1.2
+    end: 4.566
+  - text: 要有办法只动某一类神经元
+    start: 4.566
+    end: 6.811
+  - text: 其余的大体不动
+    start: 6.811
+    end: 8.12
+- id: A0_01b
+  segment: A0
+  duration: 7.23
+  vo:
+  - 接下来的那些年，微生物那边，能被光推动的膜蛋白正在被找到，线索越来越多。
+  facts:
+  - F3c
+  style: hud
+  style_why: 1979 和 1999 之间不干跳：用一只暗的 HUD 并行记下微生物那条线，只给剪影和刻度，不开第二幕。
+  transition_in: cut
+  visual: 暗底 HUD，标题「微生物」。两条细轨道先后亮起：上轨是杆状古菌剪影，刻度「1981 · 古菌 · 盐视紫红质」；下轨是双鞭毛绿藻剪影，刻度「1991–1996 · 衣藻 · 微秒级光电流」。不画蛋白结构，不出现通道视紫红质、2002/2003，不开门。
+  overlays:
+  - text: 1981 · 古菌 · 盐视紫红质
+    facts:
+    - F3c
+  - text: 1991–1996 · 衣藻 · 微秒级光电流
+    facts:
+    - F3c
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 2D HUD（mograph/a0.py），文字画在镜头里，不由 edit_film 再贴右上角
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  duration_design: 8.2
+  cues:
+  - text: 接下来的那些年，微生物那边，能被光推动的膜蛋白正在被找到，线索越来越多。
+    start: 0.3
+    end: 6.83
+  start: 8.52
+  subs:
+  - text: 接下来的那些年，微生物那边
+    start: 0.3
+    end: 2.749
+  - text: 能被光推动的膜蛋白正在被找到
+    start: 2.749
+    end: 5.606
+  - text: 线索越来越多
+    start: 5.606
+    end: 6.83
+- id: A0_02a
+  segment: A0
+  duration: 13.26
+  vo:
+  - 后来在讲座里，他猜过，可以用光。
+  - 1999 年，他把它写进文章：理想的信号会是光。他也承认，这个想法相当牵强。
+  facts: &id001
+  - F3b
+  - F3
+  style: type
+  style_why: 从讲座里的猜测到 1999 年落成文字，再到自嘲的停顿，都做成排版，不急着解释蛋白。
+  transition_in: cut
+  visual: 黑底上先浮出一行暗的「……也许是光？」（讲座里的猜测，不标年份）；它淡掉，换成「理想的信号会是光。」并注「Crick · 1999」；句子上移变暗，后面慢慢打出「相当牵强」，光标停住。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 14.4
+  cues:
+  - text: 后来在讲座里，他猜过，可以用光。
+    start: 0.3
+    end: 4.86
+  - text: 1999 年，他把它写进文章：理想的信号会是光。他也承认，这个想法相当牵强。
+    start: 5.11
+    end: 11.91
+  start: 15.75
+  subs:
+  - text: 后来在讲座里，他猜过：拨动这类细胞的信号
+    start: 0.3
+    end: 3.72
+  - text: 也许可以是光
+    start: 3.72
+    end: 4.86
+  - text: 1999 年，他把它写进文章：
+    start: 5.11
+    end: 7.66
+  - text: 理想的信号会是光。他也承认
+    start: 7.66
+    end: 10.21
+  - text: 这个想法相当牵强
+    start: 10.21
+    end: 11.91
+  hold: 0.95
+- id: A0_02b
+  segment: A0
+  duration: 0.4
+  vo: []
+  facts: *id001
+  style: documentary
+  style_why: 停顿要落回纸页，而不是继续打字。
+  transition_in: cut
+  visual: 纸页近景（示意 1999 一文，不是原件），被照亮的那一行慢慢暗下。写字的手不出现。
+  overlays:
+  - text: Francis Crick · 1999
+    facts:
+    - F3
+  - text: 诺奖科学背景引用
+    facts:
+    - F3
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: cycles
+  sfx: []
+  start: 29.01
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: A0_03a
+  segment: A0
+  duration: 8.21
+  vo:
+  - 他要的方法很具体。只让某一类神经元打开，或者关掉，旁边的细胞大体不动，而且要快。
+  facts: &id002
+  - F3
+  - F3b
+  style: infographic
+  style_why: 把「只动一类细胞」画成可核对的选择，而不是口号。
+  transition_in: cut
+  visual: 一排简化神经元，只有中间一类被细线圈出，两侧保持灰色。图是示意，不标未核实的比例。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 8.8
+  cues:
+  - text: 他要的方法很具体。只让某一类神经元打开，或者关掉，旁边的细胞大体不动，而且要快。
+    start: 0.3
+    end: 6.86
+  start: 29.41
+  subs:
+  - text: 他要的方法很具体。只让某一类神经元打开
+    start: 0.3
+    end: 3.674
+  - text: 或者关掉，旁边的细胞大体不动，而且要快
+    start: 3.674
+    end: 6.86
+  hold: 0.95
+- id: A0_03b
+  segment: A0
+  duration: 0.4
+  vo: []
+  facts: *id002
+  style: clay
+  style_why: 被圈出的那一类细胞要能单独活动，白模看运动。
+  transition_in: cut
+  visual: 白模神经元里只有被圈的一类抬起放电，两侧不动。参数化神经元。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 37.62
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: A0_04a
+  segment: A0
+  duration: 11.37
+  vo:
+  - 2026 年 10 月 5 日，诺贝尔生理学或医学奖颁给三位研究者。理由写的是：他们发现了光控离子通道，并由此建立了光遗传学。
+  facts: &id003
+  - F1
+  style: energy
+  style_why: 诺奖公告用光点名，能量图把三人从纸页里点亮，不画写实脸。
+  transition_in: cut
+  visual: 三个抽象光标依次亮起，字幕只写 Deisseroth、Hegemann、Nagel，以及 2026-10-05。没有肖像。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx:
+  - glow
+  engine: eevee
+  sfx:
+  - 低噪室温
+  overlays:
+  - text: '2026-10-05'
+    facts:
+    - F1
+  duration_design: 13.12
+  cues:
+  - text: 2026 年 10 月 5 日，诺贝尔生理学或医学奖颁给三位研究者。理由写的是：他们发现了光控离子通道，并由此建立了光遗传学。
+    start: 0.3
+    end: 10.02
+  start: 38.02
+  subs:
+  - text: 2026 年 10 月 5 日
+    start: 0.3
+    end: 2.134
+  - text: 诺贝尔生理学或医学奖颁给三位研究者
+    start: 2.134
+    end: 5.252
+  - text: 理由写的是：他们发现了光控离子通道
+    start: 5.252
+    end: 8.186
+  - text: 并由此建立了光遗传学
+    start: 8.186
+    end: 10.02
+  hold: 0.95
+- id: A0_04b
+  segment: A0
+  duration: 0.4
+  vo: []
+  facts: *id003
+  style: type
+  style_why: 三个人名需要无肖像的停顿。
+  transition_in: cut
+  visual: 三个名字上下排列，没有第四行。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 49.39
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: A0_05a
+  segment: A0
+  duration: 8.55
+  vo:
+  - 从一句自认牵强的设想，走到一套能用的方法，中间缺的是一枚能用光拨动的开关。
+  facts: &id004
+  - F1
+  - F3
+  - F3b
+  style: blueprint
+  style_why: 把缺口画成还没闭合的设计问题：有预言，有名单，中间缺开关。
+  transition_in: cut
+  visual: 蓝图上左侧是两行：上行「只动一类神经元」注「1979」，下行「理想的信号会是光」注「1999」；右侧是三个人名，中间一个空的方框标着「开关」。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 8.56
+  cues:
+  - text: 从一句自认牵强的设想，走到一套能用的方法，中间缺的是一枚能用光拨动的开关。
+    start: 0.3
+    end: 7.2
+  start: 49.79
+  subs:
+  - text: 从一句自认牵强的设想
+    start: 0.3
+    end: 2.329
+  - text: 走到一套能用的方法
+    start: 2.329
+    end: 4.156
+  - text: 中间缺的是一枚能用光拨动的开关
+    start: 4.156
+    end: 7.2
+  hold: 0.95
+- id: A0_05b
+  segment: A0
+  duration: 0.4
+  vo: []
+  facts: *id004
+  style: energy
+  style_why: 空着的开关用一道尚未接通的光表示。
+  transition_in: cut
+  visual: 方框里一道光走到一半熄灭。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 58.34
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: A0_06a
+  segment: A0
+  duration: 6.77
+  hold: 1.1
+  vo:
+  - 这一期就讲这枚开关。片名是《光遗传学》。
+  facts: &id005
+  - F7
+  style: type
+  style_why: 片名卡需要停住，排版比写实场景更干净。
+  transition_in: cut
+  visual: 黑场中央只有片名《光遗传学》，字停在画面里。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 5.34
+  cues:
+  - text: 这一期就讲这枚开关。片名是《光遗传学》。
+    start: 0.345
+    end: 3.915
+  start: 58.74
+  subs:
+  - text: 这一期就讲这枚开关。片名是《光遗传学》
+    start: 0.345
+    end: 3.915
+- id: A0_06b
+  segment: A0
+  duration: 0.4
+  vo: []
+  facts: *id005
+  style: energy
+  style_why: 片名之后留一束光，作为全片会回到的动机。
+  transition_in: cut
+  visual: 片名下一条细光横过，然后灭掉。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 65.51
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: A0_91
+  segment: A0
+  duration: 1.5
+  vo: []
+  facts: []
+  style: sem
+  style_why: 冷开场在纸页之前，先给一个微生物尺度的谜面，不解释。
+  transition_in: cut
+  visual: 电镜风格的一小片紫膜一闪而过，不标注年份。蛋白结构用参数化 Blender Python。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: cycles
+  sfx: []
+  start: 65.91
+- id: A0_92
+  segment: A0
+  duration: 2.0
+  vo: []
+  facts:
+  - F3b
+  - F3
+  - F1
+  - F3c
+  style: hud
+  style_why: 把冷开场的三个年份收进一只计时器：1979 的要求、1999 的光、2026 的名单。
+  transition_in: cut
+  visual: HUD 计数器 1979 → 1999 → 2026 三次翻牌，每个停一拍，最后停在暗处（不逐年滚动，中间不出现可读的年份）。刻度尺下方一条暗的细轨上有几颗不带字的小点，标微生物那条线（F3c），不写年份，不会被读成 Crick
+    的年份。不写相差年数。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 67.41
+- id: A_01a
+  segment: A
+  duration: 11.38
+  vo:
+  - 神经元靠细胞膜两侧的电压说话。一次锋电位，是离子在极短的时间里穿过膜，电压忽然翻过去，再恢复。
+  facts: &id006
+  - F6
+  style: xray
+  style_why: 第一幕要看见膜的里面：电压差和离子穿过膜。
+  transition_in: cut
+  visual: 参数化的细胞膜剖面。膜两侧电荷符号相反，几个离子穿过孔，膜电位曲线猛地翻上去再回来。核心结构用参数化 Blender Python。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 10.48
+  cues:
+  - text: 神经元靠细胞膜两侧的电压说话。一次锋电位，是离子在极短的时间里穿过膜，电压忽然翻过去，再恢复。
+    start: 0.3
+    end: 10.03
+  start: 69.41
+  subs:
+  - text: 神经元靠细胞膜两侧的电压说话
+    start: 0.3
+    end: 3.543
+  - text: 一次锋电位，是离子在极短的时间里穿过膜
+    start: 3.543
+    end: 7.713
+  - text: 电压忽然翻过去，再恢复
+    start: 7.713
+    end: 10.03
+  hold: 0.95
+- id: A_01b
+  segment: A
+  duration: 0.4
+  vo: []
+  facts: *id006
+  style: energy
+  style_why: 离子流本身要用能量图再看一眼，剖视已经交代了位置。
+  transition_in: cut
+  visual: 阳离子流入时膜电位发光，随后熄灭。参数化。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 80.79
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: A_02a
+  segment: A
+  duration: 13.74
+  vo:
+  - 二十世纪的研究者已经能记录哪里在活动，也能损毁一块组织，看行为缺了什么。诺奖新闻稿写明：这些方法证明不了因果关系。
+  facts: &id007
+  - F2
+  style: documentary
+  style_why: 把「只能记录、不能证明因果」放回实验室的真实动作。
+  transition_in: cut
+  visual: 风格化的记录场景：电极或屏幕上的活动痕迹，旁边一块组织示意被标记。不出现可辨认的人脸，也不出现血腥。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx:
+  - film_grain
+  engine: cycles
+  sfx:
+  - 低噪室温
+  duration_design: 12.88
+  cues:
+  - text: 二十世纪的研究者已经能记录哪里在活动，也能损毁一块组织，看行为缺了什么。诺奖新闻稿写明：这些方法证明不了因果关系。
+    start: 0.3
+    end: 12.39
+  start: 81.19
+  subs:
+  - text: 二十世纪的研究者已经能记录哪里在活动
+    start: 0.3
+    end: 4.485
+  - text: 也能损毁一块组织，看行为缺了什么
+    start: 4.485
+    end: 7.972
+  - text: 诺奖新闻稿写明：
+    start: 7.972
+    end: 9.6
+  - text: 这些方法证明不了因果关系
+    start: 9.6
+    end: 12.39
+  hold: 0.95
+- id: A_02b
+  segment: A
+  duration: 0.4
+  vo: []
+  facts: *id007
+  style: infographic
+  style_why: 记录和损毁并成两种旧方法，都指向同一个缺口。
+  transition_in: cut
+  visual: 两个图标：记录、损毁。底下同一行：证明不了因果。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 94.93
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: A_03a
+  segment: A
+  duration: 12.99
+  vo:
+  - 相关是：这一类细胞亮着的时候，动物醒了，或者怕了。因果要多问一句。是这些细胞的放电造成了行为，还是它们只是跟着行为一起亮。
+  facts: &id008
+  - F2
+  style: infographic
+  style_why: 相关和因果要并排对照，信息图比写实更不容易说满。
+  transition_in: cut
+  visual: 左右两栏。左栏「同时亮着」，右栏打一个问号：「是它造成的吗」。没有伪造的统计图。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 13.36
+  cues:
+  - text: 相关是：这一类细胞亮着的时候，动物醒了，或者怕了。因果要多问一句。是这些细胞的放电造成了行为，还是它们只是跟着行为一起亮。
+    start: 0.3
+    end: 11.64
+  start: 95.33
+  subs:
+  - text: 相关是：这一类细胞亮着的时候，动物醒了
+    start: 0.3
+    end: 3.87
+  - text: 或者怕了。因果要多问一句
+    start: 3.87
+    end: 6.18
+  - text: 是这些细胞的放电造成了行为
+    start: 6.18
+    end: 8.91
+  - text: 还是它们只是跟着行为一起亮
+    start: 8.91
+    end: 11.64
+  hold: 0.95
+- id: A_03b
+  segment: A
+  duration: 0.4
+  vo: []
+  facts: *id008
+  style: energy
+  style_why: 问号要落成可操作的动作：打开或按住。
+  transition_in: cut
+  visual: 一小群细胞被光点亮，又被另一束光按暗。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 108.32
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: A_04a
+  segment: A
+  duration: 10.86
+  vo:
+  - 要回答这句，得能只推动那一类细胞，也能把它按住，时间尺度要跟锋电位一样，是毫秒，不是分钟。
+  facts: &id009
+  - F3
+  - F6
+  style: hud
+  style_why: 毫秒和分钟的差别用计时读出来，观众才知道工具必须有多快。
+  transition_in: cut
+  visual: HUD 上两个计时器：一个跳在毫秒，一个慢走到分钟。只有毫秒那只被圈为可用。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 9.76
+  cues:
+  - text: 要回答这句，得能只推动那一类细胞，也能把它按住，时间尺度要跟锋电位一样，是毫秒，不是分钟。
+    start: 0.3
+    end: 9.51
+  start: 108.72
+  subs:
+  - text: 要回答这句，得能只推动那一类细胞
+    start: 0.3
+    end: 3.842
+  - text: 也能把它按住，时间尺度要跟锋电位一样
+    start: 3.842
+    end: 7.857
+  - text: 是毫秒，不是分钟
+    start: 7.857
+    end: 9.51
+  hold: 0.95
+- id: A_04b
+  segment: A
+  duration: 0.4
+  vo: []
+  facts: *id009
+  style: blueprint
+  style_why: 速度要求写成设计规格，而不是口号。
+  transition_in: cut
+  visual: 蓝图标题：只动一类、可开可关、毫秒。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 119.58
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: A_05a
+  segment: A
+  duration: 16.38
+  vo:
+  - 更早的光控尝试已经有过。诺奖科学背景写明，有的方案要靠好几步信号接力，有的要在通道上再外加一种化学光开关。它们都达不到毫秒级编码所需要的速度。
+  facts: &id010
+  - F16
+  style: clay
+  style_why: 早期方案是零件堆在一起还是不够快，白模适合讲组装失败。
+  transition_in: cut
+  visual: 白模工作台上，一串零件用箭头串成多步接力，旁边还有一个外加的化学开关。计时条停在毫秒之前。示意，不点名未单独核实的系统。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 16.24
+  cues:
+  - text: 更早的光控尝试已经有过。诺奖科学背景写明，有的方案要靠好几步信号接力，有的要在通道上再外加一种化学光开关。它们都达不到毫秒级编码所需要的速度。
+    start: 0.3
+    end: 15.03
+  start: 119.98
+  subs:
+  - text: 更早的光控尝试已经有过
+    start: 0.3
+    end: 2.755
+  - text: 诺奖科学背景写明
+    start: 2.755
+    end: 4.54
+  - text: 有的方案要靠好几步信号接力
+    start: 4.54
+    end: 7.442
+  - text: 有的要在通道上再外加一种化学光开关
+    start: 7.442
+    end: 11.236
+  - text: 它们都达不到毫秒级编码所需要的速度
+    start: 11.236
+    end: 15.03
+  hold: 0.95
+- id: A_05b
+  segment: A
+  duration: 0.4
+  vo: []
+  facts: *id010
+  style: blueprint
+  style_why: 多步方案的失败用图纸打叉，白模已经演过零件。
+  transition_in: cut
+  visual: 多步箭头的末端打叉，旁边写「达不到毫秒」。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 136.36
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: A_06a
+  segment: A
+  duration: 7.05
+  vo:
+  - 缺的是一个蛋白。光打上去，它自己就开门，不必再请一套帮手。
+  facts: &id011
+  - F5
+  style: energy
+  style_why: 答案收成一个蛋白、一道光，用能量而不是零件堆。
+  transition_in: cut
+  visual: 一个简化的七次跨膜蛋白，一束光打上，孔自己打开。参数化 Blender Python，不使用生成网格代替通道。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx:
+  - glow
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 6.4
+  cues:
+  - text: 缺的是一个蛋白。光打上去，它自己就开门，不必再请一套帮手。
+    start: 0.3
+    end: 5.7
+  start: 136.76
+  subs:
+  - text: 缺的是一个蛋白。光打上去，它自己就开门
+    start: 0.3
+    end: 3.972
+  - text: 不必再请一套帮手
+    start: 3.972
+    end: 5.7
+  hold: 0.95
+- id: A_06b
+  segment: A
+  duration: 0.4
+  vo: []
+  facts: *id011
+  style: clay
+  style_why: 单个蛋白要从零件堆里被单独拿出来。
+  transition_in: cut
+  visual: 白模桌上其他零件让开，只留一个跨膜蛋白。参数化。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 143.81
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: A_07a
+  segment: A
+  duration: 15.76
+  vo:
+  - 这种问法后来做成过一次干净的实验。小鼠下丘脑外侧有一群分泌食欲素的神经元，人们早就知道它们和清醒有关，但不知道放电本身够不够。
+  facts: &id012
+  - F10
+  style: xray
+  style_why: 食欲素实验要看见光纤到达下丘脑外侧，而不是抽象口号。
+  transition_in: cut
+  visual: 小鼠脑的风格化剖面，下丘脑外侧一小团细胞被标出。动物是示意模型，不写实、不血腥。周边小鼠形体可以日后用道具流程，本镜结构位置用参数化示意。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 14.56
+  cues:
+  - text: 这种问法后来做成过一次干净的实验。小鼠下丘脑外侧有一群分泌食欲素的神经元，人们早就知道它们和清醒有关，但不知道放电本身够不够。
+    start: 0.3
+    end: 14.41
+  start: 144.21
+  subs:
+  - text: 这种问法后来做成过一次干净的实验
+    start: 0.3
+    end: 4.126
+  - text: 小鼠下丘脑外侧有一
+    start: 4.126
+    end: 6.279
+  - text: 群分泌食欲素的神经元
+    start: 6.279
+    end: 8.67
+  - text: 人们早就知道它们和清醒有关
+    start: 8.67
+    end: 11.779
+  - text: 但不知道放电本身够不够
+    start: 11.779
+    end: 14.41
+  hold: 0.95
+- id: A_07b
+  segment: A
+  duration: 0.4
+  vo: []
+  facts: *id012
+  style: infographic
+  style_why: 相关还是因果，用两列问题卡住。
+  transition_in: cut
+  visual: 左：和清醒有关。右：放电够不够。右列被圈出。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 159.97
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: A_08a
+  segment: A
+  duration: 19.68
+  vo:
+  - 2007 年，有研究组把一种光控通道放进这群细胞，用光纤把光送进去。光一开，动物从慢波睡眠或快速眼动睡眠转入清醒的概率升高。每秒五到三十次的脉冲能缩短这段等待，每秒一次则不能。
+  facts: &id013
+  - F10
+  style: photoreal
+  style_why: 活体实验的「光送进去」需要一个可信的器物，而不是再画一张表。
+  transition_in: cut
+  visual: 风格化实验台，光纤头靠近脑表面的示意植入件，蓝光只在光纤末端。不生成写实人脸。道具是示意，检查点①不调用生成模型。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: cycles
+  sfx:
+  - 低噪室温
+  duration_design: 19.6
+  cues:
+  - text: 2007 年，有研究组把一种光控通道放进这群细胞，用光纤把光送进去。光一开，动物从慢波睡眠或快速眼动睡眠转入清醒的概率升高。每秒五到三十次的脉冲能缩短这段等待，每秒一次则不能。
+    start: 0.3
+    end: 18.33
+  start: 160.37
+  subs:
+  - text: 2007 年
+    start: 0.3
+    end: 1.427
+  - text: 有研究组把一种光控通道放进这群细胞
+    start: 1.427
+    end: 5.258
+  - text: 用光纤把光送进去。光一开
+    start: 5.258
+    end: 7.737
+  - text: 动物从慢波睡眠或
+    start: 7.737
+    end: 9.54
+  - text: 快速眼动睡眠转入清醒的概率升高
+    start: 9.54
+    end: 12.921
+  - text: 每秒五到三十次的脉冲能缩短这段等待
+    start: 12.921
+    end: 16.752
+  - text: 每秒一次则不能
+    start: 16.752
+    end: 18.33
+  hold: 0.95
+- id: A_08b
+  segment: A
+  duration: 0.4
+  vo: []
+  facts: *id013
+  style: hud
+  style_why: 脉冲频率是读数，1 Hz 和 5–30 Hz 必须分开。
+  transition_in: cut
+  visual: HUD：5–30 Hz 潜伏期缩短；1 Hz 不缩短。只使用论文里的这两个档。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 180.05
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: A_91
+  segment: A
+  duration: 1.5
+  vo: []
+  facts: []
+  style: sem
+  style_why: 第一幕结束前回到膜上的孔，提醒下一幕要找这个蛋白的来历。
+  transition_in: cut
+  visual: 参数化膜蛋白的显微模型，孔还关着。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: cycles
+  sfx: []
+  start: 180.45
+- id: A_92
+  segment: A
+  duration: 1.5
+  vo: []
+  facts: []
+  style: documentary
+  style_why: 食欲素实验的动物只留一个远景，避免停在读数上。
+  transition_in: cut
+  visual: 风格化小鼠在暗笼里，光纤是一根细线，不血腥。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: cycles
+  sfx: []
+  start: 181.95
+- id: B_01a
+  segment: B
+  duration: 7.59
+  vo:
+  - 这枚开关不是在神经科学里设计出来的。它先在微生物的膜上，干了别的活。
+  facts: &id014
+  - F4
+  style: sem
+  style_why: 第二幕的来源是微生物膜，显微尺度先把观众带离神经科。
+  transition_in: cut
+  visual: 嗜盐古菌表面一片颜色更深的膜斑，像电镜里的一块补丁。紫膜按文献做成示意色块，不冒充原子分辨率照片。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: cycles
+  sfx:
+  - 低噪室温
+  duration_design: 7.84
+  cues:
+  - text: 这枚开关不是在神经科学里设计出来的。它先在微生物的膜上，干了别的活。
+    start: 0.3
+    end: 6.24
+  start: 183.45
+  subs:
+  - text: 这枚开关不是在神经科学里设计出来的
+    start: 0.3
+    end: 3.557
+  - text: 它先在微生物的膜上，干了别的活
+    start: 3.557
+    end: 6.24
+  hold: 0.95
+- id: B_01b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id014
+  style: clay
+  style_why: 从神经科回到微生物，用白模膜片做转场。
+  transition_in: cut
+  visual: 一张膜片被放到镜头前，上面只有一种蛋白。参数化。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 191.04
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_02a
+  segment: B
+  duration: 14.28
+  vo:
+  - 1971 年，一个研究组从一种嗜盐古菌里分离出紫膜。深紫色来自视黄醛，视黄醛绑在一种视紫红质样的蛋白上。这个膜片段里，蛋白只有这一种。
+  facts: &id015
+  - F4
+  style: sem
+  style_why: 1971 年的发现是视黄醛绑在唯一的那种蛋白上，仍停在显微尺度。
+  transition_in: cut
+  visual: 膜斑放大：视黄醛小分子嵌在一种蛋白里，画面标注「膜片段里只有这一种蛋白」。蛋白用参数化 Blender Python。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: cycles
+  sfx:
+  - 低噪室温
+  duration_design: 14.8
+  cues:
+  - text: 1971 年，一个研究组从一种嗜盐古菌里分离出紫膜。深紫色来自视黄醛，视黄醛绑在一种视紫红质样的蛋白上。这个膜片段里，蛋白只有这一种。
+    start: 0.3
+    end: 12.93
+  start: 191.44
+  subs:
+  - text: 1971 年
+    start: 0.3
+    end: 1.353
+  - text: 一个研究组从一种嗜盐古菌里分离出紫膜
+    start: 1.353
+    end: 5.142
+  - text: 深紫色来自视黄醛
+    start: 5.142
+    end: 6.826
+  - text: 视黄醛绑在一种视紫红质样的蛋白上
+    start: 6.826
+    end: 10.193
+  - text: 这个膜片段里，蛋白只有这一种
+    start: 10.193
+    end: 12.93
+  hold: 0.95
+- id: B_02b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id015
+  style: energy
+  style_why: 视黄醛感光是能量事件。
+  transition_in: cut
+  visual: 视黄醛在光下闪一下，蛋白骨架保持不动。参数化。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 205.72
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_03a
+  segment: B
+  duration: 16.67
+  vo:
+  - 1973 年，他们给这种蛋白起了后来通用的名字：细菌视紫红质。闪光让它的吸收峰移动，同时把质子放出去、再收回来。它是一台光驱动的质子泵，在膜上定向搬运质子。
+  facts: &id016
+  - F4b
+  style: energy
+  style_why: 1973 年要看见质子被泵出去，这是看不见的物理，不是外观。
+  transition_in: cut
+  visual: 同一蛋白在光照下把质子从一侧打到另一侧，吸收颜色从深色跳向浅色再回来。标注细菌视紫红质，质子泵。参数化。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx:
+  - glow
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 16.96
+  cues:
+  - text: 1973 年，他们给这种蛋白起了后来通用的名字：细菌视紫红质。闪光让它的吸收峰移动，同时把质子放出去、再收回来。它是一台光驱动的质子泵，在膜上定向搬运质子。
+    start: 0.3
+    end: 15.32
+  start: 206.12
+  subs:
+  - text: 1973 年
+    start: 0.3
+    end: 1.388
+  - text: 他们给这种蛋白起了后来通用的名字：
+    start: 1.388
+    end: 4.871
+  - text: 细菌视紫红质。闪光让它的吸收峰移动
+    start: 4.871
+    end: 8.354
+  - text: 同时把质子放出去、再收回来
+    start: 8.354
+    end: 10.966
+  - text: 它是一台光驱动的质子泵
+    start: 10.966
+    end: 13.361
+  - text: 在膜上定向搬运质子
+    start: 13.361
+    end: 15.32
+  hold: 0.95
+- id: B_03b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id016
+  style: xray
+  style_why: 质子跨膜要看见膜的两侧，能量图之后补剖视。
+  transition_in: cut
+  visual: 膜两侧 pH 示意一高一低，质子留在一侧。参数化膜。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 222.79
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_04a
+  segment: B
+  duration: 21.2
+  vo:
+  - 泵和通道不是一回事。泵把离子往指定方向推，哪怕是逆着梯度，推一次走一趟。通道是一个孔。孔打开以后，离子顺着膜两侧本来就有的浓度差和电压差，自己涌过去。离子带着电荷，进来或者出去，膜两侧的电压就跟着变。神经元在意的，正是这个电压。
+  facts: &id017
+  - F4b
+  - F5
+  - F6
+  style: blueprint
+  style_why: 泵和通道必须拆开讲，蓝图适合并排两种设计。
+  transition_in: cut
+  visual: 左图箭头逆着梯度，标「泵」。右图孔打开，离子顺梯度，标「通道」。两张都是参数化结构，不混成一个分子。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 24.64
+  cues:
+  - text: 泵和通道不是一回事。泵把离子往指定方向推，哪怕是逆着梯度，推一次走一趟。通道是一个孔。孔打开以后，离子顺着膜两侧本来就有的浓度差和电压差，自己涌过去。离子带着电荷，进来或者出去，膜两侧的电压就跟着变。神经元在意的，正是这个电压。
+    start: 0.3
+    end: 19.85
+  start: 223.19
+  subs:
+  - text: 泵和通道不是一回事
+    start: 0.3
+    end: 2.042
+  - text: 泵把离子往指定方向推，哪怕是逆着梯度
+    start: 2.042
+    end: 5.333
+  - text: 推一次走一趟。通道是一个孔。孔打开以后
+    start: 5.333
+    end: 8.623
+  - text: 离子顺着膜两侧本来就
+    start: 8.623
+    end: 10.559
+  - text: 有的浓度差和电压差
+    start: 10.559
+    end: 12.301
+  - text: 自己涌过去。离子带着电荷，进来或者出去
+    start: 12.301
+    end: 15.592
+  - text: 膜两侧的电压就跟着变。神经元在意的
+    start: 15.592
+    end: 18.689
+  - text: 正是这个电压
+    start: 18.689
+    end: 19.85
+  hold: 0.95
+- id: B_04b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id017
+  style: clay
+  style_why: 两种分子不要在蓝图里停太久，白模把它们拆开拿在手里。
+  transition_in: cut
+  visual: 左手泵、右手通道，明确是两个物体。参数化。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 244.39
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_05a
+  segment: B
+  duration: 11.68
+  vo:
+  - 衣藻是单细胞绿藻，会朝光游。有人想知道：这么快的转向，感光的是谁。诺奖新闻稿把后来的故事从这里讲起。
+  facts: &id018
+  - F1
+  style: photoreal
+  style_why: 衣藻是真实存在的生物，先给外形，再进分子。
+  transition_in: cut
+  visual: 一枚风格化的衣藻朝一束光游动，眼点是一个小色斑。细胞形态参数化，不做成不明生物。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: cycles
+  sfx:
+  - 低噪室温
+  duration_design: 10.96
+  cues:
+  - text: 衣藻是单细胞绿藻，会朝光游。有人想知道：这么快的转向，感光的是谁。诺奖新闻稿把后来的故事从这里讲起。
+    start: 0.3
+    end: 10.33
+  start: 244.79
+  subs:
+  - text: 衣藻是单细胞绿藻，会朝光游。有人想知道：
+    start: 0.3
+    end: 4.175
+  - text: 这么快的转向，感光的是谁
+    start: 4.175
+    end: 6.683
+  - text: 诺奖新闻稿把后来的故事从这里讲起
+    start: 6.683
+    end: 10.33
+  hold: 0.95
+- id: B_05b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id018
+  style: energy
+  style_why: 朝光游的原因先收成眼点上的一道电流。
+  transition_in: cut
+  visual: 眼点处一道快速电流，细胞转向光源。参数化。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 256.47
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_06a
+  segment: B
+  duration: 19.63
+  vo:
+  - 2002 年，一个合作组把衣藻的一种蛋白放进爪蟾的卵母细胞。细胞自己没有这套感光系统。可是加上视黄醛、再给光，膜上出现了一道电流，而且主要让质子通过。他们把加上视黄醛之后的蛋白称为通道视紫红质一。
+  facts: &id019
+  - F5
+  style: blueprint
+  style_why: 2002 年的证据是异源表达：卵母细胞自己没有这套系统。
+  transition_in: cut
+  visual: 蓝图：衣藻蛋白的基因箭头指向一枚爪蟾卵母细胞，光打上后出现电流表偏转，离子标成质子。参数化膜和通道。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 21.76
+  cues:
+  - text: 2002 年，一个合作组把衣藻的一种蛋白放进爪蟾的卵母细胞。细胞自己没有这套感光系统。可是加上视黄醛、再给光，膜上出现了一道电流，而且主要让质子通过。他们把加上视黄醛之后的蛋白称为通道视紫红质一。
+    start: 0.3
+    end: 18.28
+  start: 256.87
+  subs:
+  - text: 2002 年
+    start: 0.3
+    end: 1.31
+  - text: 一个合作组把衣藻的
+    start: 1.31
+    end: 3.128
+  - text: 一种蛋白放进爪蟾的卵母细胞
+    start: 3.128
+    end: 5.755
+  - text: 细胞自己没有这套感光系统
+    start: 5.755
+    end: 8.179
+  - text: 可是加上视黄醛、再给光
+    start: 8.179
+    end: 10.199
+  - text: 膜上出现了一道电流，而且主要让质子通过
+    start: 10.199
+    end: 13.836
+  - text: 他们把加上视黄醛之后的
+    start: 13.836
+    end: 16.058
+  - text: 蛋白称为通道视紫红质一
+    start: 16.058
+    end: 18.28
+  hold: 0.95
+- id: B_06b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id019
+  style: sem
+  style_why: 卵母细胞实验之后，回到蛋白自己的尺度。
+  transition_in: cut
+  visual: 通道视紫红质一的显微风格模型，光只打开质子通路。参数化。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: cycles
+  sfx: []
+  start: 276.5
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_07a
+  segment: B
+  duration: 30.16
+  vo:
+  - 关键的一句在这里。早先的方案要靠好几步信号接力：一个分子接住光，再一层层传话给别处的孔。这个蛋白不一样，接光的部分和放行离子的孔，在同一个分子里。光一到，门就动，中间不用传话。诺奖科学背景写明，哪怕只保留蛋白里形成通道的那一段，光仍然能打开电导。蛋白本身就够。所以要把开关装进别的细胞，送进这一个基因就行。
+  facts: &id020
+  - F5
+  - F16
+  - F6
+  style: clay
+  style_why: 「蛋白本身就够」要用组装语言：拿掉帮手，孔还在。
+  transition_in: cut
+  visual: 白模上先有感受器和孔两个零件，感受器被拿掉，只剩一段通道，光仍能打开电导。参数化通道，不用生成网格。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 33.28
+  cues:
+  - text: 关键的一句在这里。早先的方案要靠好几步信号接力：一个分子接住光，再一层层传话给别处的孔。这个蛋白不一样，接光的部分和放行离子的孔，在同一个分子里。光一到，门就动，中间不用传话。诺奖科学背景写明，哪怕只保留蛋白里形成通道的那一段，光仍然能打开电导。蛋白本身就够。所以要把开关装进别的细胞，送进这一个基因就行。
+    start: 0.3
+    end: 28.81
+  start: 276.9
+  subs:
+  - text: 关键的一句在这里
+    start: 0.3
+    end: 1.965
+  - text: 早先的方案要靠好几步信号接力：
+    start: 1.965
+    end: 4.878
+  - text: 一个分子接住光，再一层层传话给别处的孔
+    start: 4.878
+    end: 8.624
+  - text: 这个蛋白不一样
+    start: 8.624
+    end: 10.081
+  - text: 接光的部分和放行离子的孔
+    start: 10.081
+    end: 12.578
+  - text: 在同一个分子里。光一到，门就动
+    start: 12.578
+    end: 15.283
+  - text: 中间不用传话。诺奖科学背景写明
+    start: 15.283
+    end: 18.197
+  - text: 哪怕只保留蛋白里形成通道的那一段
+    start: 18.197
+    end: 21.526
+  - text: 光仍然能打开电导。蛋白本身就够
+    start: 21.526
+    end: 24.44
+  - text: 所以要把开关装进别的细胞
+    start: 24.44
+    end: 26.937
+  - text: 送进这一个基因就行
+    start: 26.937
+    end: 28.81
+  hold: 0.95
+- id: B_07b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id020
+  style: xray
+  style_why: 只保留通道那一段，剖视看截短之后孔还在。
+  transition_in: cut
+  visual: 蛋白被裁到跨膜核心，电导仍在。参数化。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 307.06
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_08a
+  segment: B
+  duration: 17.34
+  vo:
+  - 2003 年，同一个合作组报告了第二种蛋白，通道视紫红质二。它在卵母细胞里能工作，在哺乳动物的培养细胞里也能工作。蓝光直接打开它。它放行的是阳离子，不限于质子。光一照，细胞去极化。
+  facts: &id021
+  - F5
+  style: energy
+  style_why: ChR2 的物理是阳离子流入和去极化，能量图最直接。
+  transition_in: cut
+  visual: 蓝光打开通道视紫红质二，钠离子等阳离子流入，膜电位曲线上升。持续光照时电流从高峰落到平台。参数化。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx:
+  - glow
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 19.36
+  cues:
+  - text: 2003 年，同一个合作组报告了第二种蛋白，通道视紫红质二。它在卵母细胞里能工作，在哺乳动物的培养细胞里也能工作。蓝光直接打开它。它放行的是阳离子，不限于质子。光一照，细胞去极化。
+    start: 0.3
+    end: 15.99
+  start: 307.46
+  subs:
+  - text: 2003 年
+    start: 0.3
+    end: 1.293
+  - text: 同一个合作组报告了第二种蛋白
+    start: 1.293
+    end: 4.074
+  - text: 通道视紫红质二。它在卵母细胞里能工作
+    start: 4.074
+    end: 7.45
+  - text: 在哺乳动物的培养细胞里也能工作
+    start: 7.45
+    end: 10.429
+  - text: 蓝光直接打开它。它放行的是阳离子
+    start: 10.429
+    end: 13.408
+  - text: 不限于质子。光一照，细胞去极化
+    start: 13.408
+    end: 15.99
+  hold: 0.95
+- id: B_08b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id021
+  style: hud
+  style_why: 去极化用一条上升的电压读出来。
+  transition_in: cut
+  visual: 电压计上跳，标注阳离子、蓝光、ChR2。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 324.8
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_09a
+  segment: B
+  duration: 19.17
+  vo:
+  - 持续照着的时候，这道电流会从一开始的高峰落到一个较低的平台。通道会脱敏。所以它不是一盏永远开着的灯，而是一扇会疲劳的门。要让神经元一下一下地放电，实验里用的也是一串短脉冲，不是一直照着。
+  facts: &id022
+  - F5
+  - F6
+  style: infographic
+  style_why: 脱敏是一条曲线，不是一句形容词。
+  transition_in: cut
+  visual: 电流对时间的示意曲线：尖峰后落到较低平台，标注「持续光照会脱敏」。不另造未核实的时间常数。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 20.8
+  cues:
+  - text: 持续照着的时候，这道电流会从一开始的高峰落到一个较低的平台。通道会脱敏。所以它不是一盏永远开着的灯，而是一扇会疲劳的门。要让神经元一下一下地放电，实验里用的也是一串短脉冲，不是一直照着。
+    start: 0.3
+    end: 17.82
+  start: 325.2
+  subs:
+  - text: 持续照着的时候
+    start: 0.3
+    end: 1.743
+  - text: 这道电流会从一开始的
+    start: 1.743
+    end: 3.804
+  - text: 高峰落到一个较低的平台
+    start: 3.804
+    end: 6.071
+  - text: 通道会脱敏。所以它不是一盏永远开着的灯
+    start: 6.071
+    end: 9.781
+  - text: 而是一扇会疲劳的门
+    start: 9.781
+    end: 11.636
+  - text: 要让神经元一下一下地放电
+    start: 11.636
+    end: 14.11
+  - text: 实验里用的也是一串短脉冲，不是一直照着
+    start: 14.11
+    end: 17.82
+  hold: 0.95
+- id: B_09b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id022
+  style: energy
+  style_why: 平台期的门没有关死，只是开得更小。
+  transition_in: cut
+  visual: 通道口从大到小，光还在。参数化。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 344.37
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_10a
+  segment: B
+  duration: 22.07
+  vo:
+  - 去极化如果又快又够大，神经元就会打出自己的锋电位。2005 年的一次实验，把通道视紫红质二送进培养的哺乳动物神经元。短脉冲的蓝光可以在毫秒尺度上可靠地驱动锋电位，也可以控制突触传递。光的节拍，变成了神经元放电的节拍。
+  facts: &id023
+  - F6
+  style: clay
+  style_why: 2005 年是培养神经元自己打出锋电位，白模适合看细胞被驱动。
+  transition_in: cut
+  visual: 培养皿里一枚参数化神经元。蓝光短脉冲，锋电位一根根对齐脉冲出现。Boyden 为第一作者的实验，细胞不用生成网格。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 24.16
+  cues:
+  - text: 去极化如果又快又够大，神经元就会打出自己的锋电位。2005 年的一次实验，把通道视紫红质二送进培养的哺乳动物神经元。短脉冲的蓝光可以在毫秒尺度上可靠地驱动锋电位，也可以控制突触传递。光的节拍，变成了神经元放电的节拍。
+    start: 0.3
+    end: 20.72
+  start: 344.77
+  subs:
+  - text: 去极化如果又快又够大
+    start: 0.3
+    end: 2.363
+  - text: 神经元就会打出自己的锋电位
+    start: 2.363
+    end: 5.044
+  - text: 2005 年的一次实验
+    start: 5.044
+    end: 7.107
+  - text: 把通道视紫红质二送进
+    start: 7.107
+    end: 9.169
+  - text: 培养的哺乳动物神经元
+    start: 9.169
+    end: 11.232
+  - text: 短脉冲的蓝光可以在
+    start: 11.232
+    end: 13.088
+  - text: 毫秒尺度上可靠地驱动锋电位
+    start: 13.088
+    end: 15.77
+  - text: 也可以控制突触传递。光的节拍
+    start: 15.77
+    end: 18.451
+  - text: 变成了神经元放电的节拍
+    start: 18.451
+    end: 20.72
+  hold: 0.95
+- id: B_10b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id023
+  style: hud
+  style_why: 毫秒脉冲和锋电位一一对应。
+  transition_in: cut
+  visual: 脉冲列和锋电位列对齐，不画未给出的频率上限。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 366.84
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_11a
+  segment: B
+  duration: 6.55
+  vo:
+  - 当年论文的署名，和后来的授奖名单，不是同一份。
+  facts: &id024
+  - F6
+  - F1
+  style: infographic
+  style_why: 两份名单必须分成两列，避免观众把第一作者听成得主。
+  transition_in: cut
+  visual: 左列论文署名：Boyden 第一，Deisseroth 通讯。右列 2026 新闻稿把这次发表记在 Deisseroth 名下。两列都保留。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 5.2
+  cues:
+  - text: 当年论文的署名，和后来的授奖名单，不是同一份。
+    start: 0.3
+    end: 5.2
+  start: 367.24
+  subs:
+  - text: 当年论文的署名，和后来的授奖名单
+    start: 0.3
+    end: 3.975
+  - text: 不是同一份
+    start: 3.975
+    end: 5.2
+  hold: 0.95
+- id: B_11b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id024
+  style: type
+  style_why: 第一作者四个字单独停一拍，避免和得主混。
+  transition_in: cut
+  visual: 一行字：第一作者 Boyden。下一行空着，不写得主。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 373.79
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_12a
+  segment: B
+  duration: 3.95
+  vo: []
+  facts: &id025
+  - F1
+  style: type
+  style_why: 得主名单要用排版钉死，不靠旁白一带而过。
+  transition_in: cut
+  visual: 三行名字：Deisseroth、Hegemann、Nagel。第四行空着，不出现第四个得主。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  start: 374.19
+  hold: 0.95
+- id: B_12b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id025
+  style: infographic
+  style_why: 三人名单和 Brain Prize 先别混，这里只钉诺奖。
+  transition_in: cut
+  visual: 2026 生理学或医学奖，三行，没有 Boyden。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 378.14
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_13a
+  segment: B
+  duration: 13.12
+  vo:
+  - 2006 年，光遗传学这个词被正式写进论文，指的是把光学和遗传靶向合在一起的做法：用基因决定哪一类细胞装上开关，用光决定什么时候拨。
+  facts: &id026
+  - F7
+  style: documentary
+  style_why: 命名是一篇真实发表的杂志论文，不是后来的奖状。
+  transition_in: cut
+  visual: 2006 年《神经科学杂志》的风格化封面和目录，标题区出现 optogenetic。不复制受版权保护的版式细节，只作示意。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx:
+  - film_grain
+  engine: cycles
+  sfx:
+  - 低噪室温
+  duration_design: 14.8
+  cues:
+  - text: 2006 年，光遗传学这个词被正式写进论文，指的是把光学和遗传靶向合在一起的做法：用基因决定哪一类细胞装上开关，用光决定什么时候拨。
+    start: 0.3
+    end: 11.77
+  start: 378.54
+  subs:
+  - text: 2006 年
+    start: 0.3
+    end: 1.256
+  - text: 光遗传学这个词被正式写进论文
+    start: 1.256
+    end: 3.932
+  - text: 指的是把光学和遗传靶向合在一起的做法：
+    start: 3.932
+    end: 7.373
+  - text: 用基因决定哪一类细胞装上开关
+    start: 7.373
+    end: 10.049
+  - text: 用光决定什么时候拨
+    start: 10.049
+    end: 11.77
+  hold: 0.95
+- id: B_13b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id026
+  style: type
+  style_why: 词本身要被看见。
+  transition_in: cut
+  visual: optogenetics 这个词逐字出现，年份 2006。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 391.66
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_14a
+  segment: B
+  duration: 17.94
+  vo:
+  - 培养皿里的光还不是活的脑。2007 年，又一项实验用光纤把蓝光送进啮齿动物的运动皮层，只驱动表达通道视紫红质二的兴奋性神经元。不另外添加视黄醛，光也足够让动物做出行为。
+  facts: &id027
+  - F8
+  style: xray
+  style_why: 活体要看见光纤进到运动皮层，剖视回答位置。
+  transition_in: cut
+  visual: 啮齿动物头部剖面，光纤到达运动皮层，只在兴奋性神经元层有蓝光。脑和皮层用参数化结构；光纤器件是示意道具。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 18.88
+  cues:
+  - text: 培养皿里的光还不是活的脑。2007 年，又一项实验用光纤把蓝光送进啮齿动物的运动皮层，只驱动表达通道视紫红质二的兴奋性神经元。不另外添加视黄醛，光也足够让动物做出行为。
+    start: 0.3
+    end: 16.59
+  start: 392.06
+  subs:
+  - text: 培养皿里的光还不是活的脑。2007 年
+    start: 0.3
+    end: 3.896
+  - text: 又一项实验用光纤把
+    start: 3.896
+    end: 5.801
+  - text: 蓝光送进啮齿动物的运动皮层
+    start: 5.801
+    end: 8.551
+  - text: 只驱动表达通道视紫红质二的
+    start: 8.551
+    end: 11.301
+  - text: 兴奋性神经元
+    start: 11.301
+    end: 12.57
+  - text: 不另外添加视黄醛
+    start: 12.57
+    end: 14.263
+  - text: 光也足够让动物做出行为
+    start: 14.263
+    end: 16.59
+  hold: 0.95
+- id: B_14b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id027
+  style: photoreal
+  style_why: 光纤是器物，剖视之后给一个外表。
+  transition_in: cut
+  visual: 细光纤和示意固定件，蓝光只在尖端。检查点①不调用生成模型。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: cycles
+  sfx: []
+  start: 410.0
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_15a
+  segment: B
+  duration: 8.74
+  vo:
+  - 从培养皿到活体，前后大约两年：2005 年在神经元里，2007 年在动物的脑里。
+  facts: &id028
+  - F1
+  - F8
+  style: hud
+  style_why: 新闻稿的「大约两年后」和论文的 2007 要对齐，用时间读数而不是口号。
+  transition_in: cut
+  visual: HUD 时间轴：2005 培养神经元，2007 光纤活体。两点之间不填未核实的月份。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 8.56
+  cues:
+  - text: 从培养皿到活体，前后大约两年：2005 年在神经元里，2007 年在动物的脑里。
+    start: 0.3
+    end: 7.39
+  start: 410.4
+  subs:
+  - text: 从培养皿到活体，前后大约两年：
+    start: 0.3
+    end: 3.011
+  - text: 2005 年在神经元里
+    start: 3.011
+    end: 5.096
+  - text: 2007 年在动物的脑里
+    start: 5.096
+    end: 7.39
+  hold: 0.95
+- id: B_15b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id028
+  style: documentary
+  style_why: 活体小鼠的行为只给剪影级的结果。
+  transition_in: cut
+  visual: 风格化小鼠胡须或身体轻微偏转，不血腥，不写实眼部特写。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: cycles
+  sfx: []
+  start: 419.14
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_16a
+  segment: B
+  duration: 18.47
+  vo:
+  - 只有开还不够。同一年，另一篇论文报告了另一种古菌蛋白，NpHR。这一次用的是泵，不是通道。黄光照上去，带负电的氯离子被泵进细胞，膜电位往更负的方向走，离放电的门槛更远，锋电位被按住。
+  facts: &id029
+  - F8
+  style: energy
+  style_why: NpHR 是相反方向的离子流，必须用能量图和 ChR2 分开。
+  transition_in: cut
+  visual: 黄光打在氯离子泵上，氯离子进入细胞，膜电位往下走，锋电位消失。蛋白参数化。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx:
+  - glow
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 19.6
+  cues:
+  - text: 只有开还不够。同一年，另一篇论文报告了另一种古菌蛋白，NpHR。这一次用的是泵，不是通道。黄光照上去，带负电的氯离子被泵进细胞，膜电位往更负的方向走，离放电的门槛更远，锋电位被按住。
+    start: 0.3
+    end: 17.12
+  start: 419.54
+  subs:
+  - text: 只有开还不够。同一年
+    start: 0.3
+    end: 2.192
+  - text: 另一篇论文报告了另一种古菌蛋白
+    start: 2.192
+    end: 5.346
+  - text: NpHR。这一次用的是泵，不是通道
+    start: 5.346
+    end: 8.5
+  - text: 黄光照上去，带负电的氯离子被泵进细胞
+    start: 8.5
+    end: 12.074
+  - text: 膜电位往更负的方向走，离放电的门槛更远
+    start: 12.074
+    end: 15.859
+  - text: 锋电位被按住
+    start: 15.859
+    end: 17.12
+  hold: 0.95
+- id: B_16b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id029
+  style: blueprint
+  style_why: 氯离子泵的方向要画成和阳离子通道相反的箭头。
+  transition_in: cut
+  visual: 蓝图：黄光，氯离子向内，电压下降。参数化。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 438.01
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_17a
+  segment: B
+  duration: 16.35
+  vo:
+  - 黄光和蓝光的光谱分开。同一套细胞里可以放两种蛋白：蓝光负责打开，黄光负责关掉。这意味着同一个问题可以从两头问：把这类细胞推一把，行为会不会出现；把它按住，行为会不会消失。
+  facts: &id030
+  - F8
+  - F2
+  style: infographic
+  style_why: 双向控制是一张对照，不是再演一次实验。
+  transition_in: cut
+  visual: 同一细胞的两行：蓝光开，黄光关。光谱两条分开的色带，不写未核实的纳米宽度以外的新数字。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 18.64
+  cues:
+  - text: 黄光和蓝光的光谱分开。同一套细胞里可以放两种蛋白：蓝光负责打开，黄光负责关掉。这意味着同一个问题可以从两头问：把这类细胞推一把，行为会不会出现；把它按住，行为会不会消失。
+    start: 0.3
+    end: 15.0
+  start: 438.41
+  subs:
+  - text: 黄光和蓝光的光谱分开
+    start: 0.3
+    end: 2.234
+  - text: 同一套细胞里可以放两种蛋白：
+    start: 2.234
+    end: 4.749
+  - text: 蓝光负责打开，黄光负责关掉
+    start: 4.749
+    end: 7.07
+  - text: 这意味着同一个问题可以从两头问：
+    start: 7.07
+    end: 9.971
+  - text: 把这类细胞推一把，行为会不会出现
+    start: 9.971
+    end: 12.872
+  - text: 把它按住，行为会不会消失
+    start: 12.872
+    end: 15.0
+  hold: 0.95
+- id: B_17b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id030
+  style: energy
+  style_why: 两种颜色同时存在，但打在不同蛋白上。
+  transition_in: cut
+  visual: 同一膜上两个蛋白，一蓝一黄，不同时误开。参数化。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 454.76
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_18a
+  segment: B
+  duration: 14.8
+  vo:
+  - 后来的工具把敏感的颜色往更长的波长推。2021 年用在人眼上的 ChrimsonR 就是其中一种，不是 2005 年那个蓝光通道的改名。
+  facts: &id031
+  - F11
+  - F6
+  - F17
+  style: sem
+  style_why: ChrimsonR 是后继分子，显微尺度提醒它不是改名。
+  transition_in: cut
+  visual: 两个通道并排。左侧蓝光敏感，右侧更长波长。右侧标注 ChrimsonR，2021 用于人眼。结构参数化，不假装是晶体结构电影。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: cycles
+  sfx:
+  - 低噪室温
+  duration_design: 14.8
+  cues:
+  - text: 后来的工具把敏感的颜色往更长的波长推。2021 年用在人眼上的 ChrimsonR 就是其中一种，不是 2005 年那个蓝光通道的改名。
+    start: 0.3
+    end: 13.45
+  start: 455.16
+  subs:
+  - text: 后来的工具把敏感的颜色往更长的波长推
+    start: 0.3
+    end: 4.245
+  - text: 2021 年用在人眼上的
+    start: 4.245
+    end: 6.656
+  - text: ChrimsonR 就是其中一种
+    start: 6.656
+    end: 9.943
+  - text: 不是 2005 年那个蓝光通道的改名
+    start: 9.943
+    end: 13.45
+  hold: 0.95
+- id: B_18b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id031
+  style: infographic
+  style_why: 波长只做先后，不发明新的峰值。
+  transition_in: cut
+  visual: 箭头从蓝光通道指向更长波长的 ChrimsonR。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 469.96
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_19a
+  segment: B
+  duration: 9.04
+  vo:
+  - 荣誉也不止一份。早在 2013 年，另一个脑科学大奖就颁给过这一领域，那份名单是六个人。
+  facts: &id032
+  - F14
+  style: infographic
+  style_why: 六人奖和三人奖是计数问题，信息图比群像安全。
+  transition_in: cut
+  visual: 2013 Brain Prize 六个名字排成一行：Bamberg、Boyden、Deisseroth、Hegemann、Miesenböck、Nagel。没有肖像。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 9.52
+  cues:
+  - text: 荣誉也不止一份。早在 2013 年，另一个脑科学大奖就颁给过这一领域，那份名单是六个人。
+    start: 0.3
+    end: 7.69
+  start: 470.36
+  subs:
+  - text: 荣誉也不止一份。早在 2013 年
+    start: 0.3
+    end: 3.023
+  - text: 另一个脑科学大奖就颁给过这一领域
+    start: 3.023
+    end: 6.134
+  - text: 那份名单是六个人
+    start: 6.134
+    end: 7.69
+  hold: 0.95
+- id: B_19b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id032
+  style: type
+  style_why: 六个名字太长，排版让观众数得清。
+  transition_in: cut
+  visual: 六个人名分两列，不配照片。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 479.4
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_20a
+  segment: B
+  duration: 7.76
+  vo:
+  - 那一份不是诺贝尔奖。六个人和后来的三个人，有重叠，但不能并成一份名单。
+  facts: &id033
+  - F14
+  - F1
+  style: blueprint
+  style_why: 两份名单的差集要用设计图的方式圈出来。
+  transition_in: cut
+  visual: 六人框里圈出 Boyden、Bamberg、Miesenböck，箭头指向「不在 2026 诺奖三人里」。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 7.84
+  cues:
+  - text: 那一份不是诺贝尔奖。六个人和后来的三个人，有重叠，但不能并成一份名单。
+    start: 0.3
+    end: 6.41
+  start: 479.8
+  subs:
+  - text: 那一份不是诺贝尔奖
+    start: 0.3
+    end: 2.074
+  - text: 六个人和后来的三个人，有重叠
+    start: 2.074
+    end: 4.636
+  - text: 但不能并成一份名单
+    start: 4.636
+    end: 6.41
+  hold: 0.95
+- id: B_20b
+  segment: B
+  duration: 0.4
+  vo: []
+  facts: *id033
+  style: type
+  style_why: 差集用一句话收住。
+  transition_in: cut
+  visual: 大字：六人奖 ≠ 三人诺奖。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 487.56
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: B_91
+  segment: B
+  duration: 1.5
+  vo: []
+  facts: []
+  style: xray
+  style_why: 第二幕收在双向开关的位置：两种蛋白在同一张膜上。
+  transition_in: cut
+  visual: 剖视膜上蓝敏通道和黄敏氯泵并排。参数化 Blender Python。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 487.96
+- id: B_92
+  segment: B
+  duration: 1.5
+  vo: []
+  facts: []
+  style: clay
+  style_why: 把两种蛋白从膜上拆下来给观众看一眼零件。
+  transition_in: cut
+  visual: 白模两只蛋白分开托在镜头前。参数化。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 489.46
+- id: C_01a
+  segment: C
+  duration: 11.05
+  vo:
+  - 开关一旦能在活体里只拨某一类细胞，就可以拿来问记忆存在哪里。这里只深讲一件事，而且只讲小鼠。
+  facts: &id034
+  - F9
+  style: energy
+  style_why: 第三幕打开记忆问题，先用光点出「选定的细胞」，还不进房间。
+  transition_in: cut
+  visual: 脑的示意里只有一小簇细胞被光标出，其余保持暗。标注对象是小鼠。参数化细胞，不写实。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx:
+  - glow
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 10.48
+  cues:
+  - text: 开关一旦能在活体里只拨某一类细胞，就可以拿来问记忆存在哪里。这里只深讲一件事，而且只讲小鼠。
+    start: 0.3
+    end: 9.7
+  start: 490.96
+  subs:
+  - text: 开关一旦能在活体里只拨某一类细胞
+    start: 0.3
+    end: 3.881
+  - text: 就可以拿来问记忆存在哪里
+    start: 3.881
+    end: 6.567
+  - text: 这里只深讲一件事，而且只讲小鼠
+    start: 6.567
+    end: 9.7
+  hold: 0.95
+- id: C_01b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id034
+  style: infographic
+  style_why: 这一幕只讲一件事，先把范围写成标题。
+  transition_in: cut
+  visual: 标题：小鼠海马。副题：不讲人体记忆操作。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 502.01
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_02a
+  segment: C
+  duration: 14.66
+  vo:
+  - 2013 年，有研究组在《科学》报告：小鼠待在环境甲的时候，海马齿状回里有一批神经元会活动。他们给这批当时活跃的细胞装上通道视紫红质二。
+  facts: &id035
+  - F9
+  style: clay
+  style_why: 标记的是环境甲里活跃过的齿状回细胞，白模讲步骤。
+  transition_in: cut
+  visual: 白模海马切片，齿状回一批细胞在环境甲中亮起，并被装上通道。结构参数化。环境只是色块，不建真实房间品牌。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 14.8
+  cues:
+  - text: 2013 年，有研究组在《科学》报告：小鼠待在环境甲的时候，海马齿状回里有一批神经元会活动。他们给这批当时活跃的细胞装上通道视紫红质二。
+    start: 0.3
+    end: 13.31
+  start: 502.41
+  subs:
+  - text: 2013 年，有研究组在《科学》报告：
+    start: 0.3
+    end: 3.336
+  - text: 小鼠待在环境甲的时候
+    start: 3.336
+    end: 5.504
+  - text: 海马齿状回里有一批神经元会活动
+    start: 5.504
+    end: 8.756
+  - text: 他们给这批当时活跃的
+    start: 8.756
+    end: 10.925
+  - text: 细胞装上通道视紫红质二
+    start: 10.925
+    end: 13.31
+  hold: 0.95
+- id: C_02b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id035
+  style: documentary
+  style_why: 环境甲只是一个地点，不是刑讯场面。
+  transition_in: cut
+  visual: 空的风格化笼箱，地面没有电击标记。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: cycles
+  sfx: []
+  start: 517.07
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_03a
+  segment: C
+  duration: 15.7
+  vo:
+  - 之后把小鼠放到环境乙。在乙里做恐惧条件化、给予足底电击的同时，用光重新打开那些在甲里活跃过的细胞。电击发生在乙，光却把甲的那批细胞叫了回来。
+  facts: &id036
+  - F9
+  style: photoreal
+  style_why: 环境乙里的行为需要一个可辨认的地点，但动物保持风格化。
+  transition_in: cut
+  visual: 另一间空笼，地面有风格化的惊吓标记。光纤把那批来自甲的细胞重新点亮。小鼠是示意，不血腥，不写实毛发特写。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: cycles
+  sfx:
+  - 低噪室温
+  duration_design: 15.76
+  cues:
+  - text: 之后把小鼠放到环境乙。在乙里做恐惧条件化、给予足底电击的同时，用光重新打开那些在甲里活跃过的细胞。电击发生在乙，光却把甲的那批细胞叫了回来。
+    start: 0.3
+    end: 14.35
+  start: 517.47
+  subs:
+  - text: 之后把小鼠放到环境乙
+    start: 0.3
+    end: 2.495
+  - text: 在乙里做恐惧条件化、给予足底电击的同时
+    start: 2.495
+    end: 6.447
+  - text: 用光重新打开那些在甲里活跃过的细胞
+    start: 6.447
+    end: 10.179
+  - text: 电击发生在乙
+    start: 10.179
+    end: 11.496
+  - text: 光却把甲的那批细胞叫了回来
+    start: 11.496
+    end: 14.35
+  hold: 0.95
+- id: C_03b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id036
+  style: energy
+  style_why: 被重新打开的是甲的那批细胞，用光标出身份。
+  transition_in: cut
+  visual: 细胞上仍带着环境甲的标记，在乙的笼里被光打开。参数化细胞。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 533.17
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_04a
+  segment: C
+  duration: 12.34
+  vo:
+  - 再把小鼠放回环境甲。甲里从来没有电击。实验组却在甲里冻结。作者的结论是：他们在小鼠海马里制造出了一段虚假的恐惧记忆。
+  facts: &id037
+  - F9
+  style: documentary
+  style_why: 回到环境甲却冻结，这是行为结果，用纪实笼箱而不是分子。
+  transition_in: cut
+  visual: 回到第一间笼。没有电击标记。风格化小鼠停住、冻结。画面不出现血，也不把冻结画成痛苦特写。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx:
+  - film_grain
+  engine: cycles
+  sfx:
+  - 低噪室温
+  duration_design: 13.12
+  cues:
+  - text: 再把小鼠放回环境甲。甲里从来没有电击。实验组却在甲里冻结。作者的结论是：他们在小鼠海马里制造出了一段虚假的恐惧记忆。
+    start: 0.3
+    end: 10.99
+  start: 533.57
+  subs:
+  - text: 再把小鼠放回环境甲。甲里从来没有电击
+    start: 0.3
+    end: 3.729
+  - text: 实验组却在甲里冻结。作者的结论是：
+    start: 3.729
+    end: 6.754
+  - text: 他们在小鼠海马里制造出了
+    start: 6.754
+    end: 9.175
+  - text: 一段虚假的恐惧记忆
+    start: 9.175
+    end: 10.99
+  hold: 0.95
+- id: C_04b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id037
+  style: infographic
+  style_why: 冻结对上「甲里没有电击」。
+  transition_in: cut
+  visual: 两行：甲，无电击；实验组，冻结。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 545.91
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_05a
+  segment: C
+  duration: 14.4
+  vo:
+  - 写进去的不是一句话，也不是一段人生。写进去的是一批选定细胞的活动。光再打开这批细胞时，动物把电击和环境甲绑在了一起。
+  facts: &id038
+  - F9
+  style: type
+  style_why: 必须把「写进去的是什么」说成句子，防止观众理解成改写人生。
+  transition_in: cut
+  visual: 屏幕上先出现被划掉的「一句话 / 一段人生」，换成「一批细胞的活动」。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 13.12
+  cues:
+  - text: 写进去的不是一句话，也不是一段人生。写进去的是一批选定细胞的活动。光再打开这批细胞时，动物把电击和环境甲绑在了一起。
+    start: 0.3
+    end: 13.049
+  start: 546.31
+  subs:
+  - text: 写进去的不是一句话，也不是一段人生
+    start: 0.3
+    end: 4.149
+  - text: 写进去的是一批选定细胞的活动
+    start: 4.149
+    end: 7.516
+  - text: 光再打开这批细胞时
+    start: 7.516
+    end: 9.681
+  - text: 动物把电击和环境甲绑在了一起
+    start: 9.681
+    end: 13.049
+  hold: 0.95
+- id: C_05b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id038
+  style: clay
+  style_why: 一批细胞被光再次打开，白模把「绑定」演成动作。
+  transition_in: cut
+  visual: 细胞组和环境甲的色块之间连上一条线。参数化细胞。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 560.71
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_06a
+  segment: C
+  duration: 19.93
+  vo:
+  - 这是实验动物里的因果演示。相关只能说，这批细胞和恐惧一起出现；这里是先用光动了细胞，后来才有恐惧。它说明选定细胞的活动足以支撑一种恐惧行为。它没有说明，同样的操作已经用在人身上。
+  facts: &id039
+  - F9
+  - F2
+  style: hud
+  style_why: 因果演示的边界用读数标出来：小鼠有，人没有。
+  transition_in: cut
+  visual: HUD 两行状态：小鼠恐惧行为，已在实验中驱动；人体记忆操作：本研究不涉及。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 19.84
+  cues:
+  - text: 这是实验动物里的因果演示。相关只能说，这批细胞和恐惧一起出现；这里是先用光动了细胞，后来才有恐惧。它说明选定细胞的活动足以支撑一种恐惧行为。它没有说明，同样的操作已经用在人身上。
+    start: 0.3
+    end: 18.58
+  start: 561.11
+  subs:
+  - text: 这是实验动物里的因果演示。相关只能说
+    start: 0.3
+    end: 4.137
+  - text: 这批细胞和恐惧一起出现
+    start: 4.137
+    end: 6.619
+  - text: 这里是先用光动了细胞，后来才有恐惧
+    start: 6.619
+    end: 10.23
+  - text: 它说明选定细胞的
+    start: 10.23
+    end: 12.035
+  - text: 活动足以支撑一种恐惧行为
+    start: 12.035
+    end: 14.743
+  - text: 它没有说明，同样的操作已经用在人身上
+    start: 14.743
+    end: 18.58
+  hold: 0.95
+- id: C_06b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id039
+  style: type
+  style_why: 边界句单独占一屏。
+  transition_in: cut
+  visual: 一行：没有说明同样的操作已经用在人身上。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 581.04
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_07a
+  segment: C
+  duration: 16.93
+  vo:
+  - 眼睛走的是另一条路。视网膜色素变性里，感光细胞会逐渐死去，后面的视网膜神经节细胞还可以留着。若能让这些幸存的细胞自己感光，后面的视觉通路也许还能被点着。
+  facts: &id040
+  - F11
+  style: xray
+  style_why: 视觉路线要看见视网膜里谁死了、谁还在。
+  transition_in: cut
+  visual: 参数化视网膜剖面。感光细胞层变稀，神经节细胞层还在，并被标成可转导。不用生成网格代替解剖结构。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 17.2
+  cues:
+  - text: 眼睛走的是另一条路。视网膜色素变性里，感光细胞会逐渐死去，后面的视网膜神经节细胞还可以留着。若能让这些幸存的细胞自己感光，后面的视觉通路也许还能被点着。
+    start: 0.3
+    end: 15.58
+  start: 581.44
+  subs:
+  - text: 眼睛走的是另一条路。视网膜色素变性里
+    start: 0.3
+    end: 4.011
+  - text: 感光细胞会逐渐死去
+    start: 4.011
+    end: 5.975
+  - text: 后面的视网膜神经节细胞还可以留着
+    start: 5.975
+    end: 9.468
+  - text: 若能让这些幸存的细胞自己感光
+    start: 9.468
+    end: 12.524
+  - text: 后面的视觉通路也许还能被点着
+    start: 12.524
+    end: 15.58
+  hold: 0.95
+- id: C_07b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id040
+  style: sem
+  style_why: 感光层和神经节层的尺度用显微风格再确认一次。
+  transition_in: cut
+  visual: 两层细胞，上层稀疏，下层仍密。参数化视网膜。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: cycles
+  sfx: []
+  start: 598.37
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_08a
+  segment: C
+  duration: 24.99
+  vo:
+  - 2021 年，一个研究组在《自然·医学》报告一名已经失明的患者。他们向一只眼睛的玻璃体注射腺相关病毒，病毒携带 ChrimsonR，主要转导视网膜神经节细胞。护目镜侦测外界亮度的变化，把光脉冲打到视网膜上，去打开这些新装的通道。
+  facts: &id041
+  - F11
+  style: clay
+  style_why: 病毒、护目镜和神经节细胞是一套组装，白模先讲零件。
+  transition_in: cut
+  visual: 白模眼球剖面：玻璃体里一次注射，神经节细胞获得新通道；护目镜把外界变化变成视网膜上的光脉冲。眼球结构参数化，护目镜是示意道具。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 24.64
+  cues:
+  - text: 2021 年，一个研究组在《自然·医学》报告一名已经失明的患者。他们向一只眼睛的玻璃体注射腺相关病毒，病毒携带 ChrimsonR，主要转导视网膜神经节细胞。护目镜侦测外界亮度的变化，把光脉冲打到视网膜上，去打开这些新装的通道。
+    start: 0.3
+    end: 23.64
+  start: 598.77
+  subs:
+  - text: 2021 年
+    start: 0.3
+    end: 1.455
+  - text: 一个研究组在《自然·医学》
+    start: 1.455
+    end: 3.766
+  - text: 报告一名已经失明的患者
+    start: 3.766
+    end: 6.308
+  - text: 他们向一只眼睛的玻璃体注射腺相关病毒
+    start: 6.308
+    end: 10.468
+  - text: 病毒携带 ChrimsonR
+    start: 10.468
+    end: 13.472
+  - text: 主要转导视网膜神经节细胞
+    start: 13.472
+    end: 16.245
+  - text: 护目镜侦测外界亮度的变化
+    start: 16.245
+    end: 19.018
+  - text: 把光脉冲打到视网膜上
+    start: 19.018
+    end: 21.329
+  - text: 去打开这些新装的通道
+    start: 21.329
+    end: 23.64
+  hold: 0.95
+- id: C_08b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id041
+  style: photoreal
+  style_why: 护目镜是观众认得的器物。
+  transition_in: cut
+  visual: 一副风格化护目镜，镜片里只有稀疏线框（叙事符号，不是设备显示或患者所见）。示意道具，不生成佩戴者的脸。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: cycles
+  sfx: []
+  start: 623.76
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_09a
+  segment: C
+  duration: 17.53
+  vo:
+  - 这名患者只用接受治疗的那只眼，而且必须戴着护目镜，才能知觉物体、指出位置、数出个数，并伸手触到。注射前无论戴不戴护目镜，注射后只要摘掉护目镜，他都看不见这些物体。
+  facts: &id042
+  - F11
+  style: documentary
+  style_why: 患者能做什么、不能做什么，用纪实任务桌，不把视力画满。
+  transition_in: cut
+  visual: 桌面上几个简单的白色物体（白物暗底是画法；论文的测试物体有几档对比度，不只高对比）。第一人称只能在戴着护目镜时分辨它们的位置和个数。不生成患者的写实脸。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx:
+  - film_grain
+  engine: cycles
+  sfx:
+  - 低噪室温
+  duration_design: 17.68
+  cues:
+  - text: 这名患者只用接受治疗的那只眼，而且必须戴着护目镜，才能知觉物体、指出位置、数出个数，并伸手触到。注射前无论戴不戴护目镜，注射后只要摘掉护目镜，他都看不见这些物体。
+    start: 0.3
+    end: 16.18
+  start: 624.16
+  subs:
+  - text: 这名患者只用接受治疗的那只眼
+    start: 0.3
+    end: 3.388
+  - text: 而且必须戴着护目镜，才能知觉物体
+    start: 3.388
+    end: 6.696
+  - text: 指出位置、数出个数，并伸手触到
+    start: 6.696
+    end: 9.563
+  - text: 注射前无论戴不戴护目镜
+    start: 9.563
+    end: 11.989
+  - text: 注射后只要摘掉护目镜
+    start: 11.989
+    end: 14.195
+  - text: 他都看不见这些物体
+    start: 14.195
+    end: 16.18
+  hold: 0.95
+- id: C_09b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id042
+  style: xray
+  style_why: 物体看不见的条件要回到眼睛：没有护目镜就没有脉冲。
+  transition_in: cut
+  visual: 视网膜上的脉冲熄灭，神经节细胞还在，但不再被驱动。参数化。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 641.69
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_10a
+  segment: C
+  duration: 28.6
+  vo:
+  - 论文称之为部分功能恢复，也是神经退行性疾病里光遗传治疗后第一次这样的报告。所见是护目镜把亮度变化译成的光脉冲：外面哪里的亮度变了，护目镜就往视网膜上对应的位置打一束光，打开那里新装的通道。这不是不依赖设备的日常视觉。诺奖新闻稿的措辞停在尝试恢复视力。
+  facts: &id043
+  - F11
+  - F1
+  style: energy
+  style_why: 看见的是护目镜把亮度变化译成的光脉冲，不是日常照片。能量图把图像收成脉冲。
+  transition_in: cut
+  visual: 外界物体先变成稀疏光脉冲，再落到视网膜。画面始终是稀疏线框和光点（叙事符号，不是论文图，也不是患者所见），不溶成清晰照片。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx:
+  - glow
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 28.48
+  cues:
+  - text: 论文称之为部分功能恢复，也是神经退行性疾病里光遗传治疗后第一次这样的报告。所见是护目镜把亮度变化译成的光脉冲：外面哪里的亮度变了，护目镜就往视网膜上对应的位置打一束光，打开那里新装的通道。这不是不依赖设备的日常视觉。诺奖新闻稿的措辞停在尝试恢复视力。
+    start: 0.3
+    end: 27.25
+  start: 642.09
+  subs:
+  - text: 论文称之为部分功能恢复
+    start: 0.3
+    end: 2.834
+  - text: 也是神经退行性疾病里
+    start: 2.834
+    end: 5.137
+  - text: 光遗传治疗后第一次这样的报告
+    start: 5.137
+    end: 8.362
+  - text: 所见是护目镜把亮度变化译成的光脉冲：
+    start: 8.362
+    end: 12.278
+  - text: 外面哪里的亮度变了
+    start: 12.278
+    end: 14.351
+  - text: 护目镜就往视网膜上对应的位置打一束光
+    start: 14.351
+    end: 18.497
+  - text: 打开那里新装的通道
+    start: 18.497
+    end: 20.57
+  - text: 这不是不依赖设备的日常视觉
+    start: 20.57
+    end: 23.565
+  - text: 诺奖新闻稿的措辞停在尝试恢复视力
+    start: 23.565
+    end: 27.25
+  hold: 0.95
+- id: C_10b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id043
+  style: type
+  style_why: 部分恢复四个字需要停，避免听成恢复如初。
+  transition_in: cut
+  visual: 屏幕只留「部分功能恢复」和「离不开护目镜」。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 670.69
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_11a
+  segment: C
+  duration: 19.06
+  vo:
+  - 2026 年 9 月 9 日，一家公司公告：美国食品药品监督管理局已经受理并立案它的一项生物制品许可申请，针对伴有严重视力丧失的视网膜色素变性。公告写的是如果获批，所以当时尚未获批。
+  facts: &id044
+  - F12
+  style: infographic
+  style_why: 受理和未获批必须同时出现，信息图防止只记住产品名。
+  transition_in: cut
+  visual: 时间点 2026-09-09。MCO-010 / MOGENRY 一栏写「BLA 已受理」。另一栏写「尚未获批」。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 19.6
+  cues:
+  - text: 2026 年 9 月 9 日，一家公司公告：美国食品药品监督管理局已经受理并立案它的一项生物制品许可申请，针对伴有严重视力丧失的视网膜色素变性。公告写的是如果获批，所以当时尚未获批。
+    start: 0.3
+    end: 17.71
+  start: 671.09
+  subs:
+  - text: 2026 年 9 月 9 日，一家公司公告：
+    start: 0.3
+    end: 3.564
+  - text: 美国食品药品监督管理局已经受理
+    start: 3.564
+    end: 6.829
+  - text: 并立案它的一项生物制品许可申请
+    start: 6.829
+    end: 10.093
+  - text: 针对伴有严重视力丧失的视网膜色素变性
+    start: 10.093
+    end: 14.01
+  - text: 公告写的是如果获批，所以当时尚未获批
+    start: 14.01
+    end: 17.71
+  hold: 0.95
+- id: C_11b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id044
+  style: type
+  style_why: 如果获批四个字单独出现。
+  transition_in: cut
+  visual: 大字：如果获批。小字：当时尚未获批。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 690.15
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_12a
+  segment: C
+  duration: 18.2
+  vo:
+  - 同一篇公告写，试验在第五十二周和第七十六周达到了视力的主要终点和关键次要终点，并且没有治疗相关的严重不良事件。这是申请方的公告，不是已经生效的许可。
+  facts: &id045
+  - F12
+  style: hud
+  style_why: 公司终点是公告里的读数，HUD 适合，同时标明这不是许可。
+  transition_in: cut
+  visual: 两周读数：第 52 周、第 76 周，视力终点达到；严重不良事件一栏为无治疗相关。底部一行：申请方公告，不是已生效许可。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 16.96
+  cues:
+  - text: 同一篇公告写，试验在第五十二周和第七十六周达到了视力的主要终点和关键次要终点，并且没有治疗相关的严重不良事件。这是申请方的公告，不是已经生效的许可。
+    start: 0.3
+    end: 16.85
+  start: 690.55
+  subs:
+  - text: 同一篇公告写
+    start: 0.3
+    end: 1.739
+  - text: 试验在第五十二周和第七十六周达
+    start: 1.739
+    end: 5.337
+  - text: 到了视力的主要终点和关键次要终点
+    start: 5.337
+    end: 9.175
+  - text: 并且没有治疗相关的严重不良事件
+    start: 9.175
+    end: 12.772
+  - text: 这是申请方的公告，不是已经生效的许可
+    start: 12.772
+    end: 16.85
+  hold: 0.95
+- id: C_12b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id045
+  style: infographic
+  style_why: 周次是公告数字，信息图比 HUD 更适合和许可状态并列。
+  transition_in: cut
+  visual: 52 周与 76 周两格打勾，旁边一格写明不是许可。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 708.75
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_13a
+  segment: C
+  duration: 12.29
+  vo:
+  - 2026 年 10 月 8 日，另一家公司与巴黎的一家医院公告：另一款疗法的一期二期试验，发表在当天的《新英格兰医学杂志》。
+  facts: &id046
+  - F13
+  style: documentary
+  style_why: GS030 的消息是一篇当天的医院与公司公告，用纪实纸页。
+  transition_in: cut
+  visual: 2026-10-08 的公告页风格化示意，标题区是 GS030 与 PIONEER，不复刻杂志内页版式。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx:
+  - film_grain
+  engine: cycles
+  sfx:
+  - 低噪室温
+  duration_design: 12.64
+  cues:
+  - text: 2026 年 10 月 8 日，另一家公司与巴黎的一家医院公告：另一款疗法的一期二期试验，发表在当天的《新英格兰医学杂志》。
+    start: 0.3
+    end: 10.94
+  start: 709.15
+  subs:
+  - text: 2026 年 10 月 8 日
+    start: 0.3
+    end: 2.386
+  - text: 另一家公司与巴黎的一家医院公告：
+    start: 2.386
+    end: 5.516
+  - text: 另一款疗法的一期二期试验
+    start: 5.516
+    end: 8.019
+  - text: 发表在当天的《新英格兰医学杂志》
+    start: 8.019
+    end: 10.94
+  hold: 0.95
+- id: C_13b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id046
+  style: infographic
+  style_why: PIONEER 的身份是一期二期，先分类。
+  transition_in: cut
+  visual: 标签：1/2 期 · 安全为主 · 2026-10-08 公告。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 721.44
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_14a
+  segment: C
+  duration: 12.22
+  vo:
+  - 这项研究以安全性为主要目的，不是为了确证疗效而设计。公告引用研究者的原话：结果仍是探索性的，还需要进一步确认。
+  facts: &id047
+  - F13
+  style: type
+  style_why: 「不是为了确证疗效」要用大字停住，避免后面的数字被听成治愈。
+  transition_in: cut
+  visual: 黑底三行：安全性为主 / 非确证疗效设计 / 结果仍属探索性。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 12.4
+  cues:
+  - text: 这项研究以安全性为主要目的，不是为了确证疗效而设计。公告引用研究者的原话：结果仍是探索性的，还需要进一步确认。
+    start: 0.3
+    end: 10.87
+  start: 721.84
+  subs:
+  - text: 这项研究以安全性为主要目的
+    start: 0.3
+    end: 3.048
+  - text: 不是为了确证疗效而设计
+    start: 3.048
+    end: 5.374
+  - text: 公告引用研究者的原话：结果仍是探索性的
+    start: 5.374
+    end: 9.179
+  - text: 还需要进一步确认
+    start: 9.179
+    end: 10.87
+  hold: 0.95
+- id: C_14b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id047
+  style: infographic
+  style_why: 探索性不是装饰词，放进结果的标题。
+  transition_in: cut
+  visual: 结果栏的标题就是「探索性」。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 734.06
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_15a
+  segment: C
+  duration: 28.17
+  vo:
+  - 数字要连同分母一起说，而且下面的数字出自公司公告。十名参与者里有六人，在全视野光敏感测试上出现了该公司所称有临床意义的改善。公告还写，完成行为测试的八人里有四人，戴着光刺激护目镜时，在察觉、定位、触碰物体或判断条纹方向的部分任务上有正向变化。
+  facts: &id048
+  - F13
+  style: infographic
+  style_why: 6/10 和 4/8 必须带分母，这是信息图的本职。
+  transition_in: cut
+  visual: 两行分数：光敏感 6/10；完成行为测试者中 4/8 在部分任务上有正向变化，且戴着护目镜。不写成全体患者。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  overlays:
+  - text: 6/10 · 4/8
+    facts:
+    - F13
+  duration_design: 27.6
+  cues:
+  - text: 数字要连同分母一起说，而且下面的数字出自公司公告。十名参与者里有六人，在全视野光敏感测试上出现了该公司所称有临床意义的改善。公告还写，完成行为测试的八人里有四人，戴着光刺激护目镜时，在察觉、定位、触碰物体或判断条纹方向的部分任务上有正向变化。
+    start: 0.3
+    end: 26.82
+  start: 734.46
+  subs:
+  - text: 数字要连同分母一起说
+    start: 0.3
+    end: 2.689
+  - text: 而且下面的数字出自公司公告
+    start: 2.689
+    end: 5.795
+  - text: 十名参与者里有六人
+    start: 5.795
+    end: 7.945
+  - text: 在全视野光敏感测试上出现了
+    start: 7.945
+    end: 11.051
+  - text: 该公司所称有临床意义的改善
+    start: 11.051
+    end: 14.157
+  - text: 公告还写，完成行为测试的八人里有四人
+    start: 14.157
+    end: 18.219
+  - text: 戴着光刺激护目镜时，在察觉、定位
+    start: 18.219
+    end: 21.564
+  - text: 触碰物体或判断条纹方向的
+    start: 21.564
+    end: 24.431
+  - text: 部分任务上有正向变化
+    start: 24.431
+    end: 26.82
+  hold: 0.95
+- id: C_15b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id048
+  style: hud
+  style_why: 分数用读数，避免口播滑过去。
+  transition_in: cut
+  visual: 6/10 与 4/8 两行，分母保持可见。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 762.63
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_16a
+  segment: C
+  duration: 6.52
+  vo:
+  - 公告脚注写明：这款疗法在任何司法辖区都没有上市许可。
+  facts: &id049
+  - F13
+  style: blueprint
+  style_why: 没有上市许可是设计边界，用图章而不是庆祝。
+  transition_in: cut
+  visual: GS030 的框上盖一枚线稿章：任何司法辖区无上市许可。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 6.16
+  cues:
+  - text: 公告脚注写明：这款疗法在任何司法辖区都没有上市许可。
+    start: 0.3
+    end: 5.17
+  start: 763.03
+  subs:
+  - text: 公告脚注写明：
+    start: 0.3
+    end: 1.518
+  - text: 这款疗法在任何司法辖区都没有上市许可
+    start: 1.518
+    end: 5.17
+  hold: 0.95
+- id: C_16b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id049
+  style: type
+  style_why: 无上市许可需要一句静止的话。
+  transition_in: cut
+  visual: 任何司法辖区都没有上市许可。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 769.55
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_17a
+  segment: C
+  duration: 13.09
+  vo:
+  - 光学人工耳蜗，按 2023 年的综述，仍是临床前。
+  facts: &id050
+  - F15
+  style: xray
+  style_why: 光学耳蜗只留一句，剖视耳蜗后立刻离开，不展开试验。
+  transition_in: cut
+  visual: 参数化耳蜗剖面里一根发光的示意阵列，随即淡出。不出现试验编号，不画成已经植入的商品。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 13.36
+  cues:
+  - text: 光学人工耳蜗，按 2023 年的综述，仍是临床前。
+    start: 1.2
+    end: 5.13
+  start: 769.95
+  subs:
+  - text: 光学人工耳蜗，按 2023 年的综述
+    start: 1.2
+    end: 4.148
+  - text: 仍是临床前
+    start: 4.148
+    end: 5.13
+  hold: 0.95
+- id: C_17b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id050
+  style: infographic
+  style_why: 一句耳蜗之后立刻回到边界，不给第二句。
+  transition_in: cut
+  visual: 只留一行：2023 综述 · 临床前 · 无人体疗效结果。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 783.04
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_18a
+  segment: C
+  duration: 10.73
+  vo:
+  - 边界停在已发表的事实上。通道视紫红质二在持续光照下会脱敏，不能当成一扇永不疲劳的门。
+  facts: &id051
+  - F5
+  style: energy
+  style_why: 脱敏回到通道本身的物理极限。
+  transition_in: cut
+  visual: 通道视紫红质二在连续光下，电导从高峰掉到平台，门不再全开。参数化蛋白。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx:
+  - glow
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 9.76
+  cues:
+  - text: 边界停在已发表的事实上。通道视紫红质二在持续光照下会脱敏，不能当成一扇永不疲劳的门。
+    start: 0.3
+    end: 9.38
+  start: 783.44
+  subs:
+  - text: 边界停在已发表的事实上
+    start: 0.3
+    end: 2.861
+  - text: 通道视紫红质二在持续光照下会脱敏
+    start: 2.861
+    end: 6.586
+  - text: 不能当成一扇永不疲劳的门
+    start: 6.586
+    end: 9.38
+  hold: 0.95
+- id: C_18b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id051
+  style: infographic
+  style_why: 脱敏写成限制，而不是再讲一遍发现史。
+  transition_in: cut
+  visual: 限制 1：持续光照，通道疲劳。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 794.17
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_19a
+  segment: C
+  duration: 10.75
+  vo:
+  - 光得送到细胞旁边。脑里 2007 年的做法是光纤。那名患者的眼睛里，没有护目镜，就没有那些物体。
+  facts: &id052
+  - F8
+  - F11
+  style: photoreal
+  style_why: 光必须送到细胞旁边，用两件真实器物收束：光纤和护目镜。
+  transition_in: cut
+  visual: 分屏。左：光纤末端的蓝光。右：护目镜摘下后，物体轮廓消失。两者都是示意道具，不生成人脸。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: cycles
+  sfx:
+  - 低噪室温
+  duration_design: 10.24
+  cues:
+  - text: 光得送到细胞旁边。脑里 2007 年的做法是光纤。那名患者的眼睛里，没有护目镜，就没有那些物体。
+    start: 0.3
+    end: 9.4
+  start: 794.57
+  subs:
+  - text: 光得送到细胞旁边
+    start: 0.3
+    end: 2.076
+  - text: 脑里 2007 年的做法是光纤
+    start: 2.076
+    end: 4.961
+  - text: 那名患者的眼睛里，没有护目镜
+    start: 4.961
+    end: 7.846
+  - text: 就没有那些物体
+    start: 7.846
+    end: 9.4
+  hold: 0.95
+- id: C_19b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id052
+  style: blueprint
+  style_why: 光纤和护目镜是两种送光设计。
+  transition_in: cut
+  visual: 两张小蓝图：脑内光纤，眼外护目镜。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 805.32
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_20a
+  segment: C
+  duration: 14.15
+  vo:
+  - 人体视觉上已经发表的，是部分功能，而且绑在装置上。一条申请尚未获批，另一条没有上市许可，并且自己写明那项研究不是为了确证疗效。
+  facts: &id053
+  - F11
+  - F12
+  - F13
+  style: infographic
+  style_why: 临床边界收成三行，防止最后一句又说满。
+  transition_in: cut
+  visual: 三行：部分功能且依赖装置；MCO-010 尚未获批；GS030 无上市许可，且研究不是为了确证疗效。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 14.08
+  cues:
+  - text: 人体视觉上已经发表的，是部分功能，而且绑在装置上。一条申请尚未获批，另一条没有上市许可，并且自己写明那项研究不是为了确证疗效。
+    start: 0.3
+    end: 12.8
+  start: 805.72
+  subs:
+  - text: 人体视觉上已经发表的，是部分功能
+    start: 0.3
+    end: 3.589
+  - text: 而且绑在装置上。一条申请尚未获批
+    start: 3.589
+    end: 6.879
+  - text: 另一条没有上市许可
+    start: 6.879
+    end: 8.853
+  - text: 并且自己写明那项研究不是为了确证疗效
+    start: 8.853
+    end: 12.8
+  hold: 0.95
+- id: C_20b
+  segment: C
+  duration: 0.4
+  vo: []
+  facts: *id053
+  style: type
+  style_why: 三行边界再停一拍，不加新数据。
+  transition_in: cut
+  visual: 部分、未获批、无许可，三行并列。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 819.87
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: C_91
+  segment: C
+  duration: 1.5
+  vo: []
+  facts: []
+  style: blueprint
+  style_why: 临床三条路线收成一张还不封口的图纸。
+  transition_in: cut
+  visual: 三格线稿：小鼠记忆实验、部分视觉、耳蜗一句。耳蜗格打上临床前。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 820.27
+- id: C_92
+  segment: C
+  duration: 1.5
+  vo: []
+  facts: []
+  style: photoreal
+  style_why: 护目镜摘下，轮廓消失，作为第三幕最后一个器物。
+  transition_in: cut
+  visual: 风格化护目镜放在桌上，镜片里没有清晰照片。不生成人脸。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: cycles
+  sfx: []
+  start: 821.77
+- id: D_01a
+  segment: D
+  duration: 9.95
+  vo:
+  - 这枚开关做得到的，是在实验里打开或关掉选定的细胞，把同时发生推进成是它造成的。
+  facts: &id054
+  - F2
+  - F8
+  style: energy
+  style_why: 尾声先给开关做得到的事：开、关、因果。
+  transition_in: cut
+  visual: 同一类细胞被蓝光打开、被黄光关掉，旁边细胞保持暗。参数化通道和神经元。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - parametric_blender
+  fx:
+  - glow
+  engine: eevee
+  sfx:
+  - 低噪室温
+  duration_design: 9.04
+  cues:
+  - text: 这枚开关做得到的，是在实验里打开或关掉选定的细胞，把同时发生推进成是它造成的。
+    start: 0.3
+    end: 8.6
+  start: 823.27
+  subs:
+  - text: 这枚开关做得到的
+    start: 0.3
+    end: 2.144
+  - text: 是在实验里打开或关掉选定的细胞
+    start: 2.144
+    end: 5.603
+  - text: 把同时发生推进成是它造成的
+    start: 5.603
+    end: 8.6
+  hold: 0.95
+- id: D_01b
+  segment: D
+  duration: 0.4
+  vo: []
+  facts: *id054
+  style: clay
+  style_why: 开和关是两个动作，白模演给尾声看。
+  transition_in: cut
+  visual: 同一神经元先被蓝光点亮，再被黄光按住。参数化。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 833.22
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: D_02a
+  segment: D
+  duration: 14.85
+  vo:
+  - 做不到的，是把小鼠海马里的一段恐惧，说成已经改写了某一个人的人生；也做不到把一次离不开装置的部分视觉报告，说成失明已经结束。
+  facts: &id055
+  - F9
+  - F11
+  style: type
+  style_why: 做不到的两件事用排版划清，不新加实验。
+  transition_in: cut
+  visual: 两行被放下的句子：小鼠实验不等于某一个人的人生；部分视觉报告不等于失明结束。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 14.08
+  cues:
+  - text: 做不到的，是把小鼠海马里的一段恐惧，说成已经改写了某一个人的人生；也做不到把一次离不开装置的部分视觉报告，说成失明已经结束。
+    start: 0.3
+    end: 13.498
+  start: 833.62
+  subs:
+  - text: 做不到的，是把小鼠海马里的一段恐惧
+    start: 0.3
+    end: 4.005
+  - text: 说成已经改写了某一个人的人生
+    start: 4.005
+    end: 7.246
+  - text: 也做不到把一次离不开
+    start: 7.246
+    end: 9.562
+  - text: 装置的部分视觉报告
+    start: 9.562
+    end: 11.646
+  - text: 说成失明已经结束
+    start: 11.646
+    end: 13.498
+  hold: 0.95
+- id: D_02b
+  segment: D
+  duration: 0.4
+  vo: []
+  facts: *id055
+  style: infographic
+  style_why: 做不到的范围用两格，不再叙述实验。
+  transition_in: cut
+  visual: 左格小鼠恐惧实验，右格「人体记忆：本研究不涉及」。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 848.47
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: D_03a
+  segment: D
+  duration: 6.48
+  vo:
+  - 回到开场。有人曾经觉得，用光去拨动某一类神经元，相当牵强。
+  facts: &id056
+  - F3
+  style: documentary
+  style_why: 回到开场那页纸，纪实收束，不预告别的题目。
+  transition_in: cut
+  visual: 再次看到那页纸和「相当牵强」。光线比开场稍亮，仍然没有人脸。
+  camera:
+    move: slow dolly-in
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx:
+  - film_grain
+  engine: cycles
+  sfx:
+  - 低噪室温
+  duration_design: 6.4
+  cues:
+  - text: 回到开场。有人曾经觉得，用光去拨动某一类神经元，相当牵强。
+    start: 0.3
+    end: 5.13
+  start: 848.87
+  subs:
+  - text: 回到开场。有人曾经觉得
+    start: 0.3
+    end: 2.232
+  - text: 用光去拨动某一类神经元，相当牵强
+    start: 2.232
+    end: 5.13
+  hold: 0.95
+- id: D_03b
+  segment: D
+  duration: 0.4
+  vo: []
+  facts: *id056
+  style: type
+  style_why: 牵强两个字回到开场的语气。
+  transition_in: cut
+  visual: 「相当牵强」再次出现，字号更大。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 855.35
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: D_04a
+  segment: D
+  duration: 13.7
+  hold: 1.3
+  vo:
+  - 牵强的是当年的工程。今天它是一套实验方法，也是几条仍在审查中的临床尝试。这一期在这里结束。
+  facts: &id057
+  - F1
+  - F3
+  style: type
+  style_why: 最后一张片名卡，明确这一期结束。
+  transition_in: cut
+  visual: 片名《光遗传学》停住，下面没有下一期题目。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 示意机位，检查点①不渲染
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx:
+  - 低噪室温
+  duration_design: 11.54
+  cues:
+  - text: 牵强的是当年的工程。今天它是一套实验方法，也是几条仍在审查中的临床尝试。这一期在这里结束。
+    start: 0.405
+    end: 10.507
+  start: 855.75
+  subs:
+  - text: 牵强的是当年的工程
+    start: 0.405
+    end: 2.623
+  - text: 今天它是一套实验方法
+    start: 2.623
+    end: 5.086
+  - text: 也是几条仍在审查中的临床尝试
+    start: 5.086
+    end: 8.536
+  - text: 这一期在这里结束
+    start: 8.536
+    end: 10.507
+- id: D_04b
+  segment: D
+  duration: 0.4
+  vo: []
+  facts: *id057
+  style: energy
+  style_why: 结束在光熄灭，不接下一题。
+  transition_in: cut
+  visual: 细光灭掉，黑场，没有下集标题。
+  camera:
+    move: locked-off
+    lens_mm: 35
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: eevee
+  sfx: []
+  start: 869.45
+  duration_design: 1.35
+  flash_compacted_from: 1.35
+- id: D_91
+  segment: D
+  duration: 1.5
+  vo: []
+  facts: []
+  style: infographic
+  style_why: 能与不能分成两列，尾声不再加新实验。
+  transition_in: cut
+  visual: 左列：打开或关掉选定细胞。右列：不是某人的人生，也不是失明结束。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 纯画面
+  builders:
+  - schematic
+  fx: []
+  engine: pillow
+  sfx: []
+  start: 869.85
+- id: D_92
+  segment: D
+  duration: 4.0
+  vo: []
+  facts: []
+  style: sem
+  style_why: 最后用通道本身的尺度把开关交还，不预告下一题。
+  transition_in: cut
+  visual: 参数化通道视紫红质，光灭，孔合上。
+  camera:
+    move: locked-off
+    lens_mm: 50
+    notes: 纯画面
+  builders:
+  - parametric_blender
+  fx: []
+  engine: cycles
+  sfx: []
+  start: 871.35
+timing:
+  voice: Andre
+  total: 875.35
+  design_total: 938.13

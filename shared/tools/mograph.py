@@ -21,7 +21,7 @@ from PIL import Image, ImageDraw, ImageFilter
 sys.path.insert(0, os.path.dirname(__file__))
 from overlay_labels import font  # noqa: E402
 
-from paths import AUDIO, EP, REPO, RENDERS, SHARED  # noqa: E402,F401
+from paths import AUDIO, EP, REPO, RENDERS, SHARED, timed_shots  # noqa: E402,F401
 RENDERS = RENDERS
 FPS = 24
 SIZES = {"preview": (640, 360), "sample": (960, 540), "final": (1920, 1080)}
@@ -111,18 +111,23 @@ class Canvas:
         if a <= 0 or not s:
             return
         size = max(size, 26)            # nothing smaller than 26 px at 1080p: footers and sources must be readable
-        f = font(int(self.px(size)))
+        self.text_font(xy, s, font(int(self.px(size))), color, a, anchor, 0.6 if weight_glow else 0.0)
+
+    def text_font(self, xy, s, f, color=INK, a=1.0, anchor="la", glow=0.0):
+        """用指定字体写字，a 是不透明度。Pillow 13 的 ImageDraw.text 在 RGB 画布上会忽略 fill 里的 alpha，
+        所以这里先写进 L 蒙版再贴（对旧版 Pillow 结果相同）。xy 是 1080p 坐标。"""
+        if a <= 0:
+            return
         x, y = self.px(xy[0]), self.px(xy[1])
-        # draw through an alpha mask: ImageDraw on an RGB image ignores the fill alpha (Pillow 12), so fades popped
-        x0, y0, x1, y1 = (int(v) for v in self.d.textbbox((x, y), s, font=f, anchor=anchor))
-        x0, y0 = max(0, x0 - 2), max(0, y0 - 2)
-        x1, y1 = min(self.W, x1 + 2), min(self.H, y1 + 2)
-        if x1 > x0 and y1 > y0:
-            mask = Image.new("L", (x1 - x0, y1 - y0), 0)
-            ImageDraw.Draw(mask).text((x - x0, y - y0), s, font=f, fill=int(255 * min(1.0, a)), anchor=anchor)
-            self.img.paste(Image.new("RGB", mask.size, color), (x0, y0), mask)
-        if weight_glow:
-            self.g.text((x, y), s, font=f, fill=tuple(int(c * a * 0.6) for c in color), anchor=anchor)
+        l, t, r, b = ImageDraw.Draw(self.img).textbbox((x, y), s, font=f, anchor=anchor)
+        l, t, r, b = int(l) - 3, int(t) - 3, int(r) + 4, int(b) + 4
+        mask = Image.new("L", (r - l, b - t), 0)
+        ImageDraw.Draw(mask).text((x - l, y - t), s, font=f, fill=255, anchor=anchor)
+        if a < 1.0:
+            mask = mask.point(lambda v: int(v * a))
+        self.img.paste(color, (l, t, r, b), mask)
+        if glow > 0:
+            self.g.text((x, y), s, font=f, fill=tuple(int(c * a * glow) for c in color), anchor=anchor)
 
     def line(self, p0, p1, color=LINE, width=2, a=1.0, progress=1.0, glow=False):
         if a <= 0 or progress <= 0:
@@ -194,9 +199,7 @@ def load_shots():
 
 
 def shot_duration(sid):
-    import yaml
-    sb = yaml.safe_load(open(os.path.join(EP, "storyboard/storyboard.timed.yaml"), encoding="utf-8"))
-    return next(s["duration"] for s in sb["shots"] if s["id"] == sid)
+    return next(s["duration"] for s in timed_shots(quiet=True) if s["id"] == sid)
 
 
 def main():
@@ -205,6 +208,7 @@ def main():
     ap.add_argument("--quality", choices=list(SIZES), default="preview")
     ap.add_argument("--frames", help="comma-separated 1-based frames")
     a = ap.parse_args()
+    timed_shots()                      # 没有 timed 文件时在这里打印一次警告
     load_shots()
     import mograph  # shot files register into the importable module, not __main__
     registry = mograph.REGISTRY

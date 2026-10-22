@@ -8,6 +8,12 @@ unknown or rejected facts, on-screen numbers without facts,
 unknown style or engine, duplicate ids.
 Warnings: >3 consecutive shots in one style (segment C exempt), <3 styles in a segment,
 segment duration more than 15% off target.
+
+Look rules (storyboard/page.yaml has a `looks:` block, e.g. E2): every shot carries `look:`; the two
+style-rhythm warnings above are replaced by
+  ERROR  missing / unknown look;
+  WARN   more look switches than looks.max_switches, a look used more often in a segment than
+         looks.max_per_segment allows, a 2D-engine shot whose look is not looks.look_2d.
 """
 import argparse
 import collections
@@ -37,11 +43,52 @@ def merge():
     for p in sorted(glob.glob(os.path.join(SB, "parts", "*.yaml"))):
         shots += yaml.safe_load(open(p, encoding="utf-8"))["shots"]
     order = list(TARGET_S)
-    shots.sort(key=lambda s: (order.index(s["segment"]), s["id"]))
+    script_order = [s["id"] for s in parse(os.path.join(EP, "script/script_zh.md"))]
+
+    def sort_key(s):
+        seg = s["segment"]
+        # 以剧本里的段序为准。E1 的段序和 TARGET_S 一致；其他期不必硬套 E1 的表。
+        if seg in script_order:
+            return (0, script_order.index(seg), s["id"])
+        if seg in order:
+            return (1, order.index(seg), s["id"])
+        return (2, seg, s["id"])
+
+    shots.sort(key=sort_key)
     with open(os.path.join(SB, "storyboard.yaml"), "w", encoding="utf-8") as fh:
         fh.write("# Merged by tools/storyboard_check.py from storyboard/parts/*.yaml — edit the parts.\n")
         yaml.safe_dump({"shots": shots}, fh, allow_unicode=True, sort_keys=False, width=120)
     return shots
+
+
+def look_rules(shots, cfg, errors, warns):
+    """L1 / L2 / L3 + S look map (E2 STYLE_REVIEW §4.3). Returns the per-look duration summary line."""
+    ids = set(cfg.get("ids") or {})
+    for s in shots:
+        if s.get("look") not in ids:
+            errors.append(f"{s['id']} {'missing look' if 'look' not in s else 'unknown look ' + str(s['look'])}"
+                          f" (page.yaml looks.ids: {', '.join(sorted(ids))})")
+    shots = [s for s in shots if s.get("look") in ids]
+    switches = [f"{a['id']}→{b['id']}" for a, b in zip(shots, shots[1:]) if a["look"] != b["look"]]
+    cap = cfg.get("max_switches")
+    if cap is not None and len(switches) > cap:
+        warns.append(f"{len(switches)} look switches > {cap} (page.yaml looks.max_switches)")
+    for look, n_max in (cfg.get("max_per_segment") or {}).items():
+        per_seg = collections.Counter(s["segment"] for s in shots if s["look"] == look)
+        for seg, n in per_seg.items():
+            if n > n_max:
+                warns.append(f"{seg}: look {look} used {n}x > {n_max}")
+    eng2d, look2d = set(cfg.get("engine_2d") or []), cfg.get("look_2d")
+    if eng2d and look2d:
+        for s in shots:
+            if s["engine"] in eng2d and s["look"] != look2d:
+                warns.append(f"{s['id']}: 2D engine {s['engine']} but look {s['look']} (want {look2d})")
+    total = sum(s["duration"] for s in shots) or 1.0
+    dur = collections.Counter()
+    for s in shots:
+        dur[s["look"]] += s["duration"]
+    share = "  ".join(f"{k} {dur[k] / total:.0%}" for k in sorted(ids))
+    return f"looks {dict(collections.Counter(s['look'] for s in shots))}  time {share}  switches {len(switches)}"
 
 
 def main():
@@ -52,6 +99,9 @@ def main():
              if a.no_merge else merge())
     facts = yaml.safe_load(open(os.path.join(EP, "research/facts.yaml"), encoding="utf-8"))
     script = parse(os.path.join(EP, "script/script_zh.md"))
+    page_p = os.path.join(SB, "page.yaml")
+    page = yaml.safe_load(open(page_p, encoding="utf-8")) if os.path.exists(page_p) else {}
+    looks = (page or {}).get("looks")
     errors, warns = [], []
 
     ids = [s["id"] for s in shots]
@@ -92,13 +142,17 @@ def main():
             elif facts[f]["status"] == "rejected":
                 errors.append(f"{s['id']} rejected fact {f}")
 
-    # style rhythm
+    # E1 的目标时长、以及 C 段允许长跑同一画面语言，只在段号都落在 E1 那张表里时生效。
+    apply_targets = all(s["segment"] in TARGET_S for s in shots)
+    # style rhythm (old rule) — replaced by the look map when page.yaml has `looks:`
     run, prev = 0, None
-    for s in shots:
-        run = run + 1 if (s["style"] == prev and s["segment"] != "C") else 1
+    for s in shots if not looks else []:
+        exempt = apply_targets and s["segment"] == "C"
+        run = run + 1 if (s["style"] == prev and not exempt) else 1
         prev = s["style"]
         if run == 4:
             warns.append(f"{s['id']}: 4+ consecutive '{s['style']}' shots")
+    look_line = look_rules(shots, looks, errors, warns) if looks else None
     by_seg = collections.OrderedDict()
     for s in shots:
         by_seg.setdefault(s["segment"], []).append(s)
@@ -106,15 +160,18 @@ def main():
     for seg, ss in by_seg.items():
         d = sum(x["duration"] for x in ss)
         st = collections.Counter(x["style"] for x in ss)
-        print(f"{seg:<4}{len(ss):>6}{d:>7.0f}s{TARGET_S.get(seg, 0):>7}s  {dict(st)}")
-        if len(st) < 3:
+        tgt = f"{TARGET_S[seg]:>6}s" if apply_targets and seg in TARGET_S else "     —"
+        print(f"{seg:<4}{len(ss):>6}{d:>7.0f}s{tgt}  {dict(st)}")
+        if len(st) < 3 and not looks:
             warns.append(f"{seg}: only {len(st)} styles")
-        if seg in TARGET_S and abs(d - TARGET_S[seg]) > 0.15 * TARGET_S[seg]:
+        if apply_targets and seg in TARGET_S and abs(d - TARGET_S[seg]) > 0.15 * TARGET_S[seg]:
             warns.append(f"{seg}: {d:.0f}s vs target {TARGET_S[seg]}s")
     total = sum(s["duration"] for s in shots)
     allst = collections.Counter(s["style"] for s in shots)
     print(f"total {len(shots)} shots, {total / 60:.1f} min  styles {dict(allst.most_common())}")
     print("engines", dict(collections.Counter(s["engine"] for s in shots)))
+    if look_line:
+        print(look_line)
     for w in warns:
         print("WARN ", w)
     for e in errors:

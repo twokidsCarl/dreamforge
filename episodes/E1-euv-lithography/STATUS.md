@@ -77,4 +77,8 @@ B4–B9、C、D 的修复还没有做“对照新画面逐条复核”（A1–A3
 - **字体**：`shared/tools/overlay_labels.py` 写死了 macOS 的 `/System/Library/Fonts/STHeiti Medium.ttc`。Linux 上要换成同等的中文黑体（例如 Noto Sans CJK SC）并改 `FONT`/`FONT_INDEX`，否则所有 2D 图形和字幕会报错或变样。
 - **软件**：Blender 5.2；Python 依赖 Pillow、PyYAML、numpy；ASR 用 `.venv` 里的 faster-whisper（large-v3-turbo，CPU）；Blender 的 PyYAML 放在 `.blender_pylib/`。
 - **规则**：人物只用逆光剪影（`shared/blender/figures.py`）；不仿制 ASML 外观、航司/工厂标志；网页请求里不放任何个人信息（需要联系人时用 research@example.com）；每个阶段提交一次，提交信息末尾加署名行。
-- **共享文件**：`shared/tools/tts.py`、`vo_align.py` 本地和远端（E2 的工作）都改过，合并时以两边功能都保留为准。
+- **与 E2 合并后的共享改动（2026-10-22）**：
+  - `edit_film.py` 默认在片头片尾接品牌 sting（`brand/eigenlens_logo_locked/sting_*.mp4`，需先用该目录的 `build.py` 生成）；只剪 E1 审片版时加 `--no-brand`。
+  - `common.setup_compositor` 的 bloom 默认改为 strength 0.25、threshold 2.0（E2 风格审查的决定，对 E1 同样生效，光束辉光会比之前的 E1 样片弱）；色散默认 0.004；可用场景属性 `sc["no_glare"]`、`sc["dispersion"]` 等逐镜覆盖。
+  - 在 x86 Linux 上做语音识别要设 `DREAMFORGE_ASR_COMPUTE=float32`（int8 会出乱码）。
+  - `tts.py` 的识别评分保留 E1 的版本（按拼音比、术语表提示 `asr_prompt()`）。
