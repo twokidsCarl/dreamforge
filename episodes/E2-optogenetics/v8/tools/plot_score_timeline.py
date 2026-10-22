@@ -22,6 +22,7 @@ ROUNDS = [
     ('R13', 87.9, 80.95, 'SF10'),
     ('R14', 90.97, 88.58, 'SF04'),
     ('R15', 90.97, 89.03, 'SF04'),
+    ('R16', 90.94, 89.18, 'SF10'),
 ]
 
 OUT = Path(__file__).resolve().parents[1] / 'review' / 'score_timeline.png'
