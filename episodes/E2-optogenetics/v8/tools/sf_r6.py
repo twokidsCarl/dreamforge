@@ -16,7 +16,7 @@ def sf06(t, W, H):
     if on > 0:
         yy, xx = np.mgrid[0:ih, 0:iw]; d = np.hypot(xx/iw-0.74, (yy/ih-0.56)*0.6)
         front = np.clip((on*0.9-d)/0.08, 0, 1)[..., None]
-        src = im + nm*front*np.array([0.25, 0.65, 1.0])*0.65*(0.9+0.1*math.sin(t*5))
+        src = im + nm*front*np.array([0.25, 0.65, 1.0])*0.35*(0.9+0.1*math.sin(t*5))
     else: src = im
     z = 1.0+0.09*u; cxx = 0.50+0.03*u; cyy = 0.5
     rgb = cam(src, W, H, zoom=z, cx=cxx, cy=cyy); rgb = glow(rgb, 0.7, W/70, 0.35*on)
