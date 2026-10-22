@@ -16,3 +16,10 @@ brand/eigenlens_logo_locked/*.mp4
 
 # brand sting media: kept on disk / release assets, not in git (review rule: no media files)
 brand/eigenlens_logo_locked/*.mp4
+
+# public site
+apps/web/node_modules/
+apps/web/.next/
+apps/web/.open-next/
+apps/web/.wrangler/
+apps/web/.dev.vars

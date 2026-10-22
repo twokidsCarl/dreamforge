@@ -1,0 +1,15 @@
+{
+  "slug": "optogenetics",
+  "number": "E2",
+  "titleZh": "光遗传学",
+  "titleEn": "Optogenetics",
+  "synopsis": "1979 年，Francis Crick 提出要有办法只动某一类神经元，其余大体不动。到 1999 年，他才把理想的信号写成光，并说这个想法相当牵强。这一期讲后来那枚光控离子通道：光怎样在毫秒尺度上打开或按住一类细胞，以及这件事目前能说明什么、还不能说明什么。",
+  "coverImage": "/covers/e2.svg",
+  "video": {
+    "type": "mp4",
+    "url": "",
+    "r2Key": "optogenetics/1080.mp4"
+  },
+  "status": "coming_soon",
+  "publishedAt": null
+}

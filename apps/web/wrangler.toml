@@ -1,0 +1,41 @@
+# EigenLens public site → Cloudflare Workers via OpenNext.
+# Custom domain eigenlens.ai is attached in the Cloudflare dashboard
+# after the first deploy. This file does not pin an account id.
+name = "eigenlens"
+main = ".open-next/worker.js"
+compatibility_date = "2026-10-22"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+upload_source_maps = true
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+# OpenNext uses a self-reference for some server features.
+# The service name must match `name` above.
+[[services]]
+binding = "WORKER_SELF_REFERENCE"
+service = "eigenlens"
+
+[observability]
+enabled = true
+
+# Cloudflare Web Analytics site token (public beacon id, not a secret).
+# Leave this unset in git. Set it in the dashboard (Settings → Variables)
+# or in gitignored .dev.vars. Empty / absent → the site renders no beacon.
+# [vars]
+# NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN = ""
+
+# Episode films: one progressive MP4 per episode (1080p or 720p) in a public
+# R2 bucket. The page plays that https URL with a native <video> element.
+# The URL lives in content/episodes/*.json (`video.url`). This Worker does not
+# bind the bucket, and it does not use Cloudflare Stream or adaptive HLS.
+# A later private bucket would be a separate binding, for example:
+# [[r2_buckets]]
+# binding = "EPISODE_MEDIA"
+# bucket_name = "eigenlens-episodes"
+
+# Later, when a route needs Next.js incremental caching (unrelated to films):
+# [[r2_buckets]]
+# binding = "NEXT_INC_CACHE_R2_BUCKET"
+# bucket_name = "eigenlens-next-cache"

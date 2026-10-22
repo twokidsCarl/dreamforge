@@ -1,0 +1,16 @@
+{
+  "slug": "euv-lithography",
+  "number": "E1",
+  "titleZh": "一台光刻机里发生了什么",
+  "titleEn": "What Happens Inside One Lithography Machine",
+  "synopsis": "极紫外光的波长是 13.5 纳米。这种光会被空气吸收，玻璃透镜也会把它吞掉，所以从光源到晶圆都在真空里，投影只能用反射镜。这一期把一台这样的光刻机拆开，看光怎样被造出来，又怎样写到硅片上。",
+  "coverImage": "/covers/e1.svg",
+  "video": {
+    "type": "mp4",
+    "url": "/media/sample.mp4",
+    "r2Key": "euv-lithography/1080.mp4",
+    "mock": true
+  },
+  "status": "coming_soon",
+  "publishedAt": null
+}

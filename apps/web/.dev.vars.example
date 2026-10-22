@@ -1,0 +1,7 @@
+# Copy to .dev.vars for `npm run preview` (gitignored).
+# Not a secret. Tells the OpenNext dev worker which Next env to load.
+NEXTJS_ENV=development
+
+# Optional Cloudflare Web Analytics site token from the dashboard snippet.
+# Leave commented so local preview does not inject the beacon.
+# NEXT_PUBLIC_CF_WEB_ANALYTICS_TOKEN=

@@ -14,7 +14,7 @@
 | 标语含义 | 选主轴，看结构。主观是编辑上的选择；「主」取主轴，对应 eigen |
 | 画面 | 暗色 HUD，冷青 / 冷紫，与 E2 A0 一致 |
 
-标志还没有定稿。Rena 的 v1 方向是草稿，等 Carl 选定。仓库里没有 `brand/eigenlens_logo_v1/`。
+标志已于 2026-10-21 锁定，见 `brand/eigenlens_logo_locked/`（`mark.svg`、`lockup.svg`）。公开网站用这一套。
 
 工具仍读旧环境变量，前缀是 `DREAMFORGE_`（例如 `DREAMFORGE_EPISODE`）。这次只记录品牌，不改这些名字。说明见 [docs/WORKFLOW.md](docs/WORKFLOW.md)。
 
@@ -41,3 +41,9 @@ shared/tools/render_batch.sh preview B1_02 B1_03    # 渲染镜头
 python3 shared/tools/mograph.py --shot B1_27        # 二维动画镜头
 python3 shared/tools/story_reel.py                  # 故事板动态预览
 ```
+
+## 公开网站
+
+`apps/web` 是对外的剧集站（Next.js，部署目标是 Cloudflare / OpenNext，域名方向 eigenlens.ai）。成片早期放在 Cloudflare R2，网页用一档 mp4 直链播放（1080p 或 720p）。不接 Cloudflare Stream，也不做自适应 HLS。Bilibili / YouTube 嵌入不是站内默认路径。本地怎么跑、怎么预览 Workers，见 [apps/web/README.md](apps/web/README.md)。
+
+Blender 和 Python 制作工具仍在 `shared/` 与 `episodes/`。网站只读自己的 `content/episodes`，不改这些目录。
