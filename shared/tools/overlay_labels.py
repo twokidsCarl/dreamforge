@@ -14,6 +14,7 @@ import subprocess
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 from paths import AUDIO, EP, REPO, RENDERS, SHARED  # noqa: E402,F401
+from richtext import draw_text, text_bbox, text_length  # noqa: E402  (Sn⁸⁺, H₂: the CJK faces lack these glyphs)
 MAC_FONT = "/System/Library/Fonts/STHeiti Medium.ttc"
 NOTO_DIR = "/usr/share/fonts/opentype/noto"
 # 优先 macOS 的 Heiti（保持 mac 上的原有表现）；没有时退回 Noto Sans CJK SC。
@@ -73,10 +74,10 @@ def draw_label(layer, lab, a, W, H):
     lines = [(lab["text"], f_main, (255, 255, 255)),
              (lab.get("sub", ""), f_sub, (205, 212, 230)),
              (("来源：" + lab["source"]) if lab.get("source") else "", f_src, (140, 148, 170))]
-    heights = [d.textbbox((0, 0), t or " ", font=fo)[3] for t, fo, _ in lines]
+    heights = [text_bbox(d, (0, 0), t or " ", fo)[3] for t, fo, _ in lines]
     gap = int(8 * s)
     block_h = sum(heights) + gap * (len(lines) - 1)
-    widths = [d.textlength(t, font=fo) for t, fo, _ in lines]
+    widths = [text_length(d, t, fo) for t, fo, _ in lines]
     if lab["pos"] == "upper_right":
         x0, y0 = W - m - max(widths), m + int(24 * s)
     else:
@@ -89,8 +90,8 @@ def draw_label(layer, lab, a, W, H):
     y = y0
     for (t, fo, col), h in zip(lines, heights):
         if t:
-            d.text((x0 + 1, y + 1), t, font=fo, fill=(0, 0, 0, int(140 * a)))
-            d.text((x0, y), t, font=fo, fill=(*col, int(255 * a)))
+            draw_text(d, (x0 + 1, y + 1), t, fo, fill=(0, 0, 0, int(140 * a)))
+            draw_text(d, (x0, y), t, fo, fill=(*col, int(255 * a)))
         y += h + gap
 
 

@@ -20,6 +20,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 sys.path.insert(0, os.path.dirname(__file__))
 from overlay_labels import font  # noqa: E402
+from richtext import draw_text, text_bbox  # noqa: E402
 
 from paths import AUDIO, EP, REPO, RENDERS, SHARED, timed_shots  # noqa: E402,F401
 RENDERS = RENDERS
@@ -119,15 +120,15 @@ class Canvas:
         if a <= 0:
             return
         x, y = self.px(xy[0]), self.px(xy[1])
-        l, t, r, b = ImageDraw.Draw(self.img).textbbox((x, y), s, font=f, anchor=anchor)
+        l, t, r, b = text_bbox(ImageDraw.Draw(self.img), (x, y), s, f, anchor=anchor)
         l, t, r, b = int(l) - 3, int(t) - 3, int(r) + 4, int(b) + 4
         mask = Image.new("L", (r - l, b - t), 0)
-        ImageDraw.Draw(mask).text((x - l, y - t), s, font=f, fill=255, anchor=anchor)
+        draw_text(ImageDraw.Draw(mask), (x - l, y - t), s, f, fill=255, anchor=anchor)
         if a < 1.0:
             mask = mask.point(lambda v: int(v * a))
         self.img.paste(color, (l, t, r, b), mask)
         if glow > 0:
-            self.g.text((x, y), s, font=f, fill=tuple(int(c * a * glow) for c in color), anchor=anchor)
+            draw_text(self.g, (x, y), s, f, fill=tuple(int(c * a * glow) for c in color), anchor=anchor)
 
     def line(self, p0, p1, color=LINE, width=2, a=1.0, progress=1.0, glow=False):
         if a <= 0 or progress <= 0:

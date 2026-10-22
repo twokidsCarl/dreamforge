@@ -27,6 +27,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 sys.path.insert(0, os.path.dirname(__file__))
 from overlay_labels import draw_label, font  # noqa: E402
+from richtext import draw_text, text_bbox  # noqa: E402
 import story_reel as SR  # noqa: E402
 
 from paths import AUDIO, BRAND, EP, RENDERS, timed_shots  # noqa: E402
@@ -71,7 +72,7 @@ def subtitle(img, text, W, H, a=1.0, bar=True):
     size = int(H * 0.043)
     f = font(size)
     cx, cy = W / 2, H * 0.905                       # line centre; bar spans ~0.873H-0.937H, inside the bottom 15 %
-    l, t, r, b = d.textbbox((cx, cy), text, font=f, anchor="mm")
+    l, t, r, b = text_bbox(d, (cx, cy), text, f, anchor="mm")
     if bar:
         px, py = 0.6 * size, 0.28 * size
         d.rounded_rectangle((l - px, min(t, cy - size / 2) - py, r + px, max(b, cy + size / 2) + py),
@@ -79,16 +80,15 @@ def subtitle(img, text, W, H, a=1.0, bar=True):
     else:
         # plain dark 2D card: a soft dark halo (stroked glyphs, blurred) is enough
         sh = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        ImageDraw.Draw(sh).text((cx, cy + H * 0.002), text, font=f, anchor="mm", fill=(0, 0, 0, int(235 * a)),
-                                stroke_width=max(2, round(H * 0.004)), stroke_fill=(0, 0, 0, int(235 * a)))
+        draw_text(ImageDraw.Draw(sh), (cx, cy + H * 0.002), text, f, anchor="mm", fill=(0, 0, 0, int(235 * a)),
+                  stroke_width=max(2, round(H * 0.004)), stroke_fill=(0, 0, 0, int(235 * a)))
         layer.alpha_composite(sh.filter(ImageFilter.GaussianBlur(H * 0.005)))
-    d.text((cx, cy), text, font=f, anchor="mm", fill=(*SUB_INK, int(255 * a)))
+    draw_text(d, (cx, cy), text, f, anchor="mm", fill=(*SUB_INK, int(255 * a)))
     return Image.alpha_composite(img.convert("RGBA"), layer)
 
 
 def _lab(texts, facts, sub_extra=()):
-    tr = str.maketrans("₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻", "01234567890123456789+-")
-    texts = [t.translate(tr) for t in texts]
+    # sub/superscripts (Sn⁸⁺, H₂) are kept: overlay_labels typesets them via richtext (smaller raised/lowered glyphs)
     rest = list(sub_extra) + texts[1:]
     rest = (["示意"] if "示意" in rest else []) + [r for r in rest if r != "示意"]   # 示意 is never dropped
     return {"text": texts[0], "sub": " ｜ ".join(rest[:2]), "source": SR.fact_orgs(sorted(set(facts))), "facts": [],
@@ -309,14 +309,53 @@ def probe(path, entries, streams=None):
     return [v.strip(",") for v in out.split()]
 
 
+CTA_TEXT = os.path.join(EP, "brand", "endcard_cta_text.png")   # per-episode CTA lines (eigenlens.ai), optional
+CTA_HOLD, CTA_SLIDE, CTA_LIFT = 6.0, 0.75, 0.10                # seconds held, slide-up time, lift (share of height)
+
+
+def cta_tail(out_mp4, brand_dir=BRAND, text_png=CTA_TEXT):
+    """After sting_end lands on the locked end card: the card slides up CTA_LIFT and the CTA lines fade in, then hold.
+    Silent, 1920x1080 @ FPS. Returns out_mp4, or None when the episode has no CTA text."""
+    if not os.path.exists(text_png):
+        return None
+    import tempfile
+    base = Image.open(os.path.join(brand_dir, "endcard_16x9.png")).convert("RGB").resize((1920, 1080))
+    txt = Image.open(text_png).convert("RGBA").resize((1920, 1080))
+    bg = base.getpixel((3, 3))
+    n, ns = round(CTA_HOLD * FPS), round(CTA_SLIDE * FPS)
+    with tempfile.TemporaryDirectory() as tmp:
+        for i in range(n):
+            k = min(1.0, i / ns)
+            k = k * k * (3 - 2 * k)                                     # smoothstep
+            img = Image.new("RGB", base.size, bg)
+            img.paste(base, (0, round(-CTA_LIFT * 1080 * k)))
+            ta = max(0.0, min(1.0, (i - ns * 0.6) / ns))
+            if ta > 0:
+                t = txt.copy()
+                t.putalpha(t.getchannel("A").point(lambda v: int(v * ta)))
+                img = Image.alpha_composite(img.convert("RGBA"), t).convert("RGB")
+            img.save(os.path.join(tmp, f"{i:05d}.png"))
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-framerate", str(FPS), "-i", os.path.join(tmp, "%05d.png"),
+                        "-c:v", "libx264", "-crf", "16", "-pix_fmt", "yuv420p", out_mp4], check=True)
+    return out_mp4
+
+
 def apply_brand_stings(body_mp4, out_mp4, brand_dir=BRAND):
-    """open sting + body + end sting -> out_mp4, at the body's frame size. The stings are silent: each gets
-    a silence pad of its own length, so the body's mix (VO / music / loudness) is untouched, only delayed.
-    Returns (open, body, end) durations in seconds."""
+    """open sting + body + end sting (+ the episode's CTA tail, if any) -> out_mp4, at the body's frame size. The
+    stings are silent: each gets a silence pad of its own length, so the body's mix (VO / music / loudness) is
+    untouched, only delayed. Returns (open, body, end) durations in seconds (end includes the CTA tail)."""
     op, end = (os.path.join(brand_dir, f) for f in ("sting_open.mp4", "sting_end.mp4"))
     for p in (op, end):
         if not os.path.exists(p):
             raise FileNotFoundError(f"[edit_film] 品牌 sting 不存在：{p}")
+    tail = cta_tail(os.path.splitext(out_mp4)[0] + "_cta_tail.mp4", brand_dir)
+    if tail:                                     # sting_end + CTA tail become one silent end piece
+        joined = os.path.splitext(out_mp4)[0] + "_end_cta.mp4"
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", end, "-i", tail, "-filter_complex",
+                        f"[0:v]fps={FPS},scale=1920:1080,setsar=1,format=yuv420p[a];"
+                        f"[1:v]fps={FPS},scale=1920:1080,setsar=1,format=yuv420p[b];[a][b]concat=n=2:v=1:a=0[v]",
+                        "-map", "[v]", "-c:v", "libx264", "-crf", "16", "-pix_fmt", "yuv420p", joined], check=True)
+        end = joined
     W, H = probe(body_mp4, "stream=width,height", "v:0")[0].split(",")
     d_op, d_body, d_end = (float(probe(p, "format=duration")[0]) for p in (op, body_mp4, end))
     has_audio = bool(probe(body_mp4, "stream=index", "a"))
