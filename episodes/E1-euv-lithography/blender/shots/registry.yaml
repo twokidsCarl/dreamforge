@@ -29,7 +29,7 @@ B1_28: {scene: b1_machine, camera: CamB1_28, start: 1, style: xray, engine: cycl
 B1_29: {scene: b1_machine, camera: CamB1_29, start: 100, style: energy, engine: eevee}
 B2_01: {scene: b1_source, camera: CamB2_01, start: 205, style: photoreal, engine: cycles}
 B2_02: {scene: b2_scenes, args: {variant: air}, camera: CamB2_02, start: 1, style: xray, engine: eevee}
-B2_03: {scene: b1_source, camera: CamB2_03, start: 188, style: photoreal, engine: cycles}
+B2_03: {scene: b1_source, camera: CamB2_03, start: 191, style: photoreal, engine: cycles}   # opens on the main pulse striking the sheet (the bare 300 um sheet, wider than the laser hole, is not the first thing seen)
 B2_04: {scene: b2_scenes, args: {variant: ions}, camera: CamB2_04, start: 1, style: energy, engine: eevee}
 B2_05: {scene: b2_scenes, args: {variant: micro}, camera: CamB2_05, start: 1, style: sem, engine: eevee}
 B2_06: {scene: b2_scenes, args: {variant: ions_h2}, camera: CamB2_06, start: 1, style: energy, engine: eevee}

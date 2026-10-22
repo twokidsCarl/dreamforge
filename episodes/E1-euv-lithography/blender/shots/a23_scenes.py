@@ -155,8 +155,10 @@ def lens(sc, rnd):
     bpy.ops.object.empty_add(location=(0, 0, 0))
     car = bpy.context.object
     car.name = "Changer"
-    sp = 2.9                                                       # lens at y = 0, mirror waiting at y = -sp
-    parts = [_box("Carriage", (0, -sp / 2, -0.47), (1.1, sp + 1.6, 0.1), stand, bevel=0.015)]
+    # lens at y = 0, mirror waiting at y = -sp and MX further along the beam: the mirror's rim already covers the
+    # axis before the lens has left it, so the beam is never cut off by empty space during the swap
+    sp, MX = 2.5, 0.6
+    parts = [_box("Carriage", (MX / 2, -sp / 2, -0.47), (1.1 + MX, sp + 1.6, 0.1), stand, bevel=0.015)]
     glass = M.principled("OpticalGlass", (0.97, 0.98, 1.0), roughness=0.0)
     gb = glass.node_tree.nodes["Principled BSDF"]
     gb.inputs["Transmission Weight"].default_value = 1.0
@@ -175,12 +177,12 @@ def lens(sc, rnd):
     # a plain silver-looking face, as ZEISS photographs its EUV mirrors (the multilayer shows no visible rainbow).
     # Angle of incidence 12 deg (beam back up at 24 deg): EUV imaging mirrors work near normal incidence
     AOI = math.radians(12)
-    mirror = _cyl("Mirror", 1.3, 0.16, (0, -sp, ZB), M.polished_steel("A3MirrorSilver", 0.04),
+    mirror = _cyl("Mirror", 1.3, 0.16, (MX, -sp, ZB), M.polished_steel("A3MirrorSilver", 0.04),
                   rot=(0, math.pi / 2 + AOI, 0), verts=128)
     mz = ZB - 1.3 * math.cos(AOI) - 0.05
     parts += [mirror,
-              _cyl("MirrorPost", 0.07, mz + 0.43, (0, -sp, (mz - 0.43) / 2), stand),
-              _box("MirrorClamp", (0.0, -sp, mz + 0.02), (0.5, 0.22, 0.14), stand, bevel=0.02)]
+              _cyl("MirrorPost", 0.07, mz + 0.43, (MX, -sp, (mz - 0.43) / 2), stand),
+              _box("MirrorClamp", (MX, -sp, mz + 0.02), (0.5, 0.22, 0.14), stand, bevel=0.02)]
     for ob in parts:
         ob.parent = car
     _key(car, 1, location=(0, 0, 0))
@@ -190,7 +192,7 @@ def lens(sc, rnd):
     # --- beams. Incoming: 2.5; reflected: 0.7 x 2.5 (ZEISS: "up to 70 percent" usable after a Mo/Si mirror)
     x0 = -8.2
     n_m = Vector((-math.cos(AOI), 0, math.sin(AOI)))               # mirror front normal (towards the beam)
-    x_hit = -0.08 / math.cos(AOI)                                  # beam meets the mirror face (thickness 0.16)
+    x_hit = MX - 0.08 / math.cos(AOI)                              # beam meets the mirror face (thickness 0.16)
     beam_m = M.emission("A3Beam", EUV_BEAM, 1.3)
     b_in = _rod("BeamIn", (x0, 0, ZB), 0.05, beam_m)
     out_ang = 2 * AOI

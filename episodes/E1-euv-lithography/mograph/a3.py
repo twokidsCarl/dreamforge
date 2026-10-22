@@ -136,7 +136,7 @@ def problem2(t, dur, W, H):
 
 # where the light path starts on A3_06's last frame (1080p design units): the cyan link to the ledger begins here.
 # Set it from the final A3_06 render: open its last frame, find the plasma / collector point, scale to 1920x1080.
-SRC_XY = (1180, 470)
+SRC_XY = (1470, 525)
 
 
 def _a3_06_last(W, H):

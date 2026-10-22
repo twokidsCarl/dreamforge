@@ -50,7 +50,6 @@ shots:
   - build_vacuum.chamber
   - build_source.collector
   - build_source.collector_housing
-  - build_source.euv_cone
   - build_source.debris
   fx:
   - bloom
@@ -134,7 +133,9 @@ shots:
   - motion_blur
   - bloom
   - particles
-  overlays: []
+  overlays:
+  - text: 示意（非比例）
+    facts: []
   engine: cycles
   sfx:
   - 主脉冲爆裂（与 B1 同一音效，稍压低）
@@ -197,7 +198,7 @@ shots:
   - scanlines
   - deposition_particles
   overlays:
-  - text: 沉积 · 注入 · 溅射（示意 · 顶层为保护层）
+  - text: 沉积 · 注入 · 溅射（示意 · 原子放大 · 顶层为保护层）
     facts:
     - F26
   - text: 反射率 ↓
@@ -503,6 +504,8 @@ shots:
   - freestyle_lines
   - line_draw_on
   overlays:
+  - text: 示意
+    facts: []
   - text: 焦点①
     facts: []
   - text: 焦点②
@@ -568,7 +571,7 @@ shots:
   - bloom
   - flare
   overlays:
-  - text: 每秒最多 5 万次爆炸 → 汇进同一个点
+  - text: 每秒 6 万次 → 汇进同一个点（示意）
     facts:
     - F2
     - F56
@@ -603,17 +606,18 @@ shots:
   - ghost_glass
   - glow_core
   overlays:
-  - text: 焦点① · 等离子体
+  - text: 焦点① · 等离子体（示意）
+    at: 0.4
     facts:
     - F56
-  - text: 焦点② · 中间焦点（IF）
+  - text: 焦点② · 中间焦点（IF）（示意）
+    at: 3.3
     facts:
     - F56
-  - text: 光源 ┃ 扫描仪
+  - text: 光源 ┃ 扫描仪（示意）
+    at: 5.5
     facts:
     - F56
-  - text: 示意
-    facts: []
   engine: eevee
   sfx:
   - 机械对接的厚重“咔”声

@@ -384,7 +384,7 @@ shots:
   style: energy
   style_why: 曝光是看不见的光化学，能量图只留光和图形的影子。
   transition_in: fade-to-energy
-  visual: 黄光熄灭，只剩黑底。一束紫白光从上方落下，穿过一块画着电路图形的“底片”（这里用透射式示意通用原理；B6 再揭示 EUV 掩模其实是反射式），图形的影子投在下方的光刻胶层上，被照到的区域泛起淡淡荧光。
+  visual: 黄光熄灭，只剩黑底。一束紫白光从上方落下，穿过一块画着电路图形的“底片”（这里用透射式示意通用原理；B6 再揭示 EUV 掩模其实是反射式），光穿过掩模后经一枚缩小镜头（示意）会聚，图形缩小 4 倍落在光刻胶上，被照到的区域泛起淡淡荧光。
   camera:
     move: crane-down
     lens_mm: 35
@@ -986,7 +986,7 @@ shots:
   style: photoreal
   style_why: “玻璃会吞光”最好用真实材质的透镜和镜子对比，让观众看到实物上的差别。
   transition_in: whip
-  visual: 暗色摄影棚，一块厚重的光学玻璃透镜立在支架上；紫光射入，刚进玻璃就消失，只在入射点留下一圈暖色的辉光。随后透镜被移开，一面素净金属光泽的多层膜反射镜滑入同一位置（整套装置在真空腔里），光束被干净利落地折返出去。
+  visual: 真空腔内（钢制腔壁、法兰与观察窗），一块厚重的光学玻璃透镜在换镜滑台上；紫光射入，刚进玻璃就消失，只在入射点留下一圈暖色的辉光。随后透镜被移开，一面素净金属光泽的多层膜反射镜滑入同一位置（整套装置在真空腔里），光束被干净利落地折返出去。
   camera:
     move: slow arc
     lens_mm: 65
@@ -1034,14 +1034,10 @@ shots:
   - motion_blur
   - counter_roll
   overlays:
-  - text: 17 年
-    facts:
-    - F20
-  - text: 投入 60 多亿欧元
-    facts:
-    - F20
   - text: ASML · 蔡司 ZEISS · 通快 TRUMPF 等伙伴
-    facts: []
+    at: 5.9
+    facts:
+    - F65
   engine: eevee
   sfx:
   - 时间流逝的嗖嗖切换声
@@ -1055,7 +1051,7 @@ shots:
   style: xray
   style_why: “机器里面怎么排布”：透明剖视给出整条光路的空间地图，作为后面各站的目录。
   transition_in: scan-wipe
-  visual: 洁净室里那台机器被扫描光带扫过，外壳变成幽灵玻璃：光源、照明、掩模台、投影物镜、晶圆台以发光核心标出（示意，非真实 CAD）；一条紫色细线从光源出发，沿光路依次点亮各模块，最后落在晶圆上。
+  visual: 从切入起即为透明剖视（示意，非真实 CAD）：光源、照明、掩模台、投影物镜、晶圆台以发光核心标出（示意，非真实 CAD）；一条紫色细线从光源出发，沿光路依次点亮各模块，最后落在晶圆上。
   camera:
     move: track along machine
     lens_mm: 35
@@ -1134,7 +1130,7 @@ shots:
   style: xray
   style_why: 先给空间地图：透明剖视一次交代喷嘴、收集镜、激光入口和中间焦点的相对位置。
   transition_in: dissolve
-  visual: 光源腔透明剖视：鼓形真空容器是幽灵玻璃，里面看得见喷嘴（示意）、椭球收集镜、后方的激光入口、前方收窄到中间焦点；各部件依次亮起标签。
+  visual: 光源腔透明剖视：鼓形真空容器是幽灵玻璃，侧面是锡滴发生器的接口（喷嘴本身在约 0.3 m 外），里面是椭球收集镜、后方的激光入口、前方收窄到中间焦点；各部件依次亮起标签。
   camera:
     move: slow orbit
     lens_mm: 30
@@ -1152,13 +1148,9 @@ shots:
   - ghost_glass_fresnel
   - bloom
   overlays:
-  - text: 喷嘴（示意）
+  - text: 光源腔（示意）
     facts: []
-  - text: 收集镜
-    facts: []
-  - text: 激光入口
-    facts: []
-  - text: 中间焦点 IF
+  - text: 收集镜 · 激光入口 · 中间焦点 IF
     facts: []
   engine: eevee
   sfx:
@@ -1220,6 +1212,8 @@ shots:
   - text: 喷嘴内径 3–5 μm（按 ASML 专利描述 · 示意）
     facts:
     - F21
+  - text: 慢动作
+    facts: []
   engine: cycles
   sfx:
   - 高压细流的嘶声
@@ -1335,7 +1329,7 @@ shots:
   style: hud
   style_why: “控制与测量怎么实时发生”：HUD 细线界面叠在真实画面上。
   transition_in: cut
-  visual: 侧面看锡滴流，计量青色细线锁定框依次套住每一颗锡滴并跟随移动；框边小字跳动（装饰性滚动字符，不显示可读数值）；一颗锁定完成，框变成激光橙，表示“已瞄准”。
+  visual: 侧面看锡滴流，计量青色锁定框套住飞过的锡滴并跟随移动，框边装饰短线跳动（不显示数值）；锁定后框变激光橙，表示“已瞄准”（锡滴间距按真实比例，画面里一次只有一颗）。
   camera:
     move: lateral track with stream
     lens_mm: 70
@@ -1446,11 +1440,9 @@ shots:
   - sem_noise
   - vignette
   overlays:
-  - text: 比例尺 300 μm
+  - text: 示意（仿高速阴影成像）
     facts:
     - F4b
-  - text: 示意（仿高速阴影成像）
-    facts: []
   engine: eevee
   sfx:
   - 快门声
@@ -1705,8 +1697,7 @@ shots:
   style: energy
   style_why: 延续同一张织网，让它在能量图里收拢成一道光，画面本身就是“解释被改写”。
   transition_in: cut
-  visual: 织网中的跃迁线开始弯曲、汇聚，向同一方向收拢，最终拧成一道明亮的紫色光束；画面一侧，一页“教科书”插图（旧解释：单激发态 → 基态）被这道紫光划过，标题改写为“多重激发态之间的跃迁”（Torretti et al. 2020，Nature
-    Communications）。
+  visual: 织网渐暗，一道明亮的紫色光束从中穿出；画面左侧一页“教科书”插图：旧标题“单激发态 → 基态（旧解释）”被划掉，改写为“多重激发态之间的跃迁”（Torretti et al. 2020，Nature Communications）。
   camera:
     move: arc around converging beam
     lens_mm: 35
@@ -1723,6 +1714,16 @@ shots:
     facts:
     - F23
   - text: 多重激发态 → EUV 光
+    facts:
+    - F23
+  - text: 教科书页
+    kind: page
+    at: 5.0
+    strike: 5.6
+    write: 6.2
+    old: 单激发态 → 基态（旧解释）
+    new: 多重激发态之间的跃迁
+    note: Torretti et al. 2020 · Nature Communications
     facts:
     - F23
   engine: eevee
@@ -1956,7 +1957,7 @@ shots:
   style: xray
   style_why: “终点在哪里”：回到整机透明剖视，让观众看见光还要走多远。
   transition_in: push-through
-  visual: 计量条缩回右侧，镜头穿进透明整机：光从光源腔穿出中间焦点，沿光路钻进机器深处，镜头跟着光往前推；远处终点晶圆的位置亮起一个小小的光点。
+  visual: 镜头穿进透明整机（High-NA EXE 布局）：光从光源腔穿出中间焦点，沿光路钻进机器深处，镜头跟着光往前推；远处终点晶圆的位置亮起一个小小的光点。
   camera:
     move: push along light path
     lens_mm: 28
@@ -1970,7 +1971,7 @@ shots:
   - ghost_glass_fresnel
   - path_glow
   overlays:
-  - text: 示意
+  - text: 示意（High-NA EXE 布局）
     facts: []
   engine: eevee
   sfx:
@@ -1983,7 +1984,7 @@ shots:
   style: energy
   style_why: 段尾留白：只剩光，交给下一段“刚造出来的光，处境非常危险”。
   transition_in: cut
-  visual: 外壳和结构淡去，只剩一束细细的紫光在黑暗里穿过中间焦点向前；光的账本在右侧静止。
+  visual: 外壳和结构淡去，只剩一束细细的紫光在黑暗里穿过中间焦点向前。
   camera:
     move: slow follow
     lens_mm: 35
@@ -2018,7 +2019,6 @@ shots:
   - build_vacuum.chamber
   - build_source.collector
   - build_source.collector_housing
-  - build_source.euv_cone
   - build_source.debris
   fx:
   - bloom
@@ -2102,7 +2102,9 @@ shots:
   - motion_blur
   - bloom
   - particles
-  overlays: []
+  overlays:
+  - text: 示意（非比例）
+    facts: []
   engine: cycles
   sfx:
   - 主脉冲爆裂（与 B1 同一音效，稍压低）
@@ -2165,7 +2167,7 @@ shots:
   - scanlines
   - deposition_particles
   overlays:
-  - text: 沉积 · 注入 · 溅射（示意 · 顶层为保护层）
+  - text: 沉积 · 注入 · 溅射（示意 · 原子放大 · 顶层为保护层）
     facts:
     - F26
   - text: 反射率 ↓
@@ -2471,6 +2473,8 @@ shots:
   - freestyle_lines
   - line_draw_on
   overlays:
+  - text: 示意
+    facts: []
   - text: 焦点①
     facts: []
   - text: 焦点②
@@ -2536,7 +2540,7 @@ shots:
   - bloom
   - flare
   overlays:
-  - text: 每秒最多 5 万次爆炸 → 汇进同一个点
+  - text: 每秒 6 万次 → 汇进同一个点（示意）
     facts:
     - F2
     - F56
@@ -2571,17 +2575,18 @@ shots:
   - ghost_glass
   - glow_core
   overlays:
-  - text: 焦点① · 等离子体
+  - text: 焦点① · 等离子体（示意）
+    at: 0.4
     facts:
     - F56
-  - text: 焦点② · 中间焦点（IF）
+  - text: 焦点② · 中间焦点（IF）（示意）
+    at: 3.3
     facts:
     - F56
-  - text: 光源 ┃ 扫描仪
+  - text: 光源 ┃ 扫描仪（示意）
+    at: 5.5
     facts:
     - F56
-  - text: 示意
-    facts: []
   engine: eevee
   sfx:
   - 机械对接的厚重“咔”声

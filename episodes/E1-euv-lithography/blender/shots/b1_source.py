@@ -444,6 +444,49 @@ def _energy_debris(f0=200, f1=248):
             em.inputs["Strength"].keyframe_insert("default_value", frame=f)
 
 
+def _scale_keys(fcurves, pred, k, after):
+    for fc in fcurves:
+        if not pred(fc):
+            continue
+        for kp in fc.keyframe_points:
+            if kp.co[0] >= after:
+                kp.co[1] *= k
+                kp.handle_left[1] *= k
+                kp.handle_right[1] *= k
+        fc.update()
+
+
+def _calm_plasma(shot_id):
+    """B2_03 / B2_12: the EUV-bundle stand-in (an emissive volume from the collector rim to the IF, 0.02 from sim
+    254) lies between these cameras and the mirror and veiled the whole face in flat lavender. B2_03 drops it; B2_12
+    keeps it faint and lets every (slow-motion) pulse brighten it once. The persistent plasma cloud and its light are
+    also turned down after the flash so the mirror and droplets read."""
+    import common as C
+    import materials as M
+    T = B.T_MAIN
+    if shot_id == "B2_03" and bpy.data.objects.get("EUVCone"):
+        bpy.data.objects["EUVCone"].hide_render = True
+    vol = bpy.data.materials.get("PlasmaVol")
+    if vol and vol.node_tree.animation_data and vol.node_tree.animation_data.action:
+        _scale_keys(C.fcurves(vol.node_tree.animation_data.action), lambda fc: "EmissionScale" in fc.data_path,
+                    0.3, T + 20)
+    lt = bpy.data.objects.get("PlasmaLight")
+    if lt and lt.data.animation_data and lt.data.animation_data.action:
+        _scale_keys(C.fcurves(lt.data.animation_data.action), lambda fc: fc.data_path == "energy", 0.25, T + 20)
+    if shot_id == "B2_12":
+        cone = bpy.data.materials.get("EUVConeMat")
+        core = bpy.data.materials.get("PlasmaCoreMat")
+        if cone:
+            cone.node_tree.animation_data_clear()
+            for f0 in range(264, 347, 14):
+                for f, e in ((f0, 0.0025), (f0 + 2, 0.011), (f0 + 10, 0.0025)):
+                    M.set_volume_strength(cone, f, emission_strength=e, density=0.0)
+        if core:
+            for f0 in range(264, 347, 14):
+                for f, e in ((f0, 4.0), (f0 + 1, 40.0), (f0 + 8, 4.0)):
+                    M.set_emission_strength(core, f, e)
+
+
 def after_style(style, shot_id):
     if shot_id not in ("D_08", "D_09"):
         _beams_only_when_lit()
@@ -465,5 +508,7 @@ def after_style(style, shot_id):
             for ob in bpy.data.objects:             # SoftBack card (a dark crescent on the tin) and the bokeh LEDs
                 if ob.name == "SoftBack" or ob.name.startswith("BokehLED"):   # read as a second droplet
                     ob.hide_render = True
+    elif shot_id in ("B2_03", "B2_12"):
+        _calm_plasma(shot_id)
     elif shot_id in ("B1_10", "B1_12", "B1_13", "C_02"):
         _satin_sheet()

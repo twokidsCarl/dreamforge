@@ -16,7 +16,8 @@ F1:
   grade: A
   sources:
     - https://www.asml.com/en/technology/lithography-principles/light-and-lasers
-  segments: [A2, B1]
+  notes: 同页原文 "EUV light occurs naturally in outer space. But to make EUV lithography possible, we needed to engineer a way to create such light within a system"，支持“地球上没有现成的 13.5 纳米强光源”。
+  segments: [A2, A3, B1]
 
 F2:
   claim: 最新商用光源每秒 6 万次（锡滴）；早年的说法是 5 万次
@@ -757,3 +758,15 @@ F64:
     - https://euvlitho.com/2021/P52.pdf
   notes: van Schoot et al.（ASML）EUVL Workshop 2022 第 12 页 "0.55NA prints a Half Field"；Wischmeier et al.（ZEISS/ASML）EUVL Workshop 2021 第 11 页的狭缝与像场尺寸（research/visual/CD_sources.md）。
   segments: [B8, C]
+
+F65:
+  claim: ASML 与蔡司、通快等伙伴共同开发 EUV（蔡司称与 ASML、通快、弗劳恩霍夫 IOF 及约 1200 家伙伴合作）
+  status: verified
+  grade: A
+  sources:
+    - https://www.zeiss.com/semiconductor-manufacturing-technology/inspiring-technology/euv-lithography.html
+    - https://www.trumpf.com/en_US/products/lasers/euv-drive-laser
+  quote: >-
+    "together with strategic partner ASML, TRUMPF, the Fraunhofer Institute IOF and around 1,200 other partners" (ZEISS);
+    "ASML, Zeiss, and TRUMPF joined forces" (TRUMPF)
+  segments: [A3]
