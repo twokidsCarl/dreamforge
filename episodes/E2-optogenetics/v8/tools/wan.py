@@ -23,7 +23,7 @@ def req(url, data=None):
     except urllib.error.HTTPError as e: return {'HTTPError': e.code, 'body': e.read().decode()[:600]}
 sid, model, dur, pf, first = sys.argv[1:6]; last = sys.argv[6] if len(sys.argv) > 6 else None
 dur = int(dur); P = open(pf).read().strip()
-if spent()+EST[model]*dur > 9.5: print('BUDGET STOP', spent()); sys.exit(2)
+if spent()+EST[model]*dur > 10.75: print('BUDGET STOP', spent()); sys.exit(2)   # round 14: cumulative 7.75 + round cap 3.00
 if model.startswith('wan2.6'):
     body = {'model': model, 'input': {'prompt': P, 'img_url': durl(first)}, 'parameters': {'resolution': '720P', 'duration': dur, 'audio': False, 'prompt_extend': False}}
 else:
