@@ -71,7 +71,7 @@ B4–B9、C、D 的修复还没有做“对照新画面逐条复核”（A1–A3
 ## 5. 换机器接手要注意
 
 - **渲染和配音文件不在 git 里**（`.gitignore`：`episodes/*/renders/` 26 GB，`episodes/*/audio/` 1 GB）。
-  - 没有 `audio/` 就要重新合成全片配音，TTS 每次的版本是随机的，时长会变，所有镜头时长要重排、已渲画面的长度会对不上。**强烈建议从原机器拷贝 `episodes/E1-euv-lithography/audio/`**（至少 `audio/vo/Andre/` 132 MB 和 `audio/vo_cache/para/`），以及需要的 `renders/shots/`。
+  - 没有 `audio/` 就要重新合成全片配音，TTS 每次的版本是随机的，时长会变，所有镜头时长要重排、已渲画面的长度会对不上。必需的配音、配乐音效和两项渲染已放在 R2 私有桶，**拉取命令和云端接手步骤见 `ASSETS.md`**。
   - 第三方素材 `shared/assets/` 用 `shared/tools/fetch_assets.py` 重新下载。
 - **密钥**：仓库根目录 `.env`（不入库，chmod 600）里放 `DASHSCOPE_API_KEY`、`ELEVENLABS_API_KEY`。不要在日志、回复或网页请求里打印密钥。
 - **字体**：`shared/tools/overlay_labels.py` 写死了 macOS 的 `/System/Library/Fonts/STHeiti Medium.ttc`。Linux 上要换成同等的中文黑体（例如 Noto Sans CJK SC）并改 `FONT`/`FONT_INDEX`，否则所有 2D 图形和字幕会报错或变样。
