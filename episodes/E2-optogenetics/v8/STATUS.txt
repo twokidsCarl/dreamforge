@@ -32,4 +32,4 @@ E2《光遗传学》v8 · 第 14 轮 · 状态（2026-10-23）
   注意：第 12、13 轮在这些方向上大改都退步了。建议每次只动 1–2 张，每张改完立刻用同一组校准锚请两位审稿人只复打改动的镜头，涨了才保留。
 
 花费：image2 本轮 $0（累计 ≈ $8.63）；Wan 本轮 $0.45（累计 ≈ $8.20）；GPU / Tripo $0
-PR：#38 已合并进 main；第 13 轮 STATUS 与第 14 轮在 PR #47（https://github.com/twokidsCarl/eigenlens/pull/47，分支 e2/v8-visual，已开 auto-merge）
+PR：#38、#47 已合并进 main；第 14 轮在 PR #48（https://github.com/twokidsCarl/eigenlens/pull/48，分支 e2/v8-visual，已开 auto-merge）
