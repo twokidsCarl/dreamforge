@@ -591,7 +591,7 @@ shots:
   style: clay
   style_why: 显影、刻蚀、沉积是机构式的步骤动作，白模最清楚。
   transition_in: match-cut
-  visual: 潜像轮廓在同一位置变成白模截面。三步动画，各配小标签：显影，被照的胶溶掉露出沟槽；刻蚀，沟槽向下咬进材料；沉积，金属填进沟槽，余胶被剥离，一层导线留了下来（导线用浅金色以示区分）。
+  visual: 潜像轮廓在同一位置变成白模截面。三步动画，各配小标签：显影，被照的胶溶掉露出沟槽；刻蚀，沟槽向下咬进材料；去胶，剩下的胶被剥离；沉积，金属填满沟槽并盖过表面；抛光，磨去多余的金属，一层导线留了下来（导线用浅金色以示区分）。
   camera:
     move: static with slight push
     lens_mm: 50
@@ -667,7 +667,7 @@ shots:
   style: infographic
   style_why: “有多少层”：用一栋百层摩天楼作对比物，把层数变得可感。
   transition_in: match-cut
-  visual: 层柱在同一位置变成扁平图形，继续向上叠，计数器滚到“约 100”；右侧一栋 100 层摩天楼的剪影同步一层层亮起作对比。
+  visual: 层柱在同一位置变成扁平图形，继续向上叠，计数器滚到“上百层”；右侧一栋百层摩天楼的剪影同步一层层亮起作对比。
   camera:
     move: 2d-tilt-up
     lens_mm: null
@@ -678,7 +678,7 @@ shots:
   fx:
   - counter_roll
   overlays:
-  - text: 最多约 100 层图形
+  - text: 上百层图形
     facts:
     - F44
   engine: manim
@@ -1353,7 +1353,7 @@ shots:
   style: photoreal
   style_why: “玻璃会吞光”最好用真实材质的透镜和镜子对比，让观众看到实物上的差别。
   transition_in: whip
-  visual: 暗色摄影棚，一块厚重的光学玻璃透镜立在支架上；紫光射入，刚进玻璃就消失，只在入射点留下一圈暖色的辉光。随后透镜被移开，一面泛着彩虹干涉色的多层膜反射镜滑入同一位置，光束被干净利落地折返出去。
+  visual: 暗色摄影棚，一块厚重的光学玻璃透镜立在支架上；紫光射入，刚进玻璃就消失，只在入射点留下一圈暖色的辉光。随后透镜被移开，一面素净金属光泽的多层膜反射镜滑入同一位置（整套装置在真空腔里），光束被干净利落地折返出去。
   camera:
     move: slow arc
     lens_mm: 65
@@ -1364,7 +1364,6 @@ shots:
   - build_optics.mirror_blank
   fx:
   - caustics
-  - thin_film_iridescence
   - bloom
   overlays:
   - text: ③ 一片透镜都不能用 · 只能用反射镜
@@ -1788,9 +1787,9 @@ shots:
   - F2
   - F3
   style: photoreal
-  style_why: 用长焦压缩和频闪把“每秒 5 万颗”拍成一条看不到头的珍珠链：B1 的第一个震撼时刻。
+  style_why: 用长焦压缩和频闪把“每秒 6 万颗”拍成一条看不到头的珍珠链：B1 的第一个震撼时刻。
   transition_in: cut
-  visual: 长焦沿锡滴流的轴线拍：压缩透视把成串的锡滴叠成一条伸向远处的珍珠链，频闪光一下下冻结它们；角落计数器飞速滚到 50 000。
+  visual: 长焦沿锡滴流的轴线拍：压缩透视把成串的锡滴叠成一条伸向远处的珍珠链，频闪光一下下冻结它们；角落计数器飞速滚到 60 000。
   camera:
     move: locked-off
     lens_mm: 200
@@ -2103,7 +2102,7 @@ shots:
   style: photoreal
   style_why: 暴力与温柔的对照：一团等离子体旁边，就是原子级精度的镜面。
   transition_in: cut
-  visual: 掠过收集镜镜面：多层膜的彩虹干涉色被等离子体映亮，镜面完美得能看到等离子体的倒影。
+  visual: 掠过收集镜镜面：素净的镜面被等离子体映亮（多层膜在可见光下没有彩虹色），镜面完美得能看到等离子体的倒影。
   camera:
     move: grazing dolly
     lens_mm: 35
@@ -2114,7 +2113,6 @@ shots:
   - build_source.collector
   - build_source.plasma
   fx:
-  - thin_film_iridescence
   - shallow_dof
   overlays: []
   engine: cycles
@@ -2599,7 +2597,7 @@ shots:
   style: infographic
   style_why: 光的账本第一次记账：从几十千瓦的激光掉到几百瓦的 EUV，计量条的落差就是答案。
   transition_in: cut
-  visual: 光的账本特写：顶端“电”，第一格“激光 几十 kW”亮起；往下一大截落差，第二格“EUV 量产最高约 600 W”；旁边一根虚线向上延伸到“1000 W 原理样机（实验室）”。
+  visual: 光的账本特写：顶端“电”，第一格“激光 几十 kW”亮起；往下一大截落差，第二格“EUV 超过 500 W（NXE:3800E）”；旁边一根虚线向上延伸到“1000 W（ASML 2025 年演示）”。
   camera:
     move: 2d-tilt-down
     lens_mm: null
@@ -2613,10 +2611,10 @@ shots:
   - text: 激光 几十 kW
     facts:
     - F6
-  - text: 量产光源最高约 600 W
+  - text: NXE:3800E 光源超过 500 W
     facts:
     - F4c
-  - text: 1000 W 原理样机已在实验室演示
+  - text: 1000 W 光源已演示（ASML 2025）
     facts:
     - F4c
   engine: manim
@@ -5999,7 +5997,7 @@ shots:
   segment: B8
   duration: 4.96
   vo:
-  - 缩小 4 倍，就意味着掩模要跑得比晶圆快 4 倍。
+  - 在扫描方向缩小 8 倍，掩模就要跑得比晶圆快 8 倍。
   facts:
   - F57
   - F11
@@ -6027,7 +6025,7 @@ shots:
   - 两种音高的滑行声，一快一慢
   duration_design: 5.2
   cues:
-  - text: 缩小 4 倍，就意味着掩模要跑得比晶圆快 4 倍。
+  - text: 在扫描方向缩小 8 倍，掩模就要跑得比晶圆快 8 倍。
     start: 0.3
     end: 4.56
   start: 864.27
@@ -6121,7 +6119,7 @@ shots:
   segment: B8
   duration: 8.45
   vo:
-  - 掩模台的电机推力超过 1 万牛——ASML 形容，就像每次加速，都有一辆车砸在台面上。
+  - 上一代 NXE 的掩模台，电机推力就超过 1 万牛——ASML 形容，就像每次加速，都有一辆车砸在台面上。
   facts:
   - F41
   style: photoreal
@@ -6153,7 +6151,7 @@ shots:
   - 随后完全静音
   duration_design: 9.5
   cues:
-  - text: 掩模台的电机推力超过 1 万牛——ASML 形容，就像每次加速，都有一辆车砸在台面上。
+  - text: 上一代 NXE 的掩模台，电机推力就超过 1 万牛——ASML 形容，就像每次加速，都有一辆车砸在台面上。
     start: 0.3
     end: 8.0
   start: 878.77
@@ -6378,7 +6376,7 @@ shots:
   segment: B8
   duration: 6.2
   vo:
-  - 随后，机器读取超过 1000 个套刻标记，把它修正到亚纳米。
+  - 随后，对准传感器读取几十个对准标记，把位置修正到亚纳米。
   facts:
   - F44
   style: hud
@@ -6407,7 +6405,7 @@ shots:
   - 收缩到点时一声清脆的‘咔’
   duration_design: 6.8
   cues:
-  - text: 随后，机器读取超过 1000 个套刻标记，把它修正到亚纳米。
+  - text: 随后，对准传感器读取几十个对准标记，把位置修正到亚纳米。
     start: 0.3
     end: 5.8
   start: 913.95
@@ -6554,7 +6552,7 @@ shots:
   segment: B8
   duration: 7.11
   vo:
-  - 一片晶圆约 96 个曝光场，一小时 220 片——每小时两万多次曝光。
+  - High-NA 一片晶圆要曝光 188 个场，一小时 185 片以上——每小时三万多次曝光。
   facts:
   - F45
   style: infographic
@@ -6583,7 +6581,7 @@ shots:
   - 每场一下极短的快门声，连成机枪般的节奏
   duration_design: 7.2
   cues:
-  - text: 一片晶圆约 96 个曝光场，一小时 220 片——每小时两万多次曝光。
+  - text: High-NA 一片晶圆要曝光 188 个场，一小时 185 片以上——每小时三万多次曝光。
     start: 0.3
     end: 6.71
   start: 942.22
@@ -6629,7 +6627,7 @@ shots:
   segment: B8
   duration: 9.55
   vo:
-  - 这台机器每周光是传感器就产生最多 31 TB 数据，是哈勃望远镜一年数据量的 3 倍。
+  - 一台光刻机每周光是传感器就产生最多 31 TB 数据，是哈勃望远镜一年数据量的 3 倍。
   facts:
   - F46
   style: infographic
@@ -6658,12 +6656,12 @@ shots:
   - 柱子落定的一声低音
   duration_design: 9.4
   cues:
-  - text: 这台机器每周光是传感器就产生最多 31 TB 数据，是哈勃望远镜一年数据量的 3 倍。
+  - text: 一台光刻机每周光是传感器就产生最多 31 TB 数据，是哈勃望远镜一年数据量的 3 倍。
     start: 0.3
     end: 9.15
   start: 953.33
   subs:
-  - text: 这台机器每周光是传感器就产生最多 31 TB 数据
+  - text: 一台光刻机每周光是传感器就产生最多 31 TB 数据
     start: 0.3
     end: 5.708
   - text: 是哈勃望远镜一年数据量的 3 倍
@@ -6993,7 +6991,7 @@ shots:
   segment: B9
   duration: 10.19
   vo:
-  - 这也是为什么，ASML 要把光源从几百瓦推向一千瓦——多一个光子，线条就稳一分。
+  - ASML 正把光源从几百瓦推向一千瓦：光更亮，就能在不降产能的同时多给光子——多一个光子，线条就稳一分。
   facts:
   - F4c
   - F59
@@ -7025,7 +7023,7 @@ shots:
   - 功率爬升的电子音
   duration_design: 10.0
   cues:
-  - text: 这也是为什么，ASML 要把光源从几百瓦推向一千瓦——多一个光子，线条就稳一分。
+  - text: ASML 正把光源从几百瓦推向一千瓦：光更亮，就能在不降产能的同时多给光子——多一个光子，线条就稳一分。
     start: 0.447
     end: 9.147
   start: 1008.38
@@ -7328,7 +7326,7 @@ shots:
   segment: C
   duration: 19.65
   vo:
-  - 六面镜子把图形缩小，投向晶圆；
+  - 投影物镜把图形缩小，投向晶圆；
   - 狭缝扫过，掩模和晶圆反向飞驰；
   - 光子落进光刻胶，一层电路就此写定。
   facts:
@@ -7379,7 +7377,7 @@ shots:
   - 静音
   duration_design: 20.0
   cues:
-  - text: 六面镜子把图形缩小，投向晶圆；
+  - text: 投影物镜把图形缩小，投向晶圆；
     start: 1.2
     end: 4.32
   - text: 狭缝扫过，掩模和晶圆反向飞驰；
@@ -7431,7 +7429,7 @@ shots:
   segment: C
   duration: 5.8
   vo:
-  - 这一切，每秒最多发生 5 万次。
+  - 这样的一滴锡、一束光，最新的光源每秒要重复 6 万次。
   facts:
   - F2
   style: energy
@@ -7458,7 +7456,7 @@ shots:
   - 脉冲声由疏到密，连成一声长鸣
   duration_design: 6.5
   cues:
-  - text: 这一切，每秒最多发生 5 万次。
+  - text: 这样的一滴锡、一束光，最新的光源每秒要重复 6 万次。
     start: 0.981
     end: 3.511
   start: 1099.03
