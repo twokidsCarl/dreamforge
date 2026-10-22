@@ -14,7 +14,7 @@
 | 标语含义 | 选主轴，看结构。主观是编辑上的选择；「主」取主轴，对应 eigen |
 | 画面 | 暗色 HUD，冷青 / 冷紫，与 E2 A0 一致 |
 
-标志还没有定稿。Rena 的 v1 方向是草稿，等 Carl 选定。仓库里没有 `brand/eigenlens_logo_v1/`。
+标志已锁定：程序重绘稿（03s6 琥珀金）在 `brand/eigenlens_logo_locked/`（`mark.svg` / `lockup.svg` / sting 与 endcard）。不要用 `_superseded_rena_approx_2026-10-21/`。
 
 工具仍读旧环境变量，前缀是 `DREAMFORGE_`（例如 `DREAMFORGE_EPISODE`）。这次只记录品牌，不改这些名字。说明见 [docs/WORKFLOW.md](docs/WORKFLOW.md)。
 
