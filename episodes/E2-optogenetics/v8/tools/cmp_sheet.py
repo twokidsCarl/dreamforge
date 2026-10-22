@@ -10,7 +10,7 @@ rows=[('SF01 片头标题卡（新增）','3.5','0:03 v7 无片名','r42_title_v
 ('SF07 片名（Carl 1:07 纯字）','67','1:07','r40_title_ourplanet2','SF07_main_title'),
 ('SF08 早先的光控尝试（Carl 2:03 白模）','123','2:03','r06_goodsell_synapses','SF08_early_attempts'),
 ('SF09 ChR2 通道（Carl 2:21 Goodsell）','141','2:21','r10_goodsell_rhodopsin_membrane','SF09_chr2_channel'),
-('SF10 Tripo 小鼠（Carl 2:23 小鼠）','167','2:47 A_08a','r43_mouse_3d_fiber_implant','SF10_mouse_tripo'),
+('SF10 Tripo 绑骨小鼠（Carl 2:23 小鼠）','167','2:47 A_08a','r43_mouse_3d_fiber_implant','SF10_mouse_tripo'),
 ('SF11 眼球 / 器官（C_08a）','600','10:00','r19_nucleus_eye_retina_inside','SF11_eye_goggles')]
 W=480; H=270; pad=34
 S=Image.new('RGB',(W*3+40,60+len(rows)*(H+pad)),(18,22,36)); d=ImageDraw.Draw(S)

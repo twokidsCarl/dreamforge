@@ -369,12 +369,12 @@ def sf04(t,W,H):
     rgb=over(rgb,drift_specks(W,H,t,30,9,(240,220,180),0.25),shadow=0)
     L=Layer(W,H)
     L.text((690*s,246*s),'1999',F(SANS_B,20*s),fill=GOLD,alpha=ramp(t,0.5,1.1),anchor='ls',tracking=6*s)
-    L.text((690*s,318*s),'“理想的信号会是光。”',F(SERIF_B,46*s),fill=CREAM,alpha=ramp(t,0.8,1.8),anchor='ls')
+    L.text((690*s,318*s),'“理想的信号会是光”',F(SERIF_B,46*s),fill=CREAM,alpha=ramp(t,0.8,1.8),anchor='ls')
     L.text((690*s,392*s),'——他也承认，',F(SERIF,27*s),fill=MUTED,alpha=ramp(t,2.2,2.8),anchor='ls')
     L.text((690*s,448*s),'这个想法相当牵强。',F(SERIF_B,38*s),fill=GOLD,alpha=ramp(t,2.6,3.4),anchor='ls')
     L.line([(690*s,490*s),(690*s+440*s*ease_out(ramp(t,3.2,4.2)),490*s)],fill=(90,100,135),width=1*s)
-    L.text((690*s,522*s),'原文 “rather far-fetched”',F(SANS,17*s),fill=CREAM,alpha=ramp(t,3.4,4.2)*0.8,anchor='ls')
-    L.text((690*s,548*s),'F. Crick, Phil. Trans. R. Soc. Lond. B, 1999',F(SANS,16*s),fill=MUTED,alpha=ramp(t,3.5,4.3),anchor='ls')
+    L.text((690*s,522*s),'原文 “rather far-fetched”',F(SANS,18*s),fill=CREAM,alpha=ramp(t,3.4,4.2)*0.92,anchor='ls')
+    L.text((690*s,550*s),'F. Crick, Phil. Trans. R. Soc. Lond. B, 1999',F(SANS,17*s),fill=(176,186,212),alpha=ramp(t,3.5,4.3),anchor='ls')
     return grade(over(rgb,L.get(),glow_amt=0.15),seed=int(t*24))
 
 @scene('SF05_nobel_portraits',5.0)
@@ -493,7 +493,7 @@ def sf08(t,W,H):
             L.dot((X,Y),5.5*s,fill=(255,209,102),alpha=a)
     rgb=over(rgb,L.get(),shadow=0.2,glow_amt=0.6)
     L=Layer(W,H)
-    steps=[((0.115,0.30),'① 感光蛋白','先接住光',(60,96)),((0.245,0.56),'② 信号接力','一步步往下传',(60,610)),((0.41,0.58),'③ 再传一步',None,(420,650)),((0.575,0.36),'④ 通道才打开','离子这时才流过',(860,96))]
+    steps=[((0.115,0.30),'① 感光蛋白','先接住光',(60,96)),((0.245,0.56),'② 信号接力','一步步往下传',(60,610)),((0.41,0.58),'③ 再传一步','中间再加一级',(420,650)),((0.575,0.36),'④ 通道才打开','离子这时才流过',(860,96))]
     for j,((ax,ay),ti,sub,tp) in enumerate(steps):
         a=ramp(t,0.6+j*0.8,1.3+j*0.8); X,Y=P(ax,ay); label(L,(X,Y),(tp[0]*s,tp[1]*s),ti,sub,t=a,font_size=LT*s,sub_size=LS*s,accent=(255,226,176) if j<3 else (255,209,102))
     X,Y=P(0.80,0.30); label(L,(X,Y),(1220*s,96*s),'外加化学光开关','另需把化学分子送进组织',t=ramp(t,3.9,4.8),font_size=LT*s,sub_size=LS*s,accent=(255,90,200))
@@ -560,15 +560,368 @@ def sf10(t,W,H,still=False,still_frame=100):
     global _PJ2
     if _PJ2 is None: _PJ2=_json.load(open('/workspace/e2work/v8/work/mouse_proj2.json'))
     f=still_frame if still else min(120,max(1,int(round(t*24))+1))
-    rgb=load('/workspace/e2work/v8/renders/m4/f_%04d.png'%f); rgb=cv2.resize(rgb,(W,H),interpolation=cv2.INTER_AREA)
+    rgb=load('/workspace/e2work/v8/renders/m5/f_%04d.png'%f); rgb=cv2.resize(rgb,(W,H),interpolation=cv2.INTER_AREA)
     tip=_PJ2[str(f)]; on=ramp(f,40,52); s=W/1280; X,Y=tip[0]*W,tip[1]*H
+    hsv=cv2.cvtColor((rgb*255).astype(np.uint8),cv2.COLOR_RGB2HSV)
+    bm=((hsv[...,2]>130)&(hsv[...,1]<120)).astype(np.uint8)
+    n_,lab_,st_,cen_=cv2.connectedComponentsWithStats(bm)
+    keep=np.zeros_like(bm)
+    for k in range(1,n_):
+        x_,y_,w_,h_,ar=st_[k]
+        if True: continue
+        asp=w_/max(h_,1); ext=ar/max(w_*h_,1)
+        if 0.7<asp<1.4 and 0.6<ext<0.9 and math.hypot(cen_[k][0]-X,cen_[k][1]-Y)>30*s: keep[lab_==k]=1
+    bk=cv2.GaussianBlur(cv2.dilate(keep,np.ones((7,7),np.uint8)).astype(np.float32),(0,0),3)[...,None]
+    soft=cv2.GaussianBlur(rgb,(0,0),8)*np.array([0.28,0.34,0.52])
+    rgb=rgb*(1-bk)+soft*bk
     rgb=rgb*(0.86+0.14*on)
     rgb=rgb+radial(W,H,X,Y,22*s,CYAN,1.0*on)+radial(W,H,X,Y+10*s,80*s,CYAN,0.25*on)
     rgb=glow(rgb,0.8,W/120,0.4)
     L2=Layer(W,H); tt=f/24
-    label(L2,(X,Y),(1220*s if X<W*0.55 else 60*s,96*s),'光纤 + 颅骨植入件','把蓝光送进下丘脑外侧那群细胞',t=ramp(tt,1.7,2.5),font_size=LT*s,sub_size=LS*s,accent=CYAN)
+    label(L2,(X,Y),(60*s,96*s),'光纤 + 颅骨植入件','把蓝光送进下丘脑外侧那群细胞',t=ramp(tt,1.7,2.5),font_size=LT*s,sub_size=LS*s,accent=CYAN)
     a=ramp(tt,0.2,0.9)
     L2.rrect((56*s,612*s,560*s,684*s),6*s,fill=(14,20,40),alpha=0.72*a); L2.line([(56*s,612*s),(56*s,684*s)],fill=GOLD,width=3*s,alpha=a)
     L2.text((76*s,642*s),'2007 · 小鼠 · 食欲素神经元',F(SANS_B,21*s),fill=CREAM,alpha=a,anchor='ls')
     L2.text((76*s,670*s),'光一开：从睡眠转入清醒的概率升高',F(SANS,16*s),fill=MUTED,alpha=a,anchor='ls')
     return grade(over(rgb,L2.get()),vig=0.25,grain=0.012,seed=f,lift=(0.02,0.03,0.07))
+
+
+# ======================= ROUND 3 (after independent review round 2) =======================
+@scene('SF01_open_title',5.0)
+def sf01(t,W,H):
+    im=img('sf01b_open_bg')
+    if 'off1' not in _cache:
+        m=cyan_mask(im,120,1.0); m=cv2.GaussianBlur(cv2.dilate(m,np.ones((9,9),np.uint8)),(0,0),4)[...,None]
+        lum=im.mean(2,keepdims=True); fill=lum*np.array([0.42,0.46,0.70])*0.55
+        _cache['off1']=im*(1-m)+fill*m; _cache['m1b']=m
+        fg=cv2.GaussianBlur(np.ascontiguousarray(im[:, ::-1]),(0,0),18); _cache['fg1']=fg
+    on=ramp(t,0.6,1.8); fade=ramp(t,0.0,0.9)
+    z=1.0+0.07*ease(t/5); cx,cy=0.5+0.02*t/5,0.5
+    rgb=cam(im,W,H,zoom=z,cx=cx,cy=cy)*fade; rgb=glow(rgb,0.7,W/55,0.15+0.45*on)
+    fg=cam(_cache['fg1'],W,H,zoom=1.25+0.1*t/5,cx=0.62-0.04*t/5,cy=0.55)
+    yy,xx=np.mgrid[0:H,0:W]; fm=(np.clip(1-xx/(W*0.45),0,1)**1.5*0.45)[...,None]
+    rgb=rgb*(1-fm)+(fg*0.55)*fm
+    rgb=over(rgb,drift_specks(W,H,t,50,3,(170,200,255),0.35),shadow=0)
+    L=Layer(W,H); s=W/1280
+    a=ramp(t,1.3,2.5); tr=(46*(1-ease_out(ramp(t,1.3,3.2)))+18)*s
+    L.text((96*s,330*s),'光遗传学',F(SERIF_B,108*s),fill=CREAM,alpha=a,anchor='ls',tracking=tr)
+    L.line([(98*s,364*s),(98*s+310*s*ease_out(ramp(t,1.9,2.9)),364*s)],fill=CYAN,width=1.8*s,alpha=a)
+    L.text((98*s,404*s),'用一束光，只拨动一类神经元',F(SANS,28*s),fill=CREAM,alpha=ramp(t,2.4,3.3)*0.94,anchor='ls',tracking=3*s)
+    L.text((98*s,442*s),'OPTOGENETICS',F(SANS,16*s),fill=MUTED,alpha=ramp(t,2.7,3.5),anchor='ls',tracking=9*s)
+    L.text((98*s,640*s),'EigenLens 主观知识  ·  第 2 期',F(SANS,16*s),fill=MUTED,alpha=ramp(t,3.0,3.8)*0.85,anchor='ls',tracking=2*s)
+    return grade(over(rgb,L.get(),glow_amt=0.25),seed=int(t*24))
+
+_sf02_r2=S['SF02_1979_request'][0]
+@scene('SF02_1979_request',5.0)
+def sf02(t,W,H):
+    im=img('sf02_1979_crowd')
+    if 'g2' not in _cache:
+        hsv=cv2.cvtColor((im*255).astype(np.uint8),cv2.COLOR_RGB2HSV).astype(np.float32)
+        m=((hsv[...,0]>10)&(hsv[...,0]<32)&(hsv[...,1]>90)&(hsv[...,2]>120)).astype(np.uint8)
+        m[int(im.shape[0]*0.42):, :int(im.shape[1]*0.42)]=0; m[:int(im.shape[0]*0.35),:int(im.shape[1]*0.3)]=0
+        nlab,lab=cv2.connectedComponents(cv2.dilate(m,np.ones((9,9),np.uint8)))
+        area=np.bincount(lab.ravel()); xs_=np.array([np.nonzero(lab==k)[1].mean() if area[k]>0 else 0 for k in range(nlab)])
+        big=[k for k in range(1,nlab) if area[k]>120]; big.sort(key=lambda k:xs_[k])
+        order={k:i/max(1,len(big)-1) for i,k in enumerate(big)}; _cache['g2']=(lab,order,m)
+        gray=im.mean(2,keepdims=True); _cache['d2']=im*0.32+gray*np.array([0.40,0.42,0.56])*0.45
+    lab,order,m=_cache['g2']
+    on=np.zeros(lab.shape,np.float32)
+    for k in range(1,lab.max()+1):
+        tk=1.0+1.6*order.get(k,0.5); on[lab==k]=ramp(t,tk,tk+0.6)
+    pulse=np.zeros(lab.shape,np.float32)
+    for k in range(1,lab.max()+1):
+        tk=1.0+1.6*order.get(k,0.5)+0.3; pulse[lab==k]=math.exp(-((t-tk)/0.25)**2)
+    gm=cv2.GaussianBlur(m.astype(np.float32)*on,(0,0),2)[...,None]; pm=cv2.GaussianBlur(m.astype(np.float32)*pulse,(0,0),6)[...,None]
+    base=_cache['d2']*(1-gm)+np.clip(im*(1.15+0.5*gm),0,1)*gm+pm*np.array([1.0,0.75,0.35])*0.6
+    z=1.32+0.08*ease(t/5); cx,cy=0.585+0.015*t/5,0.40
+    rgb=cam(base,W,H,zoom=z,cx=cx,cy=cy); rgb=glow(rgb,0.6,W/90,0.7)
+    rgb=over(rgb,drift_specks(W,H,t,40,5,(255,220,170),0.25),shadow=0)
+    L=Layer(W,H); s=W/1280
+    L.rrect((56*s,52*s,470*s,124*s),6*s,fill=(14,20,40),alpha=0.8*ramp(t,0.2,0.9))
+    L.line([(56*s,52*s),(56*s,124*s)],fill=GOLD,width=3*s,alpha=ramp(t,0.2,0.9))
+    L.text((76*s,84*s),'Francis Crick · 1979',F(SANS_B,23*s),fill=CREAM,alpha=ramp(t,0.3,1.0),anchor='ls')
+    L.text((76*s,110*s),'《科学美国人》 Thinking about the Brain',F(SANS,16*s),fill=(176,186,212),alpha=ramp(t,0.4,1.1),anchor='ls')
+    a=ramp(t,2.6,3.4); bx=56*s; by=590*s
+    L.rrect((bx,by,bx+380*s,by+92*s),8*s,fill=(12,18,38),alpha=0.8*a)
+    L.dot((bx+26*s,by+30*s),6*s,fill=GOLD,alpha=a); L.text((bx+44*s,by+38*s),'只动某一类神经元',F(SANS_B,25*s),fill=CREAM,alpha=a,anchor='ls')
+    b=ramp(t,3.3,4.0)
+    L.dot((bx+26*s,by+70*s),6*s,fill=(130,134,160),alpha=b); L.text((bx+44*s,by+78*s),'其余的大体不动',F(SANS,22*s),fill=(176,186,212),alpha=b,anchor='ls')
+    return grade(over(rgb,L.get()),seed=int(t*24))
+
+@scene('SF03_microbe_clues',5.0)
+def sf03(t,W,H):
+    im=img('sf03c_microbes'); k=t/5; z=1.03+0.06*ease(k); cxx=0.5-0.02*k
+    ih,iw=im.shape[:2]; acx,acy=0.71*iw,0.56*ih
+    ang=1.6*math.sin(t*2.2); M=cv2.getRotationMatrix2D((acx,acy),ang,1.0); M[0,2]+=6*math.sin(t*1.3); M[1,2]+=4*math.sin(t*1.7)
+    rot=cv2.warpAffine(im,M,(iw,ih),flags=cv2.INTER_CUBIC,borderMode=cv2.BORDER_REFLECT)
+    if 'am3' not in _cache:
+        yy,xx=np.mgrid[0:ih,0:iw]; d=np.hypot((xx-acx)/(0.22*iw),(yy-acy)/(0.42*ih)); _cache['am3']=np.clip((1-d)/0.25,0,1)[...,None]*(xx>0.53*iw)[...,None]
+    src=im*(1-_cache['am3'])+rot*_cache['am3']
+    rgb=cam(src,W,H,zoom=z,cx=cxx,cy=0.5)
+    sx,_=to_px(im,0.503,0.5,W,H,z,cxx,0.5)
+    rgb=rgb+radial(W,H,sx,H*0.35,W*0.04,CYAN,0.10*(0.8+0.2*math.sin(t*3)))
+    rgb=over(rgb,drift_specks(W,H,t,70,7,(190,230,255),0.35,1.4,(10,-4)),shadow=0)
+    ex,ey=to_px(im,0.766,0.528,W,H,z,cxx,0.5); flash=ramp(t,2.0,2.6)*(0.7+0.3*math.sin(t*6))
+    rgb=rgb+radial(W,H,ex,ey,W*0.012,(255,120,60),0.5*flash)+radial(W,H,ex,ey,W*0.05,CYAN,0.12*flash)
+    L=Layer(W,H); s=W/1280
+    L.rrect((28*s,30*s,330*s,72*s),6*s,fill=(12,18,38),alpha=0.75*ramp(t,0.1,0.8))
+    L.text((44*s,58*s),'接下来的那些年 · 微生物那边',F(SANS,18*s),fill=CREAM,alpha=ramp(t,0.1,0.8)*0.9,anchor='ls',tracking=3*s)
+    ax,ay=to_px(im,0.22,0.80,W,H,z,cxx,0.5)
+    label(L,(ax,ay),(60*s,650*s),'1981 · 古菌 · 盐视紫红质','光驱动的氯离子泵（1977 年起有线索）',t=ramp(t,0.6,2.0),accent=GOLD,font_size=LT*s,sub_size=LS*s)
+    label(L,(ex,ey),(1220*s,650*s),'1991–1996 · 衣藻 · 微秒级光电流','眼点受光，膜上立刻出现电流',t=ramp(t,2.0,3.4),accent=CYAN,font_size=LT*s,sub_size=LS*s)
+    return grade(over(rgb,L.get()),seed=int(t*24))
+
+P5={'D':('sf05b_deisseroth',0.42),'H':('sf05b_hegemann',0.36),'N':('sf05b_nagel',0.42)}
+def portrait(key,size,zoom=1.0):
+    n,cy=P5[key]; return cam(img(n),size,size,zoom=zoom,cx=0.5,cy=cy)
+@scene('SF05_nobel_portraits',5.0)
+def sf05(t,W,H):
+    s=W/1280; bg=np.mean([img(P5[k][0])[5:60,5:60].reshape(-1,3).mean(0) for k in 'DHN'],axis=0); rgb=np.zeros((H,W,3),np.float32)+bg
+    names=[('D','Karl Deisseroth'),('H','Peter Hegemann'),('N','Georg Nagel')]
+    L=Layer(W,H); cw=int(372*s); gap=int(28*s); x0=(W-3*cw-2*gap)//2; y0=int(176*s)
+    for i,(k,nm) in enumerate(names):
+        a=ramp(t,0.5+i*0.45,1.3+i*0.45); dy=int(26*s*(1-ease_out(a)))
+        P=portrait(k,cw,1.0+0.03*t/5); x=x0+i*(cw+gap); y=y0+dy
+        yy,xx=np.mgrid[0:cw,0:cw]; e=np.minimum.reduce([xx/cw,(1-xx/cw),yy/cw*1.5,(1-yy/cw)*0.55]); m=(np.clip(e/0.24,0,1)**1.8)[...,None]*a
+        rgb[y:y+cw,x:x+cw]=rgb[y:y+cw,x:x+cw]*(1-m)+P*m
+        L.line([(x+10*s,y0+cw+18*s),(x+10*s+(cw-20*s)*ease_out(a),y0+cw+18*s)],fill=GOLD,width=1.3*s,alpha=a)
+        L.text((x+cw/2,y0+cw+60*s),nm,F(SERIF_B,28*s),fill=CREAM,alpha=a,anchor='ms')
+    L.text((W/2,76*s),'2026 年 10 月 5 日  ·  诺贝尔生理学或医学奖',F(SANS_B,26*s),fill=GOLD,alpha=ramp(t,0,0.6),anchor='ms',tracking=2*s)
+    L.text((W/2,118*s),'获奖理由：发现光控离子通道，并由此建立光遗传学',F(SERIF,20*s),fill=CREAM,alpha=ramp(t,2.2,3.0)*0.92,anchor='ms')
+    L.text((W/2,H-22*s),'据诺贝尔奖官方新闻稿  ·  头像为插画',F(SANS,16*s),fill=(176,186,212),alpha=ramp(t,2.6,3.4)*0.9,anchor='ms')
+    return grade(over(rgb,L.get()),seed=int(t*24))
+
+def circ_arr(arr,size,cy=0.42,zoom=1.6):
+    a=cam(arr,size*2,size*2,zoom=zoom,cx=0.5,cy=cy); im=Image.fromarray((np.clip(a,0,1)*255).astype(np.uint8))
+    m=Image.new('L',(size*2,size*2),0); ImageDraw.Draw(m).ellipse([0,0,size*2-1,size*2-1],fill=255); im.putalpha(m); return im
+@scene('SF06_switch_diagram',6.0)
+def sf06(t,W,H):
+    s=W/1280
+    if 'bg6' not in _cache: _cache['bg6']=cv2.GaussianBlur(img('sf01b_open_bg'),(0,0),9)*0.35
+    rgb=cam(_cache['bg6'],W,H,zoom=1.15+0.04*t/6,cx=0.55,cy=0.5)+np.array(INK)/255*0.4
+    cy=330*s; R=110*s; x1=230*s; xs=640*s; x3=1050*s
+    # light stream along the whole path (replaces dotted PPT connectors)
+    c1=ease(ramp(t,0.9,1.9)); c2=ease(ramp(t,3.6,4.5))
+    xa=x1+R+10*s; xb=xs-150*s; xc=xs+150*s; xd=x3-170*s
+    L=Layer(W,H)
+    L.text((W/2,92*s),'从设想到方法，中间缺什么？',F(SERIF_B,32*s),fill=CREAM,alpha=ramp(t,0,0.7)*0.95,anchor='ms',tracking=2*s)
+    a1=ramp(t,0.2,1.0)
+    L.paste(circ_arr(load(G+'sf04_crick_portrait.png'),int(R),cy=0.40,zoom=1.35),(x1-R,cy-R),alpha=a1); L.ring((x1,cy),R+1*s,fill=GOLD,width=1.6*s,alpha=a1)
+    L.text((x1,cy+R+52*s),'一句自认牵强的设想',F(SANS_B,27*s),fill=CREAM,alpha=a1,anchor='ms')
+    L.text((x1,cy+R+82*s),'“理想的信号会是光” · 1999',F(SANS,17*s),fill=(176,186,212),alpha=a1,anchor='ms')
+    a2=ramp(t,1.5,2.1); fill_in=ease_out(ramp(t,2.6,3.6))
+    L.rrect((xs-145*s,cy-145*s,xs+145*s,cy+145*s),24*s,fill=(12,18,38),outline=CYAN if fill_in>0.5 else (130,150,200),width=1.8*s,alpha=a2)
+    if fill_in<1: L.text((xs,cy+24*s),'?',F(SERIF_B,80*s),fill=MUTED,alpha=a2*(1-fill_in),anchor='ms')
+    if fill_in>0:
+        ch=Image.open(G+'sf09d_chr2.png').convert('RGB'); w,h=ch.size; ch=ch.crop((int(0.33*w),int(0.20*h),int(0.66*w),int(0.70*h))).resize((int(280*s),int(280*s)),Image.LANCZOS)
+        mk=Image.new('L',ch.size,0); ImageDraw.Draw(mk).rounded_rectangle([0,0,ch.size[0]-1,ch.size[1]-1],int(22*s),fill=255); ch.putalpha(mk)
+        L.paste(ch,(xs-140*s,cy-140*s+(1-fill_in)*-50*s),alpha=fill_in)
+    a3=ramp(t,3.2,3.9)
+    L.text((xs,cy+R+84*s),'一枚能用光拨动的开关',F(SANS_B,30*s),fill=CYAN,alpha=a3,anchor='ms')
+    L.text((xs,cy+R+114*s),'光控离子通道（如 ChR2）',F(SANS,17*s),fill=(176,186,212),alpha=a3,anchor='ms')
+    for i,k in enumerate(['D','H','N']):
+        a=ramp(t,4.2+i*0.2,4.8+i*0.2); px=x3+(i-1)*100*s; py=cy+(-46 if i==1 else 34)*s; r=62*s; dy=(1-ease_out(a))*14*s
+        L.paste(circ_arr(img(P5[k][0]),int(r),cy=P5[k][1]-0.04,zoom=1.5),(px-r,py-r+dy),alpha=a); L.ring((px,py+dy),r+1*s,fill=GOLD,width=1.3*s,alpha=a)
+    a4=ramp(t,4.6,5.2)
+    L.text((x3,cy+R+52*s),'一套能用的方法',F(SANS_B,27*s),fill=CREAM,alpha=a4,anchor='ms')
+    L.text((x3,cy+R+82*s),'光遗传学 · 2026 诺奖',F(SANS,17*s),fill=(176,186,212),alpha=a4,anchor='ms')
+    rgb=over(rgb,L.get(),glow_amt=0.2)
+    # beam: a soft cyan band that grows along the path, with photons flowing
+    for (p0,p1,c) in ((xa,xb,c1),(xc,xd,c2)):
+        if c<=0: continue
+        yy,xx=np.mgrid[0:H,0:W]; band=np.exp(-((yy-cy)/(4*s))**2)*((xx>=p0)&(xx<=p0+(p1-p0)*c))
+        rgb=rgb+band[...,None]*np.array(CYAN)/255*0.55
+        for ph in range(4):
+            u=((t*0.5+ph/4)%1.0)*c; rgb=rgb+radial(W,H,p0+(p1-p0)*u,cy,6*s,(200,235,255),0.9)
+    if fill_in>0: rgb=rgb+radial(W,H,xs,cy,180*s,CYAN,0.16*fill_in*(0.85+0.15*math.sin(t*4)))
+    return grade(rgb,seed=int(t*24))
+
+@scene('SF07_main_title',5.0)
+def sf07(t,W,H):
+    s=W/1280; im=img('sf07c_title_bg'); ih,iw=im.shape[:2]
+    if 'p7b' not in _cache:
+        bg=np.concatenate([im[:40,:40].reshape(-1,3),im[-40:,:40].reshape(-1,3),im[-40:,-40:].reshape(-1,3)]).mean(0)
+        tip=(0.595,0.245); yy,xx=np.mgrid[0:ih,0:iw]; d=np.hypot(xx/iw-tip[0],(yy/ih-tip[1])*1.5)
+        cm=cyan_mask(im,120,2.0); far=np.clip((d-0.10)/0.12,0,1)
+        lum=im.mean(2,keepdims=True); tame=im*(1-(cm*far)[...,None])+(lum*np.array([0.85,0.70,0.80]))*(cm*far)[...,None]
+        cm2=cyan_mask(im,175,1.0)*(d<0.16); ys,xs=np.nonzero(cm2>0.5); rng=np.random.default_rng(2); idx=rng.choice(len(xs),min(90,len(xs)),replace=False)
+        _cache['p7b']=(bg,tame,[(xs[i]/iw,ys[i]/ih) for i in idx],tip)
+    bg,tame,pts,tip=_cache['p7b']
+    z=1.0+0.06*ease(t/5); sc_=H*1.12/ih*z; Wi,Hi=int(iw*sc_),int(ih*sc_)
+    ox=W/2-Wi*0.5; oy=-0.07*Hi+10*s*(1-t/5)
+    M=np.array([[sc_,0,ox],[0,sc_,oy]],np.float32)
+    rgb=np.zeros((H,W,3),np.float32)+bg
+    pic=cv2.warpAffine(tame,M,(W,H),flags=cv2.INTER_CUBIC,borderMode=cv2.BORDER_CONSTANT,borderValue=tuple(float(v) for v in bg))
+    yy,xx=np.mgrid[0:H,0:W]; e=np.minimum((xx-ox)/(140*s),(ox+Wi-xx)/(140*s)); mk=np.clip(e,0,1)[...,None]
+    rgb=rgb*(1-mk)+pic*mk
+    L=Layer(W,H)
+    for (px,py) in pts:
+        d=math.hypot(px-tip[0],(py-tip[1])*1.5); tk=0.7+d*8.0; a=math.exp(-((t-tk)/0.18)**2)+0.3*(t>tk)
+        L.dot((ox+px*Wi,oy+py*Hi),2.2*s,fill=(170,225,255),alpha=min(1,a))
+    rgb=over(rgb,L.get(),shadow=0,glow_amt=1.4)
+    tx,ty=ox+tip[0]*Wi,oy+tip[1]*Hi; rgb=rgb+radial(W,H,tx,ty,60*s,CYAN,0.35*ramp(t,0.5,1.2))
+    rgb=over(rgb,drift_specks(W,H,t,60,11,(180,205,255),0.3),shadow=0)
+    L=Layer(W,H)
+    a=ramp(t,1.0,2.2); tr=(60*(1-ease_out(ramp(t,1.0,3.2)))+34)*s
+    L.text((W/2,600*s),'光遗传学',F(SERIF_B,112*s),fill=CREAM,alpha=a,anchor='ms',tracking=tr)
+    L.text((W/2,644*s),'O P T O G E N E T I C S',F(SANS,17*s),fill=CYAN,alpha=ramp(t,2.0,2.8),anchor='ms',tracking=4*s)
+    L.text((W/2,678*s),'这一期，就讲这枚开关',F(SANS,18*s),fill=(176,186,212),alpha=ramp(t,2.6,3.4),anchor='ms',tracking=4*s)
+    return grade(over(rgb,L.get(),glow_amt=0.35),seed=int(t*24))
+
+_sf08_r2=S['SF08_early_attempts'][0]
+@scene('SF08_early_attempts',6.5)
+def sf08(t,W,H):
+    rgb=_sf08_r2(t,W,H); s=W/1280
+    im=img('sf08c_relay'); z=1.03+0.03*t/6.5; P=lambda x,y: to_px(im,x,y,W,H,z,0.5,0.47)
+    gx,_=P(0.6875,0.5)
+    L=Layer(W,H); a=ramp(t,0.2,0.8)
+    yy0=46*s
+    L.line([(gx,yy0+14*s),(gx,560*s)],fill=(176,186,212),width=1.2*s,alpha=0.6*a)
+    L.rrect((gx-300*s,yy0-34*s,gx-16*s,yy0+4*s),6*s,fill=(12,18,38),alpha=0.8*a)
+    L.text((gx-28*s,yy0-8*s),'路线一 · 多步信号接力',F(SANS_B,19*s),fill=(255,226,176),alpha=a,anchor='rs')
+    b=ramp(t,3.7,4.3)
+    L.rrect((gx+16*s,yy0-34*s,gx+290*s,yy0+4*s),6*s,fill=(12,18,38),alpha=0.8*b)
+    L.text((gx+28*s,yy0-8*s),'路线二 · 外加化学开关',F(SANS_B,19*s),fill=(255,150,220),alpha=b,anchor='ls')
+    return grade(over(rgb,L.get()),vig=0,grain=0.004,seed=int(t*24),lift=(0,0,0))
+
+@scene('SF09_chr2_channel',5.0)
+def sf09(t,W,H):
+    im=img('sf09d_chr2'); s=W/1280; z=1.30+0.08*ease(t/5); cxx=0.49; cyy=0.44
+    on=ramp(t,0.3,1.2)
+    if 'b9d' not in _cache: _cache['b9d']=cyan_mask(im,140,6)[...,None]
+    base=im*(1-_cache['b9d']*(1-(0.8+0.2*on)))
+    rgb=cam(base,W,H,zoom=z,cx=cxx,cy=cyy)
+    P=lambda x,y: to_px(im,x,y,W,H,z,cxx,cyy)
+    L=Layer(W,H); rng=np.random.default_rng(9); offs=rng.random((2,9))*0.6
+    for j,(px_,ph0) in enumerate(((0.434,0.0),(0.548,0.5))):
+        for n in range(9):
+            p=(t*0.33+n/9+ph0+offs[j,n]*0.08)%1.0
+            if t<1.2 and p>0.2+0.8*ramp(t,0.8,1.2): continue
+            X,Y=P(px_+0.003*math.sin(n*2.3+p*8),0.20+p*0.62); a=on*min(1,p*8)*min(1,(1-p)*8)
+            L.dot((X,Y),5.5*s*z,fill=(255,209,102),alpha=a)
+    rgb=over(rgb,L.get(),shadow=0.3,glow_amt=0.6)
+    rgb=over(rgb,drift_specks(W,H,t,40,13,(160,190,255),0.25,1.4,(4,2)),shadow=0)
+    L2=Layer(W,H)
+    X,Y=P(0.60,0.33); label(L2,(X,Y),(1220*s,96*s),'通道视紫红质-2（ChR2）','二聚体：每个亚基各有一条孔道',t=ramp(t,1.4,2.3),font_size=LT*s,sub_size=LS*s,accent=(99,199,168))
+    X,Y=P(0.38,0.43); label(L2,(X,Y),(60*s,620*s),'视黄醛','吸收蓝光，让这扇门打开',t=ramp(t,2.2,3.0),font_size=LT*s,sub_size=LS*s,accent=(255,138,61))
+    X,Y=P(0.548,0.70); label(L2,(X,Y),(1220*s,630*s),'阳离子（如 Na⁺）','顺浓度梯度涌入细胞',t=ramp(t,2.9,3.7),font_size=LT*s,sub_size=LS*s,accent=(255,209,102))
+    X,Y=P(0.25,0.14); label(L2,(max(X,40*s),max(Y,40*s)),(60*s,96*s),'蓝光 约 470 nm',None,t=ramp(t,0.6,1.4),font_size=LT*s,accent=CYAN)
+    X,Y=P(0.78,0.42); label(L2,(X,Y),(1220*s,470*s),'其他膜蛋白','不受光控制',t=ramp(t,3.4,4.1),font_size=19*s,sub_size=LS*s,accent=(150,146,180))
+    return grade(over(rgb,L2.get()),seed=int(t*24))
+
+@scene('SF11_eye_goggles',5.0)
+def sf11(t,W,H):
+    im=img('sf11c_eye'); s=W/1280; z=1.05+0.06*ease(t/5); cxx=0.47; cyy=0.48
+    rgb=cam(im,W,H,zoom=z,cx=cxx,cy=cyy)
+    P=lambda x,y: to_px(im,x,y,W,H,z,cxx,cyy)
+    fx,fy=0.645,0.445
+    L=Layer(W,H)
+    for (y0) in (0.33,0.42):
+        for n in range(4):
+            p=(t*0.7+n/4+y0)%1.0; x=0.12+(fx-0.12)*p; y=y0+(fy-y0)*p
+            X,Y=P(x,y); L.dot((X,Y),3.4*s,fill=(255,196,110),alpha=min(1,p*6)*min(1,(1-p)*10)*ramp(t,0.2,0.8))
+    rgb=over(rgb,L.get(),shadow=0,glow_amt=1.1)
+    rng=np.random.default_rng(5)
+    for k in range(7):
+        a_=k/7*2*math.pi; gx=fx+0.022*math.cos(a_); gy=fy+0.035*math.sin(a_); tk=1.2+((k*0.37)%1.0)*1.6
+        a=math.exp(-((((t-tk)%1.4))/0.12)**2) if t>1.2 else 0
+        X,Y=P(gx,gy); rgb=rgb+radial(W,H,X,Y,6*s,(240,131,91),0.9*a)
+    L=Layer(W,H)
+    X,Y=P(0.09,0.30); label(L,(X,Y),(60*s,640*s),'护目镜','把外界明暗换成琥珀色光脉冲',t=ramp(t,0.4,1.3),font_size=LT*s,sub_size=LS*s,accent=AMBER)
+    X,Y=P(fx,fy); label(L,(X,Y),(1220*s,250*s),'中央凹附近的神经节细胞','病毒带进 ChrimsonR，受光后放电',t=ramp(t,1.4,2.3),font_size=LT*s,sub_size=LS*s,accent=(240,131,91))
+    X,Y=P(0.735,0.24); label(L,(X,Y),(1220*s,96*s),'感光细胞层','已大量丢失，残缺不全',t=ramp(t,2.3,3.1),font_size=LT*s,sub_size=LS*s,accent=(170,170,180))
+    X,Y=P(0.68,0.665); label(L,(X,Y),(1220*s,640*s),'视盘 · 视神经',None,t=ramp(t,3.0,3.7),font_size=19*s,accent=(170,170,180))
+    return grade(over(rgb,L.get()),seed=int(t*24),lift=(0.03,0.04,0.09))
+
+_PJ3=None
+@scene('SF10_mouse_tripo',5.0)
+def sf10(t,W,H,still=False,still_frame=96):
+    global _PJ3
+    if _PJ3 is None: _PJ3=_json.load(open('/workspace/e2work/v8/work/mouse_proj3.json'))
+    f=still_frame if still else min(120,max(1,int(round(t*24))+1))
+    rgb=load('/workspace/e2work/v8/renders/m6/f_%04d.png'%f); rgb=cv2.resize(rgb,(W,H),interpolation=cv2.INTER_AREA)
+    tip=_PJ3[str(f)]; on=ramp(f,40,52); s=W/1280; X,Y=tip[0]*W,tip[1]*H
+    rgb=rgb*np.array([0.92,0.95,1.06])*(0.82+0.18*on)
+    rgb=rgb+radial(W,H,X,Y,20*s,CYAN,1.0*on)+radial(W,H,X,Y+10*s,90*s,CYAN,0.22*on)
+    rgb=glow(rgb,0.8,W/120,0.4)
+    L2=Layer(W,H); tt=(f-1)/24
+    label(L2,(X,Y),(60*s,96*s),'光纤 + 颅骨植入件','把蓝光送进下丘脑外侧那群细胞',t=ramp(tt,1.75,2.5),font_size=LT*s,sub_size=LS*s,accent=CYAN)
+    a=ramp(tt,0.2,0.9)
+    L2.rrect((56*s,612*s,560*s,684*s),6*s,fill=(14,20,40),alpha=0.75*a); L2.line([(56*s,612*s),(56*s,684*s)],fill=GOLD,width=3*s,alpha=a)
+    L2.text((76*s,642*s),'2007 · 小鼠 · 食欲素神经元',F(SANS_B,21*s),fill=CREAM,alpha=a,anchor='ls')
+    L2.text((76*s,670*s),'光一开：从睡眠转入清醒的概率升高',F(SANS,16*s),fill=(176,186,212),alpha=a,anchor='ls')
+    # state chip, top-right
+    st=[('睡眠中',(150,160,190),0.0,1.6),('光开',CYAN,1.6,2.4),('醒来 · 走动',GOLD,2.4,9)]
+    for name,col,a0,a1 in st:
+        aa=ramp(tt,a0,a0+0.3)*(1-ramp(tt,a1,a1+0.3))
+        if aa<=0: continue
+        L2.rrect((1040*s,44*s,1230*s,88*s),22*s,fill=(12,18,38),alpha=0.8*aa); L2.dot((1066*s,66*s),7*s,fill=col,alpha=aa)
+        L2.text((1084*s,74*s),name,F(SANS_B,20*s),fill=CREAM,alpha=aa,anchor='ls')
+    return grade(over(rgb,L2.get()),vig=0.3,grain=0.012,seed=f,lift=(0.02,0.03,0.07))
+
+# ---- SF02 r4: hide desk slab lower-left ----
+_sf02_r3=S['SF02_1979_request'][0]
+@scene('SF02_1979_request',5.0)
+def sf02(t,W,H):
+    if 'slab' not in _cache:
+        im=img('sf02_1979_crowd'); ih,iw=im.shape[:2]; yy,xx=np.mgrid[0:ih,0:iw]
+        m=np.clip((0.47-xx/iw)/0.08,0,1)*np.clip((yy/ih-0.42)/0.08,0,1); m=m[...,None]
+        fill=cv2.GaussianBlur(_cache.get('d2',im*0.3),(0,0),30)*0.6
+        _cache['slab']=1
+        if 'd2' in _cache: _cache['d2']=_cache['d2']*(1-m)+fill*m
+    return _sf02_r3(t,W,H)
+
+# ---- SF06 r4: label retinal + pore inside the card ----
+_sf06_r3=S['SF06_switch_diagram'][0]
+@scene('SF06_switch_diagram',6.0)
+def sf06(t,W,H):
+    rgb=_sf06_r3(t,W,H); s=W/1280; L=Layer(W,H); a=ramp(t,3.7,4.3); xs=640*s; cy=330*s
+    for (px,py,tx,ty,txt,col) in ((xs-78*s,cy-12*s,xs-210*s,cy-170*s,'视黄醛：吸收光',(255,138,61)),(xs-22*s,cy+40*s,xs+210*s,cy-170*s,'孔道：离子通过',CYAN)):
+        L.ring((px,py),5*s,fill=col,width=1.5*s,alpha=a); L.line([(px,py),(px+(tx-px)*ease_out(a),py+(ty-py)*ease_out(a))],fill=col,width=1.1*s,alpha=a*0.9)
+        L.rrect((tx-80*s,ty-26*s,tx+80*s,ty+6*s),6*s,fill=(12,18,38),alpha=0.8*a); L.text((tx,ty-4*s),txt,F(SANS_B,17*s),fill=CREAM,alpha=a,anchor='ms')
+    return over(rgb,L.get())
+
+# ---- SF10 r4: image2 illustrated plates, sleep -> light -> wake ----
+@scene('SF10_mouse_tripo',5.0)
+def sf10(t,W,H,still=False,still_frame=None):
+    if still: t=4.0
+    A=img('sf10_sleep'); B=img('sf10_awake'); ih,iw=A.shape[:2]; s=W/1280
+    if 'br10' not in _cache:
+        yy,xx=np.mgrid[0:ih,0:iw]; _cache['br10']=np.clip(1-np.hypot((xx-0.72*iw)/(0.2*iw),(yy-0.58*ih)/(0.2*ih)),0,1)**1.5
+    # breathing warp on sleeping plate
+    br=0.006*math.sin(t*2*math.pi*0.9)*(1-ramp(t,2.0,2.6))
+    yy,xx=np.mgrid[0:ih,0:iw].astype(np.float32); cyb=0.66*ih
+    mapy=(yy-(yy-cyb)*br*_cache['br10']).astype(np.float32); Ab=cv2.remap(A,xx,mapy,cv2.INTER_LINEAR)
+    on=ramp(t,1.5,2.0); wk=ease(ramp(t,2.25,2.65))
+    src=Ab*(1-wk)+B*wk
+    z=1.04+0.06*ease(t/5); cxx=0.52; cyy=0.50
+    rgb=cam(src,W,H,zoom=z,cx=cxx,cy=cyy)
+    P=lambda x,y: to_px(A,x,y,W,H,z,cxx,cyy)
+    # fiber light on sleeping plate (before awake plate takes over)
+    fx0=0.615 if wk<0.5 else 0.602; ftop=0.0; fbot=0.355 if wk<0.5 else 0.27
+    L=Layer(W,H)
+    if on>0:
+        for k in range(30):
+            u=k/29; X,Y=P(fx0+0.0*u, ftop+(fbot-ftop)*u); L.dot((X,Y),2.0*s,fill=CYAN,alpha=on*(1-wk)*0.9)
+    rgb=over(rgb,L.get(),shadow=0,glow_amt=1.2)
+    X,Y=P(0.61,0.34 if wk<0.5 else 0.265); rgb=rgb+radial(W,H,X,Y,24*s,CYAN,0.8*on)+radial(W,H,X,Y,90*s,CYAN,0.15*on)
+    # foreground bedding parallax (bottom band moves faster)
+    fg=cam(src,W,H,zoom=z*1.06,cx=cxx-0.015*t/5,cy=cyy+0.02)
+    yy2=np.mgrid[0:H,0:W][0]; fm=(np.clip((yy2/H-0.80)/0.12,0,1)*0.6)[...,None]
+    rgb=rgb*(1-fm)+cv2.GaussianBlur(fg,(0,0),4)*fm
+    fl=math.exp(-((t-2.45)/0.22)**2); X,Y=P(0.61,0.30); rgb=rgb+radial(W,H,X,Y,W*0.35,CYAN,0.45*fl)
+    rgb=over(rgb,drift_specks(W,H,t,30,17,(190,215,255),0.25,1.3,(3,-2)),shadow=0)
+    L2=Layer(W,H)
+    X,Y=P(0.607,0.31 if wk<0.5 else 0.25)
+    label(L2,(X,Y),(60*s,96*s),'光纤 + 颅骨植入件','把蓝光送进下丘脑外侧那群细胞',t=ramp(t,1.6,2.4),font_size=LT*s,sub_size=LS*s,accent=CYAN)
+    a=ramp(t,0.2,0.9)
+    L2.rrect((56*s,612*s,560*s,684*s),6*s,fill=(14,20,40),alpha=0.78*a); L2.line([(56*s,612*s),(56*s,684*s)],fill=GOLD,width=3*s,alpha=a)
+    L2.text((76*s,642*s),'2007 · 小鼠 · 食欲素神经元',F(SANS_B,21*s),fill=CREAM,alpha=a,anchor='ls')
+    L2.text((76*s,670*s),'光一开：从睡眠转入清醒的概率升高',F(SANS,16*s),fill=(176,186,212),alpha=a,anchor='ls')
+    st=[('睡眠中',(150,160,190),0.0,1.5),('光开',CYAN,1.5,2.4),('醒来',GOLD,2.4,9)]
+    for name,col,a0,a1 in st:
+        aa=ramp(t,a0,a0+0.3)*(1-ramp(t,a1,a1+0.3))
+        if aa<=0: continue
+        L2.rrect((1070*s,44*s,1230*s,88*s),22*s,fill=(12,18,38),alpha=0.8*aa); L2.dot((1096*s,66*s),7*s,fill=col,alpha=aa)
+        L2.text((1114*s,74*s),name,F(SANS_B,20*s),fill=CREAM,alpha=aa,anchor='ls')
+    return grade(over(rgb,L2.get()),seed=int(t*24))
