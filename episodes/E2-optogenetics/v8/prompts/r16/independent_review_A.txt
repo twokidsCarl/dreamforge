@@ -1,0 +1,28 @@
+你是 E2《光遗传学》v8 样张的隔离独立审稿人。你没有参与制作，也不应该知道这一轮改了什么。
+
+只允许读：
+- /workspace/e2work/v8/review/SCALE_v2.md（量表：A20 / B15 / C25 / D15 / E10 / F15，硬封顶 H1–H7）
+- /workspace/e2work/v8/review/PREFERENCES_v1.md（按 v1.2 执行；SF08/SF09 插画家族；gen/sf08e_relay.png 与 gen/sf09e_chr2.png 是 100 分方向锚）
+- /workspace/e2work/v8/review/BRIEF.md（每张样张对应的旁白）
+- /workspace/e2work/v8/REFS_BREAKDOWN.md 与 refs/ 目录（参考）
+- 两张锚图：/workspace/e2work/v8/gen/sf08e_relay.png、/workspace/e2work/v8/gen/sf09e_chr2.png
+- 样张：/workspace/e2work/v8/styleframes/ 根目录下 SF01–SF11 的 .png（1280×720）和 .mp4（960×540，24 fps）。不要看子目录。
+- 校准锚：/workspace/e2work/v8/review/r14_anchors/（ANCHORS.md 与三张锚的 png/mp4）
+- 可以运行（不要读源码）：python3 /workspace/e2work/v8/tools/measure_push.py（输出每条 mp4 的 ECC 推镜 %/s 与 d05）
+
+禁止读：PROMPT*、STATUS*、RUNNING*、PUBLISHED*、任何 REVIEW_*.md、review/R*_contact.jpg、score_timeline.png、tools/ 下其他文件、work/、archive/、standards/、prompts/、review/ 下除 r14_anchors/ 以外的子目录、styleframes/ 子目录、gen/ 下除两张锚图外的图、git 历史。不要打听这一轮改了什么。另有一位审稿人在独立打同一批样张，不要读对方的文件（REVIEW_round16_independent_*.md 以及 /tmp/claude-1000/r16rev_* 中不属于你的目录）。
+
+方法要求：
+0. **尺度校准（先做）**：读 review/r14_anchors/ANCHORS.md，看三张校准锚（ANCHOR_SF09 93.85、ANCHOR_SF06 92.15、ANCHOR_SF04 88.70）。这三个分数是既定刻度，不要给锚重新打分；以它们为尺子打 styleframes/ 下 11 张。styleframes/ 下的 SF09、SF06、SF04 是本轮的当前版本，照常独立打分（不要因为和锚相似就直接抄锚分，也不要因为不同就刻意拉开；按你看到的打）。
+1. 逐张看 png，与两张锚图比较画法（原子球团、深色轮廓、2–3 级明暗、发光、暗紫/深青底）。
+2. 每条 mp4 用 ffmpeg 抽帧（至少 0.0/0.4/1.2/2.2/3.2/4.2 s 与末帧；SF08、SF10 每 0.5 s 一帧），可疑段逐帧看。临时文件放 /tmp/claude-1000/r16rev_A/。
+3. 运动：灰度→480×270→σ=3 高斯；相邻帧差中位数/最大值、尖峰（>4×中位且>1.0）逐个定位判读；推镜与 d05 用 measure_push.py。
+4. 文字：在 png 上测每张最小一级标注的字高（占画高 %）和 WCAG 对比度。
+5. 硬封顶 H1–H7 逐条核查。
+6. 逐镜六维打分（A/B/C/D/E/F 各 0–100），按 SCALE_v2 权重算加权分；给出均分、最低分。门槛：均分 ≥92 且单张 ≥88。
+7. 给出 Top-5 缺口（按对过线的贡献排序）。
+
+把完整审稿写成中文 Markdown 到 /workspace/e2work/v8/review/REVIEW_round16_independent_A.md，结构参照：0 读了什么/没读什么；1 方法与测量（运动表、字高对比度表、其他检查）；2 硬封顶核查；3 逐镜打分（总表 + 逐镜说明）；4 共性问题；5 Top-5 缺口。标题用「E2《光遗传学》v8 样张 · 第 16 轮隔离独立审稿（审稿人 A）」。
+打分要严格、独立，按量表和锚图来，不要因为“看起来改过”而加分，也不要无理由压分。
+在审稿文件里另起一节「尺度校准」：列出你给当前 SF09、SF06、SF04 的分数与对应锚分之差。
+最后在回复里只返回：均分、最低分（哪张）、11 张各自加权分、是否过线、Top-3 缺口各一句。
