@@ -110,6 +110,7 @@ class Canvas:
         s = screen_text(s)
         if a <= 0 or not s:
             return
+        size = max(size, 26)            # nothing smaller than 26 px at 1080p: footers and sources must be readable
         f = font(int(self.px(size)))
         x, y = self.px(xy[0]), self.px(xy[1])
         # draw through an alpha mask: ImageDraw on an RGB image ignores the fill alpha (Pillow 12), so fades popped

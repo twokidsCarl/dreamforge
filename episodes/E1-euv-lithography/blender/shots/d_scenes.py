@@ -323,7 +323,7 @@ def crowd(sc, rnd):
         nt.links.new(nt.nodes["Emission"].outputs[0], mix.inputs[2])
         nt.links.new(mix.outputs[0], nt.nodes["Material Output"].inputs["Surface"])
         mat.surface_render_method = "BLENDED"
-        bpy.ops.mesh.primitive_plane_add(size=1, location=(0, 21.75 - 0.01 * i, 8.0))
+        bpy.ops.mesh.primitive_plane_add(size=1, location=(0, 21.75 - 0.01 * i, 6.4))   # below the light strips
         mp = bpy.context.object
         mp.scale = (28, 14, 1)
         mp.rotation_euler = (math.pi / 2, 0, 0)
