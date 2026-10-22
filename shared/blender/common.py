@@ -129,9 +129,13 @@ def setup_render(engine, preset, motion_blur=True):
         raise ValueError(engine)
 
 
-def setup_compositor(glare_strength=0.6, glare_size=7, dispersion=0.012):
+def setup_compositor(glare_strength=0.25, glare_size=7, dispersion=0.012, glare_threshold=2.0, no_glare=False):
     """Bloom + subtle chromatic dispersion. Blender 5.x uses a scene-level node group.
-    可选的场景自定义属性（默认都不开，E1 行为不变）：
+    Bloom 只让发光体（emitter）过阈值：Threshold 默认 2.0（不低于 2.0），Strength 默认 0.25
+    （E2 STYLE_REVIEW P0-3；原 0.8 / 0.6 让浅色世界整片泛光）。
+    可选的场景自定义属性（默认都不开）：
+      sc["no_glare"]    关掉 bloom（L2 纪实、S 电镜；registry 里 no_glare: true 也走这里）；
+      sc["glare_strength"] / sc["glare_threshold"]  逐镜覆盖强度 / 阈值（阈值低于 2.0 时按 2.0）；
       sc["dispersion"]  覆盖色散量（0 = 关）；
       sc["film_grain"]  细颗粒强度（柔光叠加的噪声，逐帧变化，约 0.1–0.5）；
       sc["vignette"]    暗角强度 0–1。"""
@@ -143,8 +147,9 @@ def setup_compositor(glare_strength=0.6, glare_size=7, dispersion=0.012):
     rl = n.new("CompositorNodeRLayers")
     glare = n.new("CompositorNodeGlare")
     glare.inputs["Type"].default_value = "Bloom"
-    glare.inputs["Threshold"].default_value = 0.8
-    glare.inputs["Strength"].default_value = 0.0 if sc.get("no_glare") else glare_strength
+    glare.inputs["Threshold"].default_value = max(2.0, float(sc.get("glare_threshold", glare_threshold)))
+    off = no_glare or sc.get("no_glare")
+    glare.inputs["Strength"].default_value = 0.0 if off else float(sc.get("glare_strength", glare_strength))
     glare.inputs["Size"].default_value = glare_size / 9
     lens = n.new("CompositorNodeLensdist")
     lens.inputs["Dispersion"].default_value = dispersion

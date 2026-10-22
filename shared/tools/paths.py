@@ -14,6 +14,7 @@ import os
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 SHARED = os.path.join(REPO, "shared")
+BRAND = os.path.join(REPO, "brand", "eigenlens_logo_locked")   # APPROVED logo, stings, end card (all episodes)
 DEFAULT_EPISODE = "E1-euv-lithography"
 
 

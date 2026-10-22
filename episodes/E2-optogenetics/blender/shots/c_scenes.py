@@ -175,12 +175,13 @@ def slice_(sc, rnd, phase="tag", **_):
 # ---- cage：C_02b / C_03a / C_04a ----------------------------------------------------------
 def cage(sc, rnd, env="A", mouse="none", **_):
     S.dark_room()
-    P.bench("Bench", (1.8, 1.0), 0.0, tag=styles.tag, color=(0.09, 0.09, 0.1))
+    sc["hdri_strength"] = 0.12      # v5 P1: HDRI 反射是台面发灰发亮的主因（默认 0.35）
+    P.bench("Bench", (1.8, 1.0), 0.0, tag=styles.tag, color=(0.03, 0.03, 0.035))  # v5 P1 was 0.09
     tint = tuple(0.12 + 0.55 * c for c in S.lin(ENV_A if env == "A" else ENV_B))
     cg = P.cage("Cage", (0, 0, 0), (0.42, 0.26, 0.22), shock_marks=(env == "B"), floor_tint=tint, tag=styles.tag)
     wall = S.box("Backdrop", (0, 0.9, 0.6), (3.0, 0.02, 1.4), S.matte("BackdropMat", (0.02, 0.022, 0.026), 0.9), "env")
-    _keep_area("Key", (-0.5, -0.5, 0.9), (0, 0, 0.05), 0.8, 60)
-    _keep_area("Rim", (0.6, 0.6, 0.5), (0, 0, 0.08), 0.6, 25, color=(0.8, 0.88, 1.0))
+    _keep_area("Key", (-0.5, -0.5, 0.9), (0, 0, 0.05), 0.8, 36)  # v4 P1
+    _keep_area("Rim", (0.6, 0.6, 0.5), (0, 0, 0.08), 0.6, 14, color=(0.8, 0.88, 1.0))  # v4 P1
     if mouse == "freeze":
         sid = "C_04a"
         n = _n(sid)
@@ -315,11 +316,12 @@ def eye(sc, rnd, **_):
     S.set_gain(bm, f_in1 + 8, 2.0)
     S.set_gain(bm, f_out1 + 40, 0.0)
     # 神经节细胞获得新通道：视网膜内层带淡淡亮起
-    S.set_strength(e["rgc_mat"], 1, 0.0)
-    S.set_strength(e["rgc_mat"], _f(sid, 0.4), 0.0)
-    S.set_strength(e["rgc_mat"], _f(sid, 0.5), 1.2)
+    S.set_strength(e["rgc_mat"], 1, 0.18)          # v5: 不再是黑洞，先暗蓝
+    S.set_strength(e["rgc_mat"], _f(sid, 0.4), 0.18)
+    S.set_strength(e["rgc_mat"], _f(sid, 0.5), 0.42)  # v5b: 平涂淡蓝盘 → 暗蓝壁，闪时才亮
     # 护目镜（示意道具）在眼前，镜片朝眼睛（+X）
-    g = P.goggles("Goggles", (-2.9, 0.15, 0.0), (0, 0, math.pi / 2), 5.0, tag=styles.tag, lens_color=BLUE)
+    GX = -1.95
+    g = P.goggles("Goggles", (GX, 0.15, 0.05), (0, 0, math.pi / 2 - 0.55), 3.6, tag=styles.tag, lens_color=BLUE)
     f_g = _f(sid, 0.55)
     for o in [g["root"]] + g["lenses"] + g["frame"] + [g["strap"]]:
         S.show_between(o, f_g)
@@ -331,19 +333,26 @@ def eye(sc, rnd, **_):
     while f + 14 < n:
         th = math.radians(rnd.uniform(-35, 35))
         dst = (R * 0.86 * math.cos(th), 0.05, R * 0.86 * math.sin(th))
-        b = S.sphere(f"Pulse{k}", 0.045, (-2.75, 0.05, 0.0), bead_m, "emitter", seg=12, rings=8)
-        S.key(b, f, location=(-2.75, 0.05, rnd.uniform(-0.08, 0.08)))
+        b = S.sphere(f"Pulse{k}", 0.045, (GX + 0.08, 0.05, 0.0), bead_m, "emitter", seg=12, rings=8)   # v7: 从镜片出发（原 -2.75 在镜片外面凭空出现）
+        S.key(b, f, location=(GX + 0.08, 0.05, rnd.uniform(-0.08, 0.08)))
         S.key(b, f + 6, location=(-1.0, 0.05, 0.0))
         S.key(b, f + 14, location=dst)
         S.linear(b)
         S.show_between(b, f, f + 15)
-        S.set_strength(e["rgc_mat"], f + 13, 1.2)
-        S.set_strength(e["rgc_mat"], f + 15, 4.0)
-        S.set_strength(e["rgc_mat"], f + 22, 1.2)
+        S.set_strength(e["rgc_mat"], f + 13, 0.42)
+        S.set_strength(e["rgc_mat"], f + 15, 3.0)
+        S.set_strength(e["rgc_mat"], f + 22, 0.42)
         f += 14
         k += 1
-    S.studio_lights(0.6, (-0.8, 0, 0))
-    S.dolly("CamC_08a", (-0.8, 0.0, 0.0), (-0.8, -8.6, 0.8), (-0.5, -7.2, 0.5), 1, n, lens=50, aim1=(-0.5, 0.0, 0.0))
+    # v6 P0-6: eyeball_section 已含脉络膜/睫状体/悬韧带/视盘/黄斑/带鞘视神经；玻璃体默认隐藏
+    vit = e.get("vitreous")
+    if vit is not None:
+        vit.hide_render = vit.hide_viewport = True
+        styles.tag(vit, "rig")
+    # v7 N14: 原来这里把护目镜缩到 0.72（宽约 0.1 BU），低清下成了眼球左边一个漂浮的小白字形；改成 3.6 倍、朝镜头侧转 30°，读得出是护目镜
+    S.studio_lights(0.55, (0.4, -0.6, 0.5))
+    # 3/4 俯视，看进眼杯：能读出晶状体、睫状体、悬韧带、视网膜内壁、视神经
+    S.dolly("CamC_08a", (-0.25, 0.0, 0.05), (0.55, -5.2, 3.4), (0.3, -4.7, 2.95), 1, n, lens=40, aim1=(-0.05, 0.0, 0.0))   # v7: 推镜收短，视神经不出框
 
 
 # ---- goggles：C_08b / C_92 ----------------------------------------------------------------
@@ -537,7 +546,8 @@ def announce(sc, rnd, **_):
 def cochlea(sc, rnd, **_):
     sid = "C_17a"
     n = _n(sid)
-    co = BC.build_cochlea("Co", (0, 0, 0), S.matte("CochleaTissue", (0.82, 0.78, 0.74)), BLUE, tag=styles.tag)
+    co = BC.build_cochlea("Co", (0, 0, 0), S.matte("CochleaTissue", (0.82, 0.78, 0.74)), BLUE, tag=styles.tag,
+                          open_top=True)
     f_r0, f_r1 = _f(sid, 0.09), _f(sid, 0.27)
     arrays = co["arrays"]
     lens_ = [len(o.data.splines[0].points) for o in arrays]          # 点距相等，点数 ∝ 弧长
@@ -553,8 +563,14 @@ def cochlea(sc, rnd, **_):
     S.set_strength(m, f_r0 + 6, 6.0)
     S.set_strength(m, _f(sid, 0.45), 6.0)
     S.set_strength(m, _f(sid, 0.65), 0.0)                       # 随即淡出
-    S.studio_lights(1.2, (0, 0, 2.0))
-    S.dolly("CamC_17a", (0.0, 0.0, 2.0), (0.0, -15.5, 5.2), (0.0, -12.5, 4.0), 1, n, lens=50)
+    for o in arrays:                                             # 熄灭后的阵列在 EEVEE 里是一圈黑管：直接隐藏
+        o.hide_render = False
+        o.keyframe_insert("hide_render", frame=_f(sid, 0.65))
+        o.hide_render = True
+        o.keyframe_insert("hide_render", frame=_f(sid, 0.65) + 1)
+    S.studio_lights(1.4, (0, 0, 3.0))
+    # v7 N12: 整 2.5 圈开顶螺旋槽，沿蜗轴略斜俯视；外径约 ±5 mm，整圈留边不裁切
+    S.dolly("CamC_17a", (0.0, 0.3, 1.6), (0.0, -6.6, 21.5), (0.0, -5.9, 19.2), 1, n, lens=40, aim1=(0.0, 0.4, 1.6))
 
 
 # ---- desens：C_18a -------------------------------------------------------------------------

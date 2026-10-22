@@ -2,6 +2,7 @@
 #
 # 3D 镜头（shared/tools/render_storyboard.py）：
 #   scene: 本目录下的模块，提供 build(**args)；camera: 场景里的相机；start: 起始模拟帧；style: 画面语言；engine: eevee | cycles
+#   no_glare: true 关掉该镜 bloom（common.setup_compositor；L2 纪实和 sem 已默认关，见 e2_shot.after_style_common / styles）。
 #   raw: true 时帧写到 shots/<id>/<quality>_raw/，再由 mograph 里同 id 的后处理叠中文标注，写到 <quality>/。
 #     后处理：A0_04a 在 mograph/a0.py；B_02a、B_03a、B_04a、B_16b、B_18a 在 mograph/b.py；C_01a、C_07a 在 mograph/c.py
 #     （共用件 mograph/raw_overlay.py；要叠的字和锚点空物体 LabelAnchor_* 写在 b_scenes.py / c_scenes.py 文件头）。
