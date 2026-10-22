@@ -1737,10 +1737,10 @@ shots:
   - counter
   overlays:
   - text: 每 100 万次搬运 · 最多 1 个颗粒
-    facts: []
-  - text: 机械手外形示意
     facts:
     - F37
+  - text: 机械手外形示意
+    facts: []
   engine: eevee
   sfx:
   - 机械臂的伺服声加速成连续嗡鸣
@@ -1770,7 +1770,7 @@ shots:
   - 一声极轻的“叮”
 - id: B6_12
   segment: B6
-  duration: 7.5
+  duration: 8.3
   vo:
   - 掩模的图形面前还罩着一层保护膜，叫 pellicle，只有 13 纳米厚，
   facts:
@@ -1831,7 +1831,8 @@ shots:
   - bloom
   overlays:
   - text: 真空中 最高 500 °C
-    facts: []
+    facts:
+    - F36
   - text: 暗红辉光为示意（500 °C 时肉眼几乎看不到）
     facts:
     - F36

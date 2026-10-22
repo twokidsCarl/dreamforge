@@ -215,6 +215,7 @@ B5_08:
   - item: NEW - each panel's caption and 50 nm label pop in at full strength before the SEM image fades in (frame 38 - 横线 × 圆盘 → 发糊 and 50 nm on black while panel 2 stays dark until ~42)
     status: glitch
     fix: tie caption/scale alpha to the same `on` ramp as the pasted image (the Image.blend panel lags the text)
+    note: "probable cause found later the same day - Canvas.text ignored the fill alpha under Pillow 12; commit 0dd7f35 (10:46) draws text through an alpha mask. The B5_08 sample predates it: re-render and recheck."
 
 B5_09:
   - item: dipole light leaving the illuminator and climbing to the reticle, drawn as two parallel strands 0.24 apart from FACET2 to RETICLE that hit the reticle at two different points

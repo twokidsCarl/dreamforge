@@ -28,7 +28,7 @@ B3_01:
   - item: rendering glitch - frames 1-10 have a grey vignette instead of the black ground the storyboard asks for; frames ~15-30 wash out to a flat lavender field (420 rays at bevel radius 0.006 fill the frame while the camera sits 2 units from the core, plus bloom)
     status: glitch
     fix: start CamB3_01 further out or ramp ray emission/bloom over the first second; keep world black
-    verified: "2026-10-22: not fixed - b3_scenes.burst unchanged; frame 1 a large grey bloom halo; frames 13-34 luma 67-183, frames 19-28 a flat lavender field of rays."
+    verified: "2026-10-22: not fixed - b3_scenes.burst unchanged; frame 1 a large grey bloom halo; frames 13-34 luma 67-183, frames 19-28 a flat lavender field of rays. Commit 0dd7f35 (10:46, after this sample) caps energy-style 'rays' at strength 2.2 in saturated violet, which may cure the wash-out - re-render B3_01 and recheck."
 B3_02:
   - item: concave ellipsoidal normal-incidence multilayer collector, laser hole at its centre, plasma site in front of the centre
     status: sourced

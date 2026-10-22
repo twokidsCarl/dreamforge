@@ -89,11 +89,11 @@ shots:
   - dimension_draw_on
   overlays:
   - text: NXE：缩小 4×
-    facts: []
-  - text: 设计示例 · ASML / ZEISS
     facts:
     - F11
-  engine: mograph
+  - text: 设计示例 · ASML / ZEISS
+    facts: []
+  engine: pillow
   sfx:
   - 笔尖划线声
   - 尺寸线咔哒定位
@@ -211,7 +211,8 @@ shots:
     facts:
     - F18
   - text: 约 12 吨 · 4 万多个零件（ZEISS）
-    facts: []
+    facts:
+    - F18
   engine: eevee
   sfx:
   - 零件散开的细碎金属叮当
@@ -333,7 +334,7 @@ shots:
   - 两次压缩的气动声
 - id: B7_11
   segment: B7
-  duration: 6.0
+  duration: 8.6
   vo:
   - 扫描方向的光锥细了一半，入射角还能从 6 度降到 5.4 度，两只光锥恰好错开；
   facts:
@@ -355,10 +356,10 @@ shots:
   - bloom
   overlays:
   - text: 扫描方向光锥减半（≈3.9°）· 入射角 6° → 5.4°
-    facts: []
-  - text: 角度放大示意
     facts:
     - F40
+  - text: 角度放大示意
+    facts: []
   engine: eevee
   sfx:
   - 啸叫消失，一声干净的长音
@@ -566,7 +567,8 @@ shots:
   - bloom
   overlays:
   - text: 弧形狭缝 26 mm（示意）
-    facts: []
+    facts:
+    - F64
   engine: eevee
   sfx:
   - 光束成形的轻响
@@ -604,7 +606,7 @@ shots:
   - 直线电机的滑行声，一左一右
 - id: B8_04
   segment: B8
-  duration: 5.2
+  duration: 5.9
   vo:
   - 在扫描方向缩小 8 倍，掩模就要跑得比晶圆快 8 倍。
   facts:
@@ -696,7 +698,7 @@ shots:
   - 一记重低音冲击
 - id: B8_07
   segment: B8
-  duration: 9.5
+  duration: 11.0
   vo:
   - 上一代 NXE 的掩模台，电机推力就超过 1 万牛——ASML 形容，就像每次加速，都有一辆车砸在台面上。
   facts:
@@ -1005,7 +1007,7 @@ shots:
   - 交换完成的确认音
 - id: B8_17
   segment: B8
-  duration: 7.2
+  duration: 9.6
   vo:
   - High-NA 一片晶圆要曝光 188 个场，一小时 185 片以上——每小时三万多次曝光。
   facts:
@@ -1337,7 +1339,7 @@ shots:
   - 发现缺陷时的低沉提示音
 - id: B9_08
   segment: B9
-  duration: 10.0
+  duration: 11.7
   vo:
   - ASML 正把光源从几百瓦推向一千瓦：光更亮，就能在不降产能的同时多给光子——多一个光子，线条就稳一分。
   facts:

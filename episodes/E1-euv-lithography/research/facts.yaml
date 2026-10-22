@@ -746,3 +746,14 @@ F63:
     - https://www.asml.com/en/technology/lithography-principles/lenses-and-mirrors
   quote: "Our state-of-the-art EUV lithography machines, whose largest mirrors are 1 meter across and smooth down to tens of picometers, have an NA of 0.55."
   segments: [B4]
+
+F64:
+  claim: High-NA 曝光场是半场 26 × 16.5 mm；晶圆处的照明狭缝为 26 × 1.6 mm 的弧形，掩模处为 104 × 12.8 mm
+  values: {half_field_mm: [26, 16.5], slit_wafer_mm: [26, 1.6], slit_reticle_mm: [104, 12.8]}
+  status: verified
+  grade: A
+  sources:
+    - https://euvlitho.com/2022/P3.pdf
+    - https://euvlitho.com/2021/P52.pdf
+  notes: van Schoot et al.（ASML）EUVL Workshop 2022 第 12 页 "0.55NA prints a Half Field"；Wischmeier et al.（ZEISS/ASML）EUVL Workshop 2021 第 11 页的狭缝与像场尺寸（research/visual/CD_sources.md）。
+  segments: [B8, C]
