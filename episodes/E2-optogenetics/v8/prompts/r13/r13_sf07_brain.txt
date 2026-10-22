@@ -1,0 +1,9 @@
+Redraw the FIRST image as an anatomically correct DORSAL VIEW (seen straight from above) of a MOUSE brain, in exactly the same Goodsell-style bead / atom-sphere illustration technique, palette and dark blue molecular background as the first image. Orientation: nose to the LEFT, spinal cord to the RIGHT, midline horizontal across the centre of the image. Anatomy, strictly:
+- PERFECTLY BILATERALLY SYMMETRIC: the upper and lower halves are mirror images across the horizontal midline (left and right hemispheres the same size and shape), with a thin dark midline fissure between them.
+- Two OLFACTORY BULBS: small oval lobes attached DIRECTLY to the front (left) tips of the two cerebral hemispheres, touching them — NO stalks, NO stems, NO ropes.
+- Two smooth (lissencephalic, no folds) cerebral hemispheres, together forming a rounded teardrop that is widest at the back; they make up about 55% of the brain length.
+- Behind the hemispheres in the midline: a small pair of round colliculi peeking out, then the CEREBELLUM: a central striped vermis with two striped hemispheres on either side and small paraflocculi lobes at the outer edges, all with fine transverse folia.
+- Then a short medulla narrowing into the spinal cord leaving at the right edge.
+Colours: warm coral-pink cortex, rose-pink bulbs, lilac-violet cerebellum and brainstem, just like the first image.
+A thin dark-grey optical fibre comes straight down from the top edge of the image and ends on the UPPER hemisphere at about 42% of the image width; at its tip a small bright cyan glow, and a delicate glowing cyan network of neuron branches spreads from the tip across that one hemisphere only.
+No text, no labels, no letters.
