@@ -25,7 +25,7 @@ def main():
         i=a.index("--ref"); refs=a[i+1:]; a=a[:i]
     sid,size,q,p=a[:4]
     prompt=Path(p).read_text() if os.path.exists(p) else p
-    if spent()>5.6: print("BUDGET STOP", spent()); sys.exit(2)
+    if spent()>14.5: print("BUDGET STOP", spent()); sys.exit(2)
     base,key=env(); OUT.mkdir(exist_ok=True)
     resp=OUT/f".resp_{sid}.json"; t0=time.time()
     if refs:

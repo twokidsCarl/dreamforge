@@ -1,0 +1,17 @@
+import subprocess
+from concurrent.futures import ThreadPoolExecutor
+STY=("Editorial comic-style illustrated portrait, head-and-shoulders, three-quarter view, wearing an open-collar shirt with no jacket. Technique: confident brush-ink line art with flat fills, "
+ "limited palette of deep indigo #141B3A, warm cream #F4EFE6, gold #E9B85C shading blocks and a thin cyan-blue #3FA9FF rim light on one side. Plain deep indigo background. Clearly an illustration, not a photo. No text, no signature. ")
+G=open('work/batch2.py').read().split('G=(')[1].split(')\nJ=')[0]; G=eval('('+G+')')
+CORE=open('work/batch1.py').read().split('CORE=(')[1].split(')\nJ=')[0]; CORE=eval('('+CORE+')')
+J=[
+("sf05b_deisseroth","1024x1024","high",STY+"Subject: a man in his mid-fifties with THICK, TOUSLED, WAVY dark-brown hair falling loosely over his forehead and ears, a SHORT DARK STUBBLE BEARD covering jaw and chin, NO GLASSES, slim face with straight nose, lips slightly parted as if about to speak, alert friendly eyes."),
+("sf05b_hegemann","1024x1024","high",STY+"Subject: a man in his early seventies with grey-white hair SWEPT BACK from a high forehead, THIN RECTANGULAR METAL-FRAMED GLASSES, a long face with deep lines from nose to mouth, clean-shaven, calm composed expression, slightly downturned mouth."),
+("sf05b_nagel","1024x1024","high",STY+"Subject: a man in his early seventies who is BALD ON TOP with a high forehead and short grey hair only at the sides and back, THIN METAL-FRAMED GLASSES, a ROUND FRIENDLY FACE, CLEAN-SHAVEN with no beard or stubble, warm gentle smile."),
+("sf09d_chr2","1536x864","high",G+"Center: the light-gated ion channel channelrhodopsin-2 as a DIMER: two seven-helix subunits side by side, mint-teal (#63C7A8) with darker teal outline, packed closely. Each subunit has ITS OWN narrow ion pore through the middle of that subunit, drawn as a faint vertical glowing slit. Inside each subunit, a SHORT orange retinal (#FF8A3D) about one third of the subunit width, a small polyene chain with a ring, sitting off to the OUTER side of its subunit next to a helix, NOT crossing the pore. A soft shaft of cyan-blue light comes diagonally from the upper LEFT onto the dimer. Other membrane proteins elsewhere in the bilayer are clearly DIFFERENT: muted grey-lavender (#8A86A8) and dusty rose, never teal. No ions drawn. Generous breathing room, camera slightly low."),
+("sf11c_eye","1536x864","high",CORE+"Anatomically accurate medical cutaway illustration of an isolated human eyeball (no face, no eyelashes, floating on deep indigo), mid-sagittal section side view. Cornea thin clear dome; iris seen IN SECTION as two thin flaps; one clear biconvex lens with zonule fibers; clear vitreous. The retina lines the back wall: at the visual axis directly behind the lens, a small AVASCULAR dimple (the fovea) with NO blood vessels; the OPTIC DISC and optic nerve exit clearly OFF-AXIS, lower toward the nasal side, and all retinal blood vessels radiate from that optic disc, not from the fovea. The outer photoreceptor layer is visibly SPARSE and patchy with gaps (degenerated). At left, a sleek pair of light goggles projects thin parallel amber (595 nm) beams through the pupil and lens, focusing onto the fovea region. Nucleus-Medical-grade wet materials, subsurface scattering."),
+]
+def run(j):
+    open(f"work/p_{j[0]}.txt","w").write(j[3])
+    return subprocess.run(["python3","tools/gen.py",*j[:3],f"work/p_{j[0]}.txt"],capture_output=True,text=True).stdout
+for o in ThreadPoolExecutor(5).map(run,J): print(o.strip())

@@ -32,6 +32,15 @@ class Layer:
     def text(s,xy,txt,font,fill=CREAM,alpha=1.0,anchor='la',tracking=0):
         x,y=xy[0]*s.ss,xy[1]*s.ss; c=(*fill,int(255*alpha))
         f=ImageFont.truetype(font.path,font.size*s.ss,index=getattr(font,'index',2)) if True else font
+        if tracking==0 and '⁺' in txt:
+            parts=txt.split('⁺'); w=sum(f.getlength(p) for p in parts)+f.getlength('+')*0.6*(len(parts)-1)
+            if anchor[0]=='m': x-=w/2
+            elif anchor[0]=='r': x-=w
+            fs=ImageFont.truetype(font.path,int(font.size*s.ss*0.6),index=getattr(font,'index',2))
+            for i,p in enumerate(parts):
+                s.d.text((x,y),p,font=f,fill=c,anchor='l'+anchor[1]); x+=f.getlength(p)
+                if i<len(parts)-1: s.d.text((x,y-font.size*s.ss*0.38),'+',font=fs,fill=c,anchor='l'+anchor[1]); x+=fs.getlength('+')
+            return
         if tracking==0: s.d.text((x,y),txt,font=f,fill=c,anchor=anchor); return
         widths=[f.getlength(ch) for ch in txt]; total=sum(widths)+tracking*s.ss*(len(txt)-1)
         if anchor[0]=='m': x-=total/2
@@ -70,7 +79,6 @@ def label(L,anchor_pt,text_pt,title,sub=None,color=CREAM,t=1.0,font_size=22,sub_
     ta=ramp(t,0.45,1.0)
     if ta>0:
         right = tx < L.W*0.5   # text grows away from the nearest frame edge
-        L.line([(tx,ty),(tx+(1 if right else -1)*8,ty)],fill=color,width=1.1,alpha=ta)
         x0=tx+(14 if right else -14); an='l' if right else 'r'
         tw=max(F(SANS_B,font_size).getlength(title), F(SANS,sub_size).getlength(sub) if sub else 0)
         bx0,bx1=(x0-8,x0+tw+8) if right else (x0-tw-8,x0+8)
