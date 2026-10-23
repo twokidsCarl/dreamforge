@@ -36,7 +36,8 @@ def title(img, t, dur, W, H):
     L.text((0.5, b[3] / H + 0.045), "WHAT HAPPENS INSIDE AN EUV LITHOGRAPHY MACHINE", 0.026, INK2,
            fade(t, 1.6, None, 0.8), anchor="ma")
     e = anchor("A0_10", t, "eng", (0.5, 0.72))
-    L.label(e, (e[0] + 0.07, e[1] - 0.05), ["人 ≈ 1.8 m", "尺度参照 · 机器为示意"], fade(t, 3.0, None), size=0.036)
+    # R4: small tag beside the pair, below the machine line (R3: it sat mid-frame on the machine)
+    L.label(e, (max(0.04, e[0] - 0.12), min(0.78, e[1] + 0.14)), ["人 ≈ 1.8 m", "机器为示意"], fade(t, 3.0, None), size=0.03)
     return L.compose(img)
 
 

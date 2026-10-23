@@ -364,6 +364,8 @@ def _reticle_stage(M, mbs):
             bolt.cyl((MASK.x - 1.7 + k * 0.3, y, z + 0.17), 0.012, 0.02, seg=6)
     st.box((MASK.x, MASK.y, z + 0.1), (0.85, 0.85, 0.12))                 # chuck
     mbs["mask"].box((MASK.x, MASK.y, z + 0.02), (0.6, 0.6, 0.03))         # mask (pattern faces down)
+    for k in range(13):                                                   # R4: absorber pattern on the face
+        mbs["anod"].box((MASK.x - 0.24 + k * 0.04, MASK.y, z + 0.003), (0.018, 0.5, 0.004))
     mbs["anod"].box((MASK.x - 1.4, 0, z + 0.5), (0.4, 1.6, 0.25))          # linear motors
     mbs["anod"].box((MASK.x + 1.4, 0, z + 0.5), (0.4, 1.6, 0.25))
     for k in range(8):
@@ -442,7 +444,8 @@ def beam_path(start=0, end=None):
     """The violet path IF -> illuminator -> G2 -> mask -> PO -> wafer with a k4A-style column radius at each
     point (focus = thin, mirrors = ~80 % of the mirror radius)."""
     pts = [IF, FFM, PFM, G1, G2, MASK] + PO + [WAFER]
-    rad = [0.03, 0.27, 0.22, 0.15, 0.12, 0.1] + [r * 0.7 for r in PO_R] + [0.02]
+    # R4: thin at G2 / mask / PO1 so the ~6 deg in/out pair separates into a readable narrow V under the mask
+    rad = [0.03, 0.27, 0.22, 0.15, 0.06, 0.03] + [0.08] + [0.08] * (len(PO_R) - 1) + [0.02]   # R4: thin PO legs (no violet fog)
     return pts[start:end], rad[start:end]
 
 

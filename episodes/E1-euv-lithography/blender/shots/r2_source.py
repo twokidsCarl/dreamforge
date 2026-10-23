@@ -282,7 +282,8 @@ def pancake(M, c, R, name="Pancake", seed=1):
     rnd = random.Random(seed)
     mb = K.MB()
     na, nr = 96, 16
-    harm = [(k, rnd.uniform(0.02, 0.07), rnd.uniform(0, 6.28)) for k in (3, 5, 8, 13, 21)]
+    # R4: a smooth, gently undulating disc (the R3 crown-splash read as wrong physics for a pre-pulse sheet)
+    harm = [(k, rnd.uniform(0.006, 0.018), rnd.uniform(0, 6.28)) for k in (3, 5, 8, 13, 21)]
 
     def rim(a):
         return 1.0 + sum(amp * math.sin(k * a + ph) for k, amp, ph in harm)
@@ -297,7 +298,7 @@ def pancake(M, c, R, name="Pancake", seed=1):
         for j in range(na):
             a = 2 * math.pi * j / na
             rr = t * rim(a)
-            h = thick(t) * (1 + 0.25 * math.sin(7 * a + 3 * t))
+            h = thick(t) * (1 + 0.08 * math.sin(7 * a + 3 * t))
             y, z = rr * math.cos(a), rr * math.sin(a)
             rt.append(mb.bm.verts.new((h / 2, y, z)))
             rb.append(mb.bm.verts.new((-h / 2, y, z)))
@@ -317,7 +318,7 @@ def pancake(M, c, R, name="Pancake", seed=1):
     sub = ob.modifiers.new("Sub", "SUBSURF")
     sub.levels = sub.render_levels = 1
     sat = K.MB()
-    for k in range(30):                 # ligaments + satellite droplets
+    for k in range(0, 30, 3):           # a few satellite droplets / short ligaments only
         a = 2 * math.pi * k / 30 + rnd.uniform(-0.08, 0.08)
         r0 = rim(a)
         if k % 2 == 0:
@@ -335,6 +336,13 @@ def pancake(M, c, R, name="Pancake", seed=1):
     ob.parent = root
     so.parent = root
     root.scale = (R, R, R)
+    # R4: a softbox the sheet mirrors, so liquid tin reads silver-bright instead of black plastic
+    cv = Vector(c)
+    # both cameras sit near (0.55, -0.6, 0.15): the sheet (normal X) mirrors the direction (0.55, +0.6, -0.15)
+    sb = K.area(name + "Softbox", cv + Vector((0.42, 0.48, -0.1)), cv, 0.35, 0.28, (0.9, 0.93, 1.0))
+    sb = bpy.data.objects.get(name + "Softbox")
+    if sb is not None:
+        sb.visible_camera = False
     return root, [ob, so]
 
 
@@ -449,24 +457,37 @@ def _debris(M, seed=4):
 
 
 def _contrast(sc, M, cam, tgt, n):
-    """B1_15 (36 frames): plasma at the left third, the collector's polished surface filling the right."""
+    """B1_15 (36 frames): R4 (H1 fix): the plasma burns at the left third; the collector's polished multilayer dish
+    fills the right half, close and sharp, mirroring the violet-white glow and a grazing softbox; hot tin debris
+    reduced so it no longer reads as fireworks."""
     _dark_world()
+    M["coll"] = K.mat("CollectorMLPolished", (0.8, 0.78, 0.86), metal=1.0, rough=0.025, coat=0.6)
     chamber(M, seed=2)
     lights_chamber(0.8)
     pl, li = plasma(M, (0, 0, 0), 0.03)
+    for ob in pl:
+        ob.visible_glossy = True                    # the dish mirrors the plasma
     key_energy(li, [(1, 40), (n, 50)])
     for ob in _debris(M):
-        key_scale(ob, [(1, 0.55), (n, 1.25)], interp="LINEAR")
-    cam.data.lens = 32
+        key_scale(ob, [(1, 0.55), (n, 1.1)], interp="LINEAR")
+        ob.scale = (1, 1, 1)
+    for ob in bpy.data.objects:
+        if ob.name.startswith("Debris_cool"):
+            bpy.data.objects.remove(ob)
+    cone = K.MB()                                   # the dish at work: reflected light converging towards IF (+X)
+    K.cone_beam(cone, Vector((2.6, 0, 0)), Vector((coll_x(0.6) + 0.02, 0, 0)), 0.6)
+    cone.obj("ReflectedCone", K.beam_column_mat("CollCone", K.VIOLET, strength=0.5, edge=0.035, core=0.0, vol=0.0))
+    K.anchors("B1_15", {"coll": Vector((coll_x(0.45), -0.3, -0.3)), "plasma": Vector((0, 0, 0))})
+    K.area("CollSoftbox", (0.2, -1.0, 0.75), (-0.75, 0.0, 0.0), 0.7, 40, (0.85, 0.9, 1.0))
+    K.area("CollRimLight", (-0.3, 1.0, -0.6), (-0.75, 0.0, 0.0), 0.5, 25, (0.7, 0.75, 1.0))
+    cam.data.lens = 24
     cam.data.dof.use_dof = True
-    cam.data.dof.aperture_fstop = 5.6
+    cam.data.dof.aperture_fstop = 8
     foc = bpy.data.objects.new("Focus", None)
     sc.collection.objects.link(foc)
-    foc.location = (-0.55, 0.15, 0.1)
+    foc.location = (-0.6, 0.0, 0.0)
     cam.data.dof.focus_object = foc
-    cam.data.lens = 26
-    foc.location = (-0.7, 0.25, 0.05)
-    K.key_path(cam, tgt, [(1, (0.5, -0.5, 0.15), (-0.75, 0.25, 0.0)), (n, (0.46, -0.47, 0.14), (-0.75, 0.27, 0.0))],
+    K.key_path(cam, tgt, [(1, (0.55, -0.62, 0.18), (-0.55, 0.12, -0.02)), (n, (0.5, -0.58, 0.16), (-0.57, 0.14, -0.02))],
                interp="LINEAR")
 
 
@@ -517,6 +538,9 @@ def _clean(sc, M, cam, tgt, n):
     """B2_08 (242 frames): across the collector surface: grey tin deposits on the mirror, the plasma's violet
     glow reflected in it; the camera slides over the dish towards its rim."""
     _dark_world()
+    # R4 (H6 fix): a bright polished multilayer dish (the R3 dark dish read as night sky with the deposits as stars)
+    M["coll"] = K.mat("CollectorMLPolished", (0.62, 0.6, 0.68), metal=1.0, rough=0.03, coat=0.6)
+    M["tin_dep"] = K.mat("TinDepositDull", (0.42, 0.43, 0.45), metal=1.0, rough=0.6, speck=0.4)
     chamber(M, seed=5)
     lights_chamber(0.7)
     pl, li = plasma(M, (0, 0, 0), 0.025)
@@ -526,11 +550,11 @@ def _clean(sc, M, cam, tgt, n):
     K.area("Graze", (-0.35, -0.75, -0.25), (-0.85, 0.1, 0.15), 0.5, 30, (0.85, 0.88, 1.0))
     rnd = random.Random(8)
     dep, film = K.MB(), K.MB()
-    for _ in range(900):
+    for _ in range(380):
         rr = math.sqrt(rnd.uniform(0.12 ** 2, 0.64 ** 2))
         a = rnd.uniform(0, 2 * math.pi)
         y, z = rr * math.cos(a), rr * math.sin(a)
-        s = rnd.uniform(0.002, 0.006) * (2.0 if rnd.random() < 0.06 else 1)
+        s = rnd.uniform(0.0015, 0.0035) * (1.8 if rnd.random() < 0.06 else 1)
         dep.sphere((coll_x(rr) - s * 0.45, y, z), s, 10)          # sunk: reads as a flattened bead
     for _ in range(25):                             # thin tin film patches
         rr = rnd.uniform(0.2, 0.6)
@@ -542,6 +566,11 @@ def _clean(sc, M, cam, tgt, n):
         film.cyl_m(Matrix.Translation(p) @ Vector((0, 0, 1)).rotation_difference(nrm).to_matrix().to_4x4(),
                    rnd.uniform(0.006, 0.014), 0.0015, seg=16)
     dob = dep.obj("TinDeposits", M["tin_dep"])
+    hz = K.MB()                                     # faint hydrogen-plasma glow hugging the dish (F28)
+    hz.sphere((COLL_X + 0.25, 0.1, 0.1), 0.42, 32)
+    hob = hz.obj("H2Glow", vol_glow("H2GlowM", (0.62, 0.55, 1.0), 0.07))
+    camera_only(hob)
+    K.anchors("B2_08", {"dep": Vector((coll_x(0.32), 0.05, 0.31)), "dish": Vector((coll_x(0.5), 0.35, -0.3))})
     dep2 = film.obj("TinFilm", M["tin_dep"])
     cam.data.lens = 35
     cam.data.dof.use_dof = True
@@ -552,20 +581,25 @@ def _clean(sc, M, cam, tgt, n):
 
 
 def _spectrum(sc, M, cam, tgt, n):
-    """B1_18 (194 frames): defocused plasma and chamber, dim enough for the spectrum HUD to sit on top."""
+    """B1_18 (194 frames): R4 (H14 fix): the real source chamber behind the spectrum HUD: polished collector dish
+    and the plasma on the right half, softly out of focus (f/2.8) but recognisable; the HUD sits on the left."""
     _dark_world()
+    M["coll"] = K.mat("CollectorMLPolished", (0.8, 0.78, 0.86), metal=1.0, rough=0.025, coat=0.6)
     chamber(M, seed=6)
-    lights_chamber(0.35)
+    lights_chamber(0.55)
     pl, li = plasma(M, (0, 0, 0), 0.03)
+    for ob in pl:
+        ob.visible_glossy = True
     key_energy(li, [(1, 40), (n, 45)])
-    cam.data.lens = 45
+    K.area("CollSoftbox", (0.2, -1.0, 0.75), (-0.75, 0.0, 0.0), 0.7, 30, (0.85, 0.9, 1.0))
+    cam.data.lens = 26
     cam.data.dof.use_dof = True
-    cam.data.dof.aperture_fstop = 1.4
+    cam.data.dof.aperture_fstop = 2.8
     foc = bpy.data.objects.new("Focus", None)
     sc.collection.objects.link(foc)
-    foc.location = (0.75, -0.45, 0.15)
+    foc.location = (0.0, 0.0, 0.0)
     cam.data.dof.focus_object = foc
-    K.key_path(cam, tgt, [(1, (1.0, -0.6, 0.18), (-0.25, 0.08, 0.0)), (n, (0.9, -0.52, 0.14), (-0.25, 0.08, 0.0))],
+    K.key_path(cam, tgt, [(1, (0.62, -0.5, 0.16), (-0.49, -0.05, -0.0)), (n, (0.58, -0.47, 0.15), (-0.5, -0.03, -0.0))],
                interp="LINEAR")
 
 

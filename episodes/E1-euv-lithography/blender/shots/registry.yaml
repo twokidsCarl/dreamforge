@@ -127,6 +127,8 @@ D_06: {scene: d_scenes, args: {variant: monolith}, camera: CamD_06, start: 1, st
 # ---- P1 round 2 (2026-10-23, SCALE_E1 v2 / Carl picks; old R1 lines kept above as comments) ----
 # R3 (2026-10-23): same entries, modules patched in place (solid mirrors + k4A beam columns, G2 fold mirror for 6 deg
 #   mask incidence, B8_03 stage close-up set, A2_08 / A2_03 on the out-of-focus machine, A0_02 motion layer)
+# R4 (2026-10-23): same entries again; B8_03 rebuilt (6 deg in/out at the mask, 3 PO mirrors, 8:1 stages on rulers),
+#   C_03 narrow V + patterned mask, B7_06 thin beams, B1_15 / B1_18 / B2_08 polished collector, smooth tin sheet
 A0_10: {scene: r2_cutaway, args: {variant: title, shot: A0_10}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
 B5_01: {scene: r2_cutaway, args: {variant: illum, shot: B5_01}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
 C_03: {scene: r2_cutaway, args: {variant: tour, shot: C_03}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
