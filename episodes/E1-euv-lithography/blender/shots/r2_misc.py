@@ -524,7 +524,10 @@ def _mirror(sc, n):
     bm.free()
     mir = bpy.data.objects.new("MirrorCap", me)
     sc.collection.objects.link(mir)
-    sub = K.mat("GlassCeramicBlank", (0.78, 0.72, 0.6), rough=0.28, coat=0.5)   # R5: Zerodur-like glass-ceramic
+    # R6: R5 blank read as matte plastic / cake. Polished multilayer face that mirrors the studio, fine-ground
+    # (sand-blasted) glass-ceramic sides with a chamfer catching the rim light
+    sub = K.mat("GlassCeramicGround", (0.66, 0.63, 0.58), rough=0.55, speck=0.35, coat=0.15)
+    M["coating"] = K.mat("MoSiPolishedR6", (0.8, 0.78, 0.9), metal=1.0, rough=0.025, coat=0.7)
     sc["hdri"] = "hangar_interior"
     sc["hdri_strength"] = 0.35
     me.materials.append(M["coating"])
@@ -573,7 +576,14 @@ def _mirror(sc, n):
     l.new(dz.outputs[0], band.inputs[0])
     mix = nn.new("ShaderNodeMix")
     mix.data_type = "RGBA"
-    mix.inputs["A"].default_value = (*K.lin((0.18, 0.19, 0.22)), 1)
+    mix.inputs["A"].default_value = (*K.lin((0.5, 0.48, 0.44)), 1)   # R6: fine-ground glass-ceramic, not blue plastic
+    b.inputs["Roughness"].default_value = 0.6
+    nz_ = nn.new("ShaderNodeTexNoise")
+    nz_.inputs["Scale"].default_value = 900.0
+    bp_ = nn.new("ShaderNodeBump")
+    bp_.inputs["Strength"].default_value = 0.12
+    l.new(nz_.outputs["Fac"], bp_.inputs["Height"])
+    l.new(bp_.outputs["Normal"], b.inputs["Normal"])
     l.new(band.outputs[0], mix.inputs["Factor"])
     l.new(ramp.outputs["Color"], mix.inputs["B"])
     l.new(mix.outputs["Result"], b.inputs["Base Color"])
@@ -598,12 +608,35 @@ def _mirror(sc, n):
     mbb.obj("Bolts", M["steel"])
     # violet EUV beam in and out at the mirror centre (reflects at the surface)
     hit = Vector((0.15, 0.25, 0.006))
-    din = Vector((-0.55, -0.15, 1.0)).normalized()
+    din = Vector((-0.75, -0.2, 1.0)).normalized()          # R6: more oblique so in / out form a visible V
     nrm = Vector((0, 0, 1))
     dout = (din - 2 * din.dot(nrm) * nrm) * -1
     bc = K.MB()                                              # R3: volume-light column, footprint spot on the face
-    K.beam_columns(bc, [hit + din * 6.0, hit, hit + Vector((-dout.x, -dout.y, dout.z)) * 6.0], [0.16, 0.1, 0.16])
+    K.beam_columns(bc, [hit + din * 6.0, hit, hit + Vector((-dout.x, -dout.y, dout.z)) * 6.0], [0.12, 0.08, 0.12])
+    # (the R5 out-leg above retraced the in-leg; dout itself is the reflected direction -> draw it)
     bc.obj("Beam", M["beam_wide"])
+    bo = K.MB()
+    K.beam_columns(bo, [hit, hit + Vector((din.x * -1, din.y * -1, din.z)) * 6.0], [0.08, 0.13])
+    bo.obj("BeamOut", K.beam_column_mat("EUVOut", K.VIOLET, strength=1.0, edge=0.45, core=0.08, vol=0.12))
+    # R6: mount detail: coolant ring with branch lines, three edge sensors, cable loom off the base
+    det, cu, cab = K.MB(), K.MB(), K.MB()
+    cu.ring((0, 0, -th - 0.13), R * 1.16, R * 1.12, 0.03, seg=96)
+    for i in range(8):
+        a = math.radians(45 * i + 10)
+        p0 = Vector((R * 1.14 * math.cos(a), R * 1.14 * math.sin(a), -th - 0.13))
+        cu.path([p0, p0 + Vector((0.12 * math.cos(a), 0.12 * math.sin(a), -0.05)),
+                 p0 + Vector((0.16 * math.cos(a), 0.16 * math.sin(a), -0.5))], 0.014, seg=8)
+    for i in range(3):
+        a = math.radians(120 * i + 70)
+        c0 = Vector((R * 1.2 * math.cos(a), R * 1.2 * math.sin(a), -th + 0.05))
+        det.box(c0, (0.12, 0.08, 0.1), rot=(0, 0, a))
+        det.cyl(c0 + Vector((-0.08 * math.cos(a), -0.08 * math.sin(a), 0)), 0.025, 0.06,
+                rot=(0, math.radians(90), a), seg=16)
+        cab.path([c0 + Vector((0, 0, -0.05)), c0 + Vector((0.1 * math.cos(a), 0.1 * math.sin(a), -0.4)),
+                  c0 + Vector((0.2 * math.cos(a), 0.2 * math.sin(a), -0.75))], 0.012, seg=8)
+    det.obj("EdgeSensors", M["anod"], bevel=0.004)
+    cu.obj("CoolantRing", M["copper"])
+    cab.obj("SensorCables", M["cable_b"])
     sp = K.MB()
     sp.cyl((hit.x, hit.y, hit.z + 0.003), 0.12, 0.002, seg=32)
     sp.obj("BeamSpot", M["spot"])
@@ -623,7 +656,7 @@ def _mirror(sc, n):
                           (round(n * 0.55), tuple(gapdir * 2.2 + Vector((0, 0, 0.8))), (edge * 0.6)),
                           (n, tuple(edge + gapdir * 0.55 + Vector((0, 0, 0.12)) + Vector((-math.sin(a_cut0), math.cos(a_cut0), 0)) * 0.35), edge)])
     sc["hdri"] = "studio_small_09"
-    sc["hdri_strength"] = 0.4
+    sc["hdri_strength"] = 0.6
     return cam
 
 
@@ -904,9 +937,9 @@ def _wafer(sc, n):
     l.new(inside.outputs[0], on.inputs[1])
     hot = nn.new("ShaderNodeMapRange")            # the field being exposed right now is brightest
     hot.inputs["From Min"].default_value = 0.0
-    hot.inputs["From Max"].default_value = 0.02
-    hot.inputs["To Min"].default_value = 6.0
-    hot.inputs["To Max"].default_value = 0.25           # R4: done fields only a faint latent tint
+    hot.inputs["From Max"].default_value = 0.012
+    hot.inputs["To Min"].default_value = 2.2            # R6: was 6 -> compositor bloom read as a white band
+    hot.inputs["To Max"].default_value = 0.9            # R6: done fields clearly filled (R5: too faint to read)
     l.new(d.outputs[0], hot.inputs["Value"])
     st = nn.new("ShaderNodeMath")
     st.operation = "MULTIPLY"
@@ -918,7 +951,7 @@ def _wafer(sc, n):
     tr = nn.new("ShaderNodeBsdfTransparent")
     al = nn.new("ShaderNodeMath")
     al.operation = "MULTIPLY"
-    al.inputs[1].default_value = 0.22
+    al.inputs[1].default_value = 0.5
     l.new(on.outputs[0], al.inputs[0])
     mx = nn.new("ShaderNodeMixShader")
     l.new(al.outputs[0], mx.inputs["Fac"])
@@ -930,7 +963,7 @@ def _wafer(sc, n):
     # scan slit above the wafer following the current field (thin violet bar)
     slit = K.MB()
     slit.box((0, 0, 0), (0.26, 0.02, 0.004))
-    so = slit.obj("Slit", K.emit_mat("SlitM", K.VIOLET, 12.0))
+    so = slit.obj("Slit", K.emit_mat("SlitM", K.VIOLET, 4.0, halo=0.3))
     for k, (_, j, i, cx, cy) in enumerate(keep):
         if k % 6 == 0 or k == len(keep) - 1:
             so.location = (cx, cy, 0.03)
@@ -958,7 +991,12 @@ def _wafer(sc, n):
         ob.keyframe_insert("hide_render", frame=t_on)
     K.area("Key", (-3, -4, 6), (0.8, 0, 0), 5, 1500, (0.95, 0.96, 1.0))
     K.area("Rim", (2, 5, 3), (1, 0, 0), 6, 900, (0.75, 0.8, 1.0))
-    K.area("Strip", (-5, 1, 3), (0, 0, 0), 0.5, 600, (1, 1, 1), size_y=6)
+    # R6: the R5 strip light mirrored in the wafer as a blown-out white band that read as the exposure light
+    K.area("Strip", (-5, 4, 2.0), (0, 0, 0), 0.5, 220, (1, 1, 1), size_y=6)
+    for nm in ("Key", "Strip", "Rim"):                  # their mirror images on the wafer read as a white slit
+        bpy.data.objects[nm].visible_glossy = False
+    K.area("CasSheen", (6, -2.5, 4), (3.4, 0, 0.6), 3, 900, (0.95, 0.97, 1.0))   # sheen on cassette / chuck rim
+    K.area("ChuckKick", (-3.5, -1.5, 0.6), (0, 0, 0), 2, 250, (0.85, 0.9, 1.0))
     K.floor("Floor", K.mat("FloorDark", (0.04, 0.045, 0.055), rough=0.35), z=-0.48)
     cam, tgt = K.camera("CamR2", lens=32)
     _dof(cam, 8.0, tgt)
@@ -1055,15 +1093,21 @@ def _wave(sc, n):
         br.box((x, y, (z193 + z135) / 2), (0.004, 0.004, 0.62))
     br.obj("SpanTicks", K.emit_mat("TickInk", (0.8, 0.84, 0.92), 2.0))
     cam, tgt = K.camera("CamR2", lens=35)
-    K.key_path(cam, tgt, [(1, (1.25, -5.0, 1.9), (1.45, 0, 1.6)), (n, (1.75, -4.6, 1.8), (1.6, 0, 1.6))],
-               interp="LINEAR")
+    # R6 (D): parallax arc - the camera trucks 1.1 m while aiming through the wave centre, so the waves stay put
+    # and the out-of-focus machine behind slides by ~1.2 m (R5 read the background as frozen)
+    def _aim(cxm, cym, czm):
+        k = -cym / (y - cym)
+        return (cxm + (cx - cxm) * k, 0.0, czm + ((z193 + z135) / 2 - czm) * k)
+    K.key_path(cam, tgt, [(1, (1.0, -5.0, 1.95), _aim(1.0, -5.0, 1.95)),
+                          (n, (2.1, -4.85, 1.72), _aim(2.1, -4.85, 1.72))], interp="LINEAR")
     foc = bpy.data.objects.new("WaveFocus", None)
     sc.collection.objects.link(foc)
     foc.location = (cx, y, (z193 + z135) / 2)
-    _dof(cam, 0.3, foc)
+    _dof(cam, 0.5, foc)
     K.anchors("A2_08", {"w193": Vector((cx - span / 2 + lam193 * 0.25, y, z193 + 0.11)),
                         "w135": Vector((cx + span * 0.3, y, z135 + 0.07)),
                         "span_l": Vector((cx - span / 2, y, z135 - 0.31)), "span_r": Vector((cx + span / 2, y, z135 - 0.31)),
+                        "p0": Vector((cx - span / 2, y, z135 - 0.12)), "p1": Vector((cx - span / 2 + lam193, y, z135 - 0.12)),
                         "wafer": B.WAFER})
     return cam
 
@@ -1073,9 +1117,18 @@ def _bokeh(sc, n):
     the lambda -> beam and NA -> mirror leader lines."""
     B = _machine_backdrop(sc)
     cam, tgt = K.camera("CamR2", lens=32)
-    K.key_path(cam, tgt, [(1, (0.6, -4.6, 2.7), (1.6, 0, 2.55)), (n, (1.4, -4.4, 2.5), (1.9, 0, 2.5))],
-               interp="LINEAR")
-    _dof(cam, 0.35, None, dist=1.4)
+    # R6 (D): push in + rack focus: starts soft (formula beat), focus pulls onto the projection mirror the NA
+    # leader points at, so the background changes and the leader lands on a sharp mirror and its light cone
+    K.key_path(cam, tgt, [(1, (0.5, -4.7, 2.75), (1.6, 0, 2.55)), (n, (1.6, -3.7, 2.45), (2.0, 0, 2.45))],
+               interp="BEZIER")
+    foc = bpy.data.objects.new("NAFocus", None)
+    sc.collection.objects.link(foc)
+    foc.location = (0.9, -3.0, 2.6)
+    foc.keyframe_insert("location", frame=1)
+    foc.keyframe_insert("location", frame=round(n * 0.35))
+    foc.location = tuple(B.PO[5])
+    foc.keyframe_insert("location", frame=round(n * 0.75))
+    _dof(cam, 1.2, foc)
     K.anchors("A2_03", {"beam": B.PO[1].lerp(B.PO[2], 0.5), "mirror": B.PO[5], "wafer": B.WAFER, "mask": B.MASK})
     return cam
 

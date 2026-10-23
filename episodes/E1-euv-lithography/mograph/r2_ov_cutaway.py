@@ -35,9 +35,16 @@ def title(img, t, dur, W, H):
         L.g.rectangle((x0, y, x0 + (x1 - x0) * k, y + max(3, H * 0.008)), fill=(*VIOLET, int(160 * a)))
     L.text((0.5, b[3] / H + 0.045), "WHAT HAPPENS INSIDE AN EUV LITHOGRAPHY MACHINE", 0.026, INK2,
            fade(t, 1.6, None, 0.8), anchor="ma")
-    e = anchor("A0_10", t, "eng", (0.5, 0.72))
-    # R4: small tag beside the pair, below the machine line (R3: it sat mid-frame on the machine)
-    L.label(e, (max(0.04, e[0] - 0.12), min(0.78, e[1] + 0.14)), ["人 ≈ 1.8 m", "机器为示意"], fade(t, 3.0, None), size=0.03)
+    # R6: a height dimension line right beside the standing figure (R5: the leader dot sat in the beam path)
+    a4 = fade(t, 3.0, None)
+    d1, d0 = anchor("A0_10", t, "eng_dim", (0.2, 0.62)), anchor("A0_10", t, "eng_dim0", (0.2, 0.8))
+    if a4 > 0:
+        lw = max(2, int(H * 0.003))
+        col = (*CYAN, int(240 * a4))
+        L.d.line([L.P(d0), L.P(d1)], fill=col, width=lw)
+        for p in (d0, d1):
+            L.d.line([L.P((p[0] - 0.008, p[1])), L.P((p[0] + 0.008, p[1]))], fill=col, width=lw)
+        L.tag((d1[0] - 0.012, (d0[1] + d1[1]) / 2 - 0.04), ["人 ≈ 1.8 m", "机器为示意"], a4, size=0.03, anchor="ra")
     return L.compose(img)
 
 
@@ -126,7 +133,7 @@ def crates(img, t, dur, W, H):
     """R3 (7A): every number sits on its object with a leader (crates, freighter, trucks) as the camera trucks
     along the row; the container step has no object in this plate, so it joins the chain line top right."""
     L = Layer(W, H)
-    steps = [(0.6, (-1.94, -0.91), (0.16, 0.5), ["250+ 个", "白色铝框板条箱"]),
+    steps = [(0.6, (-1.94, -0.91), (0.16, 0.5), ["250+ 个白色铝框板条箱", "装进 43 个集装箱"]),
              (4.0, (-1.29, 2.17), (0.08, 0.34), ["几架", "货机"]),
              (6.4, (5.63, 0.56), (0.62, 0.58), ["20 辆", "卡车"])]
     for t0, pp, tagp, lines in steps:
@@ -137,6 +144,5 @@ def crates(img, t, dur, W, H):
         if not (0.02 < p[0] < 0.98):
             continue
         L.label(p, tagp if tagp[0] < p[0] else tagp, lines, a, size=0.05)
-    a2 = fade(t, 2.4, None, 0.5)
-    L.tag((0.64, 0.06), ["250+ 箱 → 43 个集装箱", "→ 几架货机 → 20 辆卡车"], a2, size=0.036)
+    # R6: the separate chain summary (top right) repeated the per-object tags -> folded into the crate tag
     return L.compose(img)

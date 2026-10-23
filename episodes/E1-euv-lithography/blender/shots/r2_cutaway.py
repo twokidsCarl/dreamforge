@@ -140,7 +140,8 @@ def build(variant="illum", shot=None):
     K.anchors(shot, {"plasma": B.PLASMA, "coll": B.COLL + Vector((0.12, 0, 0.35)), "hole": B.COLL + Vector((0.02, 0, 0)),
                      "if": B.IF, "ffm": B.FFM, "pfm": B.PFM, "g1": B.G1, "mask": B.MASK, "rstage": B.MASK + Vector((0, -0.9, 0.35)),
                      "po": B.PO[2], "wafer": B.WAFER, "wstage": B.WAFER + Vector((-0.5, -0.6, -0.05)),
-                     "eng": Vector((-2.7, -2.4, 1.9))})
+                     "eng": Vector((-3.0, -2.3, 1.84)), "eng_ft": Vector((-3.0, -2.3, 0.0)),
+                     "eng_dim": Vector((-3.32, -2.3, 1.78)), "eng_dim0": Vector((-3.32, -2.3, 0.0))})
     return sc
 
 
@@ -467,6 +468,79 @@ def _keys_linear(ob, prop, frames_vals, index=-1):
             k.interpolation = "LINEAR"
 
 
+def _bay_fill(M, x0, x1, z0, z1, yb, seed=0, tag="B"):
+    """R6 (H13, B8_03): dense, nameable machine parts on a bay's back plate (front face at y = yb), all behind the
+    beam plane (y = 0): a metrology frame of bolted bars, a cable tray with looms, a coolant manifold with
+    branch lines and valves, CF flanges with sensor heads, finned drive amplifiers and terminal-block rows."""
+    import random as _r
+    rnd = _r.Random(seed)
+    P = {k: K.MB() for k in ("frame", "bolt", "tray", "loom", "cu", "valve", "flange", "sensor", "lens", "drive",
+                             "fin", "term", "wire_o", "wire_b", "led")}
+    y = yb - 0.012
+    w, h = x1 - x0, z1 - z0
+    # metrology frame: two horizontals + verticals every ~0.4 m, bolted at the joints
+    for z in (z0 + 0.06, z1 - 0.06):
+        P["frame"].box(((x0 + x1) / 2, y - 0.02, z), (w, 0.04, 0.035))
+    nx = max(2, int(w / 0.4))
+    for i in range(nx + 1):
+        x = x0 + 0.03 + (w - 0.06) * i / nx
+        P["frame"].box((x, y - 0.02, (z0 + z1) / 2), (0.035, 0.04, h - 0.04))
+        for z in (z0 + 0.06, z1 - 0.06):
+            P["bolt"].cyl((x, y - 0.045, z), 0.009, 0.012, rot=(math.radians(90), 0, 0), seg=8)
+    # cable tray (open channel) along the top with a loom inside, drops to each drive
+    zt = z1 - 0.13
+    P["tray"].box(((x0 + x1) / 2, y - 0.05, zt - 0.03), (w - 0.1, 0.07, 0.008))
+    P["tray"].box(((x0 + x1) / 2, y - 0.085, zt), (w - 0.1, 0.006, 0.06))
+    K.cable_run(P["loom"], [(x0 + 0.06, y - 0.05, zt - 0.01), (x1 - 0.06, y - 0.05, zt - 0.01)], n=6, r=0.007,
+                spread=0.018, seed=seed)
+    # coolant manifold: horizontal header low on the plate, branch lines up with valves
+    zm = z0 + 0.16
+    P["cu"].tube((x0 + 0.05, y - 0.06, zm), (x1 - 0.05, y - 0.06, zm), 0.016, seg=12)
+    P["cu"].tube((x0 + 0.05, y - 0.1, zm + 0.05), (x1 - 0.05, y - 0.1, zm + 0.05), 0.012, seg=12)
+    for i in range(int(w / 0.22)):
+        x = x0 + 0.12 + i * 0.22
+        P["cu"].path([(x, y - 0.06, zm), (x, y - 0.06, zm + 0.12), (x + 0.04, y - 0.09, zm + 0.2)], 0.007, seg=8)
+        P["valve"].box((x, y - 0.075, zm + 0.08), (0.03, 0.03, 0.03))
+        P["valve"].cyl((x, y - 0.1, zm + 0.08), 0.012, 0.02, rot=(math.radians(90), 0, 0), seg=10)
+    # CF flanges with sensor heads / feedthroughs
+    nfl = max(2, int(w / 0.5))
+    for i in range(nfl):
+        x = x0 + (i + 0.5) * w / nfl + rnd.uniform(-0.05, 0.05)
+        z = z0 + h * rnd.uniform(0.45, 0.62)
+        r = rnd.choice((0.045, 0.06, 0.075))
+        rot = (math.radians(90), 0, 0)
+        P["flange"].ring((x, y - 0.005, z), r * 1.6, r * 0.6, 0.02, rot=rot, seg=32)
+        P["bolt"].bolts((x, y - 0.018, z), r * 1.3, 8, 0.006, 0.01, rot=rot)
+        P["sensor"].cyl((x, y - 0.06, z), r * 0.55, 0.09, rot=rot, seg=20)
+        P["lens"].cyl((x, y - 0.107, z), r * 0.35, 0.006, rot=rot, seg=20)
+        P["led"].box((x + r * 0.7, y - 0.03, z + r * 0.9), (0.012, 0.004, 0.008))
+    # drive amplifiers with cooling fins + terminal rows with wires
+    nd = max(1, int(w / 0.6))
+    for i in range(nd):
+        x = x0 + (i + 0.5) * w / nd + 0.12
+        z = z0 + h * 0.36
+        P["drive"].box((x, y - 0.04, z), (0.16, 0.08, 0.12))
+        for k in range(7):
+            P["fin"].box((x - 0.06 + k * 0.02, y - 0.09, z), (0.006, 0.03, 0.11))
+        P["led"].box((x + 0.06, y - 0.081, z + 0.045), (0.01, 0.003, 0.008))
+        P["loom"].path([(x, y - 0.05, z + 0.06), (x, y - 0.05, zt - 0.03)], 0.006, seg=8)
+    zr = z0 + h * 0.78 if h > 0.8 else z0 + h * 0.5
+    nt = int((w - 0.2) / 0.035)
+    for k in range(nt):
+        x = x0 + 0.1 + k * 0.035
+        if h <= 0.8 and abs(x - (x0 + x1) / 2) < 0.25:
+            continue
+        P["term"].box((x, y - 0.025, zr), (0.03, 0.05, 0.05))
+        (P["wire_o"] if k % 3 == 0 else P["wire_b"]).path(
+            [(x, y - 0.05, zr + 0.025), (x, y - 0.06, zr + 0.06), (x + 0.01, y - 0.06, zt - 0.03)], 0.003, seg=6)
+    mats = {"frame": M["alu"], "bolt": M["steel"], "tray": M["alu_dark"], "loom": M["cable_g"], "cu": M["copper"],
+            "valve": M["steel"], "flange": M["alu"], "sensor": M["anod"], "lens": M["glass"], "drive": M["anod"],
+            "fin": M["alu"], "term": M["paint_grey"], "wire_o": M["cable_o"], "wire_b": M["cable_b"],
+            "led": M["led_c"]}
+    for k, mb in P.items():
+        mb.obj(f"{tag}Fill_{k}", mats[k], bevel=0.004 if k in ("frame", "drive", "tray") else 0.0)
+
+
 def _scan_r5(sc, M, n, shot):
     """B8_03 (R5 rebuild). R4 review: the long upper-left illumination leg read as hitting a PO mirror and the
     stage travel could not be read (D 55). Now:
@@ -479,12 +553,17 @@ def _scan_r5(sc, M, n, shot):
     th6 = math.tan(math.radians(6.0))
     mask_c, waf_c = Vector((0, 0, MZ)), Vector((0, 0, WZ))
     g2 = Vector((-th6 * 1.25, 0, MZ - 1.25))                 # last illuminator mirror
-    src = Vector((-1.45, 0, g2.z))
-    m1 = Vector((th6 * (MZ - 1.32), 0, 1.32))
-    m2 = Vector((1.3, 0, 1.92))
-    m3 = Vector((0.62, 0, 1.04))
-    pts = [src, g2, mask_c + Vector((0, 0, -0.012)), m1, m2, m3, waf_c + Vector((0, 0, 0.004))]
+    # R6 (H13): real illuminator train (field facets -> pupil facets -> G1 -> G2) and six PO mirrors M1-M6 in
+    # one non-crossing fold, instead of a single feed leg and three mirrors in an empty grey box
+    src = Vector((-1.95, 0, 1.62))
+    ff, pf, g1 = Vector((-1.5, 0, 1.3)), Vector((-0.88, 0, 1.72)), Vector((-0.52, 0, 1.3))
+    m1 = Vector((th6 * (MZ - 1.75), 0, 1.75))
+    m2, m3, m4 = Vector((1.6, 0, 2.08)), Vector((0.66, 0, 1.66)), Vector((1.6, 0, 1.4))
+    m5, m6 = Vector((0.98, 0, 1.06)), Vector((0.42, 0, 1.2))
+    pts = [src, ff, pf, g1, g2, mask_c + Vector((0, 0, -0.012)), m1, m2, m3, m4, m5, m6,
+           waf_c + Vector((0, 0, 0.004))]
     alu, anod, steel = M["alu"], M["anod"], M["steel"]
+    M["section"] = K.mat("SectionMetalR6", (0.4, 0.41, 0.44), metal=1.0, rough=0.32, brushed=0.1)
     dk = K.mat("WallDark", (0.05, 0.055, 0.065), metal=0.5, rough=0.5)
     U = 0.2                                                    # one ruler unit
     a_r, a_w = 4 * U, U / 2                                    # stage travel half-ranges (8 : 1)
@@ -564,8 +643,6 @@ def _scan_r5(sc, M, n, shot):
     il["port"].ring((-1.95, 0, g2.z), 0.1, 0.06, 0.06, rot=(0, math.radians(90), 0), seg=32)
     for i in range(14):
         il["bolt"].cyl((-1.95 + i * 0.13, -0.27, 1.88), 0.01, 0.02, seg=6)
-    for x, z in ((-1.6, 1.33), (-0.9, 1.7), (-0.55, 1.33)):          # actuator / sensor blocks on the back plate
-        il["box"].box((x, 0.15, z), (0.18, 0.14, 0.16))
     il["box"].obj("Illum_box", anod, bevel=0.008)
     il["sec"].obj("Illum_sec", M["section"])
     il["bolt"].obj("Illum_bolt", steel)
@@ -582,9 +659,6 @@ def _scan_r5(sc, M, n, shot):
         sec.box((0.95, -0.232, z), (1.9, 0.01, 0.052))
         for i in range(16):
             K.MB.cyl(fl, (0.1 + i * 0.115, -0.2, z + 0.03), 0.01, 0.02, seg=6)
-    for x, z in ((1.6, 1.3), (1.55, 2.1), (0.35, 1.8), (1.1, 1.0)):
-        cg.box((x, 0.32, z), (0.18, 0.14, 0.2))
-        fl.box((x, 0.245, z + 0.06), (0.04, 0.01, 0.025))
     cg.obj("POCage", anod, bevel=0.008)
     sec.obj("POCageSection", M["section"])
     fl.obj("POCageBolts", steel)
@@ -593,11 +667,23 @@ def _scan_r5(sc, M, n, shot):
     K.cable_run(lm, [(1.8, 0.3, 2.22), (1.8, 0.32, 1.5), (1.78, 0.3, 0.98)], n=4, r=0.009, seed=6)
     lm.obj("POCageLoom", M["cable_g"])
     mm = {k: K.MB() for k in ("mirror", "mount", "bolt", "substrate", "spot", "copper", "cable_o", "cable_b")}
-    for i, (p_, r_) in enumerate(((g2, 0.11), (m1, 0.13), (m2, 0.22), (m3, 0.17))):
+    facets = K.MB()
+    for i, (p_, r_) in enumerate(((ff, 0.1), (pf, 0.1), (g1, 0.08), (g2, 0.1), (m1, 0.075), (m2, 0.19), (m3, 0.14),
+                                  (m4, 0.17), (m5, 0.12), (m6, 0.11))):
         j = pts.index(p_)
-        K.mirror_with_mount(mm["mirror"], mm["mount"], mm["bolt"], p_, K.mirror_normal(pts[j - 1], p_, pts[j + 1]), r_,
+        nrm = K.mirror_normal(pts[j - 1], p_, pts[j + 1])
+        K.mirror_with_mount(mm["mirror"], mm["mount"], mm["bolt"], p_, nrm, r_,
                             seed=i, mbsub=mm["substrate"], mbspot=mm["spot"], spot=0.55, mbpipe=mm["copper"],
                             mbcable=mm["cable_b" if i % 2 else "cable_o"])
+        if i < 2:                                          # field / pupil facet mirrors: a grid of small tiles
+            qf = Vector((0, 0, 1)).rotation_difference(nrm)
+            Rf = qf.to_matrix()
+            for u in range(-3, 4):
+                for v in range(-3, 4):
+                    o = Vector((u * 0.026, v * 0.026, 0))
+                    if o.length < r_ * 0.9:
+                        facets.box(p_ + nrm * 0.003 + Rf @ o, (0.022, 0.022, 0.006), rot=qf.to_euler())
+    facets.obj("FacetTiles", M["coating"])
     for k, m_ in (("mirror", M["coating"]), ("mount", alu), ("bolt", steel), ("substrate", M["substrate"]),
                   ("spot", M["spot"]), ("copper", M["steel"]), ("cable_o", M["cable_g"]), ("cable_b", M["cable_b"])):
         mm[k].obj("POm_" + k, m_)
@@ -608,13 +694,17 @@ def _scan_r5(sc, M, n, shot):
     core.obj("ScanCore", M["beam"])
     halo.obj("ScanHalo", M["beam_halo"])
     col = K.MB()
-    K.beam_columns(col, pts, [0.035, 0.035, 0.03, 0.03, 0.045, 0.035, 0.01])
+    K.beam_columns(col, pts, [0.03, 0.03, 0.03, 0.03, 0.035, 0.03, 0.03, 0.04, 0.035, 0.035, 0.03, 0.025, 0.01])
     col.obj("ScanCol", K.beam_column_mat("EUVColS", K.VIOLET, strength=0.9, edge=0.18, core=0.02, vol=0.05))
     sl = K.MB()
     sl.box((0, 0, WZ + 0.0035), (0.012, 0.11, 0.002))
     sl.obj("SlitW", K.emit_mat("SlitGlow", K.VIOLET, 30.0))
-    for i, p_ in enumerate((g2, m1, m2, m3, mask_c + Vector((0, 0, -0.1)), waf_c + Vector((0, 0, 0.12)))):
-        K.point(f"Bounce{i}", p_ + Vector((0, -0.22, 0)), 10, K.VIOLET, 0.06)
+    for i, p_ in enumerate((ff, pf, g1, g2, m1, m2, m3, m4, m5, m6, mask_c + Vector((0, 0, -0.1)),
+                            waf_c + Vector((0, 0, 0.12)))):
+        K.point(f"Bounce{i}", p_ + Vector((0, -0.22, 0)), 7, K.VIOLET, 0.06)
+    # R6 (H13): fill both bays with named mechatronics (frames, trays, manifolds, flanges, drives, terminals)
+    _bay_fill(M, -1.95, -0.2, 1.24, 1.8, 0.21, seed=11, tag="Il")
+    _bay_fill(M, 0.1, 1.82, 0.95, 2.25, 0.39, seed=12, tag="PO")
 
     # ---- rulers (same unit U for both stages): reticle 0..8 under the bridge, wafer 0..1 on the granite front
     ink = K.emit_mat("RulerInk", (0.86, 0.9, 0.96), 3.0)
@@ -684,6 +774,9 @@ def _scan_r5(sc, M, n, shot):
     K.area("RimTop", (1.5, 1.0, 4.6), (0, 0, MZ), 2.0, 500, (0.8, 0.85, 1.0))
     K.area("POKey", (2.6, -2.8, 2.0), (0.9, 0.2, 1.6), 2.0, 300, (0.95, 0.97, 1.0))
     K.area("IlKey", (-2.5, -2.5, 2.4), (-1.0, 0.2, 1.5), 1.6, 160, (0.95, 0.97, 1.0))
+    K.area("BayFillL", (-1.0, -2.2, 1.55), (-1.0, 0.25, 1.5), 1.2, 60, (0.9, 0.93, 1.0))
+    K.area("BayFillP", (1.0, -2.6, 1.7), (0.95, 0.4, 1.6), 1.6, 110, (0.9, 0.93, 1.0))
+    K.area("RimPO", (2.8, 1.2, 2.6), (0.95, 0.0, 1.6), 1.2, 160, (0.75, 0.82, 1.0))
     cam, tgt = K.camera("CamR2", lens=31)
     K.key_path(cam, tgt, [(1, (-0.1, -6.0, 1.95), (0.12, 0.2, 1.72)), (n, (0.4, -5.7, 1.9), (0.22, 0.2, 1.72))],
                interp="LINEAR")
