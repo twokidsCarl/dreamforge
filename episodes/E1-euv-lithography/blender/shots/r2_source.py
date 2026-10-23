@@ -864,6 +864,13 @@ RIM_R16 = {"cold": dict(rim=(-0.25, 0.42, 0.5), rim_energy=90.0, rim_radius=0.25
 R20_SHOTS = {"B1_15", "A0_01", "B1_10"}
 # R21 (R21_ROOT_CAUSE rows 1 / 2 / 6, src sub-agent): shots using round-21 assets (remove an id -> R20 pixels)
 R21_SHOTS = {"B1_15", "B1_10", "A0_01"}   # main process 32-spp smoke re-enabled A0_01; B2_08 (b208_r21): no GO smoke in time -> R20 pixels; add back to re-enable
+# R22 (R22_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process. For a shot in a set,
+# build() calls <hook>.pre(variant, shot, module) first (may patch module globals / functions) and
+# <hook>.post(sc, variant, shot) last (may add / replace / delete objects, move the camera). Remove a shot id from its
+# set -> exact R21 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
+R22_SRC = {"B1_15", "B2_08"}            # src-a agent: b115_r22.py (B1_15) / b208_r22.py (B2_08)
+R22_TIN = {"A0_01", "B1_10", "B1_08"}   # tin agent: source_r22.py
+R22_HOOKS = [({"B1_15"} & R22_SRC, "b115_r22"), ({"B2_08"} & R22_SRC, "b208_r22"), (R22_TIN, "source_r22")]
 _SHOT = [None]
 
 
@@ -875,8 +882,27 @@ def _r20(shot_id):
     return _SHOT[0] == shot_id and shot_id in R20_SHOTS
 
 
+def _r22_hooks(shot):
+    """R22: hook modules for this shot (in set order)."""
+    import importlib
+    return [importlib.import_module(h) for s_, h in R22_HOOKS if shot in s_]
+
+
+def _r22_pre(variant, shot):
+    for h in _r22_hooks(shot):
+        if hasattr(h, "pre"):
+            h.pre(variant, shot, __import__(__name__))
+
+
+def _r22_post(sc, variant, shot):
+    for h in _r22_hooks(shot):
+        if hasattr(h, "post"):
+            h.post(sc, variant, shot)
+
+
 def build(variant="cold", shot=None):
     _SHOT[0] = shot
+    _r22_pre(variant, shot)
     n = K.nframes(shot) if shot else 120
     sc = C.reset_scene(n)
     M = _mats()
@@ -895,6 +921,7 @@ def build(variant="cold", shot=None):
         if callable(post):                        # R17: shapeless (point / sphere) fills added after the relight
             post(sc)
     sc.camera = cam
+    _r22_post(sc, variant, shot)
     return sc
 
 

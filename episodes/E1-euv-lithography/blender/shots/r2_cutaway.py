@@ -33,6 +33,14 @@ _R20 = [None]
 R21_HERO = {"B5_01"}   # cuth R21 smoke: B3_02 Q4 no (cone volume over the dish reflection + floating scaled holder bolts) -> R20 pixels
 R21_2B = {"B7_06", "A0_10", "B8_03", "B8_03M"}   # cutb R21 smoke 06:42: C_03 (not built) stays R20; B8_03 + B8_03M re-enabled by main process for its 32-spp smoke; candidates: {"C_03", "B8_03", "B8_03M"}
 R21_SHOTS = R21_HERO | R21_2B
+# R22 (R22_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process. For a shot in a set,
+# build() calls <hook>.pre(variant, shot, module) first (may patch module globals / functions) and
+# <hook>.post(sc, variant, shot) last (may add / replace / delete objects, move the camera). Remove a shot id from its
+# set -> exact R21 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
+#   cuth owns R22_HERO + scripts/cut_hero_r22.py + scripts/kit_r22.py; cutb owns R22_2B + scripts/cut_2b_r22.py.
+R22_HERO = {"B3_02", "B5_01", "C_03"}
+R22_2B = {"B7_06", "A0_10", "B8_03", "B8_03M"}
+R22_HOOKS = [(R22_HERO, "cut_hero_r22"), (R22_2B, "cut_2b_r22")]
 _R21 = [None]
 
 
@@ -60,7 +68,26 @@ def _lights_studio():
     K.area("Top", (-3, 0, 14), (-3, 0, 0), 20, 5000, (1, 1, 1), size_y=8)
 
 
+def _r22_hooks(shot):
+    """R22: hook modules for this shot (in set order)."""
+    import importlib
+    return [importlib.import_module(h) for s_, h in R22_HOOKS if shot in s_]
+
+
+def _r22_pre(variant, shot):
+    for h in _r22_hooks(shot):
+        if hasattr(h, "pre"):
+            h.pre(variant, shot, __import__(__name__))
+
+
+def _r22_post(sc, variant, shot):
+    for h in _r22_hooks(shot):
+        if hasattr(h, "post"):
+            h.post(sc, variant, shot)
+
+
 def build(variant="illum", shot=None):
+    _r22_pre(variant, shot)
     import beam_r12 as BR
     import beam_r16 as R16                    # R16 row 3: diverge -> gather legs, ends fade, line landing on the slit
     R16.install()
@@ -119,6 +146,7 @@ def build(variant="illum", shot=None):
     if _R21[0] in R21_2B:                     # R21 row 3 (cut-beam)
         import cut_2b_r21 as T21
         T21.post(sc, variant, shot)
+    _r22_post(sc, variant, shot)
     return sc
 
 
