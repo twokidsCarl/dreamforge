@@ -24,12 +24,15 @@ G1 = Vector((-1.35, 0.3, 2.75))          # grazing / condenser mirror
 MASK = Vector((0.55, 0.3, 4.35))         # mask surface (pattern faces down)
 # R3: grazing fold mirror right under the mask so the beam meets the mask at ~6 deg from the normal (was ~35 deg,
 # contradicting the "约 6° 斜入射" label); PO mirror 1 sits at the mirror-image 6 deg on the other side.
-G2 = Vector((0.30, 0.3, 2.0))            # incidence atan(0.25 / 2.35) = 6.1 deg
+G2 = Vector((0.18, 0.3, 2.0))            # R10: drawn ~9 deg so the in / out cones separate (label: ~5.4 deg, enlarged)
 # R9 (one clean line): the six PO mirrors fold without any crossing - up, down, up, down the right wall, back left,
 # then down onto the wafer (R2-R8 order crossed legs 2-3 and 4-5)
-PO = [Vector(v) for v in ((0.82, 0.25, 1.75), (1.45, 0.15, 3.75), (2.25, 0.05, 2.2), (2.75, 0.0, 3.6),
+PO = [Vector(v) for v in ((0.93, 0.25, 1.75), (1.45, 0.15, 3.75), (2.25, 0.05, 2.2), (2.75, 0.0, 3.6),
                          (2.6, 0.0, 1.4), (2.0, 0.0, 1.75))]
 WAFER = Vector((1.75, 0.0, 0.62))
+
+
+FRONT_POSTS_SKIP = ()     # R10: tour (C_03) drops the front posts that blocked the main path
 
 
 def _frame(M, mbs, studio):
@@ -38,6 +41,8 @@ def _frame(M, mbs, studio):
     xs = [-9.4, -6.0, -4.0, -0.9, 3.4]
     for x in xs:
         for y in (1.35, -1.35):
+            if y < 0 and x in FRONT_POSTS_SKIP:
+                continue
             fr.box((x, y, 2.4), (0.22, 0.22, 4.8))
             fr.box((x, y, 0.06), (0.42, 0.42, 0.12))                    # foot plate
             for dx in (-0.15, 0.15):
@@ -58,12 +63,12 @@ def _frame(M, mbs, studio):
     for z in (1.0, 2.0, 3.1, 4.1):
         w.box((-3.0, 1.43, z), (12.5, 0.07, 0.05))
     # R9 (k2B density): the long enclosure wall carries the same three layers as the module back plates
-    import parts_kit_r8 as PK
-    P = PK.new_parts()
+    # R10: nameable parts only (profile frame, CF viewports, valve islands, turbo pumps + gate valves, hose bundles,
+    # hexapod sensor mounts, tied harnesses) - the R9 PCB / LED-box / random-block layers are gone
+    import hero_kit_r10 as HK
+    P = HK.new_parts()
     opt = [(PLASMA, 1.5), (COLL, 1.0), (IF, 0.5)]
-    PK.back_layer(P, -9.3, 3.3, 0.5, 4.7, 1.4, seed=31, cell=0.3)
-    PK.mid_layer(P, -9.2, 3.2, 0.6, 4.6, 1.38, depth=0.3, seed=32, keep=opt, cell=0.55)
-    PK.populate_wall(P, -9.2, 3.2, 0.6, 4.6, 1.36, seed=33, keep=opt, scale=1.3, dense=False)
+    HK.wall_r10(P, -9.25, 3.25, 0.5, 4.7, 1.4, seed=33, keep=opt, scale=1.25, depth=1.3)
     PENDING_KITS.append(P)
     # floor grating
     g = mbs["grate"]
@@ -102,9 +107,8 @@ def _vessel(M, mbs, cut):
         if i % 3 == 0:
             gl.cyl(tip + n * 0.02, r * 0.72, 0.02, rot=q)
     # droplet generator (top) and catcher (bottom)
-    v.tube((-7.35, 0, 3.66), (-7.35, 0, 4.4), 0.11, seg=24)
-    fl.ring((-7.35, 0, 3.7), 0.2, 0.1, 0.05)
-    v.box((-7.35, 0, 4.55), (0.36, 0.36, 0.3))
+    import hero_kit_r10 as HK                  # R10: a real tin droplet generator on top of the vessel
+    HK.droplet_generator(_hk(), (-7.35, 0, 3.05), (0, 0, -1), s=1.25, flange_at=0.62)
     v.tube((-7.35, 0, 0.94), (-7.35, 0, 0.4), 0.13, seg=24)
     # pumps hanging under the vessel
     for x in (-8.0, -6.5):
@@ -218,19 +222,36 @@ def _module_box(mbs, x0, x1, z0, z1, y_back=1.1, y_front=-1.0, seed=0, ribs=True
         x = x0 + (k + 0.5) * W / max(1, int(W / 1.3))
         PK.turbo_pump(P, (x - 0.25, ym + 0.2, z1 + 0.05), (0, 0, 1), 0.15)
         PK.gate_valve(P, (x + 0.3, ym - 0.25, z1 + 0.12), (0, 1, 0), 0.07)
-    PK.cable_tray(P, x0 + 0.1, x1 - 0.1, z1 + 0.06, y_back - 0.1, seed=seed)
     PENDING_KITS.append(P)
+    import hero_kit_r10 as HK
+    HK.cooling_bundle(_hk(), [(x0 + 0.1, y_back - 0.12, z1 + 0.06), (x1 - 0.1, y_back - 0.12, z1 + 0.06)], k=4,
+                      r=0.016, clamp_every=0.5, up=(0, 1, 0))
+    HK.cable_harness(_hk(), [(x0 + 0.1, y_back - 0.3, z1 + 0.06), (x1 - 0.1, y_back - 0.3, z1 + 0.06)], n=8, r=0.008,
+                     tie_every=0.2)
 
 
 PENDING_KITS = []        # R8: parts-kit batches waiting for finish (machine() / _po_turntable flush them)
+_HK = []                 # R10: the shared hero_kit_r10 batch of the scene being built
+
+
+def _hk():
+    """The current hero_kit_r10 parts batch (created on first use, flushed with the other kits)."""
+    if not _HK:
+        import hero_kit_r10 as HK
+        _HK.append(HK.new_parts())
+        PENDING_KITS.append(_HK[0])
+    return _HK[0]
 
 
 def flush_kits(M, parent=None, tag="Kit"):
     import parts_kit_r8 as PK
+    import hero_kit_r10 as HK
     out = []
     while PENDING_KITS:
         P = PENDING_KITS.pop(0)
-        out += PK.finish(P, M, f"{tag}{len(PENDING_KITS)}", parent=parent)
+        fin = HK.finish if "hose_b" in P else PK.finish
+        out += fin(P, M, f"{tag}{len(PENDING_KITS)}", parent=parent)
+    _HK.clear()
     return out
 
 
@@ -238,16 +259,12 @@ def _interior_fill(mbs, x0, x1, z0, z1, y_back=1.1, seed=0, keep=()):
     """R8: the de-cased housing's back plate carries a real parts kit (parts_kit_r8: turbo pumps on elbows, gate
     valves, gauges + viewports, bellows, card cages, cable tray, coolant manifold, drag chain) instead of the
     R2-R7 random greeble boxes / actuator blocks / gold patches. Keeps the internal strut cage."""
-    import parts_kit_r8 as PK
+    import hero_kit_r10 as HK
     W, H = x1 - x0, z1 - z0
-    P = PK.new_parts()
-    # the wall sits ~0.9 m behind the beam plane, so its parts never block the optics: no keep-clear zones
-    PK.populate_wall(P, x0 + 0.08, x1 - 0.08, z0 + 0.06, z1 - 0.06, y_back - 0.025, seed=seed,
-                     scale=1.9 if H > 2.0 else 1.2)
-    # R9 (>= 3x density, k2B): a middle layer of machined blocks between the beam and the wall
-    PK.mid_layer(P, x0 + 0.1, x1 - 0.1, z0 + 0.1, z1 - 0.1, y_back - 0.32, depth=0.4, seed=seed,
-                 keep=[(Vector(c), r_ + 0.1) for c, r_ in keep], cell=0.45)
-    PENDING_KITS.append(P)
+    # R10: the back plate carries nameable parts only (hero_kit_r10.wall_r10); parts stand off the plate by up to
+    # ~0.4 m (k2B depth) but stay clear of the optics
+    HK.wall_r10(_hk(), x0 + 0.08, x1 - 0.08, z0 + 0.06, z1 - 0.06, y_back - 0.025, seed=seed,
+                keep=[(Vector(c), r_ + 0.1) for c, r_ in keep], scale=1.35 if H > 2.0 else 1.0, depth=1.5)
 
     def clear(p, r=0.0):
         return all((Vector(p) - c).length > rr + r for c, rr in keep)
@@ -269,33 +286,16 @@ def _illuminator(M, mbs):
         mbs["flange"].ring(Vector((-4.7 + k * 0.035, 0, 2.55)), 0.2, 0.13, 0.02, rot=(0, math.radians(90), 0))
     mbs["flange"].ring((-4.35, 0, 2.55), 0.32, 0.12, 0.08, rot=(0, math.radians(90), 0))
     mbs["anod"].box((-4.42, 0, 2.95), (0.16, 0.34, 0.5))
-    # field facet mirror: curved array of small rectangular facets on a carrier
-    car = mbs["mount"]
+    # R10 (R9: "field facet mirror reads as a heatsink"): a curved carrier holding columns of long, thin, curved
+    # (banana-shaped) polished facets, each tilted a little differently, on a hexapod - no black fin blocks
     n = K.mirror_normal(IF, FFM, PFM)
     from mathutils import Matrix
-    q = Vector((0, 0, 1)).rotation_difference(n)
-    R = q.to_matrix()
-    rnd = random.Random(5)
-    for i in range(-7, 8):
-        for j in range(-3, 4):
-            off = R @ Vector((i * 0.055, j * 0.115, 0)) - n * (0.0004 * (i * i + j * j * 4))
-            tilt = (rnd.uniform(-0.06, 0.06), rnd.uniform(-0.06, 0.06), 0)
-            e = (q.to_euler().x + tilt[0], q.to_euler().y + tilt[1], q.to_euler().z)
-            mbs["mirror"].box(FFM + off, (0.05, 0.105, 0.012), rot=e)
-            mbs["substrate"].box(FFM + off - n * 0.02, (0.052, 0.107, 0.03), rot=e)
-            if abs(i) <= 5 and abs(j) <= 2 and (i * 7 + j * 3) % 4:              # the beam's footprint on the facets
-                mbs["spot"].box(FFM + off + n * 0.008, (0.04, 0.09, 0.002), rot=e)
-    car.cyl_m(Matrix.Translation(FFM - n * 0.05) @ R.to_4x4(), 0.42, 0.06, seg=6)
-    for k in range(4):
-        a = math.radians(45 + 90 * k)
-        car.tube(FFM - n * 0.08 + R @ Vector((0.3 * math.cos(a), 0.3 * math.sin(a), 0)),
-                 FFM - n * 0.6 + R @ Vector((0.4 * math.cos(a), 0.4 * math.sin(a), 0)), 0.025)
-    # actuator boxes behind each facet column
-    for i in range(-7, 8):
-        mbs["anod"].box(FFM - n * 0.14 + R @ Vector((i * 0.055, 0, 0)), (0.045, 0.7, 0.1),
-                        rot=q.to_euler())
+    import hero_kit_r10 as HK
+    n = (n + Vector((0, -0.75, 0))).normalized()          # R10: turned toward the cut side so the facets read
+    HK.field_facet_mirror(_hk(), FFM, n, width=0.98, height=0.7, cols=5, rows=12, seed=5, spot_mb=mbs["spot"])
+    car = mbs["mount"]
     # pupil facet mirror: round facets on a disc
-    n2 = K.mirror_normal(FFM, PFM, G1)
+    n2 = (K.mirror_normal(FFM, PFM, G1) + Vector((0, -0.5, 0))).normalized()
     q2 = Vector((0, 0, 1)).rotation_difference(n2)
     R2 = q2.to_matrix()
     for ring_i, (rr, cnt) in enumerate([(0.0, 1), (0.09, 8), (0.18, 15), (0.27, 22), (0.36, 28)]):
@@ -319,43 +319,26 @@ def _illuminator(M, mbs):
 
 
 def _mirror(mbs, p, n, r, seed=0):
-    return K.mirror_with_mount(mbs["mirror"], mbs["mount"], mbs["bolt"], p, n, r, seed=seed, mbsub=mbs["substrate"],
-                               mbspot=mbs["spot"], spot=0.8, mbpipe=mbs["copper"], mbcable=mbs["cable_b" if seed % 2 else "cable_o"])
+    """R10: solid mirror in a machined cell on a real hexapod (hero_kit_r10.mirror_hexapod)."""
+    import hero_kit_r10 as HK
+    return HK.mirror_hexapod(_hk(), p, n, r, seed=seed, spot_mb=mbs["spot"])
 
 
 def _reticle_stage(M, mbs):
-    """Reticle stage above the PO: long-stroke carriage on linear guides, chuck holding the mask face-down."""
-    st, fl, bolt = mbs["rstage"], mbs["flange_s"], mbs["bolt"]
+    """R10: reticle stage as a real maglev long-stroke stage: two maglev rails (magnet track + coil mover with
+    hoses + encoder scale) on a stator bridge, a cross-beam carrying the ceramic chuck that holds the patterned
+    reflective mask face-down, with the violet illuminated slit on it (R9: "mask reads as a small dark block")."""
+    import hero_kit_r10 as HK
+    P = _hk()
     z = MASK.z
-    st.box((MASK.x, 0.0, z + 0.32), (3.2, 2.2, 0.32))                     # stage block
-    for y in (-0.8, 0.8):                                                 # guides
-        mbs["steel"].box((MASK.x, y, z + 0.13), (3.6, 0.1, 0.06))
-        for k in range(12):
-            bolt.cyl((MASK.x - 1.7 + k * 0.3, y, z + 0.17), 0.012, 0.02, seg=6)
-    st.box((MASK.x, MASK.y, z + 0.1), (0.85, 0.85, 0.12))                 # chuck
-    mbs["mask"].box((MASK.x, MASK.y, z + 0.02), (0.6, 0.6, 0.03))         # mask (pattern faces down)
-    # R8 (C_03: "mask reads as a vent grille"): a reflective reticle with a 3 x 4 grid of die fields, each a
-    # fine low-contrast line / pad pattern, a clear border with alignment marks, and four clamps on the chuck
-    import random as _rr
-    rq = _rr.Random(5)
-    for i in range(3):
-        for j in range(4):
-            cx, cy = MASK.x - 0.17 + i * 0.17, MASK.y - 0.195 + j * 0.13
-            for k in range(9):                                            # fine lines across the die
-                mbs["greeble"].box((cx - 0.06 + k * 0.015, cy, z + 0.0035), (0.004, 0.1, 0.0015))
-            for _ in range(4):                                            # pads / blocks
-                mbs["greeble"].box((cx + rq.uniform(-0.05, 0.05), cy + rq.uniform(-0.04, 0.04), z + 0.0035),
-                                   (rq.uniform(0.01, 0.03), rq.uniform(0.01, 0.03), 0.0015))
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            mbs["led"].box((MASK.x + sx * 0.27, MASK.y + sy * 0.27, z + 0.0035), (0.012, 0.012, 0.0015))   # marks
-            mbs["steel"].box((MASK.x + sx * 0.33, MASK.y + sy * 0.24, z + 0.03), (0.07, 0.1, 0.03))       # clamps
-    mbs["anod"].box((MASK.x - 1.4, 0, z + 0.5), (0.4, 1.6, 0.25))          # linear motors
-    mbs["anod"].box((MASK.x + 1.4, 0, z + 0.5), (0.4, 1.6, 0.25))
-    for k in range(8):
-        mbs["led"].box((MASK.x - 1.58, -0.75 + k * 0.2, z + 0.5), (0.02, 0.04, 0.02))
-    K.cable_run(mbs["cable_b"], [(MASK.x - 1.4, -0.8, z + 0.65), (MASK.x - 1.9, -0.8, z + 0.9), (-1.5, -0.6, 4.8)],
-                n=6, seed=7)
+    for y in (-0.6, 0.85):
+        HK.maglev_rail(P, MASK.x - 2.0, MASK.x + 2.0, y, z + 0.32, car_x=MASK.x, car_w=0.9, depth=0.3)
+    mbs["rstage"].box((MASK.x, 0.12, z + 0.62), (4.4, 2.1, 0.12))                 # stator bridge
+    for x in (MASK.x - 2.1, MASK.x + 2.1):
+        mbs["rstage"].box((x, 0.12, z + 0.47), (0.16, 2.0, 0.22))
+    P["alu"].box((MASK.x, 0.12, z + 0.38), (0.95, 1.75, 0.08))                    # cross-beam between the movers
+    HK.reticle(P, (MASK.x, MASK.y, z), size=0.62, face=(0, 0, -1), slit_mb=mbs["spot"], slit=(0.78, 0.1))
+    HK.cable_harness(P, [(MASK.x - 0.5, 0.95, z + 0.5), (MASK.x - 1.2, 1.0, z + 0.75), (-1.5, 1.0, 4.8)], n=8, r=0.009)
 
 
 def _projection(M, mbs):
@@ -374,24 +357,18 @@ def _projection(M, mbs):
         mbs["mount"].tube(plate, Vector((plate.x, 1.08, plate.z)), 0.035)
         mbs["anod"].box(Vector((plate.x, 1.0, plate.z)), (0.22, 0.12, 0.22))
     # sensor boxes and cooling lines inside the housing
-    for k, (x, z) in enumerate([(0.85, 2.6), (2.75, 1.9), (2.8, 3.6), (0.8, 3.7)]):
-        mbs["anod"].box((x, 0.85, z), (0.18, 0.3, 0.26))
-        mbs["led"].box((x, 0.69, z + 0.08), (0.03, 0.01, 0.03))
-    K.cable_run(mbs["cable_o"], [(0.7, 0.9, 1.2), (0.7, 0.9, 3.9), (2.9, 0.9, 3.95)], n=4, r=0.008, seed=3)
-    K.cable_run(mbs["copper"], [(2.9, 0.95, 1.1), (2.9, 0.95, 3.8), (3.3, 0.95, 4.6)], n=3, r=0.012, seed=4)
+    import hero_kit_r10 as HK
+    HK.cable_harness(_hk(), [(0.7, 0.9, 1.2), (0.7, 0.9, 3.9), (2.9, 0.9, 3.95)], n=6, r=0.007)
+    HK.cooling_bundle(_hk(), [(2.9, 0.95, 1.1), (2.9, 0.95, 3.8), (3.3, 0.95, 4.6)], k=4, r=0.012, up=(0, 1, 0))
 
 
 def _wafer_stage(M, mbs):
-    st = mbs["stage"]
-    mbs["granite"].box((1.6, 0, 0.3), (4.4, 2.4, 0.5))
-    st.box((WAFER.x, 0, 0.58), (1.2, 1.0, 0.1))
-    mbs["steel"].cyl((WAFER.x, 0, 0.6), 0.2, 0.02, seg=64)
-    mbs["wafer"].cyl((WAFER.x, 0, WAFER.z - 0.005), 0.15, 0.004, seg=96)
-    for y in (-0.7, 0.7):
-        mbs["steel"].box((1.6, y, 0.57), (4.2, 0.08, 0.05))
-    mbs["anod"].box((-0.25, 0, 0.75), (0.3, 1.8, 0.35))
-    mbs["anod"].box((3.45, 0, 0.75), (0.3, 1.8, 0.35))
-    K.cable_run(mbs["cable_g"], [(-0.4, -0.9, 0.95), (-0.9, -0.9, 0.6), (-0.9, -0.9, 0.1)], n=7, seed=9)
+    """R10: wafer stage on a planar motor (Halbach checkerboard magnet plate, coil mover, ceramic chuck, wafer,
+    interferometer mirrors, umbilical) on a granite base."""
+    import hero_kit_r10 as HK
+    mbs["granite"].box((1.6, 0, 0.17), (4.4, 2.4, 0.34))
+    zt = WAFER.z - 0.159
+    HK.planar_motor(_hk(), 1.6, 0.0, zt, 3.6, 1.9, mover=(WAFER.x, 0.0), mover_w=0.5, wafer_r=0.15)
 
 
 def _services(M, mbs):
@@ -417,8 +394,7 @@ def _services(M, mbs):
         mbs["housing"].box((x, 2.1, 2.3), (1.0, 0.8, 4.6))
         for j in range(14):
             mbs["anod"].box((x, 1.68, 0.5 + j * 0.3), (0.9, 0.02, 0.22))
-            if (i + j) % 3 == 0:
-                mbs["led"].box((x - 0.38, 1.66, 0.5 + j * 0.3), (0.03, 0.01, 0.02))
+            pass
 
 
 PO_R = [0.22, 0.28, 0.27, 0.25, 0.25, 0.21]
@@ -430,7 +406,7 @@ def beam_path(start=0, end=None):
     pts = [IF, FFM, PFM, G1, G2, MASK] + PO + [WAFER]
     # R4: thin at G2 / mask / PO1 so the ~6 deg in/out pair separates into a readable narrow V under the mask
     # R9: solid k4A shafts as wide as ~60 % of each mirror (PO legs were thin 8 cm tubes = "flat lines" in R8)
-    rad = [0.03, 0.27, 0.22, 0.15, 0.06, 0.03] + [r * 0.6 for r in PO_R] + [0.02]
+    rad = [0.03, 0.27, 0.22, 0.15, 0.1, 0.075] + [r * 0.6 for r in PO_R] + [0.02]   # R10: solid cones at the mask
     return pts[start:end], rad[start:end]
 
 
