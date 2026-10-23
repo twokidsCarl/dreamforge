@@ -44,6 +44,9 @@ def _lights_studio():
 
 def build(variant="illum", shot=None):
     import beam_r12 as BR
+    import beam_r16 as R16                    # R16 row 3: diverge -> gather legs, ends fade, line landing on the slit
+    R16.install()
+    R16.COLL_FADE[0] = (0.06, 0.5) if variant == "collect" else None   # R16 row 4: no violet haze over the collector
     sc = _build(variant, shot)
     BR.flush()                                # R12: landing spots collected by the soft beam columns
     return sc
@@ -135,13 +138,23 @@ def _build(variant="illum", shot=None):
         BR.SPOTS[:] = []
     if variant == "illum":                   # R14 (R13: "two beams cross; a white dot where they cross"): the path is
         pts, rad = B.beam_path(0, 6)         # lit leg by leg - only the current leg bright, earlier legs a ghost
-        BR.timed_path(pts, rad, [(0.0, 0.42), (0.42, None), (0.9, None), (0.93, None), (0.96, None)], n, "IllumLeg")
+        # R16 row 3 (R15: "light stops at the facet mirror, no next station"): the outgoing leg field facet ->
+        # pupil facet is lit from 20 %, the onward legs pupil -> condenser -> fold -> mask follow by 45 %
+        BR.timed_path(pts, rad, [(0.0, 0.62), (0.2, None), (0.33, None), (0.4, None), (0.45, None)], n, "IllumLeg")
         mb = K.MB()
         K.cone_beam(mb, B.IF, Vector((B.COLL.x + 0.28, 0, B.COLL.z)), 0.62)
         mb.obj("IllumSrcCone", M["beam_wide"])
         K.bounce_lights([B.FFM, B.PFM], energy=20.0)
     if variant == "title":
         _sequential_beam(M, n)
+        # R16 row 3 (R15: "the turn between the middle and right bays happens on a thin rod"): the fold mirror G2
+        # stands on a solid machined pedestal + mount cell, so the turn lands on a visible mirror block
+        gm = K.MB()
+        gm.box((B.G2.x, B.G2.y + 0.02, (1.05 + B.G2.z - 0.2) / 2), (0.3, 0.34, B.G2.z - 0.2 - 1.05))
+        gm.box((B.G2.x, B.G2.y + 0.02, B.G2.z - 0.17), (0.5, 0.5, 0.1))
+        gm.box((B.G2.x, B.G2.y + 0.02, 1.08), (0.6, 0.6, 0.06))
+        gm.cyl((B.G2.x, B.G2.y, B.G2.z - 0.08), 0.24, 0.1, seg=48)
+        gm.obj("G2PedestalR16", M["alu"], bevel=0.01)
     if variant == "tour":                    # R14 (R13: "floating white dots; crossing beams mid-shot"): story order,
         mi = 6                               # one bright leg at a time; IF cone -> facets -> G2 -> mask -> PO1 (the V)
         pts, rad = B.beam_path(0, mi + 1)
@@ -181,7 +194,7 @@ def _build(variant="illum", shot=None):
         # mirror by mid-shot (>= 1/4 frame at 55 %), then drifts across it
         K.key_path(cam, tgt, [(1, (-2.5, -5.6, 3.35), (-2.05, 0.3, 3.4)),
                               (round(f1 * 0.5), (-2.55, -2.55, 3.75), (-2.15, 0.15, 3.8)),
-                              (f1, (-1.45, -1.85, 4.05), (-2.12, 0.1, 3.82))])      # R12: facets >= 1/4
+                              (f1, (-1.7, -1.3, 3.98), (-2.14, 0.12, 3.84))])      # R16 row 4: facets >= 1/4 at 85 %
         cam.data.dof.use_dof = True
         cam.data.dof.aperture_fstop = 5.6
         cam.data.dof.focus_object = tgt
@@ -194,8 +207,10 @@ def _build(variant="illum", shot=None):
                               # ~1/3 of the frame, the incident cone comes in from lower left, the reflected
                               # cone leaves lower right
                               # R14 (R13: "mask ~1/6; reflected cone cut by the housing wall"): closer, lower-left
-                              (round(f1 * 0.85), (0.42, -0.62, 3.3), (0.62, 0.28, 4.08)),
-                              (f1, (0.44, -0.6, 3.31), (0.63, 0.28, 4.09))])
+                              # R16 row 4 (R15: "mask 8-10 % and cropped by the top edge"): pulled back and
+                              # tilted up - the whole patterned mask sits in frame, >= 1/4
+                              (round(f1 * 0.85), (0.51, -0.8, 3.6), (0.57, 0.3, 4.3)),
+                              (f1, (0.53, -0.78, 3.61), (0.58, 0.3, 4.31))])
         tl = K.MB()                              # short dashed normal under the mask: the angle reads against it
         for k in range(6):
             tl.cyl((B.MASK.x, B.MASK.y, B.MASK.z - 0.12 - k * 0.12), 0.004, 0.06, seg=8)
@@ -219,8 +234,8 @@ def _build(variant="illum", shot=None):
         cam.data.dof.aperture_fstop = 5.6
         # R15 (R14: "collector face 6-8 % of frame"): same dolly + truck; first half ~15 % closer onto the dish
         K.key_path(cam, tgt, [(1, (-4.15, -4.35, 3.45), (-6.2, 0.0, 2.42)),
-                              (round(f1 * 0.5), (-4.85, -3.5, 3.1), (-6.45, 0.0, 2.4)),
-                              (f1, (-5.3, -3.15, 2.82), (-6.5, 0.0, 2.4))])     # end = R14 (IF must stay in frame)
+                              (round(f1 * 0.5), (-5.2, -3.1, 3.05), (-6.7, 0.0, 2.41)),
+                              (f1, (-6.05, -2.55, 2.9), (-6.95, 0.0, 2.42))])   # R16 row 4: collector >= 1/4
         K.area("DishGlint", (-5.6, 2.9, 3.9), B.COLL, 2.2, 520, (0.95, 0.96, 1.0))
         K.area("DishKey", (-5.0, -2.2, 3.6), B.COLL, 1.6, 260, (1.0, 0.98, 0.95))
         # grazing studio strip skimming the coated face from above-front: one long highlight band across the dish
@@ -1060,14 +1075,17 @@ def _po_barrels_r15(sc, M, n):
     p6.z = z6 + 0.006 * (1 - (0.38 / (r6 - 0.03)) ** 2) - 0.004
     foc = Vector((0, 0, zw + 0.002))
     top_in = Vector((0.42, 0, z_top + 0.9))
-    soft = BR.soft_mat("EUVLegR15", K.VIOLET, 2.4, 0.8, power=1.5)
+    soft = BR.soft_mat("EUVLegR16", K.VIOLET, 3.4, 0.95, power=1.4)   # R16: brighter, the ramp dims the wide ends
     legs = [(top_in, Vector((0.42, 0, z_top + 0.08)), 0.035, 0.035),
             (port + Vector((0, 0, -0.03)), p5, 0.035, 0.05),
             (p5, p6, 0.05, 0.085),
-            (p6, foc, 0.09, 0.003)]
-    for a, b, ra, rb in legs:
-        m_, L_ = K._orient(a, b)
-        mb["beam"].cyl_m(m_, ra, L_, seg=48, r2=rb)
+            (p6, foc, 0.13, 0.003)]
+    # R16 row 3 (R15: "M6 -> wafer is a constant thin tube, the gathering doesn't read"): R16 legs - the top leg
+    # fades in from the mask side, the last leg is gathered from a wide M6 footprint through the M5 hole to one
+    # bright wafer point (0.13 at M6 -> 0.037 at the M5 plane, inside the 0.16 hole)
+    import beam_r16 as R16
+    for i, (a, b, ra, rb) in enumerate(legs):
+        R16.leg(mb["beam"], a, b, ra, rb, seg=48, air0=i == 0)
     BR.SPOTS.append((p5, n5, 0.07))
     BR.SPOTS.append((p6, n6, 0.11))
     fm = K.MB()
@@ -1853,6 +1871,8 @@ def _scan_r12(sc, M, n, shot):
     # ---- beam: R12 soft cones (beam_r12 via K.beam_columns), converging onto the wafer slit
     rad = [0.06, 0.1, 0.1, 0.075, 0.028, 0.075, 0.13, 0.12, 0.09, 0.012]
     col = K.MB()
+    import beam_r16 as R16                   # R16 row 3: the last leg narrows onto the slit LINE (0.26 m along y)
+    R16.END_SHAPE[0] = ((1, 0, 0), 0.007, (0, 1, 0), 0.12)
     K.beam_columns(col, pts, rad, seg=40)
     col.obj("ScanCol", M["beam_wide"])
     sl = K.MB()

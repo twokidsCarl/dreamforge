@@ -15,7 +15,9 @@ import bpy
 import common as C
 import kit_r2 as K
 
-PLATES = {"freighter": "r2_a002.png", "crates": "r2_a003_r10.png", "cleanroom": "r2_d007.png"}
+PLATES = {"freighter": "r2_a002.png", "crates": "r2_a003_r16.png", "cleanroom": "r2_d007.png"}
+# R16 (root cause 5, A0_03 quantity unreadable: ~20 crates visible): crates plate r2_a003_r16.png (image2, prompt
+# handoff/p1/plates/p_a003_r16.txt) = high elevated wide view, ~250 crates in blocks + ULD rows + freighter + trucks.
 
 
 def _freighter_life(n, H, aspect):
@@ -94,7 +96,8 @@ def build(variant="freighter", shot=None):
         lit = None
         _freighter_life(n, H, aspect)
     elif variant == "crates":
-        keys = [(1, -1.6, -0.3, 13.6), (n, 1.5, 0.15, 11.6)]              # R7: truck + push (R6 read as static)
+        keys = [(1, -2.2, -1.2, 10.6), (n, 0.0, 0.0, 17.4)]               # R16: start on the crate blocks, pull back
+                                                                          # to the whole apron (quantity reveal)
         lit = None
     else:
         keys = [(1, 0.6, 0.0, 13.8), (n, 1.6, 0.1, 12.4)]                 # push toward the suited pair

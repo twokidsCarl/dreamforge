@@ -547,14 +547,18 @@ def collector_mirror(M, hole_r=0.09):
 
 
 def chamber_r10(M, seed=0, tip_z=0.45, collector=True, catcher=True, diag=(), extra_ports=True, hide_front=None,
-                liner=True, wall_skip=None):
+                liner=True, wall_skip=None, r16=False):
     """R10 (R9 review gap 4: "B1_08 / B1_10 / A0_01 backgrounds are a flat striped wall / a few arcs"): a k3A-style
     metal source vessel seen from inside. Dark brushed steel wall behind curved liner panels (seams + corner bolts,
     no bright ribs), CF ports with viewports (hero_kit_r10.flange_viewport) pointing at the plasma, tapered
     diagnostic barrels (EUV sensors / droplet cameras) converging on the plasma site, hose bundles along the wall,
     the tin droplet generator coming down from the lid with its nozzle tip at (0, 0, tip_z), the droplet catcher
     below, and the collector. diag = list of (azimuth deg, z) for extra barrels aimed at the origin.
-    hide_front(p) -> True skips a part at p (keeps the camera side clear)."""
+    hide_front(p) -> True skips a part at p (keeps the camera side clear).
+    R16 (root cause #2, r16=True): no liner panel grid, no blue/white hose bundles / cable trays - the wall carries
+    interleaved nameable modules (source_kit_r16.wall_modules_r16)."""
+    if r16:
+        liner = False
     import hero_kit_r10 as H
     rnd = random.Random(seed)
     R = CHAMBER_R
@@ -619,7 +623,7 @@ def chamber_r10(M, seed=0, tip_z=0.45, collector=True, catcher=True, diag=(), ex
         H.cable_harness(P, [base + d * (L * 0.2) + Vector((0, 0, 0.07)), base + d * 0.06 + Vector((0, 0, 0.16)),
                             base + Vector((0, 0, 0.35)) - d * 0.0], n=3, r=0.006, connector=False)
     # hose bundles running up the wall
-    for k in range(4):
+    for k in range(0 if r16 else 4):
         a0 = rnd.uniform(0, 2 * math.pi)
         pts = []
         for i in range(7):
@@ -628,7 +632,11 @@ def chamber_r10(M, seed=0, tip_z=0.45, collector=True, catcher=True, diag=(), ex
         if any(skip(q) for q in pts) or any(math.cos(a0) < -0.5 and abs(q.z) < 0.6 for q in pts):
             continue
         H.cooling_bundle(P, pts, k=4, r=0.011, clamp_every=0.3, up=(math.cos(a0), math.sin(a0), 0), block=False)
-    if not liner:
+    if r16:
+        import source_kit_r16 as SK
+        SK.wall_modules_r16(P, R, wall_skip or skip, seed=seed,
+                            avoid=lambda p: abs(p[2]) < 0.5 and p[0] / R < -0.42)   # keep clear of the collector
+    elif not liner:
         _wall_parts_r12(P, sm, R, wall_skip or skip, rnd)
     # tin droplet generator through the lid, nozzle tip at (0, 0, tip_z)
     if tip_z is not None:
@@ -841,6 +849,15 @@ def pancake(M, c, R, name="Pancake", seed=1):
 
 
 # ---------------------------------------------------------------- variants
+# R16 root cause #2: the single shapeless weak cool rim per variant (spherical point light, round soft highlight)
+RIM_R16 = {"cold": dict(rim=(-0.25, 0.42, 0.5), rim_energy=90.0, rim_radius=0.25),
+           "prepulse": dict(rim=(0.35, 0.6, 0.55), rim_energy=24.0, rim_radius=0.25),
+           "contrast": dict(rim=(0.2, 0.9, 0.9), rim_energy=30.0),
+           "track": dict(rim=(-0.5, 0.5, 0.6), rim_energy=14.0),
+           "clean": dict(rim=(0.3, 0.9, 0.9), rim_energy=10.0, rim_radius=0.5),
+           "spectrum": dict(rim=(-0.2, 0.9, 0.8), rim_energy=8.0)}
+
+
 def build(variant="cold", shot=None):
     n = K.nframes(shot) if shot else 120
     sc = C.reset_scene(n)
@@ -854,6 +871,9 @@ def build(variant="cold", shot=None):
     fn = {"cold": _cold, "prepulse": _prepulse, "contrast": _contrast, "track": _track, "clean": _clean_r6,
           "spectrum": _spectrum, "amps": _amps}[variant]
     fn(sc, M, cam, tgt, n)
+    if variant != "amps":                         # R16 #2: gold control B1_22 (amps) keeps its R15 lighting
+        import source_kit_r16 as SK
+        SK.relight_r16(sc, **RIM_R16[variant])
     sc.camera = cam
     return sc
 
@@ -869,7 +889,7 @@ def _cold(sc, M, cam, tgt, n):
     liquid-tin / neutral-mirror metals + studio cards (root cause #6, review #2)."""
     _dark_world()
     _metals_r15(M)                                   # R15 #2 / #3: shared mirror collector + thin tin film
-    chamber_r10(M, seed=7, tip_z=0.78, hide_front=away_from((0.6, -0.5)))     # R10: k3A metal vessel behind
+    chamber_r10(M, seed=7, tip_z=0.78, hide_front=away_from((0.6, -0.5)), r16=True)   # R16 #2: modules, no grid
     lights_chamber(1.0)
     r = 0.016
     hit1, hit2, boom = 92, 154, 166
@@ -880,6 +900,8 @@ def _cold(sc, M, cam, tgt, n):
     # R15: the next droplet stays well above the sheet's rim (R14: it sat on the face and read as a blob)
     key_loc(nxt, [(1, (0, 0, 0.62)), (n, (0, 0, 0.36))])
     root, parts = pancake_r15(M, (0, 0, 0), r)
+    import source_kit_r16 as SK
+    parts.append(SK.pancake_rim_r16(root, M["tin"], seed=3))     # R16 #2: thick rolled rim + flung droplets
     key_scale(root, [(hit1 + 2, r * 1.2), (hit2 - 6, r * 9.5), (hit2 + 4, r * 10.5)])
     for ob in parts:
         show_between(ob, hit1 + 3, boom - 1)
@@ -902,14 +924,10 @@ def _cold(sc, M, cam, tgt, n):
         fl.data.energy = 0
         fl.data.keyframe_insert("energy", frame=f)
     # R14: studio reflections for the liquid tin (pancake faces +X; droplet is a sphere) - camera-invisible strips
-    tc = _studio_cards("TinCards", (0, 0, 0), (0.56, -0.5, 0.15), (1, 0, 0), dist=0.42, n=5, length=0.6,
-                       width=0.035, strength=7.0, spread=0.11, tilt=0.9)
-    show_between(tc, hit1 + 3, boom - 1)              # only while the sheet exists (keeps the collector calm)
-    _link_only(tc, parts)                             # R15: the cards light / mirror in the sheet only (R14: they
-                                                      # drew big white arcs in the collector behind it)
-    dc = _studio_cards("DropCards", (0, 0, 0.1), (0.56, -0.41, 0.17), (0.56, -0.41, 0.07), dist=0.3, n=3,
-                       length=0.25, width=0.03, strength=5.0, spread=0.08, tilt=0.5)
-    show_between(dc, 1, hit1 + 2)
+    # R16 #2: no studio cards (the R14/R15 TinCards / DropCards were the square light strips in the tin); a faint
+    # violet bounce from the previous droplet's plasma (50 kHz) off-frame, as in B1_10
+    pg = K.point("PrevPlasmaGlowR16", (-0.3, 0.3, 0.25), 6.0, (0.7, 0.6, 1.0), 0.25)
+    key_energy(pg, [(1, 6.0), (boom - 1, 6.0), (boom, 0.0)])
     cam.data.lens = 55
     cam.data.dof.use_dof = True
     cam.data.dof.aperture_fstop = 2.8
@@ -938,7 +956,7 @@ def _prepulse(sc, M, cam, tgt, n):
     _dark_world()
     _metals_r15(M)                                   # R15 #2 / #3
     # R15 (review B1_10 #3 "square panel grid repeated"): wall hardware (hoses, H2 nozzles, gauges) instead of liner
-    chamber_r10(M, seed=8, tip_z=0.42, hide_front=away_from((-0.5, -0.65)), liner=False)
+    chamber_r10(M, seed=8, tip_z=0.42, hide_front=away_from((-0.5, -0.65)), liner=False, r16=True)
     lights_chamber(1.0)
     r = 0.014
     hit = 30
@@ -948,6 +966,8 @@ def _prepulse(sc, M, cam, tgt, n):
     nxt = single("DropletNext", M["tin"], lambda mb: mb.sphere((0, 0, 0), r, 48))
     key_loc(nxt, [(1, (0, 0, 0.36)), (n, (0, 0, 0.27))])   # R15: stays above the rim (R14: on the face)
     root, parts = pancake_r15(M, (0, 0, 0), r)
+    import source_kit_r16 as SK
+    parts.append(SK.pancake_rim_r16(root, M["tin"], seed=4))     # R16 #2: thick rolled rim + flung droplets
     key_scale(root, [(hit + 2, r * 1.2), (hit + 40, r * 9.0), (n, r * 12.0)])
     for ob in parts:
         show_between(ob, hit + 3)
@@ -957,8 +977,8 @@ def _prepulse(sc, M, cam, tgt, n):
         show_between(ob, hit, hit + 5)
     fl = K.point("LaserLight", (-0.05, -0.02, 0), 0, K.ORANGE, 0.02)
     key_energy(fl, [(hit - 1, 0), (hit, 7), (hit + 8, 0)])
-    _studio_cards("TinCards", (0, 0, 0), (-0.48, -0.66, 0.14), (1, 0, 0), dist=0.4, n=5, length=0.55, width=0.03,
-                  strength=7.0, spread=0.1, tilt=0.9)
+    # R16 #2: no studio cards; a faint violet afterglow of the previous droplet's plasma (50 kHz) off-frame
+    K.point("PrevPlasmaGlowR16", (-0.22, 0.36, 0.08), 1.2, (0.7, 0.6, 1.0), 0.25)
     cam.data.lens = 30                            # R15 #3: wider -> sheet about 1/2 frame height, wall for scale
     cam.data.dof.use_dof = True
     cam.data.dof.aperture_fstop = 4
@@ -1074,55 +1094,71 @@ def _wall_parts_r12(P, sm, R, skip, rnd):
         H.cable_harness(P, [q + (-q).normalized() * 0.02 for q in pts], n=6, r=0.006, connector=False)
 
 
-def _contrast(sc, M, cam, tgt, n):
-    """B1_15 (36 frames). R10 (R9 review, lowest shot): k3A source vessel around the collector (dark liner,
-    viewports, tapered diagnostic barrels converging on the plasma, the droplet generator coming down from the
-    lid), a volumetric plasma core instead of the white disc + ring, white / tin-grey debris (no orange), the
-    collector a near-perfect mirror that reflects the vessel; rim artefact fixed in collector_mirror()."""
-    _dark_world()
-    # near-perfect multilayer mirror (reflects the vessel hardware) with a faint violet sheen = the plasma's EUV
-    # scattered off the coating, so the whole dish reads lit by the plasma (k3A), not half black
-    # R14 (root cause #6, review B1_15 #2): neutral high-reflectance mirror - no violet base / emissive sheen; the
-    # only violet on the dish is the plasma's own reflection (inner glow volumes now mirrored too)
-    _metals_r15(M, coll_rough=0.004)                 # R15 #2: shared mirror_r15 collector
+def _debris_r16(M, seed=4):
+    """R16 #1 (R15 review B1_15 #2: white fly-lines read as HUD noise): debris = dark tin specks (silhouettes against
+    the glow) plus a few faint-orange hot specks, each a short tapered trail pointing away from the plasma."""
+    rnd = random.Random(seed)
+    M.setdefault("deb_dark", K.mat("DebrisDarkR16", (0.06, 0.06, 0.065), metal=0.6, rough=0.5))
+    M.setdefault("deb_hot", K.emit_mat("DebrisHotR16", (1.0, 0.55, 0.28), 1.6))
+    objs = []
+    for key, cnt, rr, (d0, d1) in (("deb_dark", 34, (0.0025, 0.004), (0.08, 0.38)),
+                                   ("deb_hot", 12, (0.0018, 0.003), (0.06, 0.25))):
+        mb = K.MB()
+        for _ in range(cnt):
+            v = Vector((rnd.gauss(0, 1), rnd.gauss(0, 1), rnd.gauss(0, 1))).normalized()
+            if v.x < -0.3:                  # nothing behind the plasma towards the dish centre
+                v.x = -v.x
+            p = v * rnd.uniform(d0, d1)
+            r0 = rnd.uniform(*rr)
+            mb.sphere(tuple(p), r0, 8)
+            mb.tube(p, p - v * rnd.uniform(0.012, 0.03), r0 * 0.8, seg=6, r2=r0 * 0.08)
+        ob = mb.obj("DebrisR16_" + key, M[key])
+        ob.visible_shadow = False
+        ob.visible_glossy = False
+        objs.append(ob)
+    return objs
 
-    def hide(p):                                  # nothing between the camera (+X side, on axis) and the dish
-        return p[0] > 0.55 and abs(p[1]) < 1.0 and abs(p[2]) < 0.9
-    chamber_r10(M, seed=12, tip_z=0.4, diag=[(150, 0.55), (205, 0.45), (95, -0.4)], hide_front=hide, liner=False)
-    lights_chamber(0.25)
-    pl, li = plasma_r10(M, (0, 0, 0), 0.045, energy=70.0, gas=1.0, li_color=PLASMA_LIGHT_R14, mirror_core=True)
-    key_energy(li, [(1, 60), (n, 75)])
-    for ob in _debris(M):
-        key_scale(ob, [(1, 0.55), (n, 1.1)], interp="LINEAR")
-        ob.scale = (1, 1, 1)
-    for ob in bpy.data.objects:
-        if ob.name.startswith("Debris_cool"):
-            bpy.data.objects.remove(ob)
-    # (R10: no reflected-light cone - the camera sat inside it, which streaked the whole dish)
-    K.anchors("B1_15", {"coll": Vector((coll_x(0.45), -0.3, -0.3)), "plasma": Vector((0, 0, 0))})
-    # grazing softbox the mirror shows as one clean gradient + a rim on the bolted flange
-    K.area("CollSoftbox", (0.35, -1.05, 0.8), (-0.75, 0.0, 0.0), 0.6, 22, (0.85, 0.9, 1.0))
-    K.area("CollRimLight", (-0.3, 1.0, -0.6), (-0.75, 0.0, 0.0), 0.5, 18, (0.7, 0.75, 1.0))
-    cam.data.lens = 24
+
+def _contrast(sc, M, cam, tgt, n):
+    """B1_15 (36 frames). R16 root cause #1 (R15: 20 deg off-axis camera -> no mirror face, H1): camera near the
+    collector's optical axis, in front of the dish: a deep ellipsoidal collector whose first focus IS the plasma
+    site fills the frame (>= 1/3), its polished face full of the plasma's glow, the central hole beside the plasma
+    by a small parallax, the bolted flange cropped at the frame edges / a defocused foreground port flange; debris =
+    dark / faint-orange specks with short trails; no cyan dashed axis, no white fly-lines; one leader to the mirror.
+    Not repeating: the R15 20 deg off-axis camera."""
+    _dark_world()
+    import mirror_r15 as MR
+    import source_kit_r16 as SK
+    _metals_r15(M, coll_rough=0.004)
+    coll_m = MR.ml_mirror("CollectorML_R16", rough=0.035)        # soft spread of the plasma glow, no rainbow
+
+    def hide(p):                                  # only the wall right behind the camera is cleared: the rest of the
+        return p[0] > 0.85 and abs(p[1]) < 0.7 and abs(p[2]) < 0.7      # vessel is what the mirror reflects
+    chamber_r10(M, seed=12, tip_z=0.4, diag=[], hide_front=lambda p: p[0] > 0.1 or hide(p),
+                wall_skip=hide, collector=False, r16=True)   # no end-on barrels from the camera side
+    objs, rim_x = SK.collector_r16(M, coll_m)
+    pl, li = plasma_r10(M, (0, 0, 0), 0.04, energy=70.0, gas=1.0, li_color=PLASMA_LIGHT_R14, mirror_core=False)
+    key_energy(li, [(1, 220), (n, 260)])          # the plasma is the light source of the chamber
+    for ob in pl:                                 # R16 smoke: the mirrored glow volumes were a big off-centre fog blob
+        ob.visible_glossy = False
+    tight = single("PlasmaMirrorGlowR16", vol_glow_soft("PlasmaMirrorGlowR16M", (0.8, 0.7, 1.0), 14.0, 0.03),
+                   lambda mb: mb.sphere((0, 0, 0), 0.03, 24))
+    camera_only(tight, glossy=True)               # only the dish sees it: a tight glow reflection near the centre
+    # the polished outer rim catches the plasma as one continuous bright elliptical edge ("inside a bowl")
+    rim_li = K.point("PlasmaRimGlintR16", (0, 0, 0), 260.0, PLASMA_LIGHT_R14, 0.05)
+    SK.rim_lip_r16(M, objs, rim_x, rim_li)
+    for ob in _debris_r16(M):
+        key_scale(ob, [(1, 0.6), (n, 1.15)], interp="LINEAR")
+    K.anchors("B1_15", {"coll": Vector((-0.276, -0.3, 0.32)), "plasma": Vector((0, 0, 0))})   # on the lit mirror face
+    cam.data.lens = 21
     cam.data.dof.use_dof = True
-    cam.data.dof.aperture_fstop = 4.5
+    cam.data.dof.aperture_fstop = 2.2
     foc = bpy.data.objects.new("Focus", None)
     sc.collection.objects.link(foc)
+    foc.location = (-0.12, 0.05, 0.0)
     cam.data.dof.focus_object = foc
-    # R14 (review B1_15 #1): camera on the optical axis so the plasma sits right in front of the central hole;
-    # (#3) a real push-in (1.05 -> 0.62 m) with a focus pull from the bolted rim to the plasma
-    key_loc(foc, [(1, (coll_x(COLL_R), -0.3, 0.0)), (n, (0.0, 0.0, 0.0))], interp="BEZIER")
-    # R15 #2 (review B1_15 #1 "a bowl of violet fog, no reflections, no centre hole"): on the dish axis a focusing
-    # mirror shows the plasma over its whole face; ~20 deg off-axis it mirrors the target tubes / barrels instead and
-    # the centre hole separates from the plasma by parallax. The plasma stays on the axis, in front of the dish (H1).
-    K.key_path(cam, tgt, [(1, (1.0, -0.36, 0.12), (-0.85, 0.02, 0.0)), (n, (0.64, -0.27, 0.09), (-0.85, 0.02, 0.0))],
+    K.key_path(cam, tgt, [(1, (1.2, -0.1, 0.07), (-0.3, 0.0, 0.0)), (n, (1.08, -0.09, 0.06), (-0.3, 0.0, 0.0))],
                interp="BEZIER")
-    ax = K.MB()
-    for k in range(11):
-        x0 = COLL_X - 0.05 + k * 0.12
-        ax.tube((x0, 0, 0), (x0 + 0.06, 0, 0), 0.0025, seg=6)
-    ax_ob = ax.obj("OpticalAxis", K.emit_mat("AxisInk", (0.5, 0.85, 0.95), 2.5))
-    ax_ob.visible_glossy = False
 
 
 def _track(sc, M, cam, tgt, n):
@@ -1143,7 +1179,8 @@ def _track(sc, M, cam, tgt, n):
     def hide_wall(p):                             # R12: wall hardware may come closer to the droplet line
         a = math.degrees(math.atan2(p[1], p[0]))
         return front(p) or (82 < a < 98 and -0.55 < p[2] < 0.5)
-    chamber_r10(M, seed=3, tip_z=tip_z, diag=[(60, 0.1), (120, 0.1)], hide_front=hide, liner=False, wall_skip=hide_wall)
+    chamber_r10(M, seed=3, tip_z=tip_z, diag=[(60, 0.1), (120, 0.1)], hide_front=hide, liner=False, wall_skip=hide_wall,
+                r16=True)
     import hero_kit_r10 as H
     Pw = H.new_parts()                            # the illumination window low on the back wall
     H.flange_viewport(Pw, (0.0, CHAMBER_R - 0.04, -0.3), (0, -1, 0), 0.08, nipple=0.06, side_port=False)
@@ -1384,7 +1421,7 @@ def _clean_r6(sc, M, cam, tgt, n):
                   s, s * 0.35, seg=12)
     dep.obj("TinDeposits", M["tin_dep"])
     # SnH4 streamlines: lift off the dish along its normal, arc towards the pump; faint lines + moving flecks
-    trail_m = K.emit_mat("SnH4Trail", (0.66, 0.7, 0.86), 1.8)
+    trail_m = K.emit_mat("SnH4Trail", (0.66, 0.7, 0.86), 0.45, halo=0.35)   # R16: faint (R15: wire birdcage)
     fleck_m = K.emit_mat("SnH4Fleck", (0.85, 0.88, 0.95), 4.0)
     tr = K.MB()
     paths = []
@@ -1402,7 +1439,7 @@ def _clean_r6(sc, M, cam, tgt, n):
             u = k / 16
             pts.append((1 - u) ** 3 * p0 + 3 * (1 - u) ** 2 * u * p1 + 3 * (1 - u) * u * u * p2 + u ** 3 * p3)
         paths.append(pts)
-        tr.path(pts, 0.0022, seg=6)
+        tr.path(pts, 0.0012, seg=6)
     tob = tr.obj("SnH4Lines", trail_m)
     camera_only(tob)
     for i, pts in enumerate(paths):
