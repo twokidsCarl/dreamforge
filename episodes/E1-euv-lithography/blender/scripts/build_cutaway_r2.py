@@ -32,6 +32,7 @@ PO = [Vector(v) for v in ((0.93, 0.25, 1.75), (1.45, 0.15, 3.75), (2.25, 0.05, 2
 WAFER = Vector((1.75, 0.0, 0.62))
 
 
+LIP_SKIP_X = ()           # R11: module side lips left out (tour: projection module's left lip hid the mask)
 FRONT_POSTS_SKIP = ()     # R10: tour (C_03) drops the front posts that blocked the main path
 
 
@@ -68,7 +69,9 @@ def _frame(M, mbs, studio):
     import hero_kit_r10 as HK
     P = HK.new_parts()
     opt = [(PLASMA, 1.5), (COLL, 1.0), (IF, 0.5)]
-    HK.wall_r10(P, -9.25, 3.25, 0.5, 4.7, 1.4, seed=33, keep=opt, scale=1.25, depth=1.3)
+    import hero_kit_r11 as HK11            # R11: non-repeating blocks, not the R10 panel+flange tile
+    # front_y: stay behind the module back plates (y 1.1) - R11 smoke: a viewport stack poked into the illuminator
+    HK11.wall_r11(P, -9.25, 3.25, 0.5, 4.7, 1.4, seed=33, keep=opt, scale=1.25, depth=0.6, front_y=1.14)
     PENDING_KITS.append(P)
     # floor grating
     g = mbs["grate"]
@@ -197,6 +200,8 @@ def _module_box(mbs, x0, x1, z0, z1, y_back=1.1, y_front=-1.0, seed=0, ribs=True
         for i in range(int(W / 0.12)):
             bolt.cyl((x0 + 0.06 + i * 0.12, y_front - 0.035, z), 0.012, 0.02, rot=(math.radians(90), 0, 0), seg=6)
     for x in (x0, x1):
+        if any(abs(x - xs) < 1e-3 for xs in LIP_SKIP_X):
+            continue
         fl.box((x, y_back - (y_back - y_front) * 0.45, cz), (0.1, 0.06, H + 0.1))
     # R3 cut skin: the removed cover is shown as a sawn-off outer panel lip (pale paint) with its section face
     # (contrasting colour) along the opening, so the box reads as cut open, not as a lid taken off
@@ -207,6 +212,8 @@ def _module_box(mbs, x0, x1, z0, z1, y_back=1.1, y_front=-1.0, seed=0, ribs=True
         sk.box((cx, yf, z0 - 0.02 + lip / 2), (W + 0.2, 0.06, lip))                       # bottom lip
         sec.box((cx, yf - 0.002, z0 - 0.02 + lip), (W + 0.2, 0.064, 0.012))
         for x, sgn in ((x0, 1), (x1, -1)):                                                  # side lips
+            if any(abs(x - xs) < 1e-3 for xs in LIP_SKIP_X):    # R11: C_03 end frame - the lip cut the mask view
+                continue
             sk.box((x + sgn * lip * 0.35, yf, cz), (lip * 0.7, 0.06, H))
             sec.box((x + sgn * lip * 0.7, yf - 0.002, cz), (0.012, 0.064, H))
         sk.box((cx, yf, z1 + 0.02 - lip * 0.3), (W + 0.2, 0.06, lip * 0.6))                # top lip
@@ -255,6 +262,10 @@ def flush_kits(M, parent=None, tag="Kit"):
     return out
 
 
+EXTRA_KEEP = []           # R11: extra keep-clear spheres for the bay walls (B7_06 M5 / M6 column)
+WALL_TONE = ["mixed"]     # R11: "dark" = dark base plates so the parts read against a white studio housing
+
+
 def _interior_fill(mbs, x0, x1, z0, z1, y_back=1.1, seed=0, keep=()):
     """R8: the de-cased housing's back plate carries a real parts kit (parts_kit_r8: turbo pumps on elbows, gate
     valves, gauges + viewports, bellows, card cages, cable tray, coolant manifold, drag chain) instead of the
@@ -263,8 +274,10 @@ def _interior_fill(mbs, x0, x1, z0, z1, y_back=1.1, seed=0, keep=()):
     W, H = x1 - x0, z1 - z0
     # R10: the back plate carries nameable parts only (hero_kit_r10.wall_r10); parts stand off the plate by up to
     # ~0.4 m (k2B depth) but stay clear of the optics
-    HK.wall_r10(_hk(), x0 + 0.08, x1 - 0.08, z0 + 0.06, z1 - 0.06, y_back - 0.025, seed=seed,
-                keep=[(Vector(c), r_ + 0.1) for c, r_ in keep], scale=1.35 if H > 2.0 else 1.0, depth=1.5)
+    import hero_kit_r11 as HK11            # R11: non-repeating blocks
+    HK11.wall_r11(_hk(), x0 + 0.08, x1 - 0.08, z0 + 0.06, z1 - 0.06, y_back - 0.025, seed=seed,
+                keep=[(Vector(c), r_ + 0.1) for c, r_ in list(keep) + EXTRA_KEEP], scale=1.35 if H > 2.0 else 1.0, depth=1.5,
+                  tone=WALL_TONE[0], front_y=y_back - 0.55)
 
     def clear(p, r=0.0):
         return all((Vector(p) - c).length > rr + r for c, rr in keep)
@@ -292,7 +305,9 @@ def _illuminator(M, mbs):
     from mathutils import Matrix
     import hero_kit_r10 as HK
     n = (n + Vector((0, -0.75, 0))).normalized()          # R10: turned toward the cut side so the facets read
-    HK.field_facet_mirror(_hk(), FFM, n, width=0.98, height=0.7, cols=5, rows=12, seed=5, spot_mb=mbs["spot"])
+    # R11 (R10: "facets read as white tiles"): curved polished strips on pedestals with gaps + individual tilt
+    import hero_kit_r11 as HK11
+    HK11.field_facet_mirror_r11(_hk(), FFM, n, width=1.0, height=0.72, cols=4, rows=9, seed=5, spot_mb=mbs["spot"])
     car = mbs["mount"]
     # pupil facet mirror: round facets on a disc
     n2 = (K.mirror_normal(FFM, PFM, G1) + Vector((0, -0.5, 0))).normalized()

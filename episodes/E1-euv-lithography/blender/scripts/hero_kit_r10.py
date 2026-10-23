@@ -32,7 +32,7 @@ import kit_r2 as K
 
 KEYS = ("alu", "alu_dark", "steel", "blast", "anod", "paint_grey", "paint", "rubber", "glass", "hose_b", "hose_w",
         "magnet", "magnet2", "coil", "ceramic", "solenoid", "label", "coat", "subs", "wafer", "chain", "cable_k",
-        "cable_g", "screen", "granite", "mask")
+        "cable_g", "screen", "granite", "mask", "brushed", "facet")   # R11: brushed plates, polished facets
 
 
 def new_parts():
@@ -58,6 +58,9 @@ def materials(M):
         M.setdefault("granite", K.mat("Granite", (0.1, 0.1, 0.11), rough=0.35, speck=0.6))
         M.setdefault("paint", K.mat("PaintWhite", (0.72, 0.74, 0.77), rough=0.32, coat=0.4))
         M.setdefault("paint_grey", K.mat("PaintGrey", (0.32, 0.34, 0.38), rough=0.45))
+    if "brushed" not in M:                                   # R11 (hero_kit_r11): housing plates, facet strips
+        M["brushed"] = K.mat("BrushedAluR11", (0.7, 0.71, 0.74), metal=1.0, rough=0.22, brushed=0.35)
+        M["facet"] = K.mat("FacetMirrorR11", (0.86, 0.85, 0.9), metal=1.0, rough=0.035, coat=0.6)
     out = {k: M[k] for k in KEYS if k in M}
     out["coat"] = M.get("coating", M.get("mirror"))
     out["subs"] = M.get("substrate", M["alu"])
@@ -73,7 +76,7 @@ def materials(M):
 def finish(P, M, tag, parent=None):
     mats = materials(M)
     bev = {"anod": 0.004, "paint_grey": 0.004, "alu_dark": 0.003, "blast": 0.004, "solenoid": 0.003,
-           "ceramic": 0.004, "paint": 0.006, "coil": 0.003}
+           "ceramic": 0.004, "paint": 0.006, "coil": 0.003, "brushed": 0.008}
     out = []
     for k, mb in P.items():
         if len(mb.bm.verts):

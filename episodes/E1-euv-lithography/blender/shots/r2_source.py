@@ -1060,7 +1060,8 @@ def _amps(sc, M, cam, tgt, n):
     wallp = K.MB()
     wallp.box((L / 2 - 0.6, 2.42, 1.5), (L + 4.0, 0.04, 3.0))
     wallp.obj("ServiceWallPlate", K.mat("ServiceWallDark", (0.09, 0.095, 0.11), metal=0.6, rough=0.45))
-    H.wall_r10(HP, -2.4, L + 1.2, 0.15, 2.9, 2.4, seed=22, scale=1.3, depth=0.8)   # far + dim: depth, not clutter
+    import hero_kit_r11 as HK11            # R11: non-repeating blocks
+    HK11.wall_r11(HP, -2.4, L + 1.2, 0.15, 2.9, 2.4, seed=22, scale=1.3, depth=0.8)   # far + dim: depth, not clutter
     tray.obj("OverheadTray", M["alu_dark"], bevel=0.003)
     H.finish(HP, M, "AmpKit")
     hous_o = hous.obj("AmpHousings", M["paint_grey"], bevel=0.006)
