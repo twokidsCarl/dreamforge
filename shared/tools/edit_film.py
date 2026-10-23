@@ -55,8 +55,9 @@ ENGINES_2D = ("pillow", "manim")
 
 
 def needs_bar(img, W, H, engine):
-    """3D shots always get the bar; 2D frames only when the subtitle zone is not near-black."""
-    if engine not in ENGINES_2D:
+    """Every subtitle sits on a dark bar (SCALE_E1 v2 §4; R1 review: 2D frames had none). The old luma test is kept
+    only for EIGENLENS_SUB_BAR=auto."""
+    if os.environ.get("EIGENLENS_SUB_BAR", "always") != "auto" or engine not in ENGINES_2D:
         return True
     zone = img.convert("L").crop((int(0.1 * W), int(SUB_ZONE * H), int(0.9 * W), H))
     hist = zone.histogram()
