@@ -794,10 +794,29 @@ def _globe(sc, n):
     # + routes are replaced by ~5100 small cyan surface points (instanced, dense in Europe / USA / East Asia) lit in
     # lighting order region by region as the counter climbs (957 -> 3,605 -> 5,100), plus 14 low trunk arcs whose
     # BOTH ends sit on the surface (supplier hub -> NL ring), no arc leaves the globe
-    _globe_r18(sc, n, R, nl, RING)
+    # R19 (root cause #5, A0_06 R18 "东亚（日本、韩国、台湾）一个点都没有…改法：在日本、韩国、台湾、新加坡各补一簇光点和 1–2 条弧线。
+    # 最后一帧把镜头拉远到能同时看见欧亚和北美"): Japan / Korea / Taiwan / Singapore get denser clusters + one trunk arc each
+    # (5100-point network and landing arcs kept); the camera turns NORTH and pulls back (8.6 -> 12.6 R-units) to a high
+    # view over the Arctic (lat 72, lon 25) where Eurasia, East Asia and North America are on the visible hemisphere
+    global SUPPLIER_REGIONS_R18, TRUNKS_R18
+    _reg18, _tr18 = SUPPLIER_REGIONS_R18, TRUNKS_R18
+    SUPPLIER_REGIONS_R18 = [r for r in _reg18 if r[0] in ("eu", "us")] + [
+        ("asia", 1250, [(139.7, 35.7, 8, 1.4, 1.0), (135.5, 34.7, 5, 1.2, 0.8), (127.0, 37.5, 7, 0.9, 0.8),
+                        (128.6, 35.9, 3, 0.7, 0.6), (121.0, 24.8, 7, 0.6, 0.7), (120.3, 22.7, 3, 0.5, 0.5),
+                        (121.5, 31.2, 4, 1.2, 1.0), (114.1, 22.5, 3, 1.0, 0.7), (103.8, 1.35, 4, 0.45, 0.4)]),
+        ("rest", 250, [(77.6, 12.9, 2, 2.0, 2.0), (34.8, 32.1, 3, 0.6, 0.8), (-46.6, -23.5, 1, 2.0, 1.5),
+                       (151.2, -33.9, 1, 1.5, 1.0)])]
+    TRUNKS_R18 = list(_tr18) + [(139.7, 35.7), (127.0, 37.5), (121.0, 24.8), (103.8, 1.35), (135.5, 34.7)]
+    try:
+        _globe_r18(sc, n, R, nl, RING)
+    finally:
+        SUPPLIER_REGIONS_R18, TRUNKS_R18 = _reg18, _tr18
+    cam.animation_data_clear()
     tgt.animation_data_clear()
+    cf = _ll(25, 72, 1).normalized()
     K.key_path(cam, tgt, [(1, tuple(cn * 8.6 + Vector((0.4, 0, -0.6))), (0, 0, 0.62)),
-                          (n, tuple(ce * 7.4), tuple(_ll(-12, 42, R) * 0.45 + Vector((0, 0, 0.36))))])
+                          (round(n * 0.45), tuple(_ll(0, 47, 1).normalized() * 9.4), (0, 0, 0.55)),
+                          (n, tuple(cf * 12.6), (0, 0, 0.12))])
     K.anchors("A0_06", {"nl": nl})
     return cam
 
@@ -1022,6 +1041,7 @@ def _mirror(sc, n):
     spo = BR17.landing("BeamSpotR17", hit, Vector((0, 0, 1)), 0.085, color=(0.82, 0.72, 1.0), strength=12.0,
                        squash=0.55, major=Vector((din.x, din.y, 0)), lift=0.005)
     spo.visible_glossy = False                               # its mirror image read as a second white blob
+    _b407_r19(sc, me, cut, sub, hit, din, rout)
     K.floor("Floor", K.mat("FloorDark", (0.04, 0.045, 0.055), rough=0.35), z=-1.2)
     K.area("Key", (-3, -4, 5), (0, 0, 0), 4, 900, (0.95, 0.96, 1.0))
     K.area("Rim", (3, 4, 3), (0, 0, 0), 5, 700, (0.75, 0.8, 1.0))
@@ -1118,6 +1138,17 @@ def _pellicle(sc, n):
     bmp.inputs["Distance"].default_value = 0.002
     l.new(thr.outputs["Result"], bmp.inputs["Height"])
     l.new(bmp.outputs["Normal"], b.inputs["Normal"])
+    # R19 (root cause #4, B6_12 R18 "掩模图形是白色线描的芯片版图，更像 PCB"): reflective mask = LIGHT Mo/Si multilayer
+    # field (bright polished, reflects the studio) + DARK matte TaN absorber pattern (the layout features), not white lines
+    cr.color_ramp.elements[0].color = (*K.lin((0.50, 0.52, 0.60)), 1)       # multilayer reflector: light, glossy
+    cr.color_ramp.elements[1].color = (*K.lin((0.035, 0.035, 0.045)), 1)    # absorber: dark, matte
+    rr.inputs["To Min"].default_value = 0.1
+    rr.inputs["To Max"].default_value = 0.55
+    mtl.inputs["To Min"].default_value = 0.8
+    mtl.inputs["To Max"].default_value = 0.0
+    mpm.inputs["Scale"].default_value = (1.1, 0.85, 1)                     # bigger features: blocks + lines, not hairlines
+    thr.inputs["From Min"].default_value = 0.24
+    thr.inputs["From Max"].default_value = 0.32
     mt = K.MB()
     mt.box((0, 0, 0.1525), (1.44, 1.44, 0.002))
     mt.obj("MaskTop", top)
@@ -1162,6 +1193,11 @@ def _pellicle(sc, n):
     gl_.obj("PelGlueLine", K.mat("GlueLine", (0.78, 0.76, 0.7), rough=0.35))
     # R3 5A: thin black anodized frame (the R2 silver frame + gap read as a thick glass tray)
     fr.obj("PelFrame", K.mat("FrameBlack", (0.03, 0.03, 0.035), metal=0.6, rough=0.32, speck=0.1), bevel=0.003)
+    # R19 (B6_12 R18 "框边金属做出阳极氧化质感，不要纯黑塑料"): dark anodized aluminium - blue-grey metal, satin sheen
+    bpy.data.objects["PelFrame"].data.materials[0] = K.mat("FrameAnodR19", (0.16, 0.18, 0.23), metal=0.85, rough=0.36,
+                                                         brushed=0.25, speck=0.06)
+    # R19: the pale glue line drew a bright hard rim round the film (glass-lid edge) -> dark bond line
+    bpy.data.objects["PelGlueLine"].data.materials[0] = K.mat("GlueLineR19", (0.10, 0.10, 0.11), rough=0.5)
     # membrane: near-transparent, faint grey haze, glossy sheen at grazing angles, slight sag
     mem = _new_mat("Membrane")
     nt, nn, l = _nodes(mem)
@@ -1220,6 +1256,7 @@ def _pellicle(sc, n):
     mo = bpy.data.objects.new("Membrane", me)
     sc.collection.objects.link(mo)
     me.materials.append(mem)
+    _pellicle_r19(sc, mem, tr, gl, fk, fw, fh, bar, fz, ht, nx0, nx1)
     # dust particles on the membrane (what the pellicle is for) - a few tiny specks
     # R15 (root cause #4, R14 H6 "膜面颗粒无说明"): no particles in this shot (they belong to a particle beat)
     # gap dimension in the notch: cyan rule from the pattern face up to the membrane plane, end ticks on both
@@ -1258,6 +1295,8 @@ def _pellicle(sc, n):
     sw.data.energy = 260
     sw.data.size, sw.data.energy = 0.18, 160      # R15: one thin grazing highlight band, not a broad haze
     sw.data.size, sw.data.energy = 0.3, 520       # R16: the sweep band is clearly visible across the film
+    # R19 (root cause #4): the film has no uniform sheen any more -> ONE narrow grazing strip highlight carries it
+    sw.data.size, sw.data.energy = 0.12, 7000
     try:
         rc = bpy.data.collections.new("SweepReceivers")
         rc.objects.link(mo)
@@ -1269,13 +1308,128 @@ def _pellicle(sc, n):
     sw.location = (3.0, 2.5, 1.6)
     sw.keyframe_insert("location", frame=n)
     cam, tgt = K.camera("CamR2", lens=45)
-    _dof(cam, 5.6, tgt)
+    _dof(cam, 2.8, tgt)                          # R19: stage / clamp anchor behind stays soft (defocused)
     K.key_path(cam, tgt, [(1, (-1.4, -3.0, 2.6), (0.05, 0, 0.2)),
                           (round(n * 0.55), (-1.5, -2.5, 1.0), (0.2, -0.3, 0.2)),
                           (n, (-0.75, -1.9, 0.62), (0.25, -0.3, 0.17))])
     sc["hdri"] = "studio_small_09"
     sc["hdri_strength"] = 0.6
     return cam
+
+
+def _b817_r19(sc, n, Mk, pw16, hot, al, so):
+    """R19 B8_17. Root cause #3 (R18 "背景墙是同一种「圆窗 + 横杆」重复铺排… 把其中一半换成不同零件，例如离子泵、阀岛、气路面板、
+    冷却管束"): the R16 parts wall is replaced by the shared read-only kit_r19.wall_r19 (6 big different assemblies + a
+    diagonal coolant run) on the same back plate. Root cause #2 (light path, R18 "光锥打在晶圆上的那一格最好再亮一点，并加一点
+    溅射。已曝光格和未曝光格的颜色差可以再拉开"): the cone already ends exactly in the slit (hooked); the landing field is one
+    step brighter with a soft splash spot riding with the slit; exposed fields pale violet vs unexposed neutral grey."""
+    import hero_kit_r10 as H
+    import kit_r19 as KR
+    for ob in [pw16] + list(pw16.children_recursive):
+        ob.hide_render = True
+        ob.hide_viewport = True
+    P = H.new_parts()
+    KR.wall_r19(P, -5.2, 8.2, -0.45, 4.4, 6.25, seed=817, scale=2.6, n=6)
+    root = bpy.data.objects.new("WallR19", None)
+    sc.collection.objects.link(root)
+    for ob in H.finish(P, Mk, "WallR19"):
+        ob.parent = root
+    hot.inputs["To Min"].default_value = 3.4             # landing field: one step brighter (R18 2.2)
+    hot.inputs["To Max"].default_value = 0.3             # exposed: pale violet latent image (R18 0.16)
+    al.inputs[1].default_value = 0.42
+    import misc_beam_r17 as BR17
+    sp = BR17.landing("SlitSplashR19", Vector((0, 0, 0.0005)), Vector((0, 0, 1)), 0.2, color=(0.82, 0.74, 1.0),
+                      strength=2.2, squash=0.45, major=Vector((1, 0, 0)), lift=0.0005)
+    sp.parent = so
+    sp.visible_glossy = False
+
+
+def _b407_r19(sc, me, cut, sub, hit, din, rout):
+    """R19 B4_07 (root cause #2, light path + material). R18 review: 「入射光和反射光是两根等宽细管。改法：入射光锥形收拢到
+    落点，落点加一圈软亮斑；反射光略微发散」 + 「把切面改成中性灰喷砂，饱和度 < 5 %，顶层膜保留亮白边」.
+    The R17 thin cores are replaced by misc_beam_r18 volumetric cones whose ends sit exactly on the landing spot (zero
+    density outside the cone); a soft halo ring around the spot; blank + cut face neutral-grey sand-blasted."""
+    import misc_beam_r18 as BR18
+    import misc_beam_r17 as BR17
+    for ob in list(bpy.data.objects):
+        if ob.name.startswith(("BeamR17", "BeamOutR17")):
+            bpy.data.objects.remove(ob, do_unlink=True)
+    BR18.vol_cone("BeamInR19", hit + din * 6.0, hit, 0.26, 0.035, K.VIOLET, 2.4, 0.6, edge=1.5, fade0=0.4, gain=1.2)
+    BR18.vol_cone("BeamOutR19", hit, hit + rout * 6.0, 0.035, 0.14, K.VIOLET, 1.8, 0.5, edge=1.5, fade1=0.45, gain=0.0)
+    halo = BR17.landing("BeamHaloR19", hit, Vector((0, 0, 1)), 0.2, color=(0.8, 0.7, 1.0), strength=2.6, lift=0.004)
+    halo.visible_glossy = False
+    # neutral grey sand-blasted section + blank (saturation < 5 %); the top coating band (emissive, bright) is kept
+    b = next(x for x in cut.node_tree.nodes if x.type == "BSDF_PRINCIPLED")
+    mix = next(x for x in cut.node_tree.nodes if x.type == "MIX" and x.data_type == "RGBA")
+    mix.inputs["A"].default_value = (*K.lin((0.29, 0.29, 0.30)), 1)
+    b.inputs["Roughness"].default_value = 0.5
+    for _k in ("Subsurface Weight", "Coat Weight"):
+        if _k in b.inputs:
+            b.inputs[_k].default_value = 0.0
+    for x in cut.node_tree.nodes:
+        if x.type == "BUMP":
+            x.inputs["Strength"].default_value = 0.25
+    nn, l = cut.node_tree.nodes, cut.node_tree.links
+    tc = nn.new("ShaderNodeTexCoord")
+    nz = nn.new("ShaderNodeTexNoise")                            # sand-blast grain
+    nz.inputs["Scale"].default_value = 900.0
+    l.new(tc.outputs["Object"], nz.inputs["Vector"])
+    bp = nn.new("ShaderNodeBump")
+    bp.inputs["Strength"].default_value = 0.12
+    l.new(nz.outputs["Fac"], bp.inputs["Height"])
+    l.new(bp.outputs["Normal"], b.inputs["Normal"])
+    me.materials[1] = K.mat("BlankGreyR19", (0.27, 0.27, 0.28), rough=0.5, speck=0.25)
+
+
+def _pellicle_r19(sc, mem, tr, gl, fk, fw, fh, bar, fz, ht, nx0, nx1):
+    """R19 root cause #4 (B6_12 R18 "pellicle 读起来是一块厚玻璃盖板…" two rounds): the film is a zero-thickness single
+    sheet (transparent BSDF, no refraction), ~99 % clear, NO uniform base reflectance (only a weak Fresnel term), a crisp
+    glossy lobe so the light-linked sweep strip draws ONE grazing strip highlight, and faint tension ripples (normal noise).
+    Hair-thin bright section line where the frame is cut open; defocused mask stage (e-chuck under the mask, clamp jaws,
+    stage carriage + rail behind) as the macro anchor."""
+    nt = mem.node_tree
+    nn, l = nt.nodes, nt.links
+    tr.inputs["Color"].default_value = (0.99, 0.99, 0.99, 1)
+    fk.inputs[1].default_value = 0.10                # Fresnel only: grazing glint, no lid-wide sheen
+    fk.inputs[2].default_value = 0.0                 # R16 +3 % base reflectance removed (= the "glass plate")
+    gl.inputs["Roughness"].default_value = 0.02
+    tc = nn.new("ShaderNodeTexCoord")
+    nz = nn.new("ShaderNodeTexNoise")
+    nz.inputs["Scale"].default_value = 1.6
+    nz.inputs["Detail"].default_value = 1.0
+    l.new(tc.outputs["Object"], nz.inputs["Vector"])
+    bp = nn.new("ShaderNodeBump")
+    bp.inputs["Strength"].default_value = 0.035      # very light tension undulation: the strip wavers a little
+    bp.inputs["Distance"].default_value = 0.01
+    l.new(nz.outputs["Fac"], bp.inputs["Height"])
+    l.new(bp.outputs["Normal"], gl.inputs["Normal"])
+    # hair-thin section line: the film edge where the near frame bar is cut open (vs the thick frame)
+    z_f = fz + ht / 2
+    hl = K.MB()
+    hl.tube(Vector((nx0 - 0.01, -(fh - bar) / 2, z_f)), Vector((nx1 + 0.01, -(fh - bar) / 2, z_f)), 0.0009, seg=6)
+    hl.obj("FilmSectionLine", K.mat("FilmSectionInk", (0.85, 0.86, 0.9), rough=0.2, emit=(0.9, 0.92, 1.0), strength=5.0))
+    # mask stage anchor: electrostatic chuck slab under the mask (light ceramic, dark electrode groove at its rim)
+    ch, chg, jw, st = K.MB(), K.MB(), K.MB(), K.MB()
+    ch.box((0, 0, 0.044), (1.66, 1.66, 0.088))
+    for (cx, cy, sx, sy) in [(0, 0.80, 1.6, 0.01), (0, -0.80, 1.6, 0.01), (0.80, 0, 0.01, 1.6), (-0.80, 0, 0.01, 1.6)]:
+        chg.box((cx, cy, 0.0885), (sx, sy, 0.003))
+    # clamp jaws gripping the mask at the far corners, arms back to the stage carriage
+    for sx in (-1, 1):
+        x = sx * 0.62
+        jw.box((x, 0.80, 0.168), (0.16, 0.10, 0.03))                  # jaw pad over the mask edge
+        jw.box((x, 0.97, 0.12), (0.16, 0.26, 0.10))                   # jaw block
+        jw.box((x, 2.0, 0.14), (0.12, 1.9, 0.07))                     # arm to the carriage
+        jw.cyl((x, 0.97, 0.172), 0.025, 0.012, seg=16)
+    st.box((0, 3.1, 0.18), (3.6, 0.4, 0.36))                         # stage carriage (defocused background)
+    st.box((0, 3.55, 0.07), (6.0, 0.24, 0.14))                        # linear-motor rail
+    for k in range(28):
+        st.box((-2.9 + k * 0.21, 3.55, 0.145), (0.12, 0.2, 0.012))    # magnet track segments
+    for k in range(5):
+        st.cyl((-1.4 + k * 0.7, 2.89, 0.24), 0.04, 0.02, rot=(math.radians(90), 0, 0), seg=16)   # carriage ports
+    ch.obj("EChuckR19", K.mat("ChuckCeramicR19", (0.34, 0.35, 0.37), rough=0.45, speck=0.08), bevel=0.004)
+    chg.obj("EChuckGrooveR19", K.mat("ChuckGrooveR19", (0.05, 0.05, 0.06), rough=0.7))
+    jw.obj("ClampJawsR19", K.mat("JawAnodR19", (0.20, 0.22, 0.27), metal=0.85, rough=0.34, brushed=0.2), bevel=0.006)
+    st.obj("StageCarriageR19", K.mat("StageAluR19", (0.30, 0.31, 0.34), metal=0.9, rough=0.36, brushed=0.2), bevel=0.01)
 
 
 def _resist_lines(sc, x0, x1, y0, y1, pitch, h, seed=0):
@@ -1674,7 +1828,8 @@ def _wafer(sc, n):
     bw = K.MB()
     bw.box((1.0, 6.3, 1.6), (16.0, 0.1, 6.0))
     bw.obj("BackWall", Mk["anod"])
-    MK.parts_wall_r16(Mk, (1.4, 6.2, -1.3), 3.0)
+    _pw16 = MK.parts_wall_r16(Mk, (1.4, 6.2, -1.3), 3.0)
+    _b817_r19(sc, n, Mk, _pw16, hot, al, so)
     po = K.MB()
     po.cyl((1.4, 2.4, 3.35), 1.6, 1.3, seg=96)
     po.ring((1.4, 2.4, 2.68), 1.65, 0.5, 0.08, seg=96)
@@ -1871,9 +2026,21 @@ def _bokeh(sc, n):
         if ob.name.startswith("CoreR17_"):
             bpy.data.objects.remove(ob, do_unlink=True)
     _pts = [Vector(B.MASK)] + [Vector(v) for v in B.PO] + [Vector(B.WAFER)]
-    _dm = K.mat("DiscMirrorR18", (0.82, 0.84, 0.9), metal=1.0, rough=0.035)
+    # R19 (root cause #2, A2_03 R18 "镜子画成粗金属甜甜圈环…给每个环装上实心镜盘（参照 k4A 的银色厚镜片和高光边），让光锥的
+    # 落点落在镜盘中心，并留一个可见的亮斑"): every ring mount now holds a THICK solid silver mirror blank (misc_mirror_r19:
+    # metallic, roughness 0.05, light tone, bright chamfer rim) that fills the ring; the fold cone starts / ends exactly on
+    # the PO4 / PO5 face centres, each with a soft landing spot (no fog blob at the end)
+    import misc_mirror_r19 as MM
+    _mm, _mr = MM.mirror_mat("MirrorR19"), K.mat("MirrorRimR19", (0.95, 0.95, 0.97), metal=1.0, rough=0.12)
+    _mb = K.mat("MirrorBlankR19", (0.8, 0.81, 0.84), metal=1.0, rough=0.16)    # polished silver blank, seen from behind too
+    _nrm = []
     for i, p_ in enumerate(B.PO):
-        BR18.disc_mirror(f"DiscMirrorR18_{i}", p_, K.mirror_normal(_pts[i], Vector(p_), _pts[i + 2]), B.PO_R[i] * 0.9, _dm)
+        nr_ = K.mirror_normal(_pts[i], Vector(p_), _pts[i + 2])
+        _nrm.append(nr_)
+        # the blank overhangs the ring mount (outer r * 1.16): a thick silver plate sitting ON the ring, not a hole
+        MM.solid_mirror(f"MirrorR19_{i}", p_, nr_, B.PO_R[i] * 1.24, thick=0.07, mat=_mm, rim_mat=_mr, back_mat=_mb)
+    for i in (4, 5):
+        MM.landing(f"MirrorSpotR19_{i}", Vector(B.PO[i]) - _nrm[i] * 0.004, _nrm[i], B.PO_R[i] * 0.28, strength=8.0, light=2.5)
     BR18.vol_cone("FoldR18", B.PO[4], B.PO[5], B.PO_R[4] * 0.62, B.PO_R[5] * 0.55, K.VIOLET, 3.2, 0.55, edge=1.6,
                   gain=0.3)
     # R14 (root cause #7 / review A2_03 #1 "NA 只有文字，没有画面"): the last PO mirror's full converging light cone
