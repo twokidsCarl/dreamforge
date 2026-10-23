@@ -525,7 +525,7 @@ def _po_turntable(sc, M, n):
     sc["vignette"] = 0.3
     sc.camera = cam
     K.anchors("B7_06", {"po": Vector((1.8, 0.05, 2.5)), "eng": Vector((4.05, -1.7, 1.8)), "top": Vector((1.8, 0.05, 4.1)),
-                        "m6": Vector((2.25, -0.1, 2.05)), "m5": Vector((2.1, -0.1, 1.32)), "entry": Vector((0.75, 0.3, 4.3))})
+                        "m6": Vector((1.8, 0.05, 2.0)), "m5": Vector((1.8, 0.05, 1.36)), "entry": Vector((0.75, 0.3, 4.3))})
     return sc
 
 
