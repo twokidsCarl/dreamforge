@@ -49,12 +49,12 @@ w=np.zeros(nv); cnt=np.zeros(nv); np.add.at(w,li,((lum<0.22)&(pink<0.12)).astype
 vg=m.vertex_groups.new(name='fur')
 for i in np.nonzero(w>0.5)[0]: vg.add([int(i)],1.0,'REPLACE')
 rest=np.array([v.co for v in m.data.vertices])  # mesh-local rest coords
-wh=np.zeros(nv); np.add.at(wh,li,((lum>0.45)&(np.abs(pink)<0.15)).astype(float)); wh/=np.maximum(cnt,1)
+wh=np.zeros(nv); np.add.at(wh,li,((lum>0.33)&(np.abs(pink)<0.18)).astype(float)); wh/=np.maximum(cnt,1)
 # whisker verts: bright & near nose (in world rest coords)
 near=np.linalg.norm(co-np.array(nosept),axis=1)<0.12
 import bmesh
 bm=bmesh.new(); bm.from_mesh(m.data); bm.verts.ensure_lookup_table()
-dv=[bm.verts[i] for i in np.nonzero((wh>0.6)&near)[0]]; print('whisker verts',len(dv)); bmesh.ops.delete(bm,geom=dv,context='VERTS'); bm.to_mesh(m.data); bm.free()
+dv=[bm.verts[i] for i in np.nonzero((wh>0.45)&near)[0]]; print('whisker verts',len(dv)); bmesh.ops.delete(bm,geom=dv,context='VERTS'); bm.to_mesh(m.data); bm.free()
 bsdf.inputs['Roughness'].default_value=0.55
 src=bsdf.inputs['Base Color'].links[0].from_socket
 mx=mat.node_tree.nodes.new('ShaderNodeMix'); mx.data_type='RGBA'; mx.blend_type='MULTIPLY'
@@ -146,11 +146,11 @@ bpy.ops.mesh.primitive_plane_add(size=30,location=C0-sidev0*8+Vector((0,0,3))); 
 wall.rotation_euler=(math.radians(90),0,math.atan2(sidev0.y,sidev0.x)+math.radians(90))
 wmat=bpy.data.materials.new('wall'); wmat.use_nodes=True; wmat.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value=(0.02,0.03,0.07,1); wall.data.materials.append(wmat)
 random.seed(3)
-for i in range(22):
+for i in range(12):
     loc=C0-sidev0*random.uniform(3.0,4.5)-fwd*random.uniform(-1.0,3.5)+Vector((0,0,random.uniform(0.15,0.9)))
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.07,location=loc)
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.035,location=loc)
     b_=bpy.context.object; em=bpy.data.materials.new('bk'); em.use_nodes=True; e=em.node_tree.nodes.new('ShaderNodeEmission')
-    e.inputs[0].default_value=random.choice([(0.25,0.55,1,1),(1,0.7,0.4,1),(0.4,0.8,1,1),(1,0.85,0.6,1)]); e.inputs[1].default_value=random.uniform(15,40)
+    e.inputs[0].default_value=random.choice([(0.25,0.55,1,1),(1,0.7,0.4,1),(0.4,0.8,1,1),(1,0.85,0.6,1)]); e.inputs[1].default_value=random.uniform(5,12)
     em.node_tree.links.new(e.outputs[0],em.node_tree.nodes['Material Output'].inputs[0]); b_.data.materials.append(em)
 # lights
 def area(loc,energy,color,size):
@@ -202,4 +202,5 @@ elif MODE=='frames':
     for f in [int(x) for x in argv[8].split(',')]:
         sc.frame_set(f); sc.render.filepath=OUT+'%04d.png'%f; bpy.ops.render.render(write_still=True)
 else:
+    sc.render.use_overwrite=False; sc.render.use_placeholder=False
     sc.render.filepath=OUT; bpy.ops.render.render(animation=True)
