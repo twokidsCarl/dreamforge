@@ -908,11 +908,14 @@ def _cold(sc, M, cam, tgt, n):
     for ob in parts:
         show_between(ob, hit1 + 3, boom - 1)
     beam_start = (COLL_X - 0.2, 0, 0)
-    for ob in laser(M, beam_start, (0, 0, 0), 0.0025, "Pre"):
-        show_between(ob, hit1 - 3, hit1 + 6)
+    import source_r19 as S19     # R19 #5 (R18 A0_01 #3 "一团糊的橙色圆柱"): converging soft cone, focus on the droplet
+    pre = S19.laser_cone_r19(beam_start, (-r * 0.9, 0, 0), 0.05, 0.004, "PreConeR19", peak=400.0, gain=1.3)
+    show_between(pre, hit1 - 3, hit1 + 6)
     for ob in flash(M, (-0.01, 0, 0), r * 1.4):
         show_between(ob, hit1, hit1 + 5)
     # R15 (A0_01 review #1): main pulse = side-on soft orange cone covering the sheet, no disc spot on its centre
+    # R19 #5: a converging main-pulse cone was smoked and reverted (Q4 no: its wide end read as a solid orange tube,
+    # the waist hides behind the sheet) -> R18 main pulse kept; only the pre-pulse (frames 89-98) is the R19 cone
     mp = main_pulse_cone_r15((COLL_X - 0.2, 0, 0), (-0.012, 0, 0), 0.025, r * 9.0, "MainPulse")
     show_between(mp, hit2 - 4, boom)
     pl, li = plasma_r10(M, (0, 0, 0), 0.032, energy=0, li_color=PLASMA_LIGHT_R14)   # R10: volumetric core
@@ -980,8 +983,9 @@ def _prepulse(sc, M, cam, tgt, n):
     key_scale(root, [(hit + 2, r * 1.2), (hit + 40, r * 9.0), (n, r * 12.0)])
     for ob in parts:
         show_between(ob, hit + 3)
-    for ob in laser(M, (COLL_X - 0.2, 0, -0.02), (0, 0, 0), 0.0022, "Pre"):
-        show_between(ob, hit - 6, hit + 8)
+    import source_r19 as S19     # R19 #5 (R18 B1_10 #1 "等宽、实心的发光管"): converging soft cone onto the droplet
+    pre = S19.laser_cone_r19((COLL_X - 0.2, 0, -0.02), (-r * 0.9, 0, 0), 0.045, 0.0035, "PreConeR19", peak=400.0, gain=1.3)
+    show_between(pre, hit - 6, hit + 8)
     # R18 #4 (R17 review B1_10: "第 1 帧锡滴是个发光白球，光晕太大"): a small impact flash on the laser-facing side
     # only (R17: r * 1.3 centred on the droplet hid its metal outline); the tin shader is untouched
     for ob in flash(M, (-r * 1.0, 0, 0), r * 0.45):
@@ -1145,8 +1149,10 @@ def _contrast(sc, M, cam, tgt, n):
     family): asset route changed to the B3_02 collector (blender/scripts/b115_r17.py), half-cut, external 3/4 view,
     plasma at the first focus, push-in + focus pull. The R16 build is kept below as _contrast_r16 (unused).
     R18 root cause #1 (R17 H5: reused B3_02 centre read as "no centre hole"): new asset b115_r18 - true through-hole,
-    dark mirror metal inside a cut-away chamber, laser through the hole, cyan axis to the plasma, silver debris."""
-    import b115_r18 as B115
+    dark mirror metal inside a cut-away chamber, laser through the hole, cyan axis to the plasma, silver debris.
+    R19 root cause #1 (R18 H1: dark face + oblique slice read as "a matte wall panel"): new asset b115_r19 - camera
+    faces the concave side at ~3/4, bright polished face mirroring the plasma (no cards), push-in >= 15 %."""
+    import b115_r19 as B115
     return B115.build_contrast(sc, M, cam, tgt, n, __import__(__name__))
 
 
@@ -1454,6 +1460,12 @@ def _clean_r6(sc, M, cam, tgt, n):
     bore = K.MB()
     bore.cyl(port - nrm_p * 0.01, 0.17, 0.01, rot=q, seg=48)
     bore.obj("PumpBore", M["hole"])
+    # R19 #3 (R18 B2_08: "腔壁肋板重复"): the 24 ribs + stiffening rings + wall lines / MLI patches are replaced by a
+    # few big named assemblies (shared kit_r19.wall_r19) on the wall segments either side of the pump port; the
+    # pump port, ports and the fill level stay as they were (R16: deleting fill -> black chamber)
+    import source_r19 as S19
+    S19.wall_dedup_r19(M, ((98, 0.5, -1.2, 1.2, 1.2, 3), (147, 0.4, -1.2, 1.2, 1.2, 3), (222, 0.6, -1.2, 1.2, 1.2, 3)),
+                       seed=208, keep=(((-0.7, 0, 0), 0.6), (tuple(port), 0.36), ((0, 0, 0), 0.3)), tag="B208WallR19")
     # tin deposits: fewer, flatter, dull, concentrated in a band the camera ends on
     rnd = random.Random(8)
     dep = K.MB()
@@ -1543,6 +1555,17 @@ def _spectrum(sc, M, cam, tgt, n):
     # bolted edge + the nozzle / catcher read through the defocus); the plasma sits at its first focus (origin)
     B115.collector_b302(M, name="CollB118")
     lights_chamber(0.55)
+    # R19 #3 (R18 B1_18: "背景是同一种弧形管 / 环反复出现…加入 2–3 种能叫出名字的部件（观察窗、真空泵口、收集镜边缘），并让紫光在
+    # 这些部件上有落点"): ribs / rings / curved wall lines (the repeated arcs, also mirrored by the collector) replaced by
+    # a few big named assemblies (shared kit_r19.wall_r19) + two lit viewports + a pump port; a violet share of the
+    # plasma light lands on them. Fill level unchanged.
+    import source_r19 as S19
+    S19.wall_dedup_r19(M, ((95, 0.5, -1.2, 1.2, 1.2, 3), (155, 0.5, -1.2, 1.2, 1.2, 3), (235, 0.6, -1.2, 1.2, 1.2, 3),
+                           (282, 0.55, -1.2, 1.2, 1.2, 2)),
+                       seed=118, keep=(((-0.7, 0, 0), 0.6), ((0, 0, 0), 0.3)), tag="B118WallR19",
+                       viewports=(((0.55, 1.16, 0.25), (-0.4, -1, -0.1), 0.12), ((-0.2, -1.22, 0.55), (0.1, 1, -0.3), 0.1)))
+    S19.pump_port_r19(M, 128, 0.45)
+    K.point("PlasmaVioletR19", (0, 0, 0), 14.0, K.VIOLET, 0.03)
     pl, li = plasma_r10(M, (0, 0, 0), 0.04, energy=40.0, gas=1.3, li_color=PLASMA_LIGHT_R14, mirror_core=True)
     # R6 (D): the plasma pulses (50 kHz shown as a slow shimmer) instead of a constant glow
     rk = random.Random(18)

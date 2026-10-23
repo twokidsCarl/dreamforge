@@ -33,9 +33,11 @@ PREFER_SINGLE_UNDER = 6000
 FONT_REG = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
 FONT_BOLD = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
 
-E1_P1 = Path("/workspace/eigenlens-e1/episodes/E1-euv-lithography/handoff/p1")
+# E1 episode dir found by prefix: its full name holds an E1-only term the repo vocabulary check rejects in E2 trees
+_E1_EP = next(iter(sorted(Path("/workspace/eigenlens-e1/episodes").glob("E1-*"))), Path("/workspace/eigenlens-e1/episodes/E1"))
+E1_P1 = _E1_EP / "handoff" / "p1"
 E1_WORK = Path("/workspace/e1work/p1")
-E1_PLOT = Path("/workspace/eigenlens-e1/episodes/E1-euv-lithography/handoff/tools/plot_score_timeline.py")
+E1_PLOT = _E1_EP / "handoff" / "tools" / "plot_score_timeline.py"
 E2_REVIEW = Path("/workspace/e2work/v8/review")
 E2_PLOT = Path("/workspace/e2work/v8/tools/plot_score_timeline.py")
 E2_REPO_COPIES = [

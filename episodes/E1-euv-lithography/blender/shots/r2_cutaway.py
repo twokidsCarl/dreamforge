@@ -57,11 +57,55 @@ def build(variant="illum", shot=None):
     # tubes"): asset change - beam_r18 solid volumetric light cones whose end radii follow the two mirrors'
     # apertures (soft shell, R17 landing highlights kept, one current segment per screen). No width knob of
     # beam_r16 / beam_r17 is touched; the R17 thin-core legs are no longer built.
-    import beam_r18 as R18
+    # R19 row 2 (R18 p2: "55-85 % 帧里紫光散成满腔的雾", cones = "soft hoses / fog blobs"): beam_r19 = beam_r18 with
+    # the continuity rule - each frustum runs landing -> landing, volume ONLY inside the cone (the outer halo shell
+    # that spread the haze is gone), a landing highlight at every bounce and at the path's end. No width knob.
+    # (every `import beam_r18 as R18` in this module now loads beam_r19 under the same alias)
+    import beam_r19 as R18
     R18.install()
-    sc = _build(variant, shot)
+    import cut_mirror_r19 as CM
+    _WALL19[0] = variant
+    _orig_wall = B._wall
+    B._wall = _wall19                         # R19 row 3: named-part walls (kit_r19) on the reviewed walls only
+    try:
+        sc = _build(variant, shot)
+    finally:
+        B._wall = _orig_wall
     BR.flush()                                # R12: landing spots collected by the soft beam columns (R17 highlights)
+    # R19 row 2 (R18 p2: "镜面全部换成真金属反射 … 现在偏哑光，有塑料感 … 镜面能反射出周围结构"): every mirror face
+    # of the module -> one high-reflective mirror (roughness 0.05, light tone, no emission / violet), and the hero
+    # mirrors get lit REAL structure (kit_r19 assemblies) in their camera-reflection direction (no light cards)
+    M = _M19[0]
+    CM.apply(M)
+    heroes = {"illum": [(B.FFM, K.mirror_normal(B.IF, B.FFM, B.PFM), 1.8)],
+              "collect": [(B.COLL + Vector((0.02, 0, 0.18)), Vector((1, 0, 0)), 1.4)],
+              "tour": [(B.FFM, K.mirror_normal(B.IF, B.FFM, B.PFM), 1.6)],
+              "scan": _HERO19[0]}.get(variant)
+    if heroes:
+        CM.reflect_env(sc, M, heroes, tag=f"Env19{variant}")
     return sc
+
+
+_WALL19 = [None]
+_HERO19 = [None]
+_M19 = [None]
+# R19 row 3 (R18: "中舱后墙是同一种方格小盒重复铺满" A0_10 / "右侧墙是重复的横管 + 格栅" B3_02): these two walls are
+# built with the shared read-only kit_r19.wall_r19 (5-6 big different named assemblies + a diagonal coolant run)
+_WALL19_SEEDS = {"title": (12,), "collect": (33,)}
+
+
+def _wall19():
+    import hero_kit_r12 as HK12_
+
+    def disp(*a, **kw):
+        if kw.get("seed") in _WALL19_SEEDS.get(_WALL19[0], ()):
+            import kit_r19 as KR
+            kw.pop("blocks", None)
+            if _WALL19[0] == "title":        # the diagonal hose run crossed the mid bay like a second (white) path
+                kw["hoses"] = False
+            return KR.wall_r19(*a, **kw)
+        return HK12_.wall_r12(*a, **kw)
+    return disp
 
 
 def _build(variant="illum", shot=None):
@@ -86,6 +130,7 @@ def _build(variant="illum", shot=None):
     M["facet"] = MR.ml_mirror("FacetML_R15", rough=0.1, tone=0.26, coat=0.15)   # field facets: dark polished, lit only by the beam
     M["facet18"] = MR.ml_mirror("FacetML_R18", rough=0.05, tone=0.78, coat=0.4)  # R18 B5_01: mirror strips
     M["spot"] = K.emit_mat("BeamSpotR15", K.VIOLET, 2.2, halo=0.9)
+    _M19[0] = M
     if variant == "title":                   # k1C: near-black backdrop, product-lit machine, white serif title above
         C.set_world(top=(0.004, 0.005, 0.008), horizon=(0.03, 0.033, 0.04), bottom=(0.05, 0.05, 0.055), strength=1.0)
         flo = K.mat("StudioFloor", (0.3, 0.31, 0.33), rough=0.15, coat=0.6)
@@ -151,7 +196,7 @@ def _build(variant="illum", shot=None):
         BR.SPOTS[:] = []
         import beam_r17 as R17
         R17.LAND[:] = []
-        import beam_r18 as R18               # R18: machine()'s full-path cones (beam_r18.columns) are off here too
+        import beam_r19 as R18               # R18: machine()'s full-path cones (beam_r18.columns) are off here too
         for o_ in R18.take():
             bpy.data.objects.remove(o_)
     if variant == "illum":                   # R14 (R13: "two beams cross; a white dot where they cross"): the path is
@@ -162,7 +207,7 @@ def _build(variant="illum", shot=None):
         # volumetric cones - IF -> field facets arrives NARROW (0.025 -> 0.075), facets -> pupil facet leaves WIDE
         # (0.21 -> 0.27, onto the visible round pupil mirror); the onward legs follow fainter; the incoming leg fades
         # out once the outgoing one carries the screen
-        import beam_r18 as R18
+        import beam_r19 as R18
         lg = [(pts[0], pts[1], 0.025, 0.075, 0.0, 0.62, 1.3), (pts[1], pts[2], 0.21, 0.27, 0.2, None, 1.0)]
         lg += [(pts[i], pts[i + 1], rad[i] * 0.8, rad[i + 1] * 0.8, t, None, 0.6)
                for i, t in ((2, 0.33), (3, 0.4), (4, 0.45))]
@@ -177,7 +222,11 @@ def _build(variant="illum", shot=None):
             for sl in getattr(o, "material_slots", []):
                 if sl.material is not None and sl.material.name.startswith("FacetML_R15"):
                     sl.material = M["facet18"]
-        K.area("FacetCardR18", (-2.4, -2.2, 4.6), B.FFM, 2.0, 140, (0.95, 0.96, 1.0), size_y=0.5)
+        fc_ = K.area("FacetCardR18", (-2.4, -2.2, 4.6), B.FFM, 2.0, 140, (0.95, 0.96, 1.0), size_y=0.5)
+        try:                                 # R19 row 2: no light card in the mirror - the facets reflect real lit
+            fc_.visible_glossy = False       # structure (cut_mirror_r19.reflect_env) + the beam's own landings
+        except AttributeError:
+            pass
         mb = K.MB()
         K.cone_beam(mb, B.IF, Vector((B.COLL.x + 0.28, 0, B.COLL.z)), 0.62)
         # R17 row 4: the source cone keeps its R16 soft look at ~40 % (M["beam_wide"] is now the thin-core material)
@@ -198,8 +247,36 @@ def _build(variant="illum", shot=None):
         pts, rad = B.beam_path(0, mi + 1)
         # R17 row 4 (R16: "at 55 % only pupil <-> field facet shows, reads as the wrong order"): the IF -> field
         # facet leg stays lit with the next leg, so the single path reads in story order (thin cores + landings)
-        BR.timed_path(pts, rad, [(0.0, 0.66), (0.45, 0.72), (0.66, 0.76), (0.72, 0.8), (0.76, None), (0.76, None)],
-                      n, "TourLeg", no_spot=(4,))            # the mask's lit slit is its own landing mark
+        # R19 row 2 (R18: "入射光收成细锥（照明狭缝形状），落在掩模上形成一条亮弧形照明带，反射光从这条带出去"): legs
+        # IF..G2 as before (beam_r19: landing -> landing, zero outside); the G2 -> mask leg closes onto the
+        # illumination band (slit-shaped end across the plane of incidence) and the reflected leg leaves from
+        # exactly that band toward PO1; the band itself is a bright arc on the mask face
+        import beam_r19 as R19
+        R19.END_LAND[0] = False              # G2's landing is added below with its true mirror normal
+        BR.timed_path(pts[:5], rad[:5], [(0.0, 0.66), (0.45, 0.72), (0.66, 0.76), (0.72, 0.8)], n, "TourLeg")
+        R19.END_LAND[0] = True
+        band = ((0, 1, 0), 0.15, (1, 0, 0), 0.014)
+        for j, (a_, b_, ra_) in enumerate(((pts[4], pts[5], rad[4]), (pts[6], pts[5], rad[6]))):
+            os_, ms_ = R19.cone(a_, b_, ra_, 0.01, f"TourLegBand{j}", end=band, seg=64)
+            f_band = R19.key_vis(os_, ms_, n, 0.76, None)
+        R19._land_timed(pts[4], K.mirror_normal(pts[3], pts[4], pts[5]), "TourLegLandG2", f_band)
+        arc, arch = K.MB(), K.MB()
+        apts = [Vector((pts[5].x + 1.1 * (y_ * y_), pts[5].y + y_, pts[5].z - 0.006)) for y_ in
+                [-0.15 + 0.3 * k / 16 for k in range(17)]]
+        for a_, b_ in zip(apts, apts[1:]):          # flat ribbon on the mask face (not a tube / line)
+            mid_, d_ = (a_ + b_) / 2, (b_ - a_)
+            ang_ = math.atan2(d_.x, d_.y)
+            arc.box(mid_, (0.026, d_.length * 1.08, 0.0012), rot=(0, 0, -ang_))
+            arch.box(mid_ + Vector((0, 0, 0.0012)), (0.06, d_.length * 1.08, 0.001), rot=(0, 0, -ang_))
+        bo1 = arc.obj("MaskBandR19", K.emit_mat("MaskBandHotR19", (0.8, 0.68, 1.0), 9.0))
+        bo2 = arch.obj("MaskBandGlowR19", K.emit_mat("MaskBandGlowR19", (0.62, 0.48, 1.0), 2.5, halo=0.8))
+        for o_ in (bo1, bo2):
+            o_.visible_shadow = False
+            o_.hide_render = True
+            o_.keyframe_insert("hide_render", frame=1)
+            o_.keyframe_insert("hide_render", frame=f_band + 2)
+            o_.hide_render = False
+            o_.keyframe_insert("hide_render", frame=f_band + 3)
         BR.SPOTS[:] = []
         _cut_faces("R2_housing", (0.42, 0.78), (-1.3, 1.3), (2.0, 4.32))   # R14: the PO wall plate under the mask
         # R18 (R17: "frame 3: a dark post hides the right half of the mask"): the 'post' is the edge of the PO
@@ -306,7 +383,7 @@ def _build(variant="illum", shot=None):
         ro = bpy.data.objects.get("R2_cone")
         if ro is not None:
             bpy.data.objects.remove(ro)
-        import beam_r18 as R18
+        import beam_r19 as R18
         R18.cone(Vector((B.COLL.x + Rr * Rr / (4 * ff) + 0.01, 0, B.COLL.z)), B.IF, 0.58, 0.012, "CollectConeR18",
                  k=0.55, seg=64)
         K.clean_cycles(sc, indirect=1.0)                 # R13: fireflies on the cone mouth / posts
@@ -544,11 +621,13 @@ def _sequential_beam(M, n):
             # onward, each end as wide as the mirror it leaves / lands on (IF focus 0.03 -> field facets 0.24 ->
             # fold G2 0.13 -> mask 0.07 -> PO mirrors -> wafer point); every fold sits on a mounted mirror with
             # its R17 landing highlight
-            import beam_r18 as R18
+            import beam_r19 as R18
             pts = [Vector(p) for p in rng]
             ap = ([0.03, 0.24, 0.13, 0.07] if i == 1 else [0.07] + [r_ * 0.6 for r_ in B.PO_R] + [0.02])
             for j, (a, b) in enumerate(zip(pts, pts[1:])):
-                os_, ms_ = R18.cone(a, b, ap[j], ap[j + 1], f"TitleCone{i}_{j}", k=1.2)
+                # R19: k 1.2 -> 1.6 only compensates the removed outer halo shell (beam_r19: zero outside the
+                # cone) so the title-scale path keeps its R18 brightness; widths unchanged
+                os_, ms_ = R18.cone(a, b, ap[j], ap[j + 1], f"TitleCone{i}_{j}", k=1.6)
                 R18.key_vis(os_, ms_, n, start, None, ramp=10)
             ext = pts + ([Vector(full[6])] if i == 1 else [])      # segment 1 ends on the mask (bounce -> PO1)
             for j in range(1, len(ext) - 1):
@@ -1185,7 +1264,7 @@ def _po_barrels_r15(sc, M, n):
     #   (2) M5 -> M6 face, widening onto the big mirror 0.09 -> 0.21
     #   (3) M6 -> converging 0.22 -> 0.004 through the M5 hole (~0.06 at the M5 plane, inside the 0.16 hole) to one
     #       point ON the wafer; the wafer point appears only in step (3); M5 / M6 landing highlights only in their step
-    import beam_r18 as R18
+    import beam_r19 as R18
     cones18 = []
     for i, (a, b, ra, rb, t0, t1) in enumerate(((top_in, legs[0][1], 0.04, 0.045, 0.0, 0.46),
                                                 (legs[1][0], p5, 0.045, 0.09, 0.0, 0.46),
@@ -1893,7 +1972,14 @@ def _scan_r12(sc, M, n, shot):
     M["ceramic"] = K.mat("ChuckCeramicR12", (0.42, 0.43, 0.46), rough=0.35, coat=0.2)   # R12: no white slab beside the wafer
     zbar = zpl + 0.015 + 0.11
     PF = HK.new_parts()
-    HK12.planar_coils(PF, 0.1, 0.1, zpl, 3.3, 1.2)
+    # R19 row 3 (R18: "台面是同一种插座格子重复铺满"): the repeated coil-socket tiles on the stage deck are replaced by
+    # the shared kit_r19.deck_r19 (5-6 big named assemblies lying on the deck + a diagonal coolant run) on the
+    # dark epoxy deck plate; keep-clear around the mover / wafer, the interferometer heads and the wafer ruler
+    import kit_r19 as KR
+    PF["coil"].box((0.1, 0.1, zpl - 0.012), (3.3, 1.2, 0.024))
+    keep19 = [((0.0, 0.0, zpl), 0.8), ((0.0, 0.62, zpl), 0.32), ((-0.3, -0.59, zpl), 0.14), ((0.3, -0.59, zpl), 0.14),
+              ((MW / 2 + 0.25, 0.15, zpl), 0.14), ((MW / 2 + 0.25, -0.2, zpl), 0.14)]
+    KR.deck_r19(PF, -1.5, 1.7, -0.55, 0.65, zpl, seed=83, keep=keep19, scale=0.62, depth=0.55)
     for x in (-0.3, 0.3):                                         # Y interferometers aimed at the front mirror bar
         HK12.interferometer_head(PF, (x, -0.5 - 0.09, 0.54), (0, 1, 0), h=zbar - 0.54)
     HK12.interferometer_head(PF, (MW / 2 + 0.25, 0.15, 0.54), (-1, 0, 0), h=zbar - 0.54)   # X interferometer
@@ -2006,8 +2092,21 @@ def _scan_r12(sc, M, n, shot):
     col = K.MB()
     import beam_r16 as R16                   # R16 row 3: the last leg narrows onto the slit LINE (0.26 m along y)
     R16.END_SHAPE[0] = ((1, 0, 0), 0.007, (0, 1, 0), 0.12)
+    import beam_r19 as R19
+    R19.END_LAND[0] = False                  # R19: the slit gets its own two end highlights (below), no centre dot
     K.beam_columns(col, pts, rad, seg=40)
+    R19.END_LAND[0] = True
     col.obj("ScanCol", M["beam_wide"])
+    # R19 row 2 (R18: "让紫光以细锥收束到狭缝，狭缝两端加落点高光"): the wedge cone closes exactly on the slit line
+    # (0.24 m along y); a landing highlight sits on each end of the slit, on the wafer surface
+    se, sg = K.MB(), K.MB()
+    for sy in (-1, 1):
+        se.box((0, WY + sy * 0.118, WZ + 0.0042), (0.03, 0.022, 0.0012))
+        sg.box((0, WY + sy * 0.118, WZ + 0.0038), (0.07, 0.05, 0.001))
+    se.obj("SlitEndsR19", K.emit_mat("SlitEndHotR19", (0.86, 0.76, 1.0), 40.0)).visible_shadow = False
+    sg.obj("SlitEndsGlowR19", K.emit_mat("SlitEndGlowR19", K.VIOLET, 6.0, halo=0.6)).visible_shadow = False
+    # R19 row 2: the fold / PO mirrors seen in this frame (G2, M1) get lit real structure to reflect
+    _HERO19[0] = [(g2, K.mirror_normal(pf, g2, mask_c), 0.9), (m1, K.mirror_normal(mask_c, m1, m2), 0.9)]
     sl = K.MB()
     sl.box((0, WY, WZ + 0.0035), (0.016, 0.26, 0.002))
     sl.obj("SlitW", K.emit_mat("SlitGlow", K.VIOLET, 30.0))
