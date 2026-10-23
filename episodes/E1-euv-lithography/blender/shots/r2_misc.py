@@ -28,7 +28,13 @@ DIES = os.path.join(C.REPO_ROOT, "shared", "assets", "dies")
 # R20 (R20_ROOT_CAUSE row #4): shots whose R20 structural change is switched on. Remove a shot id to get R19 pixels back.
 # mograph/r2_ov_zz20m.py reads this line to switch its label change with the shot.
 R20_SHOTS = {"B6_12", "B8_17"}
+# R21 (R21_ROOT_CAUSE rows 3 / 5, misc sub-agent): shots using round-21 code (remove an id -> R20 pixels)
+R21_SHOTS = {"B8_17", "B6_12"}
 _CUR_SHOT = [None]
+
+
+def _r21(shot):
+    return _CUR_SHOT[0] == shot and shot in R21_SHOTS
 
 
 def _r20(shot):
@@ -1325,6 +1331,11 @@ def _pellicle(sc, n):
         P20.apply(sc, n, cam, tgt, {"gap_top": (gx, gy, z_top), "gap_bot": (gx, gy, z_bot),
                                     "gap_mid": (gx + 0.03, gy, (z_top + z_bot) / 2), "film": (-0.15, 0.1, z_top),
                                     "mask": (0.45, -0.62, 0.153), "pattern": (0.22, -0.3, 0.1535)})
+        if _r21("B6_12"):                        # R21 row #5: cut-section magnifier + black anodised frame
+            import misc_b612_r21 as P21
+            P21.apply(sc, n, cam, tgt, {"gap_top": (gx, gy, z_top), "gap_bot": (gx, gy, z_bot),
+                                        "gap_mid": (gx + 0.03, gy, (z_top + z_bot) / 2), "film": (-0.15, 0.1, z_top),
+                                        "mask": (0.45, -0.62, 0.153), "pattern": (0.22, -0.3, 0.1535)})
     sc["hdri"] = "studio_small_09"
     sc["hdri_strength"] = 0.6
     return cam
@@ -1773,6 +1784,8 @@ def _wafer(sc, n):
     # the exit port = the bottom of the projection-optics column, IN frame: a housing tube coming down from above
     # the frame, a machined port block with a glowing slot on its underside; the cone leaves that slot
     PX, PY, PZ = 0.45, 1.3, 1.72
+    if _r21("B8_17"):                            # R21 row #5: barrel left so the scanning stage clears the cassette
+        PX -= 1.2
     pmb = K.MB()
     pmb.cyl((PX, PY, PZ + 0.18 + 1.5), 0.42, 3.0, seg=64)
     pmb.ring((PX, PY, PZ + 0.2), 0.47, 0.3, 0.06, seg=64)
@@ -1864,6 +1877,9 @@ def _wafer(sc, n):
     if _r20("B8_17"):                            # R20 row #4: 188 half-fields, soft cone -> scanning slit
         import misc_b817_r20 as W20
         W20.apply(sc, n, R, so, fo, _fc, keep, prog)
+        if _r21("B8_17"):                        # R21 row #5: slit fixed under the barrel, wafer stage scans under it
+            import misc_b817_r21 as W21
+            W21.apply(sc, n, R, so, W20.layout(R), port=(PX, PY, PZ), cam=(cam, tgt))
     sc["hdri"] = "studio_small_09"
     sc["hdri_strength"] = 0.35
     return cam
@@ -2099,6 +2115,9 @@ def _bokeh(sc, n):
         ob.keyframe_insert("hide_render", frame=f_on - 1)
         ob.hide_render = False
         ob.keyframe_insert("hide_render", frame=f_on)
+    if _r21("A2_03"):                            # R21 row #3: cones cut by the mirror faces, turn on the face centre
+        import misc_a203_r21 as A21
+        A21.apply(B, _nrm, wf)
     cam, tgt = K.camera("CamR2", lens=32)
     # R6 (D): push in + rack focus: starts soft (formula beat), focus pulls onto the projection mirror the NA
     # leader points at, so the background changes and the leader lands on a sharp mirror and its light cone

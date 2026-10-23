@@ -25,6 +25,15 @@ import kit_r2 as K
 R20_SHOTS_CANDIDATE = {"B5_01", "B7_06", "B3_02", "A0_10", "C_03", "B8_03", "B8_03M"}
 R20_SHOTS = {"B5_01", "B3_02"}   # main-process 32-spp smoke: A0_10 (cut agent Q4 no), B7_06 (Q4 no: curved mass inside M5 at 85 %), C_03 (Q4 no: no visible change, crossing segment kept), B8_03 + B8_03M (Q4 no: stray black plates at top) stay R19
 _R20 = [None]
+# R21 (R21_ROOT_CAUSE rows 3 / 4 / 6): two sub-agents share this module.
+#   cut-hero owns R21_HERO + scripts/cut_hero_r21.py (B3_02 / B5_01: hero >= 1/4 frame, one outgoing cone)
+#   cut-beam owns R21_2B + scripts/beam_r21.py + scripts/cut_2b_r21.py (flat landing-spot end caps; A0_10 / C_03 / B8_03 / B7_06)
+# A shot in R21_SHOTS builds with its R20 code paths ON + beam_r21 (aliased over beam_r19 / beam_r20) + its post() hook.
+# Remove a shot id to get its R20 pixels back.
+R21_HERO = {"B5_01"}   # cuth R21 smoke: B3_02 Q4 no (cone volume over the dish reflection + floating scaled holder bolts) -> R20 pixels
+R21_2B = {"B7_06", "A0_10", "B8_03", "B8_03M"}   # cutb R21 smoke 06:42: C_03 (not built) stays R20; B8_03 + B8_03M re-enabled by main process for its 32-spp smoke; candidates: {"C_03", "B8_03", "B8_03M"}
+R21_SHOTS = R21_HERO | R21_2B
+_R21 = [None]
 
 
 # R5: one descending zig-zag through the PO housing that never crosses itself (B7_06, A0_10)
@@ -70,8 +79,12 @@ def build(variant="illum", shot=None):
     # the continuity rule - each frustum runs landing -> landing, volume ONLY inside the cone (the outer halo shell
     # that spread the haze is gone), a landing highlight at every bounce and at the path's end. No width knob.
     # (every `import beam_r18 as R18` in this module now loads beam_r19 under the same alias)
-    _R20[0] = shot if shot in R20_SHOTS else None
-    if _R20[0]:                               # R20 rows 1 + 2: every `import beam_r19` below loads beam_r20
+    _R21[0] = shot if shot in R21_SHOTS else None
+    _R20[0] = shot if (shot in R20_SHOTS or _R21[0]) else None
+    if _R21[0]:                               # R21 row 3: every `import beam_r19` / `import beam_r20` loads beam_r21
+        import beam_r21 as R21B
+        R21B.alias()
+    elif _R20[0]:                             # R20 rows 1 + 2: every `import beam_r19` below loads beam_r20
         import beam_r20 as R20B
         R20B.alias()
     import beam_r19 as R18
@@ -100,6 +113,12 @@ def build(variant="illum", shot=None):
         _collector_dark_r20()
     if _R20[0] == "B5_01":
         _illum_cleanup_r20()
+    if _R21[0] in R21_HERO:                   # R21 rows 4 / 6 (cut-hero)
+        import cut_hero_r21 as H21
+        H21.post(sc, variant, shot)
+    if _R21[0] in R21_2B:                     # R21 row 3 (cut-beam)
+        import cut_2b_r21 as T21
+        T21.post(sc, variant, shot)
     return sc
 
 
@@ -744,6 +763,9 @@ def _sequential_beam(M, n):
             import beam_r19 as R18
             pts = [Vector(p) for p in rng]
             ap = ([0.03, 0.24, 0.13, 0.07] if i == 1 else [0.07] + [r_ * 0.6 for r_ in B.PO_R] + [0.02])
+            if _R21[0] == "A0_10" and i == 2:   # R21 row 3 (R20 smoke: 4 PO cones overlapped into a diagonal mass):
+                pts = [pts[0], pts[1], pts[2], pts[-1]]   # mask -> PO1 -> PO2 -> wafer = 3 straight cones in three
+                ap = [ap[0], ap[1], ap[2], ap[-1]]        # clearly different directions (right / down-left / down-right)
             for j, (a, b) in enumerate(zip(pts, pts[1:])):
                 # R19: k 1.2 -> 1.6 only compensates the removed outer halo shell (beam_r19: zero outside the
                 # cone) so the title-scale path keeps its R18 brightness; widths unchanged
