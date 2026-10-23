@@ -25,8 +25,10 @@ MASK = Vector((0.55, 0.3, 4.35))         # mask surface (pattern faces down)
 # R3: grazing fold mirror right under the mask so the beam meets the mask at ~6 deg from the normal (was ~35 deg,
 # contradicting the "约 6° 斜入射" label); PO mirror 1 sits at the mirror-image 6 deg on the other side.
 G2 = Vector((0.30, 0.3, 2.0))            # incidence atan(0.25 / 2.35) = 6.1 deg
-PO = [Vector(v) for v in ((0.82, 0.25, 1.75), (1.55, 0.15, 3.75), (2.15, 0.05, 1.45), (1.25, -0.05, 3.25),
-                         (2.45, -0.05, 2.85), (1.75, 0.0, 1.35))]
+# R9 (one clean line): the six PO mirrors fold without any crossing - up, down, up, down the right wall, back left,
+# then down onto the wafer (R2-R8 order crossed legs 2-3 and 4-5)
+PO = [Vector(v) for v in ((0.82, 0.25, 1.75), (1.45, 0.15, 3.75), (2.25, 0.05, 2.2), (2.75, 0.0, 3.6),
+                         (2.6, 0.0, 1.4), (2.0, 0.0, 1.75))]
 WAFER = Vector((1.75, 0.0, 0.62))
 
 
@@ -55,6 +57,14 @@ def _frame(M, mbs, studio):
         w.box((x, 1.44, 2.55), (0.05, 0.08, 4.3))
     for z in (1.0, 2.0, 3.1, 4.1):
         w.box((-3.0, 1.43, z), (12.5, 0.07, 0.05))
+    # R9 (k2B density): the long enclosure wall carries the same three layers as the module back plates
+    import parts_kit_r8 as PK
+    P = PK.new_parts()
+    opt = [(PLASMA, 1.5), (COLL, 1.0), (IF, 0.5)]
+    PK.back_layer(P, -9.3, 3.3, 0.5, 4.7, 1.4, seed=31, cell=0.3)
+    PK.mid_layer(P, -9.2, 3.2, 0.6, 4.6, 1.38, depth=0.3, seed=32, keep=opt, cell=0.55)
+    PK.populate_wall(P, -9.2, 3.2, 0.6, 4.6, 1.36, seed=33, keep=opt, scale=1.3, dense=False)
+    PENDING_KITS.append(P)
     # floor grating
     g = mbs["grate"]
     for x in [i * 0.12 - 9.6 for i in range(110)]:
@@ -234,6 +244,9 @@ def _interior_fill(mbs, x0, x1, z0, z1, y_back=1.1, seed=0, keep=()):
     # the wall sits ~0.9 m behind the beam plane, so its parts never block the optics: no keep-clear zones
     PK.populate_wall(P, x0 + 0.08, x1 - 0.08, z0 + 0.06, z1 - 0.06, y_back - 0.025, seed=seed,
                      scale=1.9 if H > 2.0 else 1.2)
+    # R9 (>= 3x density, k2B): a middle layer of machined blocks between the beam and the wall
+    PK.mid_layer(P, x0 + 0.1, x1 - 0.1, z0 + 0.1, z1 - 0.1, y_back - 0.32, depth=0.4, seed=seed,
+                 keep=[(Vector(c), r_ + 0.1) for c, r_ in keep], cell=0.45)
     PENDING_KITS.append(P)
 
     def clear(p, r=0.0):
@@ -408,7 +421,7 @@ def _services(M, mbs):
                 mbs["led"].box((x - 0.38, 1.66, 0.5 + j * 0.3), (0.03, 0.01, 0.02))
 
 
-PO_R = [0.26, 0.22, 0.34, 0.2, 0.3, 0.42]
+PO_R = [0.22, 0.28, 0.27, 0.25, 0.25, 0.21]
 
 
 def beam_path(start=0, end=None):
@@ -416,7 +429,8 @@ def beam_path(start=0, end=None):
     point (focus = thin, mirrors = ~80 % of the mirror radius)."""
     pts = [IF, FFM, PFM, G1, G2, MASK] + PO + [WAFER]
     # R4: thin at G2 / mask / PO1 so the ~6 deg in/out pair separates into a readable narrow V under the mask
-    rad = [0.03, 0.27, 0.22, 0.15, 0.06, 0.03] + [0.08] + [0.08] * (len(PO_R) - 1) + [0.02]   # R4: thin PO legs (no violet fog)
+    # R9: solid k4A shafts as wide as ~60 % of each mirror (PO legs were thin 8 cm tubes = "flat lines" in R8)
+    rad = [0.03, 0.27, 0.22, 0.15, 0.06, 0.03] + [r * 0.6 for r in PO_R] + [0.02]
     return pts[start:end], rad[start:end]
 
 

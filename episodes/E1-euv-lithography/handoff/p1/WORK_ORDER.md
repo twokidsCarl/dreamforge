@@ -240,3 +240,25 @@ R4 已解封、本轮不许回退：B1_15 的 H1、B2_08 的 H6、B1_18 的 H14�
 - 合成：`tools/compose_round8.py` → `/workspace/e1work/p1/round8/`（strip、`contact_round8.jpg`、`calib_vs_round8_comparison.jpg`）。
 - 隔离独立审 → `REVIEW_round8_independent.md`、`scores_round8.json`；**`score_timeline.png` 加 R8（仅 SCALE_v2，`--ep E1`）**；`E1_SPEND.md` 记账。
 - 禁止空等：样张一更新，同一回合出 REVIEW（含均分）。
+
+## 第 9 轮工单（2026-10-23 改写：按 `REVIEW_round8_independent.md`「下一轮改法顺序」1–3；Carl HARD：只做结构性三项，禁止单镜微调）
+
+依据：R8 独立审均分 **85.30**，最低 B1_15 81.40，只有 A0_02（88.5）≥88；B8_03 仍封 H13（A 74）。门槛不变（均分 ≥92 且单张 ≥88）。SCALE_E1 v2 不变。
+Carl 纠正（2026-10-23 16:40）：前几轮小修让均分横盘，本轮**不做** plasma / glow / 单镜伪影 / 运镜 / 标签这类微调（B1_15、B1_10、B1_22、B2_08、B3_02 标签、B8_17/B9_05 晶圆、D_07 运镜等全部顺延）；只做审评写明的三项结构性改动，一次铺到全部 2B 剖视镜头（A0_10 / B5_01 / C_03 / B3_02 / B8_03 / B7_06）。烟测里还能看到空墙或扁平光束就不开渲。
+本轮预算：GPU ≤ $2（1×A40）；不用 image2。不许回退：B8_03 的 H9（只用 EXE：5.4° + 8× + 8:1，角度注明放大示意）；R4–R8 已解封项。
+
+### 改法清单（只有三项）
+
+| 优先 | 范围 | R8 问题 | 第 9 轮改法 | 实现 |
+|---|---|---|---|---|
+| 1 | **共用高密度舱壁 + 镜座资产库**（全部 2B） | 后墙大片灰格子、零件稀疏（密度约 k2B 的 1/3）；光束是扁平条 / 细线；镜子小、镜座单薄 | 舱壁改三层：① 贴墙层 `back_layer`（框格 + 每格一件：PCB 板、接线盒 + 电缆格兰、DIN 导轨端子排、盲法兰、加筋盖板、竖向线束）；② 中间层 `mid_layer`（k2B 式倒角机加工块：执行器壳、传感器体、电机罐、接插件 + 电缆、支架）；③ 原有大件层（泵、阀、规管、卡笼、歧管、拖链）。三层同时铺到各模块背板和整机长围护墙，件数 ≥ R8 的 3 倍。镜座：镜体加厚到 0.45 r，安装环加粗，镜后加机加工镜座托（带侧耳）。光束：k4A 实心光锥材质（纤维状条纹 + 轮廓更亮 + 体积发光），PO 各段光柱宽度 = 镜径 60 %（R8 是 8 cm 细管） | `blender/scripts/parts_kit_r8.py`（`back_layer` / `mid_layer`，`populate_wall(dense=True)`），`kit_r2.py`（`mirror_with_mount`、`beam_column_mat`、`beam_wide`），`build_cutaway_r2.py`（`_interior_fill`、`_frame` 围护墙、`beam_path` 光柱半径） |
+| 1 | **一条光路**（全部 2B） | C_03 第三帧、B8_03 投影舱多束交叉 | 默认 6 镜 PO 改成不交叉的折返（上 → 下 → 上 → 沿右壁下 → 回左 → 落晶圆） | `build_cutaway_r2.PO / PO_R` |
+| 2 | **B8_03 按 k2B 整舱重建**（解 H13） | 两舱是矩形盒 + 粉橙切面，舱内小镜零散，光束细线，投影舱交叉，晶圆认不出 | 两舱改 12 cm 厚壁机加工舱（中灰壳、浅中灰切面、边筋 + 切面螺栓排、顶口法兰），舱顶挂卡笼和涡轮泵；光路一笔：光源 → 场分面镜 → 光瞳分面镜 → G2 → 斜射掩模 → 投影舱四镜「N」字折返 → 晶圆，任何两段不交叉；镜子放大加厚（r 0.14–0.23）；k4A 宽光柱；晶圆台整体前移 0.55 m，修掉 R5 起晶圆埋在台面里的错误（台面顶 0.625 > 晶圆 0.62），晶圆画成带场格切割道的抛光硅片 + 反光片；晶圆标尺移到花岗岩前沿不再挡晶圆；机位降低、更正面，掩模—两舱—晶圆台一屏读完。8:1 读数关键帧不变 | `blender/shots/r2_cutaway.py` `_scan_r5`、`_wafer_mat` |
+| 3 | **清橙黄杂色**（全片共用材质） | 橙色细杆、粉橙切面、铜管、黄色标牌，挪用「激光橙」 | 切面一律中灰；共用材质 copper → 镍色管、gold 箔 → 银色 MLI、橙色电缆 → 黑色、琥珀 LED → 白、警示黄牌 → 灰。橙色只留给激光 | `kit_r2.palette`、`parts_kit_r8.materials`、`r2_cutaway` `SectionCutR9` |
+| — | 其余镜头 | — | 不做单镜改动（只随共用材质变化） | — |
+
+### 渲染与交付
+- `p1/round9_jobs.txt`（24 镜，帧同 R8），`tools/pod_styleframes.py p1/round9_jobs.txt --cap-usd 2`（分块同步）；渲完**立刻 Terminate**，确认 `GET /pods = []`。
+- 合成：`tools/compose_round9.py` → `/workspace/e1work/p1/round9/`（strip、`contact_round9.jpg`、`calib_vs_round9_comparison.jpg`）。
+- 隔离独立审 → `REVIEW_round9_independent.md`、`scores_round9.json`；**`score_timeline.png` 加 R9（仅 SCALE_v2，`--ep E1`）**；`E1_SPEND.md` 记账。
+- 禁止空等：样张一更新，同一回合出 REVIEW（含均分）。

@@ -322,10 +322,10 @@ def _sequential_beam(M, n):
         if rng is None:
             K.cone_beam(mb, B.IF, Vector((B.COLL.x + 0.28, 0, B.COLL.z)), 0.62)
             mat = M["cone"]
-        else:                                # R5 (H13): thin bright core + halo, no wide columns that merged
-            pts, rad = B.beam_path(*rng)      # into violet smears in the illuminator / PO bays
-            K.beam_columns(mb, pts, [0.05] * len(pts))
-            mat = K.beam_column_mat(f"EUVThin{i}", K.VIOLET, strength=5.0, edge=0.75, core=0.3, vol=0.0)
+        else:                                # R9: solid k4A shafts (mirror-sized) on the non-crossing path
+            pts, rad = B.beam_path(*rng)
+            K.beam_columns(mb, pts, rad)
+            mat = K.beam_column_mat(f"EUVShaft{i}", K.VIOLET, strength=2.6, edge=0.85, core=0.2, vol=0.3)
         ob = mb.obj(f"BeamSeg{i}", mat)
         if start == 1:
             continue
@@ -386,9 +386,8 @@ def _po_turntable(sc, M, n):
     pts, rad = B.beam_path(5)
     B.PO, B.PO_R = po_keep, por_keep
     pts = [B.MASK + Vector((0, 0, -0.25))] + pts[1:-1] + [B.WAFER + Vector((0, 0, 0.3))]
-    # R4: thin k4A beam (no violet fog); the mirrors and their mounts carry the read
-    K.beam(mbs["beam"], mbs["halo"], pts, r=0.012, halo=3.0)
-    K.beam_columns(mbs["vol"], pts, [0.04] + [0.05] * (len(pts) - 2) + [0.015])
+    # R9: solid k4A light shafts as wide as ~60 % of each mirror (R8: thin lines = "flat beam"); no thin core
+    K.beam_columns(mbs["vol"], pts, rad)
     K.bounce_lights(pts[1:-1], energy=6.0)
     # R4 2A: front cover kept only on the left third, cast ribs, flanges, ports and cables
     cast = mbs["cast"]
@@ -568,6 +567,42 @@ def _depth_layers(M, MZ, WZ):
         fg[k].obj("FG_" + k, m_, bevel=0.006 if k == "post" else 0.0)
 
 
+def _wafer_mat(pitch=0.034, street=0.1):
+    """R9: polished silicon with a die grid: mirror-like dark blue-grey face, scribe streets slightly rougher and
+    darker (object-space grid, pitch in metres)."""
+    m = K.mat("WaferDiesR9", (0.3, 0.32, 0.4), metal=1.0, rough=0.05)
+    nt = m.node_tree
+    b = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sp = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(tc.outputs["Object"], sp.inputs[0])
+    fac = None
+    for ax, p_ in (("X", pitch), ("Y", pitch * 1.25)):
+        dv = nt.nodes.new("ShaderNodeMath"); dv.operation = "DIVIDE"; dv.inputs[1].default_value = p_
+        nt.links.new(sp.outputs[ax], dv.inputs[0])
+        fr = nt.nodes.new("ShaderNodeMath"); fr.operation = "FRACT"
+        nt.links.new(dv.outputs[0], fr.inputs[0])
+        lt = nt.nodes.new("ShaderNodeMath"); lt.operation = "LESS_THAN"; lt.inputs[1].default_value = street
+        nt.links.new(fr.outputs[0], lt.inputs[0])
+        if fac is None:
+            fac = lt
+        else:
+            mx = nt.nodes.new("ShaderNodeMath"); mx.operation = "MAXIMUM"
+            nt.links.new(fac.outputs[0], mx.inputs[0]); nt.links.new(lt.outputs[0], mx.inputs[1])
+            fac = mx
+    mc = nt.nodes.new("ShaderNodeMix"); mc.data_type = "RGBA"
+    mc.inputs["A"].default_value = (*K.lin((0.3, 0.32, 0.42)), 1)
+    mc.inputs["B"].default_value = (*K.lin((0.62, 0.63, 0.66)), 1)
+    nt.links.new(fac.outputs[0], mc.inputs["Factor"])
+    nt.links.new(mc.outputs["Result"], b.inputs["Base Color"])
+    rr = nt.nodes.new("ShaderNodeMapRange")
+    rr.inputs["To Min"].default_value = 0.05
+    rr.inputs["To Max"].default_value = 0.3
+    nt.links.new(fac.outputs[0], rr.inputs["Value"])
+    nt.links.new(rr.outputs["Result"], b.inputs["Roughness"])
+    return m
+
+
 def scan_knots(n):
     """(frame, u) knots of the B8_03 scan; u = 0..1 of the full stroke."""
     fr = [1 + round((n - 1) * p) for p in (0.245, 0.545, 0.85)]
@@ -582,23 +617,24 @@ def _scan_r5(sc, M, n, shot):
       * PO = 3 solid mirrors on hexapod mounts in a W fold, then one narrow band onto the wafer directly below;
       * reticle stage travels 8 units (1.6 m), wafer stage 1 unit (0.2 m) the opposite way, on numbered rulers
         with the same unit; the exposed stripe grows on the wafer; calm, dark, defocused services wall."""
-    MZ, WZ = 2.75, 0.62
+    MZ, WZ = 2.75, 0.655                                      # R9: wafer was buried in the stage plate (top 0.625)
     # R7 (H9): EXE (High-NA) data only -> chief ray at the mask 5.4 deg, same machine as the 8x scan ratio
     # R8: the in / out legs drawn at 10 deg so they separate on screen; the label says "angle enlarged, ~5.4 deg"
     th6 = math.tan(math.radians(10.0))
-    mask_c, waf_c = Vector((0, 0, MZ)), Vector((0, 0, WZ))
-    g2 = Vector((-th6 * 1.25, 0, MZ - 1.25))                 # last illuminator mirror
+    WY = -0.55                                               # R9: wafer stage pulled toward the camera
+    mask_c, waf_c = Vector((0, 0, MZ)), Vector((0, WY, WZ))
     # R6 (H13): real illuminator train (field facets -> pupil facets -> G1 -> G2) and six PO mirrors M1-M6 in
     # one non-crossing fold, instead of a single feed leg and three mirrors in an empty grey box
-    src = Vector((-1.95, 0, 1.62))
-    ff, pf, g1 = Vector((-1.5, 0, 1.3)), Vector((-0.88, 0, 1.72)), Vector((-0.52, 0, 1.3))
+    # R9 (H13): one clean line, no crossing anywhere: illuminator zig-zag (source -> field facets -> pupil facets
+    # -> G2) -> up onto the mask -> down into a four-mirror "N" through the PO bay -> wafer. Bigger, thicker mirrors.
+    g2 = Vector((-th6 * 1.33, 0, MZ - 1.33))
+    src = Vector((-2.0, 0, 1.5))
+    ff, pf = Vector((-1.38, 0, 1.24)), Vector((-0.78, 0, 1.76))
     m1 = Vector((th6 * (MZ - 1.75), 0, 1.75))
-    m2, m3, m4 = Vector((1.6, 0, 2.08)), Vector((0.66, 0, 1.66)), Vector((1.6, 0, 1.4))
-    m5, m6 = Vector((0.98, 0, 1.06)), Vector((0.42, 0, 1.2))
-    pts = [src, ff, pf, g1, g2, mask_c + Vector((0, 0, -0.012)), m1, m2, m3, m4, m5, m6,
-           waf_c + Vector((0, 0, 0.004))]
+    m2, m3, m4 = Vector((1.78, 0, 2.12)), Vector((1.2, 0, 1.18)), Vector((0.58, 0, 1.5))
+    pts = [src, ff, pf, g2, mask_c + Vector((0, 0, -0.012)), m1, m2, m3, m4, waf_c + Vector((0, 0, 0.004))]
     alu, anod, steel = M["alu"], M["anod"], M["steel"]
-    M["section"] = K.mat("SectionCutR8", (0.42, 0.17, 0.07), rough=0.62)        # R8: cut faces in a cut colour
+    M["section"] = K.mat("SectionCutR9", (0.46, 0.47, 0.5), rough=0.6)         # R9: neutral grey cut faces
     dk = K.mat("WallDark", (0.05, 0.055, 0.065), metal=0.5, rough=0.5)
     U = 0.2                                                    # one ruler unit
     a_r, a_w = 4 * U, U / 2                                    # stage travel half-ranges (8 : 1)
@@ -613,7 +649,7 @@ def _scan_r5(sc, M, n, shot):
     for k in range(52):                                       # linear-motor magnet track, alternating
         fx["magnet"].box((0.2 - 2.55 + k * 0.1, 0.0, MZ + 0.3), (0.085, 0.3, 0.025))
     fx["led"].box((0.2, -0.351, MZ + 0.45), (5.4, 0.006, 0.012))
-    for k, m_ in (("bridge", anod), ("rail", steel), ("bolt", steel), ("magnet", K.mat("Magnet", (0.25, 0.26, 0.3),
+    for k, m_ in (("bridge", anod), ("rail", M["alu_dark"]), ("bolt", steel), ("magnet", K.mat("Magnet", (0.25, 0.26, 0.3),
                   metal=1.0, rough=0.3)), ("led", M["led_c"])):
         fx[k].obj("RBridge_" + k, m_, bevel=0.01 if k == "bridge" else 0.0)
     rp = {k: K.MB() for k in ("car", "chuck", "mask", "absorb", "bolt", "cable")}
@@ -646,14 +682,18 @@ def _scan_r5(sc, M, n, shot):
         wf[k].obj("WBase_" + k, m_, bevel=0.02 if k == "granite" else 0.0)
     wp = {k: K.MB() for k in ("stage", "chuck", "wafer", "bolt")}
     wp["stage"].box((0, 0, 0.6), (0.82, 0.7, 0.05))
-    wp["chuck"].cyl((0, 0, WZ - 0.012), 0.2, 0.02, seg=64)
-    wp["wafer"].cyl((0, 0, WZ - 0.0015), 0.16, 0.003, seg=96)
+    wp["chuck"].cyl((0, 0, WZ - 0.012), 0.25, 0.02, seg=64)
+    wp["wafer"].cyl((0, 0, WZ - 0.0015), 0.21, 0.003, seg=128)          # R9: wafer drawn a little larger
     for x in (-0.36, 0.36):
         for y in (-0.3, 0.3):
             wp["bolt"].cyl((x, y, 0.628), 0.012, 0.01, seg=8)
     wpiv = bpy.data.objects.new("WStage", None)
     sc.collection.objects.link(wpiv)
-    for k, m_ in (("stage", alu), ("chuck", steel), ("wafer", M["wafer"]), ("bolt", steel)):
+    wpiv.location.y = WY
+    for o in bpy.data.objects:
+        if o.name.startswith("WBase_"):
+            o.location.y += WY
+    for k, m_ in (("stage", alu), ("chuck", steel), ("wafer", _wafer_mat()), ("bolt", steel)):
         ob = wp[k].obj("WStage_" + k, m_, bevel=0.01 if k == "stage" else 0.0)
         ob.parent = wpiv
     # exposed stripe: wafer-local, grows from where the slit started (+a_w side moves under the slit)
@@ -664,59 +704,59 @@ def _scan_r5(sc, M, n, shot):
     exo.location = (-a_w, 0, WZ + 0.0012)
     _keys_linear(exo, "scale", [(1, 0.001), (n, 2 * a_w)], index=0)
 
-    # ---- illumination module (under-left of the mask): cut-open box, horizontal feed, last mirror G2
-    il = {k: K.MB() for k in ("box", "sec", "bolt", "port")}
-    il["box"].box((-1.05, 0.27, 1.52), (1.9, 0.12, 0.66))         # R8: 12 cm walls (vacuum housing, not sheet)
-    il["box"].box((-1.05, 0.0, 1.87), (1.9, 0.66, 0.11))          # top plate (with exit port)
-    il["box"].box((-1.05, 0.0, 1.17), (1.9, 0.66, 0.11))
-    il["box"].box((-2.02, 0.0, 1.52), (0.11, 0.66, 0.8))
-    il["sec"].box((-1.05, -0.332, 1.87), (1.9, 0.006, 0.112))
-    il["sec"].box((-1.05, -0.332, 1.17), (1.9, 0.006, 0.112))
-    il["sec"].box((-2.02, -0.332, 1.52), (0.112, 0.006, 0.8))
-    for x in (-1.95, -0.15):                                      # edge flanges with bolt rows
-        il["port"].box((x, -0.34, 1.52), (0.08, 0.04, 0.8))
-    il["port"].ring((g2.x + th6 * 0.35, 0, 1.94), 0.1, 0.06, 0.05, seg=32)
-    il["bolt"].bolts((g2.x + th6 * 0.35, 0, 1.965), 0.08, 8, 0.008, 0.012)
-    il["port"].ring((-1.95, 0, g2.z), 0.1, 0.06, 0.06, rot=(0, math.radians(90), 0), seg=32)
-    for i in range(14):
-        il["bolt"].cyl((-1.95 + i * 0.13, -0.3, 1.93), 0.01, 0.02, seg=6)
-    il["box"].obj("Illum_box", anod, bevel=0.008)
-    il["sec"].obj("Illum_sec", M["section"])
-    il["bolt"].obj("Illum_bolt", steel)
-    il["port"].obj("Illum_port", alu)
+    # ---- R9 (H13, k2B): both bays are thick machined housings in neutral grey (cut faces light grey, never
+    # orange), packed with large nameable parts; the beam is a wide k4A column; mirrors are big and thick
+    hs = K.mat("HousingGreyR9", (0.2, 0.21, 0.23), metal=0.7, rough=0.42, speck=0.12)
+    hb = {k: K.MB() for k in ("box", "sec", "bolt", "port", "rib")}
 
-    # ---- projection optics: cut-open cage (back plate, cut side walls, flanges with ports), 3 solid mirrors
-    cg, sec, fl = K.MB(), K.MB(), K.MB()
-    cg.box((0.95, 0.45, 1.6), (1.9, 0.12, 1.42))                  # R8: 11-12 cm walls + cut faces
-    for x in (0.0, 1.9):
-        cg.box((x, 0.1, 1.6), (0.11, 0.66, 1.5))
-        sec.box((x, -0.232, 1.6), (0.112, 0.006, 1.5))
-    for z in (0.88, 2.32):
-        cg.box((0.95, 0.1, z), (2.0, 0.66, 0.1))
-        sec.box((0.95, -0.232, z), (2.0, 0.006, 0.102))
-        for i in range(16):
-            K.MB.cyl(fl, (0.1 + i * 0.115, -0.2, z + 0.03), 0.01, 0.02, seg=6)
-    cg.obj("POCage", anod, bevel=0.008)
-    sec.obj("POCageSection", M["section"])
-    fl.obj("POCageBolts", steel)
-    lm = K.MB()
-    K.cable_run(lm, [(0.12, 0.3, 2.22), (0.12, 0.32, 1.6), (0.14, 0.3, 0.98)], n=4, r=0.009, seed=5)
-    K.cable_run(lm, [(1.8, 0.3, 2.22), (1.8, 0.32, 1.5), (1.78, 0.3, 0.98)], n=4, r=0.009, seed=6)
-    lm.obj("POCageLoom", M["cable_g"])
+    def housing(x0, x1, z0, z1, yb, t=0.12, depth=0.7, roof_port=None):
+        cx, cz, w, h = (x0 + x1) / 2, (z0 + z1) / 2, x1 - x0, z1 - z0
+        yf = yb - depth                                               # cut plane (front)
+        hb["box"].box((cx, yb + t / 2, cz), (w, t, h))                # back wall
+        for z in (z0 + t / 2, z1 - t / 2):                            # floor / roof
+            hb["box"].box((cx, (yb + yf) / 2, z), (w, depth, t))
+            hb["sec"].box((cx, yf - 0.003, z), (w, 0.006, t + 0.002))
+        for x in (x0 + t / 2, x1 - t / 2):                            # side walls
+            hb["box"].box((x, (yb + yf) / 2, cz), (t, depth, h))
+            hb["sec"].box((x, yf - 0.003, cz), (t + 0.002, 0.006, h))
+        for x in (x0 - 0.03, x1 + 0.03):                              # outer ribs + bolt rows on the cut edge
+            hb["rib"].box((x, (yb + yf) / 2, cz), (0.06, depth * 0.9, h + 0.08))
+        nb = int(w / 0.11)
+        for i in range(nb):
+            for z in (z0 + t * 0.5, z1 - t * 0.5):
+                hb["bolt"].cyl((x0 + 0.08 + i * (w - 0.16) / max(1, nb - 1), yf - 0.012, z), 0.011, 0.02,
+                               rot=(math.radians(90), 0, 0), seg=8)
+        if roof_port is not None:
+            hb["port"].ring((roof_port, (yb + yf) / 2, z1 + 0.03), 0.13, 0.08, 0.06, seg=32)
+            hb["bolt"].bolts((roof_port, (yb + yf) / 2, z1 + 0.062), 0.105, 10, 0.009, 0.012)
+
+    housing(-2.2, -0.05, 0.98, 2.04, 0.36, roof_port=-1.6)            # illuminator bay
+    housing(-0.02, 2.2, 0.96, 2.42, 0.42, roof_port=1.5)              # projection-optics bay
+    hb["box"].obj("Bay_box", hs, bevel=0.01)
+    hb["sec"].obj("Bay_sec", M["section"])
+    hb["bolt"].obj("Bay_bolt", steel)
+    hb["port"].obj("Bay_port", alu)
+    hb["rib"].obj("Bay_rib", M["alu_dark"], bevel=0.006)
+    # ports where the beam passes the housings (illuminator roof -> mask, PO roof <- mask, PO floor -> wafer)
+    pp = K.MB()
+    for c, r_ in ((g2.lerp(mask_c, 0.33), 0.13), (mask_c.lerp(m1, 0.52), 0.13), (m4.lerp(waf_c, 0.55), 0.1)):
+        pp.ring((c.x, c.y, c.z), r_ * 1.35, r_, 0.05, seg=40)
+    pp.obj("BeamPorts", alu)
+
     mm = {k: K.MB() for k in ("mirror", "mount", "bolt", "substrate", "spot", "copper", "cable_o", "cable_b")}
     facets = K.MB()
-    for i, (p_, r_) in enumerate(((ff, 0.1), (pf, 0.1), (g1, 0.08), (g2, 0.1), (m1, 0.075), (m2, 0.19), (m3, 0.14),
-                                  (m4, 0.17), (m5, 0.12), (m6, 0.11))):
+    for i, (p_, r_) in enumerate(((ff, 0.17), (pf, 0.17), (g2, 0.15), (m1, 0.14), (m2, 0.23), (m3, 0.22),
+                                  (m4, 0.16))):
         j = pts.index(p_)
         nrm = K.mirror_normal(pts[j - 1], p_, pts[j + 1])
-        K.mirror_with_mount(mm["mirror"], mm["mount"], mm["bolt"], p_, nrm, r_,
-                            seed=i, mbsub=mm["substrate"], mbspot=mm["spot"], spot=0.55, mbpipe=mm["copper"],
+        K.mirror_with_mount(mm["mirror"], mm["mount"], mm["bolt"], p_, nrm, r_, thick=r_ * 0.45,
+                            seed=i, mbsub=mm["substrate"], mbspot=mm["spot"], spot=0.62, mbpipe=mm["copper"],
                             mbcable=mm["cable_b" if i % 2 else "cable_o"])
         if i < 2:                                          # field / pupil facet mirrors: a grid of small tiles
             qf = Vector((0, 0, 1)).rotation_difference(nrm)
             Rf = qf.to_matrix()
-            for u in range(-3, 4):
-                for v in range(-3, 4):
+            for u in range(-6, 7):
+                for v in range(-6, 7):
                     o = Vector((u * 0.026, v * 0.026, 0))
                     if o.length < r_ * 0.9:
                         facets.box(p_ + nrm * 0.003 + Rf @ o, (0.022, 0.022, 0.006), rot=qf.to_euler())
@@ -725,38 +765,37 @@ def _scan_r5(sc, M, n, shot):
                   ("spot", M["spot"]), ("copper", M["steel"]), ("cable_o", M["cable_g"]), ("cable_b", M["cable_b"])):
         mm[k].obj("POm_" + k, m_)
 
-    # ---- beam: thin bright core + soft halo + faint column (k4A), one path only
-    core, halo = K.MB(), K.MB()
-    K.beam(core, halo, pts, r=0.009, halo=3.0)
-    core.obj("ScanCore", M["beam"])
-    halo.obj("ScanHalo", M["beam_halo"])
+    # ---- beam: k4A wide column (as wide as the mirror footprint), faint volumetric sleeve; no thin core line
+    rad = [0.06, 0.1, 0.1, 0.09, 0.03, 0.085, 0.13, 0.12, 0.09, 0.012]
     col = K.MB()
-    K.beam_columns(col, pts, [0.05, 0.05, 0.055, 0.05, 0.055, 0.05, 0.05, 0.065, 0.06, 0.06, 0.05, 0.04, 0.012])
-    col.obj("ScanCol", K.beam_column_mat("EUVColS", K.VIOLET, strength=1.1, edge=0.26, core=0.035, vol=0.16))
-    # R7: volumetric sleeve (k4A light-in-air), very faint, wider than the column
+    K.beam_columns(col, pts, rad, seg=40)
+    col.obj("ScanCol", K.beam_column_mat("EUVColS", K.VIOLET, strength=1.8, edge=0.85, core=0.16, vol=0.3))
     sv = K.MB()
-    K.beam_columns(sv, pts, [0.11, 0.11, 0.12, 0.11, 0.12, 0.1, 0.1, 0.13, 0.12, 0.12, 0.1, 0.08, 0.02], seg=32)
-    sv.obj("ScanSleeve", K.beam_column_mat("EUVSleeve", K.VIOLET, strength=0.35, edge=0.03, core=0.0, vol=0.05))
+    K.beam_columns(sv, pts, [r_ * 1.5 + 0.01 for r_ in rad], seg=32)
+    sv.obj("ScanSleeve", K.beam_column_mat("EUVSleeve", K.VIOLET, strength=0.4, edge=0.05, core=0.0, vol=0.05))
     sl = K.MB()
-    sl.box((0, 0, WZ + 0.0035), (0.012, 0.11, 0.002))
+    sl.box((0, WY, WZ + 0.0035), (0.012, 0.11, 0.002))
     sl.obj("SlitW", K.emit_mat("SlitGlow", K.VIOLET, 30.0))
-    for i, p_ in enumerate((ff, pf, g1, g2, m1, m2, m3, m4, m5, m6, mask_c + Vector((0, 0, -0.1)),
-                            waf_c + Vector((0, 0, 0.12)))):
-        K.point(f"Bounce{i}", p_ + Vector((0, -0.22, 0)), 7, K.VIOLET, 0.06)
-    # R6 (H13): fill both bays with named mechatronics (frames, trays, manifolds, flanges, drives, terminals)
-    # R8 (H13): both bays carry the shared parts kit (pumps, gate valves, gauges, card cages, manifold, chain)
+    for i, p_ in enumerate((ff, pf, g2, m1, m2, m3, m4, mask_c + Vector((0, 0, -0.1)), waf_c + Vector((0, 0, 0.12)))):
+        K.point(f"Bounce{i}", p_ + Vector((0, -0.25, 0)), 12, K.VIOLET, 0.08)
+    # dense parts kit on both back walls + top-of-bay electronics (k2B: no bare wall left)
     import parts_kit_r8 as PK
-    keep = [(a.lerp(b, k / 6), 0.13) for a, b in zip(pts, pts[1:]) for k in range(7)]
+    # keep-clear: the mirrors and their mounts only (the wall parts sit behind the beam plane, like k2B)
+    keep = [(Vector((p_.x, 0.3, p_.z)), 0.3) for p_ in (ff, pf, g2, m1, m2, m3, m4)]
     P = PK.new_parts()
-    PK.populate_wall(P, -1.92, -0.18, 1.24, 1.8, 0.21, seed=11, keep=keep, scale=0.62, chain=False)
-    PK.populate_wall(P, 0.1, 1.8, 0.95, 2.25, 0.39, seed=13, keep=keep, scale=0.7)
-    PK.turbo_pump(P, (-1.55, 0.0, 1.93), (0, 0, 1), 0.1)                    # roof pump on the illuminator
-    PK.gate_valve(P, (-2.2, 0.05, 1.5), (1, 0, 0), 0.06)                      # side port valve
-    PK.turbo_pump(P, (-2.5, 0.05, 1.5), (-1, 0, 0), 0.09)
-    PK.turbo_pump(P, (1.62, 0.12, 2.38), (0, 0, 1), 0.09)                     # roof pump on the PO housing
-    PK.gauge(P, (1.96, 0.0, 1.9), (1, 0, 0), 0.035)
-    PK.bellows(P, (1.96, 0.0, 1.3), (2.35, 0.0, 1.3), 0.06)
-    PK.drag_chain(P, Vector((-1.9, 0.62, 0.56)), 1.3, R=0.07, w=0.12)        # wafer-stage energy chain
+    PK.populate_wall(P, -2.08, -0.17, 1.1, 1.92, 0.36, seed=11, keep=keep, scale=0.62, chain=False)
+    PK.populate_wall(P, 0.1, 2.08, 1.08, 2.3, 0.42, seed=13, keep=keep, scale=0.6)
+    PK.mid_layer(P, -2.05, -0.2, 1.12, 1.9, 0.33, depth=0.22, seed=15, keep=keep, cell=0.3)    # R9 middle layer
+    PK.mid_layer(P, 0.12, 2.05, 1.1, 2.28, 0.39, depth=0.22, seed=17, keep=keep, cell=0.3)
+    for x0_, x1_, zb, seed_ in ((-2.15, -1.0, 2.04, 3), (0.6, 1.3, 2.42, 5), (1.75, 2.18, 2.42, 7)):
+        PK.card_cage(P, x0_, x1_, zb + 0.02, zb + 0.3, 0.05, seed=seed_)           # electronics on the roofs
+    PK.turbo_pump(P, (-1.6, 0.0, 2.25), (0, 0, 1), 0.12)                    # roof pumps on the two ports
+    PK.turbo_pump(P, (1.5, 0.0, 2.62), (0, 0, 1), 0.12)
+    PK.gate_valve(P, (-2.38, 0.0, 1.5), (1, 0, 0), 0.08)                      # side port valve + pump
+    PK.turbo_pump(P, (-2.7, 0.0, 1.5), (-1, 0, 0), 0.11)
+    PK.gauge(P, (2.26, -0.1, 1.9), (1, 0, 0), 0.045)
+    PK.bellows(P, (2.26, -0.1, 1.3), (2.6, -0.1, 1.3), 0.07)
+    PK.drag_chain(P, Vector((-1.9, 0.62 + WY, 0.56)), 1.3, R=0.07, w=0.12)        # wafer-stage energy chain
     PK.drag_chain(P, Vector((-2.4, 0.32, MZ + 0.54)), 1.5, R=0.06, w=0.1)    # reticle-stage energy chain
     PK.finish(P, M, "B8Kit")
 
@@ -769,7 +808,8 @@ def _scan_r5(sc, M, n, shot):
         h = 0.07 if i % 4 == 0 else 0.03
         tk.box((x, yr, zr - h / 2), (0.007, 0.006, h))
     tk.box((0, yr, zr), (2 * a_r + 0.02, 0.006, 0.006))
-    yw, zw = -0.62, 0.86
+    yw0, zw = -0.62, 0.47
+    yw = yw0 + WY
     for i in range(0, 9):
         x = a_w - i * U / 8
         h = 0.06 if i in (0, 8) else 0.025
@@ -783,16 +823,15 @@ def _scan_r5(sc, M, n, shot):
     brk = K.MB()                                              # ruler brackets tie the rulers to the bridge / granite
     for x in (-a_r - 0.08, a_r + 0.08):
         brk.box((x, (yr - 0.25) / 2 + 0.05, zr + 0.05), (0.03, 0.42, 0.02))
-    brk.box((0.0, -0.6, 0.72), (0.03, 0.03, 0.28))
     brk.obj("RulerBrk", M["alu_dark"])
     pm = K.emit_mat("PtrCyan", K.CYAN, 7.0)
     pr, pw = K.MB(), K.MB()
     pr.box((0, yr + 0.005, zr - 0.03), (0.022, 0.01, 0.075))
     pr.box((0, (yr - 0.4) / 2 + 0.005, MZ + 0.2), (0.016, 0.24, 0.016))
     pr.box((0, yr + 0.005, MZ + 0.32), (0.016, 0.01, 0.22))
-    pw.box((0, yw + 0.005, zw + 0.025), (0.012, 0.01, 0.07))
+    pw.box((0, yw0 + 0.005, zw + 0.025), (0.012, 0.01, 0.07))
     pw.box((0, -0.48, 0.63), (0.012, 0.28, 0.012))
-    pw.box((0, -0.62, 0.72), (0.012, 0.012, 0.18))
+    pw.box((0, -0.62, 0.575), (0.012, 0.012, 0.11))
     pr.obj("PtrR", pm).parent = rpiv
     pw.obj("PtrW", pm).parent = wpiv
     # ghost marks of where both stages started (thin dashed outline on the rulers)
@@ -827,7 +866,7 @@ def _scan_r5(sc, M, n, shot):
         if o.name in ("PlasmaGlow", "IFGlow", "MaskGlow"):
             bpy.data.objects.remove(o)
     K.area("StageKeyR", (-1.0, -3.0, 4.3), (0, 0, MZ + 0.2), 2.5, 300, (1.0, 0.98, 0.95))
-    K.area("StageKeyW", (-1.0, -2.8, 1.8), (0, 0, WZ), 2.5, 240, (1.0, 0.98, 0.95))
+    K.area("StageKeyW", (-1.0, -2.8, 1.8), (0, WY, WZ), 2.5, 120, (1.0, 0.98, 0.95))
     K.area("RimTop", (1.5, 1.0, 4.6), (0, 0, MZ), 2.0, 500, (0.8, 0.85, 1.0))
     K.area("POKey", (2.6, -2.8, 2.0), (0.9, 0.2, 1.6), 2.0, 300, (0.95, 0.97, 1.0))
     K.area("IlKey", (-2.5, -2.5, 2.4), (-1.0, 0.2, 1.5), 1.6, 160, (0.95, 0.97, 1.0))
@@ -835,15 +874,18 @@ def _scan_r5(sc, M, n, shot):
     K.area("BayFillP", (1.0, -2.6, 1.7), (0.95, 0.4, 1.6), 1.6, 160, (0.9, 0.93, 1.0))
     K.area("BayFillI", (-1.0, -2.4, 2.2), (-1.0, 0.2, 1.5), 1.4, 110, (0.9, 0.93, 1.0))   # R8: light the kit
     K.area("RimPO", (2.8, 1.2, 2.6), (0.95, 0.0, 1.6), 1.2, 160, (0.75, 0.82, 1.0))
+    # R9: a soft card behind / above the wafer that the polished silicon mirrors toward the camera (sheen)
+    K.area("WaferSheen", (0.25, WY + 0.75, 0.92), (0.0, WY, WZ), 0.9, 14, (0.85, 0.88, 1.0), size_y=0.3)
     # R7 (H13 depth): high 3/4 camera looking down into both bays, so front section edge / beam / back-plate
     # mechatronics / services wall read as separate layers; slow crane drift for parallax
     _depth_layers(M, MZ, WZ)
     cam, tgt = K.camera("CamR2", lens=28)                                    # R8: tighter on the bays
-    K.key_path(cam, tgt, [(1, (-1.75, -4.3, 3.8), (0.05, 0.25, 1.78)), (n, (-1.15, -4.45, 3.6), (0.2, 0.25, 1.76))],
+    # R9: lower, more frontal 3/4 so the mask on top, both bays and the wafer stage at the bottom all read
+    K.key_path(cam, tgt, [(1, (-1.45, -5.0, 3.0), (0.0, 0.2, 1.55)), (n, (-0.75, -5.1, 2.85), (0.12, 0.2, 1.52))],
                interp="LINEAR")
     cam.data.dof.use_dof = True
-    cam.data.dof.aperture_fstop = 4.0
-    cam.data.dof.focus_distance = (Vector((-1.6, -4.8, 3.85)) - Vector((0.1, 0.1, 1.75))).length
+    cam.data.dof.aperture_fstop = 5.6
+    cam.data.dof.focus_distance = (Vector((-1.1, -5.05, 2.9)) - Vector((0.1, 0.1, 1.55))).length
     sc["hdri"] = "hangar_interior"
     sc["hdri_strength"] = 0.15
     sc["vignette"] = 0.35

@@ -155,19 +155,29 @@ def beam_column_mat(name, color, strength=1.5, edge=0.6, core=0.1, vol=0.18):
     em.inputs["Color"].default_value = (*lin(color), 1)
     tc = nt.nodes.new("ShaderNodeTexCoord")
     mp = nt.nodes.new("ShaderNodeMapping")
-    mp.inputs["Scale"].default_value = (60.0, 60.0, 0.6)          # streaks along the local beam axis (generated Z)
+    mp.inputs["Scale"].default_value = (90.0, 90.0, 0.4)          # streaks along the local beam axis (generated Z)
     nz = nt.nodes.new("ShaderNodeTexNoise")
     nz.inputs["Scale"].default_value = 3.0
     nz.inputs["Detail"].default_value = 2.0
     nt.links.new(tc.outputs["Object"], mp.inputs["Vector"])
     nt.links.new(mp.outputs["Vector"], nz.inputs["Vector"])
+    nz.inputs["Detail"].default_value = 6.0                       # R9: fibrous streaks (k4A light shaft)
     st = nt.nodes.new("ShaderNodeMapRange")
-    st.inputs["To Min"].default_value = strength * 0.65
-    st.inputs["To Max"].default_value = strength * 1.5
+    st.inputs["From Min"].default_value = 0.35
+    st.inputs["From Max"].default_value = 0.65
+    st.inputs["To Min"].default_value = strength * 0.45
+    st.inputs["To Max"].default_value = strength * 1.7
     nt.links.new(nz.outputs["Fac"], st.inputs["Value"])
-    nt.links.new(st.outputs["Result"], em.inputs["Strength"])
     lw = nt.nodes.new("ShaderNodeLayerWeight")
     lw.inputs["Blend"].default_value = 0.5
+    # R9: silhouette brighter than the centre, so the shaft reads round / volumetric, not as a flat ribbon
+    rim = nt.nodes.new("ShaderNodeMapRange")
+    rim.inputs["To Min"].default_value = 1.9
+    rim.inputs["To Max"].default_value = 0.75
+    nt.links.new(lw.outputs["Facing"], rim.inputs["Value"])
+    mul = nt.nodes.new("ShaderNodeMath"); mul.operation = "MULTIPLY"
+    nt.links.new(st.outputs["Result"], mul.inputs[0]); nt.links.new(rim.outputs["Result"], mul.inputs[1])
+    nt.links.new(mul.outputs[0], em.inputs["Strength"])
     mr = nt.nodes.new("ShaderNodeMapRange")                        # facing 1 (centre) -> core alpha, 0 (edge) -> edge alpha
     mr.inputs["To Min"].default_value = edge
     mr.inputs["To Max"].default_value = core
@@ -209,11 +219,11 @@ def palette(studio=False):
         "paint": mat("PaintWhite", (0.86, 0.87, 0.88) if studio else (0.72, 0.74, 0.77), rough=0.32, coat=0.4),
         "paint_grey": mat("PaintGrey", (0.32, 0.34, 0.38), rough=0.45),
         "granite": mat("Granite", (0.1, 0.1, 0.11), rough=0.35, speck=0.6),
-        "copper": mat("Copper", (0.95, 0.6, 0.42), metal=1.0, rough=0.3),
-        "gold": mat("GoldFoil", (1.0, 0.78, 0.36), metal=1.0, rough=0.38, speck=0.3),
+        "copper": mat("NickelPipe", (0.6, 0.61, 0.64), metal=1.0, rough=0.3),   # R9: no copper - orange = laser only
+        "gold": mat("SilverMLI", (0.72, 0.73, 0.77), metal=1.0, rough=0.38, speck=0.3),   # R9: silver foil, not gold
         "rubber": mat("Rubber", (0.04, 0.04, 0.045), rough=0.7),
         "cable_b": mat("CableBlue", (0.12, 0.32, 0.75), rough=0.45),
-        "cable_o": mat("CableOrange", (0.9, 0.45, 0.12), rough=0.45),
+        "cable_o": mat("CableBlack", (0.07, 0.075, 0.08), rough=0.45),   # R9: was orange (reads as laser)
         "cable_g": mat("CableGrey", (0.5, 0.52, 0.55), rough=0.5),
         "mirror": mat("EUVMirror", (0.86, 0.84, 0.92), metal=1.0, rough=0.02, coat=0.3),
         # R3: a solid mirror = coated face that catches the studio lights (not a black hole) on a thick
@@ -221,12 +231,13 @@ def palette(studio=False):
         "coating": mat("MoSiCoating", (0.74, 0.7, 0.86), metal=1.0, rough=0.13, coat=0.8),
         "substrate": mat("MirrorBody", (0.82, 0.82, 0.85), metal=1.0, rough=0.16, brushed=0.06),
         "spot": emit_mat("BeamSpot", VIOLET, 6.0, halo=0.9),
-        "beam_wide": beam_column_mat("EUVColumn", VIOLET),
+        # R9: solid k4A light shaft (opaque-ish lavender body, bright silhouette, streaks) instead of a thin film
+        "beam_wide": beam_column_mat("EUVColumn", VIOLET, strength=1.7, edge=0.85, core=0.16, vol=0.3),
         "section": mat("SectionFace", (0.46, 0.47, 0.5), rough=0.55),
         "beam_vol": vol_mat("EUVVolume", VIOLET, 2.2),
         "glass": mat("ViewGlass", (0.9, 0.95, 1.0), rough=0.02, transmission=1.0, ior=1.5),
         "led_c": emit_mat("LEDCyan", CYAN, 6.0),
-        "led_o": emit_mat("LEDAmber", (1.0, 0.6, 0.2), 5.0),
+        "led_o": emit_mat("LEDWhite", (0.85, 0.92, 1.0), 4.0),
         "beam": emit_mat("EUVBeam", VIOLET, 14.0),
         "beam_halo": emit_mat("EUVHalo", VIOLET, 3.0, halo=0.55),
         "laser": emit_mat("Laser", ORANGE, 18.0),
@@ -246,29 +257,71 @@ def _orient(a, b):
 class MB:
     def __init__(self):
         self.bm = bmesh.new()
+        self._marks = []                 # R9: (first face, end face, mode) resolved once in obj() - calling
+                                         # faces.ensure_lookup_table() per primitive was O(n^2) on dense kits
 
     def _smooth_new(self, before, flat_caps=True):
-        for f in self.bm.faces[before:]:
-            f.smooth = not (flat_caps and len(f.verts) > 4)
+        self._marks.append((before, len(self.bm.faces), "cap" if flat_caps else "all"))
+
+    def _resolve(self):
+        if not self._marks:
+            return
+        self.bm.faces.ensure_lookup_table()
+        F = self.bm.faces
+        for a, b, mode in self._marks:
+            for i in range(a, b):
+                f = F[i]
+                if mode == "cap":
+                    f.smooth = len(f.verts) <= 4
+                elif mode == "all":
+                    f.smooth = True
+                else:
+                    f.smooth = len(f.verts) == 4 and abs(f.normal.z) < 0.99
+        self._marks = []
+
+    # R9: primitives are built vertex by vertex - bmesh.ops.create_* walk the whole mesh on every call, which
+    # made the dense parts kit take minutes per shot
+    def _cone(self, m, r1, r2, h, seg):
+        V = self.bm.verts.new
+        F = self.bm.faces.new
+        rings = []
+        for z, r in ((-h / 2, r1), (h / 2, r2)):
+            if r < 1e-6:
+                rings.append([V(m @ Vector((0, 0, z)))])
+            else:
+                rings.append([V(m @ Vector((r * math.cos(2 * math.pi * i / seg), r * math.sin(2 * math.pi * i / seg), z)))
+                              for i in range(seg)])
+        a, b = rings
+        for i in range(seg):
+            j = (i + 1) % seg
+            if len(a) == 1:
+                F((a[0], b[j], b[i]))
+            elif len(b) == 1:
+                F((a[i], a[j], b[0]))
+            else:
+                F((a[i], a[j], b[j], b[i]))
+        if len(a) > 2:
+            F(a[::-1])
+        if len(b) > 2:
+            F(b)
 
     def box(self, c, s, rot=(0, 0, 0)):
         m = Matrix.Translation(Vector(c)) @ Euler(rot).to_matrix().to_4x4() @ Matrix.Diagonal((*s, 1.0))
-        bmesh.ops.create_cube(self.bm, size=1.0, matrix=m)
-        self.bm.faces.ensure_lookup_table()
+        V = self.bm.verts.new
+        v = [V(m @ Vector((x * 0.5, y * 0.5, z * 0.5))) for x in (-1, 1) for y in (-1, 1) for z in (-1, 1)]
+        F = self.bm.faces.new
+        for q in ((0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6), (0, 2, 6, 4), (1, 5, 7, 3)):
+            F([v[i] for i in q])
 
     def cyl(self, c, r, h, rot=(0, 0, 0), seg=32, r2=None):
         n0 = len(self.bm.faces)
         m = Matrix.Translation(Vector(c)) @ Euler(rot).to_matrix().to_4x4()
-        bmesh.ops.create_cone(self.bm, cap_ends=True, segments=seg, radius1=r, radius2=r if r2 is None else r2,
-                              depth=h, matrix=m)
-        self.bm.faces.ensure_lookup_table()
+        self._cone(m, r, r if r2 is None else r2, h, seg)
         self._smooth_new(n0)
 
     def cyl_m(self, m, r, h, seg=32, r2=None):
         n0 = len(self.bm.faces)
-        bmesh.ops.create_cone(self.bm, cap_ends=True, segments=seg, radius1=r, radius2=r if r2 is None else r2,
-                              depth=h, matrix=m)
-        self.bm.faces.ensure_lookup_table()
+        self._cone(m, r, r if r2 is None else r2, h, seg)
         self._smooth_new(n0)
 
     def tube(self, a, b, r, seg=12, r2=None):
@@ -286,9 +339,23 @@ class MB:
 
     def sphere(self, c, r, seg=16):
         n0 = len(self.bm.faces)
-        bmesh.ops.create_uvsphere(self.bm, u_segments=seg, v_segments=max(4, seg // 2), radius=r,
-                                  matrix=Matrix.Translation(Vector(c)))
-        self.bm.faces.ensure_lookup_table()
+        c = Vector(c)
+        nv = max(4, seg // 2)
+        V = self.bm.verts.new
+        top, bot = V(c + Vector((0, 0, r))), V(c - Vector((0, 0, r)))
+        rows = []
+        for k in range(1, nv):
+            th = math.pi * k / nv
+            rows.append([V(c + Vector((r * math.sin(th) * math.cos(2 * math.pi * i / seg),
+                                       r * math.sin(th) * math.sin(2 * math.pi * i / seg), r * math.cos(th))))
+                         for i in range(seg)])
+        F = self.bm.faces.new
+        for i in range(seg):
+            j = (i + 1) % seg
+            F((top, rows[0][i], rows[0][j]))
+            F((bot, rows[-1][j], rows[-1][i]))
+            for k in range(len(rows) - 1):
+                F((rows[k][i], rows[k + 1][i], rows[k + 1][j], rows[k][j]))
         self._smooth_new(n0, flat_caps=False)
 
     def ring(self, c, r_out, r_in, h, rot=(0, 0, 0), seg=48):
@@ -308,9 +375,7 @@ class MB:
             self.bm.faces.new((bi[j], bi[i], ti[i], ti[j]))
             self.bm.faces.new((to[i], to[j], ti[j], ti[i]))
             self.bm.faces.new((bo[j], bo[i], bi[i], bi[j]))
-        self.bm.faces.ensure_lookup_table()
-        for f in self.bm.faces[n0:]:
-            f.smooth = True
+        self._smooth_new(n0, flat_caps=False)
 
     def bolts(self, c, R, n, r, h, rot=(0, 0, 0), phase=0.0):
         M = Matrix.Translation(Vector(c)) @ Euler(rot).to_matrix().to_4x4()
@@ -339,13 +404,12 @@ class MB:
         for i in (0, k - 1):
             q = (grid[0, 0, i], grid[1, 0, i], grid[1, 1, i], grid[0, 1, i])
             self.bm.faces.new(q if i == 0 else q[::-1])
-        self.bm.faces.ensure_lookup_table()
-        for f in self.bm.faces[n0:]:
-            f.smooth = len(f.verts) == 4 and abs(f.normal.z) < 0.99
+        self._marks.append((n0, len(self.bm.faces), "shell"))
         return M
 
     def obj(self, name, material, bevel=0.0, coll=None):
         me = bpy.data.meshes.new(name)
+        self._resolve()
         bmesh.ops.recalc_face_normals(self.bm, faces=self.bm.faces[:])
         self.bm.to_mesh(me)
         self.bm.free()
@@ -396,7 +460,7 @@ def mirror_with_mount(mbm, mbmount, mbbolt, p, n, r, thick=0.05, struts=True, se
     q = Vector((0, 0, 1)).rotation_difference(n)
     R = q.to_matrix().to_4x4()
     if mbsub is not None:
-        thick = max(thick, r * 0.32)
+        thick = max(thick, r * 0.45)                     # R9: thick k4A mirror bodies
         mbm.cyl_m(Matrix.Translation(p - n * 0.004) @ R, r * 0.985, 0.008, seg=64)       # coated face
         back = p - n * (thick / 2 + 0.008)
         mbsub.cyl_m(Matrix.Translation(back) @ R, r, thick, seg=64)                       # solid substrate
@@ -405,7 +469,13 @@ def mirror_with_mount(mbm, mbmount, mbbolt, p, n, r, thick=0.05, struts=True, se
         mbm.cyl_m(Matrix.Translation(back) @ R, r, thick, seg=48)
     if mbspot is not None and spot:
         mbspot.cyl_m(Matrix.Translation(p + n * 0.002) @ R, r * spot, 0.002, seg=32)
-    mbmount.ring(back - n * 0.01, r * 1.12, r * 0.98, thick * 1.3, rot=q.to_euler(), seg=48)
+    mbmount.ring(back - n * 0.01, r * 1.16, r * 0.98, thick * 1.45, rot=q.to_euler(), seg=48)
+    # R9: machined cradle behind the mirror (thick mount cell with side lugs), k4A metal mount look
+    cell = p - n * (thick + r * 0.22)
+    mbmount.cyl_m(Matrix.Translation(cell) @ R, r * 1.08, r * 0.26, seg=8)
+    sd = R @ Vector((1, 0, 0))
+    for s_ in (-1, 1):
+        mbmount.box(cell + sd * s_ * r * 1.12, (r * 0.22, r * 0.22, r * 0.32), rot=q.to_euler())
     mbbolt.bolts(back - n * 0.01 + n * thick * 0.7, r * 1.05, 12, r * 0.025, 0.02, rot=q.to_euler())
     plate = p - n * (thick + r * 0.55)
     mbmount.cyl_m(Matrix.Translation(plate) @ R, r * 0.9, 0.04, seg=6)
