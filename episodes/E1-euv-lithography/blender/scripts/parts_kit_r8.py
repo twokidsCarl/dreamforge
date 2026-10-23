@@ -43,9 +43,9 @@ def materials(M):
         M["chain"] = K.mat("DragChain", (0.05, 0.05, 0.055), rough=0.45)
         M["handle"] = K.mat("ValveBlue", (0.08, 0.25, 0.7), rough=0.35, coat=0.3)
         M["screen"] = K.emit_mat("GaugeLCD", (0.35, 0.95, 0.8), 3.5)
-        M["warn"] = K.mat("WarnYellow", (0.95, 0.72, 0.08), rough=0.45)
+        M["warn"] = K.mat("TagGrey", (0.62, 0.63, 0.66), rough=0.45)   # R9: no yellow
         M.setdefault("blast", K.mat("Blasted", (0.55, 0.56, 0.6), metal=1.0, rough=0.55, speck=0.25))
-        M.setdefault("led_o", K.emit_mat("LEDAmber", (1.0, 0.6, 0.2), 5.0))
+        M.setdefault("led_o", K.emit_mat("LEDWhite", (0.85, 0.92, 1.0), 4.0))
         M.setdefault("rubber", K.mat("Rubber", (0.04, 0.04, 0.045), rough=0.7))
         M.setdefault("glass", K.mat("ViewGlass", (0.9, 0.95, 1.0), rough=0.02, transmission=1.0, ior=1.5))
     return {k: M[k] for k in KEYS}
@@ -286,11 +286,13 @@ def _clear(keep, c, r):
     return all((Vector(c) - Vector(k)).length > kr + r for k, kr in keep)
 
 
-def populate_wall(P, x0, x1, z0, z1, y0, seed=0, keep=(), scale=1.0, chain=True):
+def populate_wall(P, x0, x1, z0, z1, y0, seed=0, keep=(), scale=1.0, chain=True, dense=True):
     """Lay out 8-12 large nameable parts on a wall (front face y0, parts toward -Y)."""
     rnd = random.Random(seed)
     w, h = x1 - x0, z1 - z0
     s = scale
+    if dense:                                                         # R9: flush board / box layer behind
+        back_layer(P, x0, x1, z0, z1, y0, seed=seed, keep=keep, cell=max(0.16, 0.26 * s))
     # top band: cable tray + card cage(s)
     zt = z1 - 0.08 * s
     cable_tray(P, x0 + 0.04, x1 - 0.04, zt, y0, seed=seed)
@@ -339,3 +341,115 @@ def populate_wall(P, x0, x1, z0, z1, y0, seed=0, keep=(), scale=1.0, chain=True)
     if chain and w > 0.9 and _clear(keep, (x0 + w * 0.3, y0 - 0.1, z0 + 0.05), 0.12):
         drag_chain(P, Vector((x0 + 0.12, y0 - 0.06, z0 + 0.04)), min(0.9, w * 0.45), R=0.06 * s,
                    axis=(1, 0, 0), up=(0, 0, 1))
+
+
+# ------------------------------------------------------------------ R9: flush back layer (k2B density)
+def back_layer(P, x0, x1, z0, z1, y0, seed=0, keep=(), cell=0.24):
+    """R9 (R8 review: "back plates read as bare grey walls"): a shallow (<= 6 cm) layer flush on the wall behind
+    the big parts - a bolted frame grid, and in every cell one of: PCB with chips and headers, junction box with
+    cable glands, DIN rail with terminals and wires, blank CF flange, ribbed cover plate, vertical cable loom."""
+    rnd = random.Random(seed * 7 + 1)
+    w, h = x1 - x0, z1 - z0
+    nx, nz = max(1, int(w / cell)), max(1, int(h / cell))
+    cw, ch = w / nx, h / nz
+    y = y0 - 0.004
+    for i in range(nx + 1):                                           # frame grid
+        P["alu_dark"].box((x0 + i * cw, y - 0.012, (z0 + z1) / 2), (0.022, 0.024, h))
+    for k in range(nz + 1):
+        P["alu_dark"].box(((x0 + x1) / 2, y - 0.01, z0 + k * ch), (w, 0.02, 0.018))
+        for i in range(nx + 1):
+            P["steel"].cyl((x0 + i * cw, y - 0.026, z0 + k * ch), 0.007, 0.008, rot=(math.radians(90), 0, 0), seg=6)
+    for i in range(nx):
+        for k in range(nz):
+            cx, cz = x0 + (i + 0.5) * cw, z0 + (k + 0.5) * ch
+            if not _clear(keep, (cx, y0, cz), 0.0):
+                continue
+            iw, ih = cw - 0.04, ch - 0.04
+            kind = rnd.randrange(6)
+            if kind == 0:                                             # PCB + chips + header
+                P["pcb"].box((cx, y - 0.006, cz), (iw, 0.006, ih))
+                for _ in range(rnd.randint(3, 6)):
+                    P["chip"].box((cx + rnd.uniform(-iw, iw) * 0.35, y - 0.012, cz + rnd.uniform(-ih, ih) * 0.35),
+                                  (rnd.uniform(0.02, 0.05), 0.006, rnd.uniform(0.02, 0.04)))
+                P["steel"].box((cx, y - 0.014, cz - ih * 0.42), (iw * 0.7, 0.01, 0.015))
+                P["led_c"].box((cx + iw * 0.4, y - 0.012, cz + ih * 0.4), (0.008, 0.004, 0.008))
+            elif kind == 1:                                           # junction box + glands + cables
+                P["paint_grey"].box((cx, y - 0.03, cz + 0.01), (iw * 0.8, 0.055, ih * 0.7))
+                for g in range(3):
+                    gx = cx - iw * 0.25 + g * iw * 0.25
+                    P["steel"].cyl((gx, y - 0.03, cz - ih * 0.25), 0.01, 0.025, seg=10)
+                    P["cable_g" if g % 2 else "cable_b"].path(
+                        [(gx, y - 0.03, cz - ih * 0.3), (gx, y - 0.035, cz - ih * 0.5), (gx + 0.02, y - 0.02, cz - ch)],
+                        0.006, seg=6)
+            elif kind == 2:                                           # DIN rail + terminals + wires
+                P["steel"].box((cx, y - 0.008, cz), (iw, 0.008, 0.035))
+                nt = int(iw / 0.022)
+                for t in range(nt):
+                    tx = cx - iw / 2 + 0.011 + t * 0.022
+                    P["paint_grey" if t % 5 else "anod"].box((tx, y - 0.025, cz), (0.018, 0.03, 0.06))
+                    P["cable_b" if t % 3 == 0 else "cable_g"].path(
+                        [(tx, y - 0.03, cz + 0.03), (tx, y - 0.035, cz + ih * 0.45)], 0.003, seg=5)
+            elif kind == 3:                                           # blank CF flange on the wall
+                r = min(iw, ih) * 0.3
+                _ring(P["alu"], (cx, y - 0.01, cz), (0, -1, 0), r * 1.4, r * 0.55, 0.02)
+                _bolts(P["steel"], (cx, y - 0.022, cz), (0, -1, 0), r * 1.15, 8, r * 0.07, 0.012)
+                P["blast"].cyl((cx, y - 0.03, cz), r * 0.6, 0.012, rot=(math.radians(90), 0, 0), seg=24)
+            elif kind == 4:                                           # ribbed cover plate
+                P["blast"].box((cx, y - 0.008, cz), (iw, 0.01, ih))
+                for r_ in range(5):
+                    P["alu_dark"].box((cx, y - 0.018, cz - ih * 0.4 + r_ * ih * 0.2), (iw * 0.9, 0.01, 0.012))
+                for sx in (-1, 1):
+                    for sz in (-1, 1):
+                        P["steel"].cyl((cx + sx * iw * 0.45, y - 0.016, cz + sz * ih * 0.45), 0.006, 0.006,
+                                       rot=(math.radians(90), 0, 0), seg=6)
+            else:                                                     # vertical loom with clamps
+                for c_ in range(4):
+                    P["cable_g" if c_ % 2 else "cable_b"].tube((cx - 0.03 + c_ * 0.02, y - 0.02, cz - ch / 2),
+                                                               (cx - 0.03 + c_ * 0.02, y - 0.02, cz + ch / 2), 0.008, seg=8)
+                for cz_ in (cz - ch * 0.3, cz + ch * 0.3):
+                    P["steel"].box((cx, y - 0.03, cz_), (0.1, 0.012, 0.015))
+
+
+# ------------------------------------------------------------------ R9: middle depth layer (k2B machined blocks)
+def mid_layer(P, x0, x1, z0, z1, y_back, depth=0.45, seed=0, keep=(), cell=0.42):
+    """R9: the layer between the beam and the back wall that k2B is full of - chamfered grey machined blocks
+    (actuator housings, sensor bodies) at varied depth, each bolted to the wall with a bracket, some with a motor
+    can, a connector and a cable dropping to the wall. Skips anything inside a keep-clear sphere."""
+    rnd = random.Random(seed * 13 + 5)
+    w, h = x1 - x0, z1 - z0
+    nx, nz = max(1, int(w / cell)), max(1, int(h / cell))
+    for i in range(nx):
+        for k in range(nz):
+            if rnd.random() < 0.18:
+                continue
+            bw = rnd.uniform(0.35, 0.75) * w / nx
+            bh = rnd.uniform(0.35, 0.7) * h / nz
+            bd = rnd.uniform(0.12, 0.3) * (depth / 0.45)
+            cx = x0 + (i + 0.5) * w / nx + rnd.uniform(-0.15, 0.15) * w / nx
+            cz = z0 + (k + 0.5) * h / nz + rnd.uniform(-0.15, 0.15) * h / nz
+            yo = y_back - rnd.uniform(0.04, depth - bd)
+            cy = yo - bd / 2
+            if not _clear(keep, (cx, cy, cz), max(bw, bh) * 0.5):
+                continue
+            key = ("blast", "alu", "blast", "paint_grey")[rnd.randrange(4)]
+            P[key].box((cx, cy, cz), (bw, bd, bh))
+            P["alu_dark"].box((cx, cy - bd / 2 - 0.006, cz), (bw * 0.85, 0.012, bh * 0.85))      # cover plate
+            for sx in (-1, 1):
+                for sz in (-1, 1):
+                    P["steel"].cyl((cx + sx * bw * 0.4, cy - bd / 2 - 0.014, cz + sz * bh * 0.4), 0.008, 0.01,
+                                   rot=(math.radians(90), 0, 0), seg=6)
+            P["alu"].box((cx, (yo + y_back) / 2, cz - bh * 0.3), (bw * 0.3, y_back - yo + 0.01, 0.03))  # bracket
+            r = rnd.random()
+            if r < 0.4:                                                     # motor can on the side
+                side = 1 if rnd.random() < 0.5 else -1
+                _cyl(P["anod"], (cx + side * (bw / 2 + 0.05), cy, cz), (side, 0, 0), min(bh, bd) * 0.32, 0.1, seg=24)
+                _ring(P["alu"], (cx + side * (bw / 2 + 0.005), cy, cz), (side, 0, 0), min(bh, bd) * 0.4,
+                      min(bh, bd) * 0.25, 0.012, seg=24)
+            elif r < 0.7:                                                   # connector + cable to the wall
+                c = Vector((cx + bw * 0.25, cy - bd / 2 - 0.02, cz + bh * 0.2))
+                P["steel"].box(c, (0.04, 0.025, 0.03))
+                P["cable_b" if rnd.random() < 0.5 else "cable_g"].path(
+                    [c, c + Vector((0.02, -0.05, -0.05)), Vector((c.x + 0.05, y_back - 0.02, cz - bh))], 0.007, seg=6)
+            else:                                                           # sensor head with status LED
+                P["anod"].box((cx - bw * 0.2, cy - bd / 2 - 0.03, cz + bh * 0.15), (bw * 0.3, 0.05, bh * 0.35))
+                P["led_c"].box((cx - bw * 0.2, cy - bd / 2 - 0.056, cz + bh * 0.25), (0.012, 0.004, 0.01))
