@@ -119,10 +119,21 @@ def main():
     if "blender" not in r.stdout:
         log("SETUP_FAILED"); return
     excl = ["./.git", "./episodes/*/audio", "./episodes/*/renders", "*.mp4", "__pycache__", "./episodes/E2-optogenetics"]
-    r = push(ip, port, REPO, "/root/repo", excl)
-    log("sync repo rc", r.returncode, r.stderr[-300:])
-    if r.returncode:
-        return
+    # R4: the single ~80 MB tar pipe broke twice mid-transfer; push in chunks, each retried up to 3 times
+    chunks = [("shared/assets", "/root/repo/shared/assets"), ("shared/blender", "/root/repo/shared/blender"),
+              ("shared/tools", "/root/repo/shared/tools"), ("brand", "/root/repo/brand"), ("docs", "/root/repo/docs"),
+              ("episodes/E1-euv-lithography", "/root/repo/episodes/E1-euv-lithography")]
+    for src, dst in chunks:
+        for attempt in range(3):
+            ex = [e.replace("./episodes/*/", "./") for e in excl if not e.startswith("./episodes/E2")]
+            r = push(ip, port, os.path.join(REPO, src), dst, ex)
+            log("sync", src, "try", attempt + 1, "rc", r.returncode, r.stderr[-200:])
+            if r.returncode == 0:
+                break
+        else:
+            return
+    for fn in ("README.md",):
+        push(ip, port, REPO, "/root/repo", [f"./{d}" for d in os.listdir(REPO) if d != fn])
     # dependency inputs some shots read (B1_15 sample frames, sample_b1 still)
     r = push(ip, port, os.path.join(EP, "renders"), "/root/r", ["./review", "./edit"])
     log("sync renders rc", r.returncode, r.stderr[-200:])

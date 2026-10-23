@@ -635,13 +635,13 @@ def _pellicle(sc, n):
     fres = nn.new("ShaderNodeLayerWeight")
     fres.inputs["Blend"].default_value = 0.25
     m1 = nn.new("ShaderNodeMixShader")
-    m1.inputs["Fac"].default_value = 0.04
+    m1.inputs["Fac"].default_value = 0.012              # R4: thinner haze, 5A: shown only by grazing sheen
     l.new(tr.outputs[0], m1.inputs[1])
     l.new(df.outputs[0], m1.inputs[2])
     m2 = nn.new("ShaderNodeMixShader")
     fk = nn.new("ShaderNodeMath")
     fk.operation = "MULTIPLY"
-    fk.inputs[1].default_value = 0.28
+    fk.inputs[1].default_value = 0.2
     l.new(fres.outputs["Fresnel"], fk.inputs[0])
     l.new(fk.outputs[0], m2.inputs["Fac"])
     l.new(m1.outputs[0], m2.inputs[1])
@@ -803,9 +803,12 @@ def _wafer(sc, n):
     tint = nn.new("ShaderNodeMix")
     tint.data_type = "RGBA"
     tint.blend_type = "MULTIPLY"
-    tint.inputs["Factor"].default_value = 0.65
-    tint.inputs["B"].default_value = (0.55, 0.58, 0.75, 1)
-    l.new(im.outputs["Color"], tint.inputs["A"])
+    tint.inputs["Factor"].default_value = 0.55          # R4: silicon grey (R3 read as a violet-dyed wafer)
+    tint.inputs["B"].default_value = (0.6, 0.61, 0.64, 1)
+    hs = nn.new("ShaderNodeHueSaturation")              # R4: desaturate the die photo -> silicon grey dies
+    hs.inputs["Saturation"].default_value = 0.12
+    l.new(im.outputs["Color"], hs.inputs["Color"])
+    l.new(hs.outputs["Color"], tint.inputs["A"])
     l.new(tint.outputs["Result"], b.inputs["Base Color"])
     wmb = K.MB()
     wmb.cyl((0, 0, 0.004), R, 0.008, seg=180)
@@ -846,7 +849,7 @@ def _wafer(sc, n):
     hot.inputs["From Min"].default_value = 0.0
     hot.inputs["From Max"].default_value = 0.02
     hot.inputs["To Min"].default_value = 6.0
-    hot.inputs["To Max"].default_value = 0.9
+    hot.inputs["To Max"].default_value = 0.25           # R4: done fields only a faint latent tint
     l.new(d.outputs[0], hot.inputs["Value"])
     st = nn.new("ShaderNodeMath")
     st.operation = "MULTIPLY"
@@ -858,7 +861,7 @@ def _wafer(sc, n):
     tr = nn.new("ShaderNodeBsdfTransparent")
     al = nn.new("ShaderNodeMath")
     al.operation = "MULTIPLY"
-    al.inputs[1].default_value = 0.5
+    al.inputs[1].default_value = 0.22
     l.new(on.outputs[0], al.inputs[0])
     mx = nn.new("ShaderNodeMixShader")
     l.new(al.outputs[0], mx.inputs["Fac"])

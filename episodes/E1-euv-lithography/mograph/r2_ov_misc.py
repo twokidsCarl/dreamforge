@@ -402,8 +402,9 @@ def ov_A2_08(img, t, dur, W, H):
     g = _anchor("A2_08", t, "w193", (0.25, 0.32))
     v = _anchor("A2_08", t, "w135", (0.7, 0.55))
     a = fade(t, 0.1)
-    L_.leader((g[0] - 0.02, g[1] - 0.14), g, a, color=INK2)
-    L_.tag((g[0] - 0.02, g[1] - 0.12), ["193 nm", "上一代光刻光（深紫外）"], a, size=0.05, color=INK, accent=INK2, anchor="lb")
+    gy = max(0.2, g[1] - 0.12)                       # R4: never above the top edge (R3 frame 3 cropped it)
+    L_.leader((g[0] - 0.02, gy - 0.02), g, a, color=INK2)
+    L_.tag((g[0] - 0.02, gy), ["193 nm", "上一代光刻光（深紫外）"], a, size=0.05, color=INK, accent=INK2, anchor="lb")
     a2 = fade(t, dur * 0.3)
     L_.leader((v[0] + 0.02, v[1] + 0.2), v, a2, color=VIOLET_L)
     L_.tag((v[0] + 0.02, v[1] + 0.2), ["13.5 nm", "极紫外 EUV"], a2, size=0.05, color=VIOLET_L, accent=VIOLET, anchor="lt")
@@ -412,7 +413,7 @@ def ov_A2_08(img, t, dur, W, H):
     r = _anchor("A2_08", t, "span_r", (0.88, 0.66))
     if a3 > 0:
         L_.line(l, r, INK2, a3, 2)
-        L_.tag(((l[0] + r[0]) / 2 - 0.12, l[1] + 0.015), ["同样长度里：短约 14 倍"], a3, size=0.05, accent=VIOLET)
+        L_.tag((0.66, 0.06), ["同样长度里", "13.5 nm 短约 14 倍"], a3, size=0.05, accent=VIOLET)   # R4: upper right
     return L_.compose(img).convert("RGB")
 
 

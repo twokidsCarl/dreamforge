@@ -199,14 +199,15 @@ def ov_B1_10(img, t, dur, W, H):
             f = font(round(34 * k))
             if x0 == x and p < 0.06:                 # R3: no second "25 µm" before the sheet has started to spread
                 continue
-            if x0 == x:
-                draw_text(d, (x0 + pr * 0.32 + 8 * k, cy), lab, f, fill=(*CYAN, 255), anchor="lm")
+            if x0 == x:                              # R4: only the final 300 µm (no fact-like mid value), inside the circle
+                if p > 0.97:
+                    draw_text(d, (cx, cy + R * 0.68), "薄饼 300 µm", f, fill=(*CYAN, 255), anchor="mm")
             else:
                 draw_text(d, (x0, cy - R * 0.05 - dr - 10 * k), lab, f, fill=(*CYAN, 255), anchor="md")
 
     u = ease((t - 1.2) / 2.0)
     anchor = (W * (0.49 + (0.46 - 0.49) * u), H * (0.64 + (0.46 - 0.64) * u))
-    magnifier(L, anchor, (0.19 * W, 0.4 * H), 0.22 * H, inner, a, title="锡滴 25 µm" if p < 0.06 else f"锡滴 25 µm → 薄饼 ≈{um:.0f} µm")
+    magnifier(L, anchor, (0.19 * W, 0.4 * H), 0.22 * H, inner, a, title="锡滴 25 µm" if p < 0.06 else "锡滴 25 µm → 薄饼约 300 µm")
     return L.compose(img)
 
 
@@ -296,8 +297,9 @@ def ov_B1_18(img, t, dur, W, H):
     L = Layer(W, H)
     a = ease((t - 0.2) / 0.5)
     grow = ease((t - 0.4) / (0.6 * dur))
-    x0, x1, y0, y1 = 0.07 * W, 0.6 * W, 0.2 * H, 0.74 * H
-    L.rect((x0 - 0.03 * W, y0 - 0.1 * H, x1 + 0.2 * W, y1 + 0.075 * H), (8, 10, 20, 190), radius=8, a=a)
+    # R4 (H14 fix): panel shrunk to the left ~45 % so the source chamber + plasma read as the real object behind it
+    x0, x1, y0, y1 = 0.06 * W, 0.36 * W, 0.24 * H, 0.66 * H
+    L.rect((x0 - 0.025 * W, y0 - 0.1 * H, x1 + 0.13 * W, y1 + 0.075 * H), (8, 10, 20, 170), radius=8, a=a)
     L.text((x0, y0 - 0.085 * H), "锡离子谱线（示意）", 0.042 * H, INK, a)
     lo, hi = 10.0, 18.0
 
@@ -329,12 +331,13 @@ def ov_B1_18(img, t, dur, W, H):
     for nm in (10, 12, 13.5, 15, 18):
         L.line((X(nm), y1), (X(nm), y1 + 5), INK2, 1.2, a)
         L.text((X(nm), y1 + 7), f"{nm:g}", 0.036 * H, CYAN if nm == 13.5 else INK, a, anchor="ma")
-    L.text((x1 + 0.035 * W, y1 + 7), "nm", 0.036 * H, INK2, a)
-    L.text((X(13.5 * 1.01) + 6, y0 + 4), "镜子反射窗口 ±1 %", 0.036 * H, CYAN, a)
+    L.text((x1 + 0.025 * W, y1 + 7), "nm", 0.036 * H, INK2, a)
+    L.text((X(13.5 * 1.01) + 6, y0 + 4), "镜子反射窗口", 0.034 * H, CYAN, a)
+    L.text((X(13.5 * 1.01) + 6, y0 + 4 + 0.045 * H), "±1 %", 0.034 * H, CYAN, a)
     ions = ["Sn⁸⁺", "Sn⁹⁺", "Sn¹⁰⁺", "Sn¹¹⁺", "Sn¹²⁺", "Sn¹³⁺", "Sn¹⁴⁺"]
     for i, s in enumerate(ions):
         ai = a * ease((t - 0.5 - i * 0.25) / 0.4)
-        L.text((x1 + 0.06 * W, y0 + 0.02 * H + i * 0.068 * H), s, 0.042 * H, VIOLET_L, ai)
+        L.text((x1 + 0.04 * W, y0 - 0.02 * H + i * 0.064 * H), s, 0.038 * H, VIOLET_L, ai)
     return L.compose(img)
 
 

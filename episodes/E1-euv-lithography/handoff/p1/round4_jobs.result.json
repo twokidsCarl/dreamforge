@@ -1,0 +1,12 @@
+{
+ "pod": "d373yo6an51gwd",
+ "rate_usd_h": 0.59,
+ "minutes": 9.86,
+ "cost_usd": 0.097,
+ "ended": "2026-10-23 11:29",
+ "failed_attempts": [
+  {"pod": "xzbt778szav910", "minutes": 4.97, "cost_usd": 0.049, "reason": "repo tar-over-ssh pipe broke (rc 255); terminated"},
+  {"pod": "trl4wj7lthoixr", "minutes": 9.72, "cost_usd": 0.096, "reason": "repo tar-over-ssh pipe broke (rc 255); terminated"}
+ ],
+ "round_gpu_total_usd": 0.242
+}
