@@ -263,3 +263,27 @@ Carl 纠正（2026-10-23 16:40）：前几轮小修让均分横盘，本轮**不
 - 合成：`tools/compose_round9.py` → `/workspace/e1work/p1/round9/`（strip、`contact_round9.jpg`、`calib_vs_round9_comparison.jpg`）。
 - 隔离独立审 → `REVIEW_round9_independent.md`、`scores_round9.json`；**`score_timeline.png` 加 R9（仅 SCALE_v2，`--ep E1`）**；`E1_SPEND.md` 记账。
 - 禁止空等：样张一更新，同一回合出 REVIEW（含均分）。
+
+## 第 10 轮工单（2026-10-23 改写：按 `REVIEW_round9_independent.md`「最值钱的下一轮改法」1–3；Carl HARD：结构性改动，不做标签 / 单镜微调）
+
+依据：R9 独立审均分 **86.65**，最低 B1_15 82.65，≥88：A0_01 / A0_02 / A2_08 / D_07。0 封顶。门槛不变（均分 ≥92 且单张 ≥88）。SCALE_E1 v2 不变。
+R9 审的共同根因：2B 舱内仍是同一套「LED 小盒 + 螺纹管 + PCB 平板」贴件，叫不出名字；机理主角件（掩模、场分面镜、M5/M6 开孔镜、43 个集装箱）缺席或画错；光源段背景空、光比弱。
+本轮预算：GPU ≤ $2（1×A40）；image2 只用于 A0_03 底板（≤ $0.2）。不许回退：R9 的密度 / H13 解封、B8_03 的 H9（只用 EXE：5.4° + 8× + 8:1）。
+
+### 改法清单（只有三项，1+2 做完才碰其他）
+
+| 优先 | 范围 | R9 问题 | 第 10 轮改法 | 实现 |
+|---|---|---|---|---|
+| 1 | **可命名高精度舱内资产库（8 件）**，替换 LED 盒贴件：A0_10 B5_01 C_03 B3_02 B8_03 B7_06 + B1_22 / B8_17 背景 | 舱内件叫不出名字、重复 | 新资产：① 镜座 hexapod（三角底板 + 6 根带电机罐 / 球铰的作动杆 + 顶环）② 真空法兰 + 观察窗（CF 短管、双法兰螺栓圈、厚玻璃、KF 卡箍侧口）③ 冷却管束（4–6 根供 / 回水软管 + P 型卡箍 + 分配块）④ 掩模台磁悬浮导轨（定子梁、交替磁钢轨、线圈动子、光栅尺）⑤ 晶圆台平面电机（Halbach 棋盘磁钢板、线圈动子、白色陶瓷吸盘、干涉仪反射镜块、脐带）⑥ 锡滴发生器（加热带储罐、过滤器、压电喷嘴、气路阀）⑦ 阀岛 + 线缆束（电磁阀片、多针接头、气管束、扎带线束）⑧ 铝型材框架背板。舱壁布局改用 `wall_r10`：型材背板 + 大件（法兰观察窗、阀岛、涡轮泵、闸板阀、冷却管束、线束），**去掉** PCB / LED 小盒 / 卡笼 LED / mid_layer 方块 | `blender/scripts/hero_kit_r10.py`（新），`build_cutaway_r2.py`（`_frame` / `_interior_fill` / `_module_box` / `_reticle_stage` / `_wafer_stage` / 锡滴发生器），`r2_cutaway.py` `_scan_r5`，`r2_misc.py` B8_17，`r2_source.py` B1_22 |
+| 2 | **机理主角件** | 掩模不可读；场分面镜像散热器；M5/M6 无孔；43 个集装箱缺席 | C_03 + B8_03：6 英寸反射掩模（芯片场图形 + 吸收体线条 + 对位标记 + 夹持框）坐在磁悬浮掩模台上，入射 / 出射两束**实心光锥**分开可见，标「约 5.4°（放大示意）」；B5_01：场分面镜改成弧形长条小镜阵列（香蕉形镜条、各自微倾、抛光反光、弧形载板），去掉黑色鳍片作动块；B7_06：M5 / M6 做成中心开孔的环形镜，光从 M6 孔下行打 M5、反射上 M6、再会聚穿过 M5 孔到晶圆，舱顶入射光锥 + 舱底出射光锥；A0_03：底板里加 43 个航空集装箱（ULD）+ 货网托盘，标「43」 | `build_cutaway_r2.py` `_illuminator` / `_reticle_stage`，`r2_cutaway.py` `_po_turntable` / `_scan_r5` / tour，`r2_plates.py` + image2 底板 |
+| 3 | **光源段重建** | B1_15 白盘 + 圆环当等离子体、橙色碎屑、镜口白锯齿；B1_08 / B1_10 / A0_01 背景空 | B1_15：体积辉光核（多层发光壳 + 体积散射）+ 向镜面柔光，碎屑锡灰，修镜口锯齿（镜面边缘倒角、不再与法兰共面），镜面超光滑；B1_08 / B1_10 / A0_01 背景：k3A 式金属腔体（厚壁内衬、法兰、观察窗、锡滴发生器喷嘴、收集镜边缘），主体：背景 ≥ 8:1 | `r2_source.py` |
+| — | 其余镜头 | — | 不做单镜改动 | — |
+
+### 烟测门槛（开渲前）
+- 2B 六镜 + B1_22 / B8_17 的本地预览条里看不到 LED 小盒 / PCB 贴片，能叫出 ≥5 种资产名；掩模、场分面镜、M5/M6 开孔、43 个集装箱在画面里一眼可读。不达标不开渲。
+
+### 渲染与交付
+- `p1/round10_jobs.txt`（24 镜，帧同 R9），`tools/pod_styleframes.py p1/round10_jobs.txt --cap-usd 2`；渲完**立刻 Terminate**，确认 `GET /pods = []`。
+- 合成：`tools/compose_round10.py` → `/workspace/e1work/p1/round10/`（strip、`contact_round10.jpg`、`calib_vs_round10_comparison.jpg`）。
+- 隔离独立审 → `REVIEW_round10_independent.md`、`scores_round10.json`；`score_timeline.png` 加 R10（仅 SCALE_v2，`--ep E1`）；`E1_SPEND.md` 记账。
+- 禁止空等：样张一更新，同一回合出 REVIEW（含均分）。

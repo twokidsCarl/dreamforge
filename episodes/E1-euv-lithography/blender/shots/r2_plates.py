@@ -15,7 +15,7 @@ import bpy
 import common as C
 import kit_r2 as K
 
-PLATES = {"freighter": "r2_a002.png", "crates": "r2_a003.png", "cleanroom": "r2_d007.png"}
+PLATES = {"freighter": "r2_a002.png", "crates": "r2_a003_r10.png", "cleanroom": "r2_d007.png"}
 
 
 def _freighter_life(n, H, aspect):
