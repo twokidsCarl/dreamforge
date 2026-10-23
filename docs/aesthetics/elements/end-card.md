@@ -11,3 +11,6 @@
 ## 各期文案
 - E1：「互动版在这里：跟着光，自己走一遍」+ eigenlens.ai。规格见 `episodes/E1-euv-lithography/handoff/END_CARD.md`。
 - E2：待定。目前 E2 没有号召文字图，所以不会接号召尾帧。
+
+## E1 选图包（2026-10-23）
+- 片尾卡不在 E1 选图包 9 题里，状态和画法不变。双层视觉系统（`../topics/E1-euv-lithography.md` §2）只影响片尾之前的最后一镜，不改 end card。
