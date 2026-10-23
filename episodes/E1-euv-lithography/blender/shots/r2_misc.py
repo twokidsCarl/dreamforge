@@ -96,6 +96,62 @@ def _stars_world(top=(0.012, 0.018, 0.04), bottom=(0.003, 0.004, 0.01), density=
     nt.links.new(add.outputs["Result"], bg.inputs["Color"])
 
 
+def _earth_photo_mat():
+    """R5 (k7A): photographic Earth - NASA Blue Marble colour (public domain, visibleearth.nasa.gov), glossy
+    oceans, matte land. Same equirect UV layout as worldmap_land.png."""
+    m = _new_mat("EarthPhoto")
+    nt, n, l = _nodes(m)
+    b = next(x for x in n if x.type == "BSDF_PRINCIPLED")
+    uv = n.new("ShaderNodeTexCoord")
+    img = n.new("ShaderNodeTexImage")
+    img.image = bpy.data.images.load(os.path.join(TEX, "nasa_bluemarble_2048.jpg"), check_existing=True)
+    img.interpolation = "Cubic"
+    l.new(uv.outputs["UV"], img.inputs["Vector"])
+    l.new(img.outputs["Color"], b.inputs["Base Color"])
+    sep = n.new("ShaderNodeSeparateColor")          # ocean = blue > red -> glossy
+    l.new(img.outputs["Color"], sep.inputs["Color"])
+    d = n.new("ShaderNodeMath")
+    d.operation = "SUBTRACT"
+    l.new(sep.outputs[2], d.inputs[0])
+    l.new(sep.outputs[0], d.inputs[1])
+    r = n.new("ShaderNodeMapRange")
+    r.inputs["From Min"].default_value = 0.0
+    r.inputs["From Max"].default_value = 0.15
+    r.inputs["To Min"].default_value = 0.85
+    r.inputs["To Max"].default_value = 0.3
+    l.new(d.outputs[0], r.inputs["Value"])
+    l.new(r.outputs["Result"], b.inputs["Roughness"])
+    return m
+
+
+def _clouds_mat():
+    """Cloud shell: white diffuse where the NASA cloud map is bright, transparent elsewhere."""
+    m = _new_mat("EarthClouds")
+    nt, n, l = _nodes(m)
+    for x in list(n):
+        if x.type != "OUTPUT_MATERIAL":
+            n.remove(x)
+    out = next(x for x in n if x.type == "OUTPUT_MATERIAL")
+    uv = n.new("ShaderNodeTexCoord")
+    img = n.new("ShaderNodeTexImage")
+    img.image = bpy.data.images.load(os.path.join(TEX, "nasa_clouds_2048.jpg"), check_existing=True)
+    img.image.colorspace_settings.name = "Non-Color"
+    l.new(uv.outputs["UV"], img.inputs["Vector"])
+    df = n.new("ShaderNodeBsdfDiffuse")
+    df.inputs["Color"].default_value = (0.95, 0.95, 0.96, 1)
+    tr = n.new("ShaderNodeBsdfTransparent")
+    mx = n.new("ShaderNodeMixShader")
+    k = n.new("ShaderNodeMath")
+    k.operation = "MULTIPLY"
+    k.inputs[1].default_value = 0.7
+    l.new(img.outputs["Color"], k.inputs[0])
+    l.new(k.outputs[0], mx.inputs["Fac"])
+    l.new(tr.outputs[0], mx.inputs[1])
+    l.new(df.outputs[0], mx.inputs[2])
+    l.new(mx.outputs[0], out.inputs["Surface"])
+    return m
+
+
 def _earth_mat(night=False, dots=None):
     """Equirect land map on a UV sphere: dark ocean, muted land (day) or faint cyan coastlines (night),
     optional supplier-dot emission revealed by an animated threshold. Returns (material, reveal_socket)."""
@@ -323,9 +379,10 @@ def _space(sc, n):
     E = Vector((0, 0, 0))
     MO = Vector((44, 16, 4))
     earth_r, moon_r = 5.0, 1.36
-    em, _ = _earth_mat()
-    earth = _uv_sphere("Earth", E, earth_r, 128, em)
+    earth = _uv_sphere("Earth", E, earth_r, 128, _earth_photo_mat())      # R5: photographic Earth (k7A)
     earth.rotation_euler = (math.radians(15), 0, math.radians(-105))
+    cl = _uv_sphere("Clouds", E, earth_r * 1.008, 128, _clouds_mat())
+    cl.rotation_euler = earth.rotation_euler
     _atmosphere("Atmos", E, earth_r * 1.035, strength=4.0)
     moon = _uv_sphere("Moon", MO, moon_r, 128, _bump_mat("MoonMat", (0.55, 0.54, 0.52), 0.85, 7.0, 40.0, bump=0.8))
     # golf ball on the lunar surface facing the incoming beam
@@ -429,7 +486,7 @@ def _mirror(sc, n):
     K.world_dark(1.0)
     M = K.palette()
     # spherical-cap mirror with a removed wedge: the cut face shows substrate + a thin bright coating band
-    R, sag_r, th = 1.2, 6.0, 0.22
+    R, sag_r, th = 1.2, 6.0, 0.4          # R5: thick solid glass-ceramic blank (R4 read as a thin bowl)
     bm = bmesh.new()
     nr, na = 28, 120
     a_cut0, a_cut1 = math.radians(-35), math.radians(25)
@@ -467,7 +524,7 @@ def _mirror(sc, n):
     bm.free()
     mir = bpy.data.objects.new("MirrorCap", me)
     sc.collection.objects.link(mir)
-    sub = K.mat("MirrorBase", (0.7, 0.71, 0.74), metal=1.0, rough=0.22, brushed=0.06)   # R3: polished metal base
+    sub = K.mat("GlassCeramicBlank", (0.78, 0.72, 0.6), rough=0.28, coat=0.5)   # R5: Zerodur-like glass-ceramic
     sc["hdri"] = "hangar_interior"
     sc["hdri_strength"] = 0.35
     me.materials.append(M["coating"])
@@ -582,7 +639,7 @@ def _pellicle(sc, n):
     top = _new_mat("MaskTop")
     nt, nn, l = _nodes(top)
     b = next(x for x in nn if x.type == "BSDF_PRINCIPLED")
-    b.inputs["Metallic"].default_value = 0.5
+    b.inputs["Metallic"].default_value = 0.15             # R5: less mirror, so the pattern is not washed out
     tc = nn.new("ShaderNodeTexCoord")
     mpm = nn.new("ShaderNodeMapping")                # absorber pattern: die layouts tiled 3 x 2 (mask is 4x/8x the chip)
     mpm.inputs["Scale"].default_value = (2.2, 1.7, 1)
@@ -595,12 +652,12 @@ def _pellicle(sc, n):
     l.new(br.outputs["Color"], bw.inputs["Color"])
     cr = nn.new("ShaderNodeValToRGB")
     cr.color_ramp.elements[0].color = (*K.lin((0.02, 0.02, 0.03)), 1)
-    cr.color_ramp.elements[1].color = (*K.lin((0.3, 0.29, 0.38)), 1)
+    cr.color_ramp.elements[1].color = (*K.lin((0.66, 0.64, 0.76)), 1)   # R5: pattern reads through the film
     l.new(bw.outputs["Val"], cr.inputs["Fac"])
     l.new(cr.outputs["Color"], b.inputs["Base Color"])
     rr = nn.new("ShaderNodeMapRange")
-    rr.inputs["To Min"].default_value = 0.3
-    rr.inputs["To Max"].default_value = 0.05
+    rr.inputs["To Min"].default_value = 0.55
+    rr.inputs["To Max"].default_value = 0.3
     l.new(bw.outputs["Val"], rr.inputs["Value"])
     l.new(rr.outputs["Result"], b.inputs["Roughness"])
     mt = K.MB()
@@ -610,7 +667,7 @@ def _pellicle(sc, n):
     gap = 0.055                                  # frame height = membrane stand-off (x10 scale, illustrative)
     fz = 0.152 + gap / 2
     fr = K.MB()
-    fw, fh, bar, ht = 1.32, 1.06, 0.022, gap
+    fw, fh, bar, ht = 1.32, 1.06, 0.014, gap
     for (cx, cy, sx, sy) in [(0, fh / 2, fw, bar), (0, -fh / 2, fw, bar), (fw / 2, 0, bar, fh), (-fw / 2, 0, bar, fh)]:
         fr.box((cx, cy, fz), (sx, sy, ht))
     for sx in (-1, 1):                         # vent holes / pins on the frame sides
@@ -641,7 +698,7 @@ def _pellicle(sc, n):
     m2 = nn.new("ShaderNodeMixShader")
     fk = nn.new("ShaderNodeMath")
     fk.operation = "MULTIPLY"
-    fk.inputs[1].default_value = 0.2
+    fk.inputs[1].default_value = 0.07                  # R5: less sheen, so it is not a dark lid
     l.new(fres.outputs["Fresnel"], fk.inputs[0])
     l.new(fk.outputs[0], m2.inputs["Fac"])
     l.new(m1.outputs[0], m2.inputs[1])
@@ -887,7 +944,7 @@ def _wafer(sc, n):
         cas.box((cx0, sx * 1.6, 0.85), (2.8, 0.06, 1.9))
         for k in range(24):
             cas.box((cx0 - 1.0, sx * 1.55, -0.05 + k * 0.075), (0.6, 0.06, 0.012))
-    cas.obj("Cassette", K.mat("CassettePoly", (0.55, 0.57, 0.6), rough=0.4, transmission=0.0), bevel=0.01)
+    cas.obj("Cassette", K.mat("CassetteAlu", (0.7, 0.71, 0.74), metal=1.0, rough=0.3, brushed=0.1), bevel=0.01)   # R5: brushed metal, not white blocks
     wfm = K.mat("WaferStack", (0.45, 0.47, 0.6), metal=0.9, rough=0.15)
     for k in range(24):
         mbw = K.MB()

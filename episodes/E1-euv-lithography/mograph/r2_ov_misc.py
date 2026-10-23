@@ -452,7 +452,9 @@ def ov_A2_03(img, t, dur, W, H):
     L_.tag((min(0.8, max(0.05, mr[0])) + 0.02, max(0.6, min(0.8, mr[1])) - 0.02), ["镜子收光的锥角 → NA"], a2,
            size=0.034, accent=CYAN)
     a3 = fade(t, dur * 0.72)
-    L_.tag((0.5 - 0.15, 0.6), ["k₁ 的物理极限：0.25"], a3, size=0.05)
+    kx = pos["k₁"][0]                                    # R5: own leader from k₁ (R4 read as attached to NA)
+    L_.leader((kx, 0.53), (kx, 0.6), a3, color=INK2)
+    L_.tag((max(0.04, kx - 0.04), 0.6), ["k₁ 的物理极限：0.25"], a3, size=0.045, accent=INK2)
     return L_.compose(img).convert("RGB")
 
 

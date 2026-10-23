@@ -130,3 +130,31 @@ R3 已解封、本轮不许回退：A2_08 / A2_03 的 H14，A0_02 / B8_03 的 H2
 - 合成到 `/workspace/e1work/p1/round4/`：strip、`contact_round4.jpg`、`calib_vs_round4_comparison.jpg`。
 - 隔离独立审 → `REVIEW_round4_independent.md`、`scores_round4.json`；**`score_timeline.png` 加 R4**（推 Carl 只要这张）；`E1_SPEND.md` 记账。
 - 禁止空等：样张一更新，同一回合出 REVIEW（含均分）。
+
+## 第 5 轮工单（2026-10-23 改写：按 `REVIEW_round4_independent.md`，先解剩余硬封顶，从最低分镜头往上）
+
+依据：R4 独立审均分 **84.35**，最低 B8_03 71.65（H13 + H2），只有 A0_02 89.3、D_07 88.2 ≥88。门槛不变（均分 ≥92 且单张 ≥88）。SCALE_E1 v2 不变。
+本轮预算：GPU ≤ $2（1×A40），image2 ≤ $3（本轮不用）。今日已花约 $0.79，守住日 $25。
+R4 已解封、本轮不许回退：B1_15 的 H1、B2_08 的 H6、B1_18 的 H14、C_03 的 H13；A0_02 / D_07 保持 ≥88。
+
+### 改法清单（按 R4 分数从低到高 + 硬封顶优先）
+
+| 优先 | 镜头 | R4 | 命中 | 第 5 轮改法 | 实现 |
+|---|---|---|---|---|---|
+| 1 | **B8_03** | 71.65 | H13 H2 | 整镜重建：照明模块放在掩模**左下方**，横向短光路进模块 → 末镜 G2 → **短**的约 6° 斜射上掩模 → 窄 V 反射进投影舱；投影舱 3 面实心镜 + hexapod 镜座 W 形折返，最后一条窄光带落到**正下方**晶圆；掩模台行程 8 格（1.6 m）、晶圆台 1 格（0.2 m）反向，**同一单位的数字刻度尺**（0–8 / 0–1）+ 起点标记 + 指针；叠层青色「已走行程」条和实时读数（2.0 / 4.4 / 6.8 格 vs 0.2 / 0.5 / 0.9 格）；晶圆上曝光条随扫描变长；背景换成安静的暗色墙板（去掉随机方块 / 白弧伪细节）；标注 3 块 | `blender/shots/r2_cutaway.py` `_scan_r5`、`mograph/r2_ov_zr5.py` |
+| 2 | **B7_06** | 79.0 | H13 | 投影舱内改为一条**不自交**的下行 Z 字 M1–M6，每面实心镜各带镜座；细亮光束 + 淡体积；人换白色洁净服（k9B）；去掉分镜标签的深色模糊底，改一个紧凑标签 | `r2_cutaway.py` `_po_turntable`、`PO_ZIGZAG`、`r2_ov_zr5.py` |
+| 2 | **A0_10** | 83.45 | H13 | 片名卡同样用不自交的 M1–M6；照明舱 / 投影舱光束由宽色带改为细亮光束（不再糊成色块） | `r2_cutaway.py` title、`_sequential_beam` |
+| 3 | **B1_15** | 80.15 | — | 去掉前景加强环 / 肋条 / MLI / 墙管；机位移到近轴，等离子体位于抛光收集镜碗内的焦点处（两元素对角构图） | `r2_source.py` `_contrast` |
+| 3 | **B6_12** | 82.0 | — | 掩模顶面降低金属度、提高图形对比，膜下图形可读；膜框改细；分镜标签改清晰半透明底（全片） | `r2_misc.py` `_pellicle`、`tools/compose_round5.py` |
+| 3 | **B1_08** | 82.2 | — | HUD 光环改细线 + 十字刻线、亮度减半 | `r2_source.py` `_track` |
+| 4 | B2_08 | 83.0 | — | 机位拉远见镜缘 / 螺栓 / 中心孔，f/11 + 慢推；氢辉光减弱（R4 读成平面蓝盘）；镜面改缎面金属让灯光可读；去 MLI | `r2_source.py` `_clean` |
+| 4 | B4_10 | 84.7 | — | 写实地球：NASA Blue Marble 地表 + 云层壳（公有领域，visibleearth.nasa.gov） | `r2_misc.py` `_earth_photo_mat`、`blender/textures/nasa_*` |
+| 4 | B4_07 / B8_17 | 86.4 / 86.0 | — | B4_07 镜坯加厚为微晶玻璃实心体；B8_17 片盒改拉丝金属 | `r2_misc.py` |
+| 5 | A2_03 / C_03 / D_07 等 | — | — | A2_03「k₁ 物理极限」引线改连 k₁；C_03 去掉残留分镜标签；全片分镜标签底条由软黑雾改为清晰半透明面板（D_07 天花板上可读） | `mograph/r2_ov_misc.py`、`r2_ov_zr5.py`、`compose_round5.py` |
+| — | A0_02 / D_07 | 89.3 / 88.2 | — | 不动（只受全片标签底条改动） | — |
+
+### 渲染与交付
+- `p1/round5_jobs.txt`（24 镜，帧同 R4），`tools/pod_styleframes.py p1/round5_jobs.txt --cap-usd 2`（分块同步）；渲完**立刻 Terminate**，确认 `GET /pods = []`。
+- 合成到 `/workspace/e1work/p1/round5/`：strip、`contact_round5.jpg`、`calib_vs_round5_comparison.jpg`。
+- 隔离独立审 → `REVIEW_round5_independent.md`、`scores_round5.json`；**`score_timeline.png` 加 R5**（推 Carl 只要这张）；`E1_SPEND.md` 记账。
+- 禁止空等：样张一更新，同一回合出 REVIEW（含均分）。
