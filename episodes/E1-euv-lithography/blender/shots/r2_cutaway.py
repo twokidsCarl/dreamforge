@@ -17,6 +17,15 @@ import build_cutaway_r2 as B
 import common as C
 import kit_r2 as K
 
+# R20 (R20_ROOT_CAUSE rows 1 + 2): per-shot switch. A shot in this set builds with beam_r20 (mirror-to-mirror straight
+# cones, end caps on the mirror planes, lit focus tip) + its R20 structural fix; remove a shot id to get its R19 pixels.
+# C_03 / B8_03 / B8_03M only pick up beam_r20 (no shot-specific R20 code).
+# HARD-STOP REVERT (cut agent, 45 min): no shot reached a 32-spp GO smoke, so every shot renders R19 pixels.
+# Candidate set (8-spp smokes looked right for B5_01 / B7_06 / B3_02; see r20smoke/cut/SMOKE.md):
+R20_SHOTS_CANDIDATE = {"B5_01", "B7_06", "B3_02", "A0_10", "C_03", "B8_03", "B8_03M"}
+R20_SHOTS = {"B5_01", "B3_02"}   # main-process 32-spp smoke: A0_10 (cut agent Q4 no), B7_06 (Q4 no: curved mass inside M5 at 85 %), C_03 (Q4 no: no visible change, crossing segment kept), B8_03 + B8_03M (Q4 no: stray black plates at top) stay R19
+_R20 = [None]
+
 
 # R5: one descending zig-zag through the PO housing that never crosses itself (B7_06, A0_10)
 PO_ZIGZAG = ((2.55, 0.15, 3.72), (1.05, 0.2, 3.28), (2.6, 0.1, 2.62), (1.0, 0.15, 2.1), (2.45, 0.05, 1.6),
@@ -61,6 +70,10 @@ def build(variant="illum", shot=None):
     # the continuity rule - each frustum runs landing -> landing, volume ONLY inside the cone (the outer halo shell
     # that spread the haze is gone), a landing highlight at every bounce and at the path's end. No width knob.
     # (every `import beam_r18 as R18` in this module now loads beam_r19 under the same alias)
+    _R20[0] = shot if shot in R20_SHOTS else None
+    if _R20[0]:                               # R20 rows 1 + 2: every `import beam_r19` below loads beam_r20
+        import beam_r20 as R20B
+        R20B.alias()
     import beam_r19 as R18
     R18.install()
     import cut_mirror_r19 as CM
@@ -83,6 +96,10 @@ def build(variant="illum", shot=None):
               "scan": _HERO19[0]}.get(variant)
     if heroes:
         CM.reflect_env(sc, M, heroes, tag=f"Env19{variant}")
+    if _R20[0] == "B3_02":
+        _collector_dark_r20()
+    if _R20[0] == "B5_01":
+        _illum_cleanup_r20()
     return sc
 
 
@@ -92,6 +109,74 @@ _M19 = [None]
 # R19 row 3 (R18: "中舱后墙是同一种方格小盒重复铺满" A0_10 / "右侧墙是重复的横管 + 格栅" B3_02): these two walls are
 # built with the shared read-only kit_r19.wall_r19 (5-6 big different named assemblies + a diagonal coolant run)
 _WALL19_SEEDS = {"title": (12,), "collect": (33,)}
+
+
+def _illum_r20(n):
+    """B5_01 R20 row 1 (R19: "入射光是等宽的实心光柱…看不到从分面镜反射出去的那一束…箭头指向入射光的方向"):
+    incoming = ONE cone opening from the IF tip (bright point) and landing as a bright spot on the field facet array;
+    outgoing = 6 thin beamlets, each from its own facet on the field facet mirror to the pupil facet mirror (in frame),
+    landing spot on the pupil facets. No other leg is lit (each end of every lit segment is on screen)."""
+    import beam_r20 as R20B
+    nf = K.mirror_normal(B.IF, B.FFM, B.PFM)
+    npf = K.mirror_normal(B.FFM, B.PFM, B.G1)
+    src = B.IF + (B.FFM - B.IF).normalized() * 0.12      # IF aperture exit (just outside the neck flange: visible)
+    os_, ms_ = R20B.segment(src, B.FFM, 0.006, 0.2, "IllumInR20", k=1.3, nb=nf, seg=64)
+    R20B.key_vis(os_, ms_, n, 0.0, None)
+    R20B.tip(src, (B.FFM - B.IF).normalized(), "IllumIFTipR20", 1, scale=1.3)
+    ifm = K.MB()                             # the cone's apex: a bright point at the IF (where the light opens from)
+    ifm.sphere(src, 0.03, 16)
+    ifm.obj("IFPinchR20", K.emit_mat("IFPinchR20", (0.88, 0.84, 1.0), 30.0)).visible_shadow = False
+    R20B._land_timed(B.FFM, nf, "IllumLandFFMR20", 1, scale=1.8)
+    d = (B.PFM - B.FFM).normalized()
+    u = d.cross(Vector((0, 0, 1))).normalized()
+    v = u.cross(d).normalized()
+    f_out = 1
+    for k_, (a_, b_) in enumerate(((-1, -1), (0, -1), (1, -1), (-1, 1), (0, 1), (1, 1))):
+        pa = B.FFM + u * (0.11 * a_) + v * (0.07 * b_)
+        pb = B.PFM + u * (0.045 * a_) + v * (0.03 * b_)
+        os_, ms_ = R20B.segment(pa, pb, 0.03, 0.02, f"IllumOutR20_{k_}", k=1.0, na=nf, nb=npf, seg=32)
+        f_out = R20B.key_vis(os_, ms_, n, 0.1, None)
+    R20B._land_timed(B.PFM, npf, "IllumLandPFMR20", f_out, scale=1.5)
+
+
+def _illum_cleanup_r20():
+    """B5_01 R20 row 1 (R19: "右侧那根白色悬空杆读不出用途，删掉"): the bar is part of the R8 wall kit mesh
+    (R8Kit2_hose_w: a white hose stub sticking out beside the field facet mirror, z ~3.85) - its faces in that box are
+    deleted."""
+    for nm, xr, yr, zr in ILLUM_ROD_R20:
+        print("[r20] rod faces cut:", nm, _cut_faces(nm, xr, yr, zr))
+
+
+ILLUM_ROD_R20 = [("R8Kit2_hose_w", (-1.9, -1.25), (-0.45, 0.1), (3.66, 4.05))]
+
+
+def _collector_dark_r20():
+    """B3_02 R20 row 2 (R19: "收集镜现在像带网格的透明玻璃罩。改成金属镜面…深色镜面质感（不要彩虹色），去掉蜂窝格"):
+    the collector's reflective face becomes a DARK polished multilayer metal (neutral blue-grey, roughness 0.05, no
+    emission, no iridescence); it reads as a dark metal bowl that carries the grazing studio highlights instead of a
+    bright see-through dome mirroring the cage grid."""
+    dark = K.mat("CollectorDarkML_R20", (0.16, 0.165, 0.185), metal=1.0, rough=0.05, coat=0.6)
+    for ob in bpy.data.objects:
+        if ob.type != "MESH" or not ob.data.materials:
+            continue
+        idx = [i for i, m in enumerate(ob.data.materials) if m is not None and
+               m.name.startswith(("EUVMirrorHiR19", "CollectorML_R15", "EUVCoatingML_R15"))]
+        if not idx:
+            continue
+        mw = ob.matrix_world
+        hit = []
+        for pg in ob.data.polygons:          # faces of the collector dish only (the mirror mesh holds every mirror)
+            if pg.material_index not in idx:
+                continue
+            c = mw @ pg.center
+            if B.COLL.x - 0.05 < c.x < B.COLL.x + 0.36 and math.hypot(c.y, c.z - B.COLL.z) < 0.72:
+                hit.append(pg)
+        if hit:
+            ob.data.materials.append(dark)
+            k_ = len(ob.data.materials) - 1
+            for pg in hit:
+                pg.material_index = k_
+            print("[r20] collector dark:", ob.name, len(hit))
 
 
 def _wall19():
@@ -139,8 +224,17 @@ def _build(variant="illum", shot=None):
     elif studio:
         K.world_studio(0.9)
         flo = K.mat("StudioFloor", (0.55, 0.56, 0.58), rough=0.18, coat=0.5)
+        if _R20[0] == "B7_06":               # R20 row 2 (k2A, R19: "主体和白背景几乎一样亮，光比远不到 8:1"):
+            C.set_world(top=(0.07, 0.074, 0.082), horizon=(0.05, 0.052, 0.058), bottom=(0.02, 0.02, 0.022),
+                        strength=1.0)        # mid-grey backdrop
+            flo = K.mat("StudioFloorR20", (0.09, 0.092, 0.098), rough=0.75, coat=0.0, spec=0.15)   # no rim sheen
         K.floor("Floor", flo, z=0.0)
         _lights_studio()
+        if _R20[0] == "B7_06":               # the big top softbox lit the floor as bright as the body: 15 %
+            for nm_ in ("Top", "Fill"):
+                lo_ = bpy.data.objects.get(nm_)
+                if lo_ is not None:
+                    lo_.data.energy *= 0.15 if nm_ == "Top" else 0.6
     else:
         K.world_dark(0.55)
         K.floor("Floor", K.mat("FloorDark", (0.05, 0.055, 0.065), rough=0.3, coat=0.3), z=0.0)
@@ -166,6 +260,9 @@ def _build(variant="illum", shot=None):
     if variant == "title":                   # R5 (H13): the title's PO bay uses the non-crossing M1..M6 zig-zag
         B.PO = [Vector(v) for v in PO_ZIGZAG]
         B.PO_R = [0.24, 0.22, 0.26, 0.22, 0.24, 0.2]
+        if _R20[0] == "A0_10":               # R20 row 2 (R19: "投影箱里的紫光只保留 3–4 段折返，每个拐点都落在看得见的
+            B.PO = [B.PO[0], B.PO[3], B.PO[4]]   # 镜面上"): 3 mounted PO mirrors -> mask, M, M, M, wafer = 4 straight
+            B.PO_R = [0.24, 0.22, 0.24]          # cones, every turn on a built mirror with its landing highlight
     if variant == "tour":                    # R13 (R12: "in / out overlap into one vertical column"): the fold mirror
         import hero_kit_r10 as HK10          # and PO1 move out so the cones meet the mask at ~20 deg each side
         B.G2 = Vector((-0.2, 0.3, 2.3))      # (label keeps "约 5.4°（角度放大示意）"); fine absorber-line mask
@@ -211,6 +308,9 @@ def _build(variant="illum", shot=None):
         lg = [(pts[0], pts[1], 0.025, 0.075, 0.0, 0.62, 1.3), (pts[1], pts[2], 0.21, 0.27, 0.2, None, 1.0)]
         lg += [(pts[i], pts[i + 1], rad[i] * 0.8, rad[i + 1] * 0.8, t, None, 0.6)
                for i, t in ((2, 0.33), (3, 0.4), (4, 0.45))]
+        if _R20[0] == "B5_01":               # R20 row 1: IF cone + facet -> pupil beamlets (R19 legs not built)
+            lg = []
+            _illum_r20(n)
         for i, (a_, b_, ra_, rb_, t0, t1, kk) in enumerate(lg):
             os_, ms_ = R18.cone(a_, b_, ra_, rb_, f"IllumCone{i}", k=kk)
             f_on = R18.key_vis(os_, ms_, n, t0, t1)
@@ -308,6 +408,8 @@ def _build(variant="illum", shot=None):
     f1 = n
     if variant == "title":
         cam.data.lens = 32
+        if _R20[0] == "A0_10":               # R20 row 2 (k2A, R19: "给机架加棚拍轮廓光"): cool rim from behind / above
+            K.area("RimCoolR20", (-3.0, 4.5, 6.5), (-3.0, 0, 2.8), 3.0, 5200, (0.72, 0.83, 1.0), size_y=14.0)
         K.suit_person("Eng1", (-3.0, -2.3, 0), 1.78, "stand", facing=10)
         K.suit_person("Eng2", (-2.35, -2.5, 0), 1.7, "work", facing=-20)
         _studio_skins(M)
@@ -322,6 +424,15 @@ def _build(variant="illum", shot=None):
         K.key_path(cam, tgt, [(1, (-2.5, -5.6, 3.35), (-2.05, 0.3, 3.4)),
                               (round(f1 * 0.5), (-2.55, -2.55, 3.75), (-2.15, 0.15, 3.8)),
                               (f1, (-1.7, -1.3, 3.98), (-2.14, 0.12, 3.84))])      # R16 row 4: facets >= 1/4 at 85 %
+        if _R20[0] == "B5_01":               # R20 row 1 (R19: "开头 25 % 帧给一个更远的机位，露出 IF → 照明 → 掩模的走向，
+            cam.animation_data_clear()
+            tgt.animation_data_clear()
+            # 再推近"): ~25 % wider at 25 % (IF tip, field facets, pupil facets all in frame), then a push-in that
+            # keeps the IF tip and the pupil facet mirror in frame (every lit segment has both ends on screen)
+            K.key_path(cam, tgt, [(1, (-2.95, -5.7, 3.05), (-3.0, 0.15, 2.82)),
+                                  (round(f1 * 0.25), (-2.85, -4.9, 3.08), (-3.0, 0.15, 2.86)),
+                                  (f1, (-2.55, -3.3, 3.15), (-2.95, 0.15, 2.98))])
+            cam.data.dof.aperture_fstop = 11.0
         cam.data.dof.use_dof = True
         cam.data.dof.aperture_fstop = 5.6
         cam.data.dof.focus_object = tgt
@@ -363,6 +474,13 @@ def _build(variant="illum", shot=None):
         K.key_path(cam, tgt, [(1, (-4.15, -4.35, 3.45), (-6.2, 0.0, 2.42)),
                               (round(f1 * 0.5), (-5.2, -3.1, 3.05), (-6.7, 0.0, 2.41)),
                               (f1, (-6.05, -2.55, 2.9), (-6.95, 0.0, 2.42))])   # R16 row 4: collector >= 1/4
+        if _R20[0] == "B3_02":               # R20 row 2 (R19: "「中间焦点 IF」标注在后两帧消失了，应该保留到锥尖…最后一帧
+            cam.animation_data_clear()       # 要把『巨大的镜子』交代给观众，可以拉远，让镜子占画面 ≥ 1/3"): the dolly
+            tgt.animation_data_clear()       # ends pulled back so the IF tip stays in frame; dish ~0.4 of frame height
+            K.key_path(cam, tgt, [(1, (-4.15, -4.35, 3.45), (-6.2, 0.0, 2.42)),
+                                  (round(f1 * 0.5), (-4.6, -3.75, 3.2), (-6.25, 0.0, 2.42)),
+                                  (f1, (-5.0, -3.0, 2.95), (-6.3, 0.0, 2.42))])
+            cam.data.dof.aperture_fstop = 11.0   # the out-of-focus foreground vessel smeared into a white "fog"
         K.area("DishGlint", (-5.6, 2.9, 3.9), B.COLL, 2.2, 520, (0.95, 0.96, 1.0))
         K.area("DishKey", (-5.0, -2.2, 3.6), B.COLL, 1.6, 260, (1.0, 0.98, 0.95))
         # grazing studio strip skimming the coated face from above-front: one long highlight band across the dish
@@ -384,8 +502,10 @@ def _build(variant="illum", shot=None):
         if ro is not None:
             bpy.data.objects.remove(ro)
         import beam_r19 as R18
-        R18.cone(Vector((B.COLL.x + Rr * Rr / (4 * ff) + 0.01, 0, B.COLL.z)), B.IF, 0.58, 0.012, "CollectConeR18",
-                 k=0.55, seg=64)
+        cc_ = R18.cone(Vector((B.COLL.x + Rr * Rr / (4 * ff) + 0.01, 0, B.COLL.z)), B.IF, 0.58, 0.012,
+                       "CollectConeR18", k=0.55, seg=64)
+        if _R20[0] == "B3_02":               # R20 row 2 (R19: "85 % 帧白雾太重…把雾密度降一半"): the only volume is
+            R18.key_vis(cc_[0], cc_[1], n, 0.0, 0.62, ramp=12, dim=0.5)    # this cone; half by the 85 % frame
         K.clean_cycles(sc, indirect=1.0)                 # R13: fireflies on the cone mouth / posts
         try:
             sc.cycles.blur_glossy = 2.0
@@ -627,7 +747,13 @@ def _sequential_beam(M, n):
             for j, (a, b) in enumerate(zip(pts, pts[1:])):
                 # R19: k 1.2 -> 1.6 only compensates the removed outer halo shell (beam_r19: zero outside the
                 # cone) so the title-scale path keeps its R18 brightness; widths unchanged
-                os_, ms_ = R18.cone(a, b, ap[j], ap[j + 1], f"TitleCone{i}_{j}", k=1.6)
+                nrm_ = {}
+                if _R20[0] == "A0_10":       # R20 row 2: each cone's end caps lie on the two mirror faces it joins
+                    ex_ = ([B.G2] if i == 2 else [None]) + pts + ([Vector(full[6])] if i == 1 else [None])
+                    nrm_ = {k_: (None if ex_[q_ - 1] is None or ex_[q_ + 1] is None
+                                 else K.mirror_normal(ex_[q_ - 1], ex_[q_], ex_[q_ + 1]))
+                            for k_, q_ in (("na", j + 1), ("nb", j + 2))}
+                os_, ms_ = R18.cone(a, b, ap[j], ap[j + 1], f"TitleCone{i}_{j}", k=1.6, **nrm_)
                 R18.key_vis(os_, ms_, n, start, None, ramp=10)
             ext = pts + ([Vector(full[6])] if i == 1 else [])      # segment 1 ends on the mask (bounce -> PO1)
             for j in range(1, len(ext) - 1):
@@ -1266,16 +1392,33 @@ def _po_barrels_r15(sc, M, n):
     #       point ON the wafer; the wafer point appears only in step (3); M5 / M6 landing highlights only in their step
     import beam_r19 as R18
     cones18 = []
-    for i, (a, b, ra, rb, t0, t1) in enumerate(((top_in, legs[0][1], 0.04, 0.045, 0.0, 0.46),
-                                                (legs[1][0], p5, 0.045, 0.09, 0.0, 0.46),
-                                                (p5, p6, 0.09, 0.21, 0.42, 0.74),
-                                                (p6, foc, 0.22, 0.004, 0.7, None))):
-        os_, ms_ = R18.cone(a, b, ra, rb, f"POCone{i}", k=2.4 if i < 3 else 2.6, seg=64)   # white studio: denser
-        R18.key_vis(os_, ms_, n, t0, t1, ramp=5)
-        cones18 += os_
-    for c_, n_, t0, t1, nm in ((p5, n5, 0.0, 0.46, "POLandM5"), (p6, n6, 0.42, 0.74, "POLandM6")):
-        cones18 += R18._land_timed(c_, n_, nm, max(1, round(1 + (n - 1) * t0)), 5,
-                                   f_off=round(1 + (n - 1) * t1) + 3)
+    if _R20[0] != "B7_06":
+        for i, (a, b, ra, rb, t0, t1) in enumerate(((top_in, legs[0][1], 0.04, 0.045, 0.0, 0.46),
+                                                    (legs[1][0], p5, 0.045, 0.09, 0.0, 0.46),
+                                                    (p5, p6, 0.09, 0.21, 0.42, 0.74),
+                                                    (p6, foc, 0.22, 0.004, 0.7, None))):
+            os_, ms_ = R18.cone(a, b, ra, rb, f"POCone{i}", k=2.4 if i < 3 else 2.6, seg=64)   # white studio: denser
+            R18.key_vis(os_, ms_, n, t0, t1, ramp=5)
+            cones18 += os_
+        for c_, n_, t0, t1, nm in ((p5, n5, 0.0, 0.46, "POLandM5"), (p6, n6, 0.42, 0.74, "POLandM6")):
+            cones18 += R18._land_timed(c_, n_, nm, max(1, round(1 + (n - 1) * t0)), 5,
+                                       f_off=round(1 + (n - 1) * t1) + 3)
+    else:
+        # R20 row 2 (R19: "M5→M6 的光画成了弯曲的 S 形半透明体…改成两段直的锥，拐点只在镜面上"): beam_r20 segments
+        # only - top opening -> M5 face (ONE straight cone, no kink at the roof port), M5 -> M6, M6 -> through the
+        # M5 hole -> wafer point; each end cap lies on its mirror plane. Every frame shows two straight cones that
+        # meet on a mirror face: (1)+(2) turn on M5, (2)+(3) turn on M6. Widths = R19 apertures.
+        roof = Vector((top_in.x, top_in.y, z_top + 0.08))        # the roof opening (in frame), lit tip below
+        cones18 += R18.tip(roof, (p5 - roof).normalized(), "POTopTipR20", 1, scale=1.2)
+        for i, (a, b, ra, rb, t0, t1, na_, nb_) in enumerate(((roof, p5, 0.04, 0.09, 0.0, 0.72, None, n5),
+                                                              (p5, p6, 0.09, 0.21, 0.42, None, n5, n6),
+                                                              (p6, foc, 0.22, 0.004, 0.7, None, n6, None))):
+            os_, ms_ = R18.segment(a, b, ra, rb, f"POConeR20_{i}", k=2.4 if i < 2 else 2.6, na=na_, nb=nb_, seg=64)
+            R18.key_vis(os_, ms_, n, t0, t1, ramp=5)
+            cones18 += os_
+        for c_, n_, t0, t1, nm in ((p5, n5, 0.0, 0.72, "POLandM5"), (p6, n6, 0.42, None, "POLandM6")):
+            cones18 += R18._land_timed(c_, n_, nm, max(1, round(1 + (n - 1) * t0)), 5,
+                                       f_off=None if t1 is None else round(1 + (n - 1) * t1) + 3)
     sheath = K.MB()
     sheath.bm.free()
     fm = K.MB()
@@ -1335,6 +1478,9 @@ def _po_barrels_r15(sc, M, n):
     K.area("InnerFill", (1.6, -2.6, 1.4), (0, 0.2, 1.6), 1.2, 260, (0.9, 0.94, 1.0))
     K.area("GrazeM5", (-1.7, -1.4, 2.0), c5, 0.8, 220, (1.0, 0.99, 0.97), size_y=1.6)    # one grazing streak per face
     K.area("GrazeM6", (1.7, -1.4, 2.4), c6, 0.8, 220, (1.0, 0.99, 0.97), size_y=1.6)
+    if _R20[0] == "B7_06":                    # R20 row 2 (k2A): cool rim on the white body against the grey backdrop
+        K.area("RimCoolR20L", (-2.4, 2.6, 3.8), (0, 0, 2.2), 1.4, 1600, (0.72, 0.83, 1.0), size_y=3.0)
+        K.area("RimCoolR20R", (2.6, 2.2, 3.4), (0, 0, 2.0), 1.4, 1300, (0.72, 0.83, 1.0), size_y=3.0)
     cam, tgt = K.camera("CamR2", lens=26)
     K.key_path(cam, tgt, [(1, (0.4, -4.3, 3.0), (0.1, 0, 2.15)), (round(n * 0.55), (0.55, -4.2, 2.7), (0.1, 0, 2.18)),
                           (n, (0.7, -4.05, 2.45), (0.1, 0, 2.2))])
