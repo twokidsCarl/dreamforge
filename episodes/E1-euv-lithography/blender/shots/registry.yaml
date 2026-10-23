@@ -129,6 +129,8 @@ D_06: {scene: d_scenes, args: {variant: monolith}, camera: CamD_06, start: 1, st
 #   mask incidence, B8_03 stage close-up set, A2_08 / A2_03 on the out-of-focus machine, A0_02 motion layer)
 # R4 (2026-10-23): same entries again; B8_03 rebuilt (6 deg in/out at the mask, 3 PO mirrors, 8:1 stages on rulers),
 #   C_03 narrow V + patterned mask, B7_06 thin beams, B1_15 / B1_18 / B2_08 polished collector, smooth tin sheet
+# R5 (2026-10-23): same entries; B8_03 rebuilt (_scan_r5: short illumination leg under the mask, numbered 8:1
+#   rulers), B7_06 / A0_10 non-crossing PO zig-zag, B1_15 / B2_08 / B6_12 / B1_08 / B4_10 / B4_07 / B8_17 fixes
 A0_10: {scene: r2_cutaway, args: {variant: title, shot: A0_10}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
 B5_01: {scene: r2_cutaway, args: {variant: illum, shot: B5_01}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
 C_03: {scene: r2_cutaway, args: {variant: tour, shot: C_03}, camera: CamR2, start: 1, style: photoreal, engine: cycles}

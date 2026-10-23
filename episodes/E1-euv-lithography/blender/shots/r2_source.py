@@ -117,8 +117,8 @@ def _mats():
     M["hot"] = K.emit_mat("DebrisHot", (1.0, 0.92, 0.78), 25.0)
     M["warm"] = K.emit_mat("DebrisWarm", (1.0, 0.45, 0.18), 6.0)
     M["cool"] = K.emit_mat("DebrisCool", (0.55, 0.08, 0.04), 2.0)
-    M["reticle"] = K.emit_mat("Reticle", K.CYAN, 9.0)
-    M["reticle_lock"] = K.emit_mat("ReticleLock", K.CYAN, 18.0)
+    M["reticle"] = K.emit_mat("Reticle", K.CYAN, 4.0)          # R5: thin HUD lines, not game-UI rings
+    M["reticle_lock"] = K.emit_mat("ReticleLock", K.CYAN, 7.0)
     return M
 
 
@@ -462,7 +462,9 @@ def _contrast(sc, M, cam, tgt, n):
     reduced so it no longer reads as fireworks."""
     _dark_world()
     M["coll"] = K.mat("CollectorMLPolished", (0.8, 0.78, 0.86), metal=1.0, rough=0.025, coat=0.6)
-    chamber(M, seed=2)
+    for ob in chamber(M, seed=2):              # R5: no stiffening rings / ribs / MLI between camera and dish
+        if ob.name.startswith(("ChamberRings", "MLI", "WallLines")):
+            ob.hide_render = True
     lights_chamber(0.8)
     pl, li = plasma(M, (0, 0, 0), 0.03)
     for ob in pl:
@@ -487,7 +489,7 @@ def _contrast(sc, M, cam, tgt, n):
     sc.collection.objects.link(foc)
     foc.location = (-0.6, 0.0, 0.0)
     cam.data.dof.focus_object = foc
-    K.key_path(cam, tgt, [(1, (0.55, -0.62, 0.18), (-0.55, 0.12, -0.02)), (n, (0.5, -0.58, 0.16), (-0.57, 0.14, -0.02))],
+    K.key_path(cam, tgt, [(1, (0.78, -0.42, 0.16), (-0.6, 0.06, -0.03)), (n, (0.72, -0.37, 0.14), (-0.62, 0.08, -0.03))],
                interp="LINEAR")
 
 
@@ -508,17 +510,19 @@ def _track(sc, M, cam, tgt, n):
         d = single(f"Drop{i}", M["tin"], lambda mb: mb.sphere((0, 0, 0), r, 32))
         key_loc(d, [(1, (0, 0, z0)), (n, (0, 0, z0 - v * (n - 1)))])
         ret = K.MB()
-        ret.ring((0, 0, 0), r * 3.2, r * 3.0, 0.001, rot=rot, seg=48)
+        ret.ring((0, 0, 0), r * 3.08, r * 3.0, 0.001, rot=rot, seg=64)
+        for sx, sz in ((1, 0), (-1, 0), (0, 1), (0, -1)):      # crosshair ticks
+            ret.box((sx * r * 2.3, 0, sz * r * 2.3), (r * 0.9 if sx else r * 0.05, 0.001, r * 0.9 if sz else r * 0.05))
         for k in range(4):                    # corner brackets
             a = math.radians(45 + 90 * k)
             cx, cz = math.cos(a) * r * 4.3, math.sin(a) * r * 4.3
-            ret.box((cx - math.copysign(r * 0.5, cx), 0, cz), (r * 1.1, 0.001, r * 0.18))
-            ret.box((cx, 0, cz - math.copysign(r * 0.5, cz)), (r * 0.18, 0.001, r * 1.1))
+            ret.box((cx - math.copysign(r * 0.5, cx), 0, cz), (r * 1.1, 0.001, r * 0.07))
+            ret.box((cx, 0, cz - math.copysign(r * 0.5, cz)), (r * 0.07, 0.001, r * 1.1))
         ro = ret.obj(f"Ret{i}", M["reticle"])
         ro.parent = d
         ro.location = (0, -0.03, 0)
         ro.visible_shadow = False
-        lk = single(f"Lock{i}", M["reticle_lock"], lambda mb: mb.ring((0, 0, 0), r * 3.6, r * 3.1, 0.001, rot=rot, seg=48))
+        lk = single(f"Lock{i}", M["reticle_lock"], lambda mb: mb.ring((0, 0, 0), r * 3.5, r * 3.38, 0.001, rot=rot, seg=64))
         lk.parent = d
         lk.location = (0, -0.031, 0)
         lk.visible_shadow = False
@@ -539,15 +543,19 @@ def _clean(sc, M, cam, tgt, n):
     glow reflected in it; the camera slides over the dish towards its rim."""
     _dark_world()
     # R4 (H6 fix): a bright polished multilayer dish (the R3 dark dish read as night sky with the deposits as stars)
-    M["coll"] = K.mat("CollectorMLPolished", (0.62, 0.6, 0.68), metal=1.0, rough=0.03, coat=0.6)
+    # R5: satin sheen (rough 0.16) so the lights read on the dish instead of a black mirror of the dark chamber
+    M["coll"] = K.mat("CollectorMLPolished", (0.7, 0.68, 0.78), metal=1.0, rough=0.16, coat=0.8)
     M["tin_dep"] = K.mat("TinDepositDull", (0.42, 0.43, 0.45), metal=1.0, rough=0.6, speck=0.4)
-    chamber(M, seed=5)
+    for ob in chamber(M, seed=5):                  # R5: no gold MLI patches in the dish's reflection
+        if ob.name.startswith("MLI"):
+            ob.hide_render = True
     lights_chamber(0.7)
     pl, li = plasma(M, (0, 0, 0), 0.025)
     for ob in pl[1:]:
         ob.visible_glossy = True                    # the mirror shows the violet glow
     key_energy(li, [(1, 35), (n, 35)])
     K.area("Graze", (-0.35, -0.75, -0.25), (-0.85, 0.1, 0.15), 0.5, 30, (0.85, 0.88, 1.0))
+    K.area("DishSoftbox", (0.75, -0.55, 0.95), (-0.85, 0.05, 0.05), 1.1, 70, (0.88, 0.9, 1.0), size_y=0.5)
     rnd = random.Random(8)
     dep, film = K.MB(), K.MB()
     for _ in range(380):
@@ -567,16 +575,16 @@ def _clean(sc, M, cam, tgt, n):
                    rnd.uniform(0.006, 0.014), 0.0015, seg=16)
     dob = dep.obj("TinDeposits", M["tin_dep"])
     hz = K.MB()                                     # faint hydrogen-plasma glow hugging the dish (F28)
-    hz.sphere((COLL_X + 0.25, 0.1, 0.1), 0.42, 32)
-    hob = hz.obj("H2Glow", vol_glow("H2GlowM", (0.62, 0.55, 1.0), 0.07))
+    hz.sphere((COLL_X + 0.25, 0.1, 0.1), 0.42, 32)    # R5: much fainter (R4 read as a flat blue disc)
+    hob = hz.obj("H2Glow", vol_glow("H2GlowM", (0.62, 0.55, 1.0), 0.025))
     camera_only(hob)
     K.anchors("B2_08", {"dep": Vector((coll_x(0.32), 0.05, 0.31)), "dish": Vector((coll_x(0.5), 0.35, -0.3))})
     dep2 = film.obj("TinFilm", M["tin_dep"])
     cam.data.lens = 35
     cam.data.dof.use_dof = True
-    cam.data.dof.aperture_fstop = 5.6
-    cam.data.dof.focus_object = tgt
-    K.key_path(cam, tgt, [(1, (-0.5, -0.45, 0.42), (-0.86, 0.08, 0.12)), (n, (-0.52, -0.32, 0.5), (-0.86, 0.16, 0.08))],
+    cam.data.dof.aperture_fstop = 11                # R5: the dish reads as a mirror: rim, bolts and highlight in
+    cam.data.dof.focus_object = tgt                 # frame, sharper, and a slow push towards the deposits
+    K.key_path(cam, tgt, [(1, (0.05, -0.72, 0.5), (-0.8, 0.04, 0.08)), (n, (-0.32, -0.5, 0.45), (-0.84, 0.1, 0.1))],
                interp="LINEAR")
 
 
