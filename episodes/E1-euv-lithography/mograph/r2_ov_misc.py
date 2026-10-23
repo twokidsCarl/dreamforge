@@ -249,8 +249,8 @@ def ov_B4_10(img, t, dur, W, H):
     L_.tag((pm[0] - 0.06, pm[1] + 0.2), ["月球", "距地球约 38 万 km"], a2, anchor="rt")
     # Golf ball (final third)
     a3 = fade(t, dur * 0.7)
-    L_.leader((0.30, 0.30), (0.48, 0.45), a3, prog=ease((u - 0.7) / 0.1))
-    L_.tag((0.30, 0.30), ["高尔夫球", "直径约 4 cm"], a3, anchor="rm", accent=ORANGE)
+    L_.leader((0.68, 0.24), (0.52, 0.45), a3, prog=ease((u - 0.7) / 0.1))      # R6: tag upper right
+    L_.tag((0.68, 0.2), ["高尔夫球", "直径约 4 cm"], a3, anchor="la", accent=ORANGE)
     return L_.compose(img).convert("RGB")
 
 
@@ -376,7 +376,7 @@ def ov_B8_17(img, t, dur, W, H):
         a = fade(t, dur * s0)
         if a <= 0:
             continue
-        x = 0.03 + k * 0.17                       # R3: tighter row so card 3 no longer covers the wafer stack
+        x = 0.46 + k * 0.17                       # R6: counters upper right (R5 review)
         L_.panel((x, 0.05, x + 0.16, 0.27), a)
         p = ease((u - s0) / max(0.05, s1 - s0))
         if k == 0:
@@ -390,9 +390,9 @@ def ov_B8_17(img, t, dur, W, H):
                 kind="mono" if s.replace("+", "").replace(",", "").replace(".", "").isdigit() else "sans", glow=0.4)
         L_.text((x + 0.015, 0.19), unit, 0.036, INK2, a)
     a0 = fade(t, 0.3)
-    L_.leader((0.11, 0.27), (0.26, 0.52), a0, color=VIOLET_L)
+    L_.leader((0.52, 0.27), (0.3, 0.52), a0, color=VIOLET_L)
     a1 = fade(t, dur * 0.3)
-    L_.leader((0.28, 0.27), (0.62, 0.38), a1)
+    L_.leader((0.69, 0.27), (0.64, 0.4), a1)
     return L_.compose(img).convert("RGB")
 
 
@@ -411,8 +411,14 @@ def ov_A2_08(img, t, dur, W, H):
     a3 = fade(t, dur * 0.72)
     l = _anchor("A2_08", t, "span_l", (0.12, 0.66))
     r = _anchor("A2_08", t, "span_r", (0.88, 0.66))
-    if a3 > 0:
-        L_.line(l, r, INK2, a3, 2)
+    if a3 > 0:                                       # R6: the full-width rule crossed the 13.5 nm tag -> a bracket
+        p0 = _anchor("A2_08", t, "p0", (l[0], 0.6))   # under ONE 193 nm period: 14 violet crests fit inside it
+        p1 = _anchor("A2_08", t, "p1", (0.5, 0.6))
+        yb = max(p0[1], p1[1]) + 0.02
+        L_.line((p0[0], yb), (p1[0], yb), CYAN, a3, 2)
+        L_.line((p0[0], yb - 0.02), (p0[0], yb), CYAN, a3, 2)
+        L_.line((p1[0], yb - 0.02), (p1[0], yb), CYAN, a3, 2)
+        L_.tag((p0[0], yb + 0.025), ["1 个 193 nm 波长 = 14 个 13.5 nm"], a3, size=0.038, accent=CYAN, anchor="lt")
         L_.tag((0.66, 0.06), ["同样长度里", "13.5 nm 短约 14 倍"], a3, size=0.05, accent=VIOLET)   # R4: upper right
     return L_.compose(img).convert("RGB")
 
@@ -422,7 +428,7 @@ def ov_A2_03(img, t, dur, W, H):
     NA at a projection mirror's light cone."""
     L_ = L(W, H)
     u = t / dur
-    L_.panel((0.14, 0.27, 0.86, 0.55), fade(t, 0.0), alpha=0.38, radius=18)     # local backing for the formula only
+    L_.panel((0.14, 0.27, 0.86, 0.55), fade(t, 0.0), alpha=0.55, radius=18)   # R6: busier, sharper backdrop     # local backing for the formula only
     terms = [("CD", INK, "能画多细", 0.0), ("=", INK2, None, 0.06), ("k₁", INK2, "工艺因子", 0.12),
              ("·", INK2, None, 0.16), ("λ", VIOLET_L, "光的波长", 0.22), ("/", INK2, None, 0.3),
              ("NA", CYAN, "数值孔径", 0.36)]

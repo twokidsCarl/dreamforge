@@ -357,7 +357,7 @@ def build(variant="cold", shot=None):
     sc["vignette"] = 0.35
     sc["film_grain"] = 0.1
     cam, tgt = K.camera("CamR2", lens=50)
-    fn = {"cold": _cold, "prepulse": _prepulse, "contrast": _contrast, "track": _track, "clean": _clean,
+    fn = {"cold": _cold, "prepulse": _prepulse, "contrast": _contrast, "track": _track, "clean": _clean_r6,
           "spectrum": _spectrum, "amps": _amps}[variant]
     fn(sc, M, cam, tgt, n)
     sc.camera = cam
@@ -588,6 +588,115 @@ def _clean(sc, M, cam, tgt, n):
                interp="LINEAR")
 
 
+def _clean_r6(sc, M, cam, tgt, n):
+    """B2_08 R6. R5 review: the camera sat so close to the dish that the hole collar read as an unknown "small
+    ring" and the frame was a static star field. Now the whole collector is the macro anchor: a 3/4 view of the
+    polished dish (rim + bolt circle + central hole + cooling back) with the plasma site in front, then a slow
+    push onto one deposit patch (the magnifier's anchor). Tin -> SnH4 leaves the dish along visible streamlines
+    towards a pump port in the vessel wall, so the macro frame moves with the chemistry."""
+    from mathutils import Matrix
+    _dark_world()
+    M["coll"] = K.mat("CollectorMLPolished", (0.74, 0.72, 0.82), metal=1.0, rough=0.09, coat=0.8)
+    M["tin_dep"] = K.mat("TinDepositDull", (0.16, 0.16, 0.17), metal=0.5, rough=0.8, speck=0.5)
+    for ob in chamber(M, seed=5):
+        if ob.name.startswith("MLI"):
+            ob.hide_render = True
+    lights_chamber(0.45)
+    pl, li = plasma(M, (0, 0, 0), 0.022)
+    for ob in pl[1:]:
+        ob.visible_glossy = True
+    key_energy(li, [(1, 30), (n, 30)])
+    # soft, camera-invisible panels for the dish to reflect (a mirror of a dark room reads as night sky)
+    for nm, loc, tg, sz, e in (("DishSoftA", (0.6, -0.9, 0.9), (-0.8, 0, 0), 1.0, 14),
+                                ("DishSoftB", (0.5, 0.9, -0.7), (-0.8, 0, 0), 0.8, 6),
+                                ("Graze", (-0.3, -1.0, -0.2), (-0.85, 0.1, 0.15), 0.5, 10)):
+        K.area(nm, loc, tg, sz, e, (0.88, 0.9, 1.0))
+    # pump port in the vessel wall (upper back): big flange, bolt circle, grille, pipe stub out of the wall
+    a_p, z_p = math.radians(124), 0.5
+    nrm_p = Vector((-math.cos(a_p), -math.sin(a_p), 0))
+    port = Vector((math.cos(a_p), math.sin(a_p), 0)) * (CHAMBER_R - 0.02) + Vector((0, 0, z_p))
+    q = Vector((0, 0, 1)).rotation_difference(nrm_p).to_euler()
+    pf, pg, pb = K.MB(), K.MB(), K.MB()
+    pf.ring(port + nrm_p * 0.03, 0.26, 0.17, 0.06, rot=q, seg=64)
+    pb.bolts(port + nrm_p * 0.065, 0.22, 16, 0.01, 0.016, rot=q)
+    R = q.to_matrix()
+    for k in range(-4, 5):
+        pg.box(port + nrm_p * 0.02 + R @ Vector((k * 0.035, 0, 0)), (0.008, 0.32, 0.012), rot=q)
+    pf.obj("PumpFlange", M["alu"], bevel=0.003)
+    pg.obj("PumpGrille", M["anod"])
+    pb.obj("PumpBolts", M["steel"])
+    bore = K.MB()
+    bore.cyl(port - nrm_p * 0.01, 0.17, 0.01, rot=q, seg=48)
+    bore.obj("PumpBore", M["hole"])
+    # tin deposits: fewer, flatter, dull, concentrated in a band the camera ends on
+    rnd = random.Random(8)
+    dep = K.MB()
+    for _ in range(260):
+        rr = math.sqrt(rnd.uniform(0.14 ** 2, 0.64 ** 2))
+        a = rnd.uniform(0, 2 * math.pi)
+        if rnd.random() < 0.45:
+            a = rnd.gauss(math.radians(80), 0.35)
+            rr = rnd.uniform(0.22, 0.45)
+        y, z = rr * math.cos(a), rr * math.sin(a)
+        s = rnd.uniform(0.002, 0.0045)
+        nrm = Vector((1, -y / (2 * COLL_F), -z / (2 * COLL_F))).normalized()
+        p = Vector((coll_x(rr), y, z)) + nrm * 0.0006
+        dep.cyl_m(Matrix.Translation(p) @ Vector((0, 0, 1)).rotation_difference(nrm).to_matrix().to_4x4(),
+                  s, s * 0.35, seg=12)
+    dep.obj("TinDeposits", M["tin_dep"])
+    # SnH4 streamlines: lift off the dish along its normal, arc towards the pump; faint lines + moving flecks
+    trail_m = K.emit_mat("SnH4Trail", (0.66, 0.7, 0.86), 1.8)
+    fleck_m = K.emit_mat("SnH4Fleck", (0.85, 0.88, 0.95), 4.0)
+    tr = K.MB()
+    paths = []
+    for i in range(9):
+        rr = 0.22 + 0.03 * i
+        a = math.radians(55 + 7 * i)
+        y, z = rr * math.cos(a), rr * math.sin(a)
+        nrm = Vector((1, -y / (2 * COLL_F), -z / (2 * COLL_F))).normalized()
+        p0 = Vector((coll_x(rr), y, z))
+        p1 = p0 + nrm * 0.18
+        p3 = port + nrm_p * 0.06 + Vector((0, 0, (i - 4) * 0.02))
+        p2 = p1.lerp(p3, 0.5) + Vector((0.12, 0, 0.18))
+        pts = []
+        for k in range(17):
+            u = k / 16
+            pts.append((1 - u) ** 3 * p0 + 3 * (1 - u) ** 2 * u * p1 + 3 * (1 - u) * u * u * p2 + u ** 3 * p3)
+        paths.append(pts)
+        tr.path(pts, 0.0022, seg=6)
+    tob = tr.obj("SnH4Lines", trail_m)
+    camera_only(tob)
+    for i, pts in enumerate(paths):
+        for j in range(2):
+            fl = K.MB()
+            fl.sphere((0, 0, 0), 0.008, 10)
+            ob = fl.obj(f"SnH4_{i}_{j}", fleck_m)
+            camera_only(ob)
+            start = 1 + (i * 23 + j * 110) % max(1, n - 60)
+            dur = 85
+            keys = []
+            for k in range(0, 17, 2):
+                f = start + dur * k / 16
+                if f <= n + 40:
+                    keys.append((round(f), tuple(pts[k])))
+            key_loc(ob, keys)
+            key_scale(ob, [(1, 0.0), (start - 1, 0.0), (start, 1.0), (start + dur - 2, 1.0),
+                           (start + dur, 0.0)], interp="CONSTANT")
+    hz = K.MB()
+    hz.sphere((COLL_X + 0.3, 0.0, 0.1), 0.5, 32)
+    hob = hz.obj("H2Glow", vol_glow("H2GlowM", (0.62, 0.55, 1.0), 0.015))
+    camera_only(hob)
+    dep_pt = Vector((coll_x(0.33), 0.33 * math.cos(math.radians(80)), 0.33 * math.sin(math.radians(80))))
+    K.anchors("B2_08", {"dep": dep_pt, "dish": Vector((coll_x(0.6), -0.45, -0.38)), "pump": port + nrm_p * 0.06,
+                        "rim": Vector((coll_x(COLL_R), -COLL_R * 0.7, -COLL_R * 0.7))})
+    cam.data.lens = 20
+    cam.data.dof.use_dof = True
+    cam.data.dof.aperture_fstop = 5.6
+    cam.data.dof.focus_object = tgt
+    K.key_path(cam, tgt, [(1, (0.55, -0.98, 0.28), (-0.72, 0.05, 0.08)),
+                          (n, (0.05, -0.66, 0.36), (-0.8, 0.07, 0.24))], interp="BEZIER")
+
+
 def _spectrum(sc, M, cam, tgt, n):
     """B1_18 (194 frames): R4 (H14 fix): the real source chamber behind the spectrum HUD: polished collector dish
     and the plasma on the right half, softly out of focus (f/2.8) but recognisable; the HUD sits on the left."""
@@ -598,7 +707,12 @@ def _spectrum(sc, M, cam, tgt, n):
     pl, li = plasma(M, (0, 0, 0), 0.03)
     for ob in pl:
         ob.visible_glossy = True
-    key_energy(li, [(1, 40), (n, 45)])
+    # R6 (D): the plasma pulses (50 kHz shown as a slow shimmer) instead of a constant glow
+    rk = random.Random(18)
+    key_energy(li, [(f, 32 + 22 * rk.random()) for f in range(1, n + 1, 4)])
+    for ob in pl:
+        if ob.type == "MESH":
+            key_scale(ob, [(f, 0.85 + 0.3 * rk.random()) for f in range(1, n + 1, 6)])
     K.area("CollSoftbox", (0.2, -1.0, 0.75), (-0.75, 0.0, 0.0), 0.7, 30, (0.85, 0.9, 1.0))
     cam.data.lens = 26
     cam.data.dof.use_dof = True
@@ -607,7 +721,8 @@ def _spectrum(sc, M, cam, tgt, n):
     sc.collection.objects.link(foc)
     foc.location = (0.0, 0.0, 0.0)
     cam.data.dof.focus_object = foc
-    K.key_path(cam, tgt, [(1, (0.62, -0.5, 0.16), (-0.49, -0.05, -0.0)), (n, (0.58, -0.47, 0.15), (-0.5, -0.03, -0.0))],
+    # R6 (D): a real push towards the plasma with a slight arc (R5: three near-identical frames)
+    K.key_path(cam, tgt, [(1, (0.7, -0.56, 0.2), (-0.49, -0.08, 0.0)), (n, (0.42, -0.4, 0.1), (-0.5, 0.02, -0.02))],
                interp="LINEAR")
 
 

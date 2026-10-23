@@ -90,7 +90,7 @@ def build(variant="freighter", shot=None):
     # ortho scale: frame width; plates are 3:2, the frame 16:9 -> width-limited crop with room to move
     if variant == "freighter":
         # R3 (H2 fix): a real push + pan toward the open nose (25 % zoom), plus moving foreground life below
-        keys = [(1, -1.2, 0.2, 14.9), (n, 1.6, 0.6, 11.6)]
+        keys = [(1, -1.7, 0.1, 15.4), (n, 2.0, 0.7, 10.6)]          # R6: bigger push + pan (R5: near-static)
         lit = None
         _freighter_life(n, H, aspect)
     elif variant == "crates":

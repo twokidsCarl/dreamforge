@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt  # noqa: E402
 P1 = Path(__file__).resolve().parents[1] / "p1"
 WORK = Path("/workspace/e1work/p1")
 # (axis label, json filename) — short labels like E2
+# Carl 2026-10-23: drop SCALE v1 point — timeline only SCALE_v2 for fair compare
 SERIES = [
-    ("R1\n(v1)", "scores_round1.json"),
-    ("R1-recal\n(v2)", "scores_round1_recalibrated.json"),
+    ("R1", "scores_round1_recalibrated.json"),  # first v2 round (recal)
 ]
 SERIES += [(f"R{n}", f"scores_round{n}.json") for n in range(2, 10)]
 
@@ -62,10 +62,10 @@ def main():
         )
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
-    ax.set_ylabel("SCALE 分数")
+    ax.set_ylabel("SCALE_v2 分数")
     lo = min(60, max(40, min(mins) - 8))
     ax.set_ylim(lo, 100)
-    ax.set_title(f"E1 P1 风格帧 · 分数时间轴（含 {last}）", fontsize=13, pad=12)
+    ax.set_title(f"E1 P1 风格帧 · SCALE_v2 分数时间轴（含 {last}）", fontsize=13, pad=12)
     ax.legend(loc="lower right", framealpha=0.92)
     ax.grid(True, alpha=0.35)
     ax.set_axisbelow(True)

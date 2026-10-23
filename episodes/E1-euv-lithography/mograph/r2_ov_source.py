@@ -235,7 +235,8 @@ def ov_A0_01(img, t, dur, W, H):
     return L.compose(img)
 
 
-def ov_B2_08(img, t, dur, W, H):
+def ov_B2_08(img, t, dur, W, H, anchor_pt=None, center=None, panel_xy=None):
+    """R6: anchor_pt / center / panel_xy (fractions) let the R6 wrapper hang the magnifier on the dish."""
     L = Layer(W, H)
     a = ease((t - 0.4) / 0.6)
     u = t / dur
@@ -287,9 +288,12 @@ def ov_B2_08(img, t, dur, W, H):
                   fill=(*CYAN, 230))
         draw_text(d, (cx + R * 0.52, cy - R * 0.58), "泵", font(round(32 * k)), fill=(*CYAN, 255), anchor="lm")
 
-    magnifier(L, (0.56 * W, 0.47 * H), (0.22 * W, 0.4 * H), 0.22 * H, inner, a, title="收集镜表面（示意）")
+    ap = (anchor_pt[0] * W, anchor_pt[1] * H) if anchor_pt else (0.56 * W, 0.47 * H)
+    cc = (center[0] * W, center[1] * H) if center else (0.22 * W, 0.4 * H)
+    magnifier(L, ap, cc, 0.22 * H, inner, a, title="收集镜表面（示意）")
     lines = [("H₂ → 2 H·", INK if ph1 > 0 else INK2), ("Sn + 4 H· → SnH₄↑", INK if ph2 > 0 else INK2)]
-    panel_text(L, (0.44 * W, 0.62 * H), lines, 0.04 * H, a)
+    px = panel_xy or (0.44, 0.62)
+    panel_text(L, (px[0] * W, px[1] * H), lines, 0.04 * H, a)
     return L.compose(img)
 
 
@@ -308,6 +312,10 @@ def ov_B1_18(img, t, dur, W, H):
 
     # mirror window band +-1 %
     L.rect((X(13.5 * 0.99), y0, X(13.5 * 1.01), y1), (*CYAN, 60), radius=0, a=a)
+    # R6: each charge state has its own colour; the spectrum is built up one ion layer at a time (stacked bars),
+    # so "thousands of lines from Sn8+..Sn14+ pile up at 13.5 nm" is visible as a process (R5 review)
+    ICOL = [(110, 150, 255), (140, 130, 255), (170, 115, 255), (200, 105, 245), (225, 100, 225), (240, 110, 190),
+            (250, 135, 160)]
     rnd = random.Random(7)
     lines = []
     for i in range(900):
@@ -315,18 +323,23 @@ def ov_B1_18(img, t, dur, W, H):
             nm = rnd.gauss(13.5, 0.28)
         else:
             nm = rnd.uniform(10.3, 17.7)
-        lines.append((nm, rnd.random()))
-    n = int(len(lines) * grow)
+        lines.append((nm, i % 7, i // 7))
+    per = 900 / 7
     bins = {}
-    for nm, h in lines[:n]:
-        if lo < nm < hi:
+    for nm, k, j in lines:
+        if lo < nm < hi and j / per < clamp01(grow * 7 - k):
             b = round((nm - lo) * 40)
-            bins[b] = bins.get(b, 0) + 1
-    top = max(bins.values()) if bins else 1
-    for b, c in bins.items():
+            bins.setdefault(b, [0] * 7)[k] += 1
+    top = 40
+    for b, cs in bins.items():
         nm = lo + b / 40
-        hgt = (y1 - y0 - 10) * c / max(top, 60)
-        L.line((X(nm), y1), (X(nm), y1 - hgt), VIOLET_L if abs(nm - 13.5) < 0.14 else VIOLET, 1.6, a)
+        yb = y1
+        for k, c in enumerate(cs):
+            if not c:
+                continue
+            hgt = (y1 - y0 - 10) * c / max(top, 60)
+            L.line((X(nm), yb), (X(nm), yb - hgt), ICOL[k], 1.8, a)
+            yb -= hgt
     L.line((x0, y1), (x1, y1), INK2, 1.2, a)
     for nm in (10, 12, 13.5, 15, 18):
         L.line((X(nm), y1), (X(nm), y1 + 5), INK2, 1.2, a)
@@ -336,8 +349,10 @@ def ov_B1_18(img, t, dur, W, H):
     L.text((X(13.5 * 1.01) + 6, y0 + 4 + 0.045 * H), "±1 %", 0.034 * H, CYAN, a)
     ions = ["Sn⁸⁺", "Sn⁹⁺", "Sn¹⁰⁺", "Sn¹¹⁺", "Sn¹²⁺", "Sn¹³⁺", "Sn¹⁴⁺"]
     for i, s in enumerate(ions):
-        ai = a * ease((t - 0.5 - i * 0.25) / 0.4)
-        L.text((x1 + 0.04 * W, y0 - 0.02 * H + i * 0.064 * H), s, 0.038 * H, VIOLET_L, ai)
+        ai = a * ease(grow * 7 - i + 0.6)
+        yy = y0 - 0.02 * H + i * 0.064 * H
+        L.rect((x1 + 0.03 * W, yy + 0.012 * H, x1 + 0.03 * W + 0.012 * H, yy + 0.034 * H), (*ICOL[i], 255), radius=2, a=ai)
+        L.text((x1 + 0.04 * W, yy), s, 0.038 * H, ICOL[i], ai)
     return L.compose(img)
 
 
