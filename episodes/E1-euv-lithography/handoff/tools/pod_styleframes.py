@@ -76,6 +76,12 @@ def main():
     ap.add_argument("--procs", type=int, default=3)
     a = ap.parse_args()
     jobs = [l.split() for l in open(a.shots_file) if l.strip() and not l.startswith("#")]
+    # R17: a self-referencing symlink under renders/ (renders/plates/plates) made the `tar -h` sync recurse forever
+    # (19.6 min of a rented pod). Fail before renting a GPU.
+    lp = subprocess.run(["find", "-L", os.path.join(EP, "renders"), "-maxdepth", "6", "-type", "d"],
+                        capture_output=True, text=True)
+    if "loop" in lp.stderr.lower():
+        sys.exit("SYMLINK_LOOP under renders/: " + lp.stderr.strip()[:300])
     st, lst = req("GET", "/pods")
     log("existing pods", [(p.get("id"), p.get("name")) for p in lst or []])
     pub = open(SSHKEY + ".pub").read().strip()
