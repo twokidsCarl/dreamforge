@@ -15,5 +15,6 @@
 | 2026-10-23 | P1 第 7 轮首次尝试（上一会话中断） | RunPod A40 Secure `wnft7drbkh6yiw`（CA-MTL-1），$0.59/h | 13:39:23 起；会话中断，RunPod 账单计 122 s（2.04 min） | 0.02 | 帧来源无法确认，未采用，全部重渲 | 是（13:58、14:10 curl GET /pods = []） |
 | 2026-10-23 | P1 第 7 轮风格帧（24 镜 × 3 帧，960×540 Cycles 32 spp） | RunPod A40 Secure `oi60q939uq79ty`（CA-MTL-1 + 卷 eigenlens-cache），$0.59/h | 13:59:02–14:03:06，4.07 min（分块同步一次成功） | 0.04 | 一次 4 个 Blender 进程；72 帧（B1_15 36 帧）全部拉回，24 镜 rc=0；本地 CPU 冒烟 6 镜 $0 | 是（DELETE 204 + TERMINATED_CONFIRMED，14:10 curl GET /pods = []） |
 | 2026-10-23 | P1 第 8 轮风格帧（24 镜 × 3 帧，960×540 Cycles 32 spp） | RunPod A40 Secure `9vb893nzeotrii`（CA-MTL-1 + 卷 eigenlens-cache），$0.59/h | 15:08:04–15:18:07，10.04 min（分块同步一次成功；新零件库让 C_03 等镜渲染变慢） | 0.10 | 一次 4 个 Blender 进程；72 帧（B1_15 36 帧）全部拉回，24 镜 rc=0；本地 CPU 冒烟 20 镜 $0 | 是（DELETE 204 + TERMINATED_CONFIRMED 15:18:07，事后 curl GET /pods = []） |
+| 2026-10-23 | P1 第 9 轮风格帧（24 镜 × 3 帧，960×540 Cycles 32 spp） | RunPod A40 Secure `6itxc34wc9pl4h`（CA-MTL-1 + 卷 eigenlens-cache），$0.59/h | 17:14:31–17:18:01，3.49 min（分块同步一次成功；场景构建改为逐顶点建网格，C_03 构建从约 4 min 降到 3 s） | 0.03 | 一次 4 个 Blender 进程；72 帧（B1_15 36 帧）全部拉回，24 镜 rc=0；本地 CPU 冒烟 24 镜 $0 | 是（DELETE 204 + TERMINATED_CONFIRMED 17:18:01，事后 curl GET /pods = []） |
 
-**累计：$1.03 / $60；今日（10-23）：$1.03 / $25**。GPU $0.69，image2 $0.34，Wan $0。本轮（P1 第 8 轮）：GPU $0.10（上限 $2）、image2 $0（未使用）。
+**累计：$1.06 / $60；今日（10-23）：$1.06 / $25**。GPU $0.72，image2 $0.34，Wan $0。本轮（P1 第 9 轮）：GPU $0.03（上限 $2）、image2 $0（未使用）。
