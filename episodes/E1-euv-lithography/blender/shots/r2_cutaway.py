@@ -53,6 +53,12 @@ def build(variant="illum", shot=None):
     R17.install()
     R17.CORE[0] = {"title": 0.03, "illum": 0.02, "tour": 0.013, "collect": 0.02, "scan": 0.012, "po": 0.013}.get(variant, 0.02)
     R17.HOT[0] = {"title": 2.0, "illum": 1.4, "tour": 1.3, "scan": 1.0, "po": 1.0}.get(variant, 1.0)
+    # R18 row 2 (R17: all three beam routes read as lines / tubes - "thin lines / laser lines / equal-width
+    # tubes"): asset change - beam_r18 solid volumetric light cones whose end radii follow the two mirrors'
+    # apertures (soft shell, R17 landing highlights kept, one current segment per screen). No width knob of
+    # beam_r16 / beam_r17 is touched; the R17 thin-core legs are no longer built.
+    import beam_r18 as R18
+    R18.install()
     sc = _build(variant, shot)
     BR.flush()                                # R12: landing spots collected by the soft beam columns (R17 highlights)
     return sc
@@ -78,6 +84,7 @@ def _build(variant="illum", shot=None):
     M["substrate"] = MR.ground_edge("EUVMirrorBlankR15", tone=0.42)
     M["brushed"] = K.mat("BrushedAluR11", (0.7, 0.71, 0.74), metal=1.0, rough=0.22, brushed=0.35)
     M["facet"] = MR.ml_mirror("FacetML_R15", rough=0.1, tone=0.26, coat=0.15)   # field facets: dark polished, lit only by the beam
+    M["facet18"] = MR.ml_mirror("FacetML_R18", rough=0.05, tone=0.78, coat=0.4)  # R18 B5_01: mirror strips
     M["spot"] = K.emit_mat("BeamSpotR15", K.VIOLET, 2.2, halo=0.9)
     if variant == "title":                   # k1C: near-black backdrop, product-lit machine, white serif title above
         C.set_world(top=(0.004, 0.005, 0.008), horizon=(0.03, 0.033, 0.04), bottom=(0.05, 0.05, 0.055), strength=1.0)
@@ -144,12 +151,33 @@ def _build(variant="illum", shot=None):
         BR.SPOTS[:] = []
         import beam_r17 as R17
         R17.LAND[:] = []
-        R17.haze(["R2_cone"], 0.6)           # R17 row 4: the collector face reads through its cone (haze lowered)
+        import beam_r18 as R18               # R18: machine()'s full-path cones (beam_r18.columns) are off here too
+        for o_ in R18.take():
+            bpy.data.objects.remove(o_)
     if variant == "illum":                   # R14 (R13: "two beams cross; a white dot where they cross"): the path is
         pts, rad = B.beam_path(0, 6)         # lit leg by leg - only the current leg bright, earlier legs a ghost
         # R16 row 3 (R15: "light stops at the facet mirror, no next station"): the outgoing leg field facet ->
         # pupil facet is lit from 20 %, the onward legs pupil -> condenser -> fold -> mask follow by 45 %
-        BR.timed_path(pts, rad, [(0.0, 0.62), (0.2, None), (0.33, None), (0.4, None), (0.45, None)], n, "IllumLeg")
+        # R18 row 2 (R17: "two equal-width tubes from the same point, almost parallel - which is in, which out?"):
+        # volumetric cones - IF -> field facets arrives NARROW (0.025 -> 0.075), facets -> pupil facet leaves WIDE
+        # (0.21 -> 0.27, onto the visible round pupil mirror); the onward legs follow fainter; the incoming leg fades
+        # out once the outgoing one carries the screen
+        import beam_r18 as R18
+        lg = [(pts[0], pts[1], 0.025, 0.075, 0.0, 0.62, 1.3), (pts[1], pts[2], 0.21, 0.27, 0.2, None, 1.0)]
+        lg += [(pts[i], pts[i + 1], rad[i] * 0.8, rad[i + 1] * 0.8, t, None, 0.6)
+               for i, t in ((2, 0.33), (3, 0.4), (4, 0.45))]
+        for i, (a_, b_, ra_, rb_, t0, t1, kk) in enumerate(lg):
+            os_, ms_ = R18.cone(a_, b_, ra_, rb_, f"IllumCone{i}", k=kk)
+            f_on = R18.key_vis(os_, ms_, n, t0, t1)
+            if i + 1 < len(pts) - 1:
+                R18._land_timed(b_, K.mirror_normal(pts[i], pts[i + 1], pts[i + 2]), f"IllumLand{i}", f_on)
+        # R18 (R17: "facets are black curved strips, read as vent louvres"): bright polished facet strips + one
+        # soft card whose reflection runs along them
+        for o in bpy.data.objects:
+            for sl in getattr(o, "material_slots", []):
+                if sl.material is not None and sl.material.name.startswith("FacetML_R15"):
+                    sl.material = M["facet18"]
+        K.area("FacetCardR18", (-2.4, -2.2, 4.6), B.FFM, 2.0, 140, (0.95, 0.96, 1.0), size_y=0.5)
         mb = K.MB()
         K.cone_beam(mb, B.IF, Vector((B.COLL.x + 0.28, 0, B.COLL.z)), 0.62)
         # R17 row 4: the source cone keeps its R16 soft look at ~40 % (M["beam_wide"] is now the thin-core material)
@@ -174,6 +202,13 @@ def _build(variant="illum", shot=None):
                       n, "TourLeg", no_spot=(4,))            # the mask's lit slit is its own landing mark
         BR.SPOTS[:] = []
         _cut_faces("R2_housing", (0.42, 0.78), (-1.3, 1.3), (2.0, 4.32))   # R14: the PO wall plate under the mask
+        # R18 (R17: "frame 3: a dark post hides the right half of the mask"): the 'post' is the edge of the PO
+        # module's top plate (z 4.03-4.08, x 0.6..3) seen from below - that plate is cut so the mask shows whole
+        _cut_faces("R2_housing", (0.5, 3.2), (-1.4, 1.4), (3.99, 4.11))
+        hw = bpy.data.objects.get("R8Kit2_hose_w")   # R18 (R17: "a glowing bent pipe bottom right reads as a
+        if hw is not None:                            # second light path"): the white hose under the mask goes dark
+            hw.data.materials.clear()
+            hw.data.materials.append(M["cable_g"])
 
         mb = K.MB()
         K.cone_beam(mb, B.IF, Vector((B.COLL.x + 0.28, 0, B.COLL.z)), 0.62)
@@ -185,10 +220,8 @@ def _build(variant="illum", shot=None):
         pg = bpy.data.objects.get("PlasmaGlow")   # (with the haze lowered its glossy reflection read as a white dot)
         if pg is not None:
             pg.visible_glossy = False
-        pts, rad = B.beam_path(mi)
-        mb = K.MB()
-        K.beam_columns(mb, pts, rad, spots=False)
-        mb.obj("TourBeamPO", BR.soft_mat("EUVSoftDim", K.VIOLET, strength=0.3, alpha=0.14))
+        # R18 row 2 (R17: "bottom right an extra light column + a glowing bent pipe, reads as a second path"): the
+        # dim PO-onward beam is deleted - one path, the V at the mask is its last lit segment
         K.bounce_lights([B.FFM, B.PFM, B.G1, B.G2, B.MASK + Vector((0, -0.1, -0.15))], energy=20.0)
     sc["hdri"] = "hangar_interior"
     sc["hdri_strength"] = 0.25 if not studio else 0.5
@@ -266,7 +299,16 @@ def _build(variant="illum", shot=None):
             rim = Vector((B.COLL.x + Rr * Rr / (4 * ff), Rr * math.cos(ang), B.COLL.z + Rr * math.sin(ang)))
             m_, l_ = K._orient(rim, B.IF)
             rays.cyl_m(m_, 0.0022, l_, seg=6, r2=0.001)
-        rays.obj("CollectRays", K.emit_mat("CollectRayR14", K.VIOLET, 1.0, halo=0.85))
+        rays.bm.free()                       # R18 row 2 (R17: "6-8 thin lines = a wire cage"): helper rays gone
+        # R18 row 2: the reflected light is ONE solid translucent volumetric cone from the whole coated face
+        # (rim plane, aperture 0.58) converging onto the IF (beam_r18; soft shell, interior glow). The R16/R17
+        # surface cone R2_cone is removed so the two do not stack.
+        ro = bpy.data.objects.get("R2_cone")
+        if ro is not None:
+            bpy.data.objects.remove(ro)
+        import beam_r18 as R18
+        R18.cone(Vector((B.COLL.x + Rr * Rr / (4 * ff) + 0.01, 0, B.COLL.z)), B.IF, 0.58, 0.012, "CollectConeR18",
+                 k=0.55, seg=64)
         K.clean_cycles(sc, indirect=1.0)                 # R13: fireflies on the cone mouth / posts
         try:
             sc.cycles.blur_glossy = 2.0
@@ -498,14 +540,21 @@ def _sequential_beam(M, n):
             K.cone_beam(mb, B.IF, Vector((B.COLL.x + 0.28, 0, B.COLL.z)), 0.62)
             mat = M["cone"]
         else:
+            # R18 row 2 (R17: "light turns in mid-air on a thin post"; thin lines): volumetric cones from the IF
+            # onward, each end as wide as the mirror it leaves / lands on (IF focus 0.03 -> field facets 0.24 ->
+            # fold G2 0.13 -> mask 0.07 -> PO mirrors -> wafer point); every fold sits on a mounted mirror with
+            # its R17 landing highlight
+            import beam_r18 as R18
             pts = [Vector(p) for p in rng]
+            ap = ([0.03, 0.24, 0.13, 0.07] if i == 1 else [0.07] + [r_ * 0.6 for r_ in B.PO_R] + [0.02])
             for j, (a, b) in enumerate(zip(pts, pts[1:])):
-                R17.core_leg(mb, a, b)
+                os_, ms_ = R18.cone(a, b, ap[j], ap[j + 1], f"TitleCone{i}_{j}", k=1.2)
+                R18.key_vis(os_, ms_, n, start, None, ramp=10)
             ext = pts + ([Vector(full[6])] if i == 1 else [])      # segment 1 ends on the mask (bounce -> PO1)
             for j in range(1, len(ext) - 1):
                 lands += R17._land_objs(ext[j], K.mirror_normal(ext[j - 1], ext[j], ext[j + 1]), 1.0,
                                         f"TitleLand{i}_{j}")
-            mat = R17.core_mat(f"EUVCore{i}", 7.0, 0.95)
+            mat = R17.core_mat(f"EUVCore{i}", 7.0, 0.95)        # (mb stays empty: the cones are their own objects)
         ob = mb.obj(f"BeamSeg{i}", mat)
         if start == 1:
             R17.haze([ob.name], 0.5)                   # R17: lower source-cone haze, the collector reads
@@ -1129,12 +1178,27 @@ def _po_barrels_r15(sc, M, n):
     # bright landing highlights on M5 / M6 (beam_r17.flush)
     import beam_r16 as R16
     import beam_r17 as R17
-    for i, (a, b, ra, rb) in enumerate(legs):
-        R17.core_leg(mb["beam"], a, b, air0=i == 0)
+    # R18 row 2 (R17: "3-4 thin lines cross inside the barrel = a wire birdcage; landing = floating white dot";
+    # ask: only the current step, a converging cone that visibly passes M5's hole and closes to a point):
+    # beam_r18 volumetric cones, ONE step on screen at a time (timed with the overlay's (1)(2)(3) at 0 / 42 / 70 %):
+    #   (1) mask -> through the M6 hole -> M5 face, widening 0.04 -> 0.09
+    #   (2) M5 -> M6 face, widening onto the big mirror 0.09 -> 0.21
+    #   (3) M6 -> converging 0.22 -> 0.004 through the M5 hole (~0.06 at the M5 plane, inside the 0.16 hole) to one
+    #       point ON the wafer; the wafer point appears only in step (3); M5 / M6 landing highlights only in their step
+    import beam_r18 as R18
+    cones18 = []
+    for i, (a, b, ra, rb, t0, t1) in enumerate(((top_in, legs[0][1], 0.04, 0.045, 0.0, 0.46),
+                                                (legs[1][0], p5, 0.045, 0.09, 0.0, 0.46),
+                                                (p5, p6, 0.09, 0.21, 0.42, 0.74),
+                                                (p6, foc, 0.22, 0.004, 0.7, None))):
+        os_, ms_ = R18.cone(a, b, ra, rb, f"POCone{i}", k=2.4 if i < 3 else 2.6, seg=64)   # white studio: denser
+        R18.key_vis(os_, ms_, n, t0, t1, ramp=5)
+        cones18 += os_
+    for c_, n_, t0, t1, nm in ((p5, n5, 0.0, 0.46, "POLandM5"), (p6, n6, 0.42, 0.74, "POLandM6")):
+        cones18 += R18._land_timed(c_, n_, nm, max(1, round(1 + (n - 1) * t0)), 5,
+                                   f_off=round(1 + (n - 1) * t1) + 3)
     sheath = K.MB()
-    R16.leg(sheath, p6, foc, 0.12, 0.004, seg=48)
-    BR.SPOTS.append((p5, n5, 0.07))
-    BR.SPOTS.append((p6, n6, 0.11))
+    sheath.bm.free()
     fm = K.MB()
     fm.cyl(foc + Vector((0, 0, 0.002)), 0.022, 0.002, seg=32)
     fd = K.MB()
@@ -1159,14 +1223,22 @@ def _po_barrels_r15(sc, M, n):
             ob.parent = piv
         else:
             m_.bm.free()
-    ob = sheath.obj("PO17_sheath", BR.soft_mat("EUVSheathR17", K.VIOLET, 1.2, 0.3, power=1.6))
-    ob.parent = piv
+    for o_ in cones18:                       # R18: the cones + timed landings turn with the barrel
+        o_.parent = piv
+    R18.take()
     ob = wf.obj("PO15_wafer", _wafer_mat_r14(pitch=0.05, street=0.07))
     ob.parent = piv
     ob = fm.obj("PO15_focus", K.emit_mat("WaferFocusR14", (0.9, 0.85, 1.0), 30.0))
     ob.parent = piv
-    ob = fd.obj("PO15_focusHalo", K.emit_mat("WaferFocusHaloR14", K.VIOLET, 3.0, halo=0.8))
-    ob.parent = piv
+    ob2 = fd.obj("PO15_focusHalo", K.emit_mat("WaferFocusHaloR14", K.VIOLET, 3.0, halo=0.8))
+    ob2.parent = piv
+    f3 = round(1 + (n - 1) * 0.7) + 3            # R18: the wafer point lights only with step (3)'s cone
+    for o_ in (ob, ob2):
+        o_.hide_render = True
+        o_.keyframe_insert("hide_render", frame=1)
+        o_.keyframe_insert("hide_render", frame=f3 - 1)
+        o_.hide_render = False
+        o_.keyframe_insert("hide_render", frame=f3)
     sp = BR.flush(name="PO15Spots")
     if sp is not None:
         sp.parent = piv
@@ -1986,8 +2058,11 @@ def _scan_r12(sc, M, n, shot):
     for x in (-a_w - 0.035, a_w + 0.035):
         tk.box((x, yw + 0.02, 0.585), (0.006, 0.006, 0.07))
     tk.obj("Rulers", ink)
+    # R18 row 5 (R17: "the 0-8 ruler reads as '8x'; '格' has no unit"): ruler in millimetres (1 division = 10 mm,
+    # schematic), unit printed at its end
     for i in range(9):
-        _txt(f"RD{i}", str(i), (-a_r + i * U, yr, zr - 0.14), 0.1, ink)
+        _txt(f"RD{i}", str(i * 10), (-a_r + i * U, yr, zr - 0.14), 0.085, ink)
+    _txt("RDmm", "mm", (a_r + U * 0.62, yr, zr - 0.14), 0.075, ink)
     # R13 (R12: "1 0 reads backwards"): the wafer ruler is a signed coordinate increasing to the right like the
     # mask ruler (0 .. 8 ->); the wafer runs the other way, from 0 down to -1
     # R15 (R14: "-0.5 tiny, squeezed into the ticks; misread risk; too many label layers"): no digits on the wafer

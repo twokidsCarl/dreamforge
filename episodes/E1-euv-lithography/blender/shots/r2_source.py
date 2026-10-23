@@ -951,6 +951,9 @@ def _cold(sc, M, cam, tgt, n):
 
     def post(sc_):       # R17 #2: part of the R15 fill level back, shapeless (sphere) lights only
         S17.shapeless_fill_r17(0.35)
+        import source_r18 as S18     # R18 #4: a shapeless dark chamber + soft bands for the tin to mirror
+        S18.env_dome_r18("TinEnvR18", (0, 0, 0.2), 0.5, S18.tin_objects())
+        S18.tighten_glint_r18()
     return post
 
 
@@ -979,7 +982,9 @@ def _prepulse(sc, M, cam, tgt, n):
         show_between(ob, hit + 3)
     for ob in laser(M, (COLL_X - 0.2, 0, -0.02), (0, 0, 0), 0.0022, "Pre"):
         show_between(ob, hit - 6, hit + 8)
-    for ob in flash(M, (-0.008, 0, 0), r * 1.3):
+    # R18 #4 (R17 review B1_10: "第 1 帧锡滴是个发光白球，光晕太大"): a small impact flash on the laser-facing side
+    # only (R17: r * 1.3 centred on the droplet hid its metal outline); the tin shader is untouched
+    for ob in flash(M, (-r * 1.0, 0, 0), r * 0.45):
         show_between(ob, hit, hit + 5)
     fl = K.point("LaserLight", (-0.05, -0.02, 0), 0, K.ORANGE, 0.02)
     key_energy(fl, [(hit - 1, 0), (hit, 7), (hit + 8, 0)])
@@ -995,6 +1000,12 @@ def _prepulse(sc, M, cam, tgt, n):
 
     def post(sc_):       # R17 #2: part of the R15 fill level back, shapeless (sphere) lights only
         S17.shapeless_fill_r17(0.35)
+        import source_r18 as S18     # R18 #4: a shapeless dark chamber + soft bands for the tin to mirror
+        S18.env_dome_r18("TinEnvR18", (0, 0, 0.1), 0.42, S18.tin_objects(),
+                          bands=S18.bands_around((-0.65, 0.75, -0.15)))
+        S18.tighten_glint_r18()
+        S18.tighten_light_r18("PrevPlasmaGlowR16", 0.04)   # its 0.25 m sphere was the lavender 'chalk' patch
+        S18.dark_wall_in_reflections_r18(keep=0.6)   # the lit vessel wall: dark when mirrored by the tin
     return post
 
 
@@ -1132,8 +1143,10 @@ def _debris_r16(M, seed=4):
 def _contrast(sc, M, cam, tgt, n):
     """B1_15 (36 frames). R17 root cause #1 (three rounds capped H1 + H2 on the inside-bowl / rim / off-axis camera
     family): asset route changed to the B3_02 collector (blender/scripts/b115_r17.py), half-cut, external 3/4 view,
-    plasma at the first focus, push-in + focus pull. The R16 build is kept below as _contrast_r16 (unused)."""
-    import b115_r17 as B115
+    plasma at the first focus, push-in + focus pull. The R16 build is kept below as _contrast_r16 (unused).
+    R18 root cause #1 (R17 H5: reused B3_02 centre read as "no centre hole"): new asset b115_r18 - true through-hole,
+    dark mirror metal inside a cut-away chamber, laser through the hole, cyan axis to the plasma, silver debris."""
+    import b115_r18 as B115
     return B115.build_contrast(sc, M, cam, tgt, n, __import__(__name__))
 
 
@@ -1304,6 +1317,14 @@ def _track(sc, M, cam, tgt, n):
     def post(sc_):       # R17 #2 (R16 review B1_08 #2: "background nearly black"): R15 fill level, shapeless lights
         import source_r17 as S17
         S17.shapeless_fill_r17(0.8)
+        import source_r18 as S18     # R18 #4: a shapeless dark chamber + soft bands for the droplets to mirror
+        # chrome-ball read: a bright soft 'sky' above a thin bright horizon, dark below (a metal sphere, not glass)
+        S18.env_dome_r18("TinEnvR18", (0, 0, 0.03), 0.3, S18.tin_objects(),
+                         bands=(((0.0, 0.0, 1.0), 1.0, 0.92, 1.1, (0.8, 0.86, 1.0)),
+                                ((0.0, 0.0, 1.0), 0.03, 0.05, 2.2, (0.9, 0.93, 1.0))))
+        for o_ in bpy.data.objects:          # the HUD reticles are an overlay, not a thing the droplet mirrors
+            if o_.name.startswith(("Ret", "Lock")) and o_.type == "MESH":   # (R17: cyan ring 'inside' = glass bead)
+                o_.visible_glossy = False
     return post
 
 

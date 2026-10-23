@@ -612,6 +612,88 @@ def _ll(lon, lat, r):
     lo, la = math.radians(lon), math.radians(lat)
     return Vector((r * math.cos(la) * math.cos(lo), r * math.cos(la) * math.sin(lo), r * math.sin(la)))
 
+# R18: supplier regions in lighting order (Europe first, then North America, East Asia, rest); weight = share of
+# the 5100 points (illustrative distribution); spread in degrees (lon, lat)
+SUPPLIER_REGIONS_R18 = [
+    ("eu", 2250, [(5.5, 51.5, 30, 1.2, 0.8), (8.5, 49.5, 25, 2.0, 1.3), (11.5, 48.2, 12, 1.6, 1.0), (4.4, 50.8, 8, 0.9, 0.6),
+                  (2.3, 48.9, 8, 1.8, 1.4), (-1.5, 52.5, 6, 1.6, 1.4), (8.5, 47.3, 6, 1.0, 0.6), (10.0, 45.5, 5, 1.6, 0.9),
+                  (14.4, 50.1, 3, 1.4, 0.8), (19.0, 47.5, 2, 1.6, 1.0), (-3.7, 40.4, 2, 2.2, 1.6), (18.0, 59.3, 2, 2.0, 1.2),
+                  (10.1, 48.8, 10, 0.8, 0.5)]),
+    ("us", 1350, [(-122.0, 37.4, 10, 1.2, 1.4), (-71.0, 42.4, 6, 1.4, 1.0), (-97.7, 30.3, 4, 1.8, 1.4), (-112.0, 33.4, 4, 1.5, 1.2),
+                  (-74.0, 40.7, 4, 1.2, 0.9), (-87.6, 41.9, 3, 2.0, 1.2), (-84.4, 33.7, 2, 2.0, 1.4), (-79.4, 43.7, 2, 1.6, 0.8)]),
+    ("asia", 1150, [(139.7, 35.7, 8, 1.4, 1.0), (135.5, 34.7, 5, 1.2, 0.8), (127.0, 37.5, 6, 0.9, 0.8), (121.0, 24.8, 6, 0.6, 0.7),
+                    (121.5, 31.2, 4, 1.2, 1.0), (114.1, 22.5, 3, 1.0, 0.7)]),
+    ("rest", 350, [(103.8, 1.35, 3, 0.5, 0.5), (77.6, 12.9, 2, 2.0, 2.0), (34.8, 32.1, 3, 0.6, 0.8), (-46.6, -23.5, 1, 2.0, 1.5),
+                   (151.2, -33.9, 1, 1.5, 1.0)])]
+TRUNKS_R18 = [(11.5, 48.2), (2.3, 48.9), (-1.5, 52.5), (10.0, 45.5), (19.0, 47.5), (18.0, 59.3), (-3.7, 40.4),
+              (-71.0, 42.4), (-74.0, 40.7), (-79.4, 43.7), (-84.4, 33.7), (-87.6, 41.9), (-97.7, 30.3), (-112.0, 33.4),
+              (-122.0, 37.4), (34.8, 32.1)]
+
+
+def _globe_r18(sc, n, R, nl, RING):
+    import misc_beam_r18 as BR18
+    rnd = random.Random(18)
+    pts = []
+    region_end = {}
+    for key, total, hubs in SUPPLIER_REGIONS_R18:
+        wsum = sum(h[2] for h in hubs)
+        reg = []
+        for lon, lat, w, slon, slat in hubs:
+            k = max(1, round(total * w / wsum))
+            for _ in range(k):
+                lo, la = lon + rnd.gauss(0, slon * 1.6), lat + rnd.gauss(0, slat * 1.5)   # spread: a web, not a blob
+                reg.append((rnd.random(), _ll(lo, la, R * 1.0025)))
+        reg.sort(key=lambda x: x[0])                 # random order inside a region, regions strictly in sequence
+        pts += [p for _r, p in reg]
+        region_end[key] = len(pts)
+    scale = 5100.0 / len(pts)
+
+    def count(f):                                    # same curve as the counter overlay (t = (f - 1) / 24)
+        u = ((f - 1) / 24.0) / (n / 24.0)
+        x = max(0.0, min(1.0, (u - 0.02) / 0.8))
+        return 5100.0 * x * x * (3 - 2 * x) / scale
+    dot_m = K.emit_mat("SupplierDotR18", (0.2, 0.82, 1.0), 2.2)
+    BR18.supplier_points("SupplierDotsR18", pts, 0.0062, dot_m, [(f, count(f)) for f in range(1, n + 2)])
+    # trunk arcs: low great-circle routes hugging the globe, from a hub ON the surface to the NL ring ON the surface
+    arc_m = K.emit_mat("TrunkArcR18", K.CYAN, 3.0)
+    for k, (lon, lat) in enumerate(TRUNKS_R18):
+        a = _ll(lon, lat, R)
+        _ang = a.normalized().angle(nl.normalized())
+        if _ang < 1e-3:
+            continue
+        t1 = max(0.2, 1.0 - (RING / R) / _ang)
+        h = 0.004 + 0.022 * _ang / math.pi
+        cd = bpy.data.curves.new(f"TrunkR18_{k}", "CURVE")
+        cd.dimensions = "3D"
+        sp = cd.splines.new("POLY")
+        N = 64
+        sp.points.add(N - 1)
+        for i in range(N):
+            t = t1 * i / (N - 1)
+            p = a.normalized().slerp(nl.normalized(), t)
+            sp.points[i].co = (*(p.normalized() * (R * (1.002 + h * math.sin(math.pi * t / t1)))), 1)
+        cd.bevel_depth = 0.0042
+        cd.bevel_resolution = 2
+        ob = bpy.data.objects.new(f"TrunkR18_{k}", cd)
+        sc.collection.objects.link(ob)
+        ob.data.materials.append(arc_m)
+        ob.visible_shadow = False
+        # an arc starts growing when its region's points are lit (Europe first, Americas mid, Israel last)
+        reg = "us" if lon < -30 else ("rest" if lon > 30 else "eu")
+        f0 = {"eu": 0.06, "us": 0.28, "rest": 0.5}[reg] + 0.02 * (k % 5)
+        st = 1 + int(n * f0)
+        cd.bevel_factor_end = 0.0
+        cd.keyframe_insert("bevel_factor_end", frame=st)
+        cd.bevel_factor_end = 1.0
+        cd.keyframe_insert("bevel_factor_end", frame=st + int(n * 0.12))
+        # a small bright origin node on the surface at the arc's start
+        no = _uv_sphere(f"TrunkNodeR18_{k}", _ll(lon, lat, R * 1.003), 0.012, 12, K.emit_mat(f"TrunkNodeR18M{k}", (0.7, 0.97, 1.0), 6.0))
+        no.hide_render = True
+        no.keyframe_insert("hide_render", frame=1)
+        no.keyframe_insert("hide_render", frame=st - 1)
+        no.hide_render = False
+        no.keyframe_insert("hide_render", frame=st)
+
 
 def _globe(sc, n):
     _stars_world(top=(0.01, 0.016, 0.035), density=260, bright=5.0, share=0.5)   # R8: star field
@@ -708,45 +790,11 @@ def _globe(sc, n):
     for ob in list(bpy.data.objects):
         if ob.name.startswith(("Arc", "Hub")):
             bpy.data.objects.remove(ob, do_unlink=True)
-    import misc_beam_r17 as BR17
-    _arc17 = K.emit_mat("ArcCyanR17", K.CYAN, 4.0)
-    for k, (lon, lat, w) in enumerate(SUPPLIER_REGIONS_R17):
-        a = _ll(lon, lat, R)
-        r_ = 0.035 * math.sqrt(w / 10.0)
-        t_on = 1 + int(n * (0.06 + 0.07 * k))
-        disc = BR17.landing(f"RegionR17_{k}", a, a.normalized(), r_, color=(0.55, 0.95, 1.0), strength=6.0,
-                            lift=0.004)
-        rmb = K.MB()
-        MK.spot_ring(rmb, a * 1.0025, a.normalized(), r_, w=0.12)
-        ring = rmb.obj(f"RegionRingR17_{k}", K.emit_mat(f"RegionRingR17M{k}", (0.6, 0.95, 1.0), 6.0))
-        cd = bpy.data.curves.new(f"RouteR17_{k}", "CURVE")
-        cd.dimensions = "3D"
-        sp = cd.splines.new("POLY")
-        N = 48
-        sp.points.add(N - 1)
-        _ang = a.normalized().angle(nl.normalized())
-        t0 = min(0.4, (r_ / R) / _ang)
-        t1 = max(t0 + 0.1, 1.0 - (RING / R) / _ang)
-        h = 0.01 + 0.05 * (a - nl).length / (2 * R)
-        for i in range(N):
-            t = t0 + (t1 - t0) * i / (N - 1)
-            p = a.normalized().slerp(nl.normalized(), t)
-            sp.points[i].co = (*(p.normalized() * (R * (1.0 + h * math.sin(math.pi * t)))), 1)
-        cd.bevel_depth = 0.005
-        cd.bevel_resolution = 2
-        rob = bpy.data.objects.new(f"RouteR17_{k}", cd)
-        sc.collection.objects.link(rob)
-        rob.data.materials.append(_arc17)
-        cd.bevel_factor_end = 0.0
-        cd.keyframe_insert("bevel_factor_end", frame=t_on)
-        cd.bevel_factor_end = 1.0
-        cd.keyframe_insert("bevel_factor_end", frame=t_on + int(n * 0.2))
-        for ob in (disc, ring):
-            ob.hide_render = True
-            ob.keyframe_insert("hide_render", frame=1)
-            ob.keyframe_insert("hide_render", frame=t_on - 1)
-            ob.hide_render = False
-            ob.keyframe_insert("hide_render", frame=t_on)
+    # R18 (root cause #3, BRIEF "一张地图和 5100 个光点把抽象数字变成一张网"; R17 review A0_06 #1/#2): the 8 R17 discs
+    # + routes are replaced by ~5100 small cyan surface points (instanced, dense in Europe / USA / East Asia) lit in
+    # lighting order region by region as the counter climbs (957 -> 3,605 -> 5,100), plus 14 low trunk arcs whose
+    # BOTH ends sit on the surface (supplier hub -> NL ring), no arc leaves the globe
+    _globe_r18(sc, n, R, nl, RING)
     tgt.animation_data_clear()
     K.key_path(cam, tgt, [(1, tuple(cn * 8.6 + Vector((0.4, 0, -0.6))), (0, 0, 0.62)),
                           (n, tuple(ce * 7.4), tuple(_ll(-12, 42, R) * 0.45 + Vector((0, 0, 0.36))))])
@@ -1550,6 +1598,33 @@ def _wafer(sc, n):
     lt17.data.keyframe_insert("energy", frame=round(n * 0.9) + 2)
     lt17.data.energy = 0.0
     lt17.data.keyframe_insert("energy", frame=round(n * 0.9) + 4)
+    # R18 (root cause #2, R17 review B8_17 #1 "紫光是一根等宽实心光柱"): the thin core is replaced by a FLAT k4A cone,
+    # wide at the projection optics' exit aperture above (POAperture17, fixed) and converging into the moving slit;
+    # soft edge + inner glow, brighter toward the slit; slit highlight one step brighter
+    import misc_beam_r18 as BR18
+    core17.hide_render = True
+    # the exit port = the bottom of the projection-optics column, IN frame: a housing tube coming down from above
+    # the frame, a machined port block with a glowing slot on its underside; the cone leaves that slot
+    PX, PY, PZ = 0.45, 1.3, 1.72
+    pmb = K.MB()
+    pmb.cyl((PX, PY, PZ + 0.18 + 1.5), 0.42, 3.0, seg=64)
+    pmb.ring((PX, PY, PZ + 0.2), 0.47, 0.3, 0.06, seg=64)
+    pmb.box((PX, PY, PZ + 0.09), (1.0, 0.5, 0.18))
+    pmb.obj("ExitPortR18", K.mat("ExitPortR18M", (0.36, 0.37, 0.41), metal=1.0, rough=0.3, brushed=0.1), bevel=0.01)
+    slot = K.MB()
+    slot.box((PX, PY, PZ - 0.002), (0.88, 0.34, 0.004))
+    slot.obj("ExitSlotR18", K.emit_mat("ExitSlotR18M", (0.78, 0.68, 1.0), 6.0))
+    _fc, _port = BR18.hooked_cone("SlitConeR18", (PX, PY, PZ - 0.006), (0.43, 0.16), (0.13, 0.008), so, K.VIOLET,
+                                  1.9, 0.42, edge=2.2, inner=0.4, inner_gain=1.8, gain=1.8)
+    for ob in _fc:
+        ob.hide_render = False
+        ob.keyframe_insert("hide_render", frame=round(n * 0.9) + 2)
+        ob.hide_render = True
+        ob.keyframe_insert("hide_render", frame=round(n * 0.9) + 3)
+    _sm = bpy.data.materials["SlitM"]
+    for nd in _sm.node_tree.nodes:
+        if nd.type == "EMISSION":
+            nd.inputs["Strength"].default_value *= 1.45
     # R17 (B8_17 "已曝光场是均匀发光的紫色平块，像屏幕贴图"): exposed fields become a dim violet latent image over
     # the visible die pattern; only the field under the slit is bright, so the scan reads strip by strip
     hot.inputs["To Max"].default_value = 0.16
@@ -1786,31 +1861,56 @@ def _bokeh(sc, n):
     # R17 (root cause #4, A2_03 "3-4 crossing violet columns out of glowing discs = spotlights"): the scene above is
     # rebuilt with ONE V-shaped return PO3 -> PO4 -> PO5 (then the NA cone onto the wafer) drawn as thin cores,
     # one soft highlight on each mirror it hits; no wide cones, the untouched mirrors are plain metal
-    B = _machine_backdrop(sc, keep=(9, 11), dim=0.75, r17=dict(r=0.014, core=9.0, spot=0.1, spot_e=6.0, light=8.0))
+    # R18 (root cause #2, R17 review A2_03 #1/#2 "镜子读成金属甜甜圈" / "一屏不止一条主光路… NA 锥被画成实心的花瓶"):
+    # ONE light path only = the last fold PO4 -> PO5 and the converging NA cone PO5 -> a visible wafer; both are
+    # k4A volumetric cones (misc_beam_r18.vol_cone: radii follow the mirror apertures, inner glow, soft edge); the
+    # crossing PO3 -> PO4 column is gone; every PO mirror gets a solid polished disc face inside its ring mount
+    import misc_beam_r18 as BR18
+    B = _machine_backdrop(sc, keep=(10, 11), dim=0.75, r17=dict(r=0.014, core=9.0, spot=0.1, spot_e=6.0, light=8.0))
+    for ob in list(bpy.data.objects):
+        if ob.name.startswith("CoreR17_"):
+            bpy.data.objects.remove(ob, do_unlink=True)
+    _pts = [Vector(B.MASK)] + [Vector(v) for v in B.PO] + [Vector(B.WAFER)]
+    _dm = K.mat("DiscMirrorR18", (0.82, 0.84, 0.9), metal=1.0, rough=0.035)
+    for i, p_ in enumerate(B.PO):
+        BR18.disc_mirror(f"DiscMirrorR18_{i}", p_, K.mirror_normal(_pts[i], Vector(p_), _pts[i + 2]), B.PO_R[i] * 0.9, _dm)
+    BR18.vol_cone("FoldR18", B.PO[4], B.PO[5], B.PO_R[4] * 0.62, B.PO_R[5] * 0.55, K.VIOLET, 3.2, 0.55, edge=1.6,
+                  gain=0.3)
     # R14 (root cause #7 / review A2_03 #1 "NA 只有文字，没有画面"): the last PO mirror's full converging light cone
     # onto the wafer point (see-through, bright silhouette) + its half-angle theta drawn as a cyan arc at the apex
     # and a dashed cyan axis; it fades in when the narration reaches NA (~50 %)
     po5, wf = Vector(B.PO[5]), Vector(B.WAFER)
+    # R18 (R17 review A2_03 #2 "NA 锥…尖端扎进地板，没有落到晶圆"): the stage wafer (z 0.62) sits BELOW the PO
+    # housing floor (top z 1.025), so the cone pierced the floor; the cone now converges onto a wafer shown on a
+    # chuck standing on that floor, straight under the last mirror's cone
+    wf = Vector((B.WAFER.x, 0.0, 1.065))
     u = (po5 - wf).normalized()
     perp = u.cross(Vector((0, 1, 0))).normalized()
-    rim = 0.27
-    nmb = K.MB()
-    _open_cone(nmb, po5, wf, rim, 0.004, seg=64)
-    na_cone = nmb.obj("NACone", _soft_beam_mat("NAConeMat", strength=1.8, alpha=0.4, power=0.8))
+    rim = B.PO_R[5] * 0.82                                      # R18: NA cone rim = the last mirror's aperture
+    na_cone, _na_in = BR18.vol_cone("NAConeR18", po5, wf, rim, 0.006, K.VIOLET, 2.6, 0.5, edge=1.7, gain=1.4)
+    # R18: a visible wafer surface under the apex (polished Si disc on the stage) + the focus highlight lying on it
+    wmb = K.MB()
+    wmb.cyl(wf - Vector((0, 0, 0.004)), 0.3, 0.008, seg=96)
+    wmb.obj("WaferR18", K.mat("WaferR18M", (0.36, 0.36, 0.46), metal=1.0, rough=0.1))
+    cmb = K.MB()
+    cmb.cyl(Vector((wf.x, 0.0, (1.025 + wf.z - 0.008) / 2)), 0.34, wf.z - 0.008 - 1.025, seg=96)
+    cmb.obj("ChuckR18", K.mat("ChuckR18M", (0.12, 0.12, 0.14), rough=0.3), bevel=0.004)
+    import misc_beam_r17 as BR17
+    _wl = BR17.landing("WaferSpotR18", wf + Vector((0, 0, 0.001)), Vector((0, 0, 1)), 0.05, strength=9.0, light=3.0)
     L = (po5 - wf).length
     e = ((po5 + perp * rim) - wf).normalized()
     th = math.acos(max(-1.0, min(1.0, u.dot(e))))
     amb = K.MB()
-    ar = 0.8
+    ar = 0.3                                                     # R18: theta arc sits at the apex on the wafer
     arc = [wf + (u * math.cos(th * k / 16) + perp * math.sin(th * k / 16)) * ar for k in range(17)]
     for a_, b_ in zip(arc, arc[1:]):
         amb.tube(a_, b_, 0.006, seg=8)
-    for k in range(9):                                           # dashed optical axis apex -> mirror
-        amb.tube(wf + u * L * (0.06 + k * 0.1), wf + u * L * (0.11 + k * 0.1), 0.003, seg=6)
-    amb.tube(wf, wf + e * L * 1.0, 0.003, seg=6)                 # the cone edge ray the angle is measured to
+    for k in range(4):                                           # R18: short dashed axis + edge stub at the apex only
+        amb.tube(wf + u * L * (0.04 + k * 0.08), wf + u * L * (0.08 + k * 0.08), 0.003, seg=6)
+    amb.tube(wf, wf + e * L * 0.35, 0.003, seg=6)
     na_ink = amb.obj("NATheta", K.emit_mat("NAThetaInk", K.CYAN, 3.5))
     f_on = round(n * 0.48)
-    for ob in (na_cone, na_ink):
+    for ob in (na_cone, _na_in, na_ink, _wl):
         ob.hide_render = True
         ob.keyframe_insert("hide_render", frame=1)
         ob.keyframe_insert("hide_render", frame=f_on - 1)
@@ -1830,8 +1930,8 @@ def _bokeh(sc, n):
     foc.location = tuple(po5.lerp(wf, 0.35))                 # R14: focus holds mirror + cone + theta arc
     foc.keyframe_insert("location", frame=round(n * 0.75))
     _dof(cam, 1.6, foc)
-    K.anchors("A2_03", {"beam": B.PO[3].lerp(B.PO[4], 0.5), "mirror": B.PO[5], "wafer": B.WAFER, "mask": B.MASK,
-                        "theta": arc[8] + perp * 0.06, "na_apex": wf})
+    K.anchors("A2_03", {"beam": B.PO[4].lerp(B.PO[5], 0.5), "mirror": B.PO[5], "wafer": B.WAFER, "mask": B.MASK,
+                        "theta": arc[8] + perp * 0.03, "na_apex": wf})
     return cam
 
 
