@@ -136,6 +136,8 @@ B5_01: {scene: r2_cutaway, args: {variant: illum, shot: B5_01}, camera: CamR2, s
 C_03: {scene: r2_cutaway, args: {variant: tour, shot: C_03}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
 B3_02: {scene: r2_cutaway, args: {variant: collect, shot: B3_02}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
 B8_03: {scene: r2_cutaway, args: {variant: scan, shot: B8_03}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+# R12: picture-in-picture pass of the same B8_03 scene through the reticle-stage camera (overlay pastes it into B8_03)
+B8_03M: {scene: r2_cutaway, args: {variant: scan, shot: B8_03M}, camera: CamR2M, start: 1, style: photoreal, engine: cycles, timing_of: B8_03}
 B7_06: {scene: r2_cutaway, args: {variant: po, shot: B7_06}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
 A0_02: {scene: r2_plates, args: {variant: freighter, shot: A0_02}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
 A0_03: {scene: r2_plates, args: {variant: crates, shot: A0_03}, camera: CamR2, start: 1, style: photoreal, engine: cycles}

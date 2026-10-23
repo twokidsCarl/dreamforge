@@ -32,6 +32,17 @@ PO = [Vector(v) for v in ((0.93, 0.25, 1.75), (1.45, 0.15, 3.75), (2.25, 0.05, 2
 WAFER = Vector((1.75, 0.0, 0.62))
 
 
+R12 = [False]             # R12: r2_cutaway switches the bay walls to hero_kit_r12.wall_r12 (14 types, no DIN rows)
+
+
+def _wall():
+    if R12[0]:
+        import hero_kit_r12 as HK12
+        return HK12.wall_r12
+    import hero_kit_r11 as HK11
+    return HK11.wall_r11
+
+
 LIP_SKIP_X = ()           # R11: module side lips left out (tour: projection module's left lip hid the mask)
 FRONT_POSTS_SKIP = ()     # R10: tour (C_03) drops the front posts that blocked the main path
 
@@ -71,7 +82,7 @@ def _frame(M, mbs, studio):
     opt = [(PLASMA, 1.5), (COLL, 1.0), (IF, 0.5)]
     import hero_kit_r11 as HK11            # R11: non-repeating blocks, not the R10 panel+flange tile
     # front_y: stay behind the module back plates (y 1.1) - R11 smoke: a viewport stack poked into the illuminator
-    HK11.wall_r11(P, -9.25, 3.25, 0.5, 4.7, 1.4, seed=33, keep=opt, scale=1.25, depth=0.6, front_y=1.14)
+    _wall()(P, -9.25, 3.25, 0.5, 4.7, 1.4, seed=33, keep=opt, scale=1.25, depth=0.6, front_y=1.14)
     PENDING_KITS.append(P)
     # floor grating
     g = mbs["grate"]
@@ -275,7 +286,7 @@ def _interior_fill(mbs, x0, x1, z0, z1, y_back=1.1, seed=0, keep=()):
     # R10: the back plate carries nameable parts only (hero_kit_r10.wall_r10); parts stand off the plate by up to
     # ~0.4 m (k2B depth) but stay clear of the optics
     import hero_kit_r11 as HK11            # R11: non-repeating blocks
-    HK11.wall_r11(_hk(), x0 + 0.08, x1 - 0.08, z0 + 0.06, z1 - 0.06, y_back - 0.025, seed=seed,
+    _wall()(_hk(), x0 + 0.08, x1 - 0.08, z0 + 0.06, z1 - 0.06, y_back - 0.025, seed=seed,
                 keep=[(Vector(c), r_ + 0.1) for c, r_ in list(keep) + EXTRA_KEEP], scale=1.35 if H > 2.0 else 1.0, depth=1.5,
                   tone=WALL_TONE[0], front_y=y_back - 0.55)
 

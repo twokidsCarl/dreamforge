@@ -55,7 +55,8 @@ def main():
     if "scene" not in spec:                                       # 2D 镜头：registry 只登记 mograph 模块
         sys.exit(f"[render_storyboard] {a.shot} 是 2D 镜头（mograph: {spec.get('mograph')}）："
                  f"用 python3 shared/tools/mograph.py --shot {a.shot}")
-    shot = next(s for s in timed_shots() if s["id"] == a.shot)     # 没有 timed 文件时回退到分镜 duration
+    tid = spec.get("timing_of", a.shot)                          # E1 R12: B8_03M（画中画机位）借 B8_03 的时长
+    shot = next(s for s in timed_shots() if s["id"] == tid)       # 没有 timed 文件时回退到分镜 duration
     n = 1 if spec.get("hold") else max(1, round(shot["duration"] * FPS))
 
     module = importlib.import_module(spec["scene"])
