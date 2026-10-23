@@ -176,7 +176,7 @@ def _po_turntable(sc, M, n):
     K.area("Rim", (2, 7, 6), (1.8, 0, 2.5), 8, 5000, (0.9, 0.93, 1.0))
     mbs = {k: K.MB() for k in ("frame", "bolt", "mirror", "gold", "copper", "mount", "housing", "greeble", "anod",
                                 "steel", "led", "cable_b", "cable_o", "cable_g", "pipe", "flange_s", "beam", "halo",
-                                "stage")}
+                                "stage", "alu")}
     B._projection(M, mbs)
     pts = [B.MASK + Vector((0, 0, -0.25))] + B.PO + [B.WAFER + Vector((0, 0, 0.3))]
     K.beam(mbs["beam"], mbs["halo"], pts, r=0.022, halo=3.4)
@@ -192,7 +192,8 @@ def _po_turntable(sc, M, n):
     mats = {"frame": M["alu"], "bolt": M["steel"], "mirror": M["mirror"], "gold": M["gold"], "copper": M["copper"],
             "mount": M["alu"], "housing": M["paint"], "greeble": M["alu"], "anod": M["anod"], "steel": M["steel"],
             "led": M["led_c"], "cable_b": M["cable_b"], "cable_o": M["cable_o"], "cable_g": M["cable_g"],
-            "pipe": M["steel"], "flange_s": M["alu"], "beam": M["beam"], "halo": M["beam_halo"], "stage": M["paint_grey"]}
+            "pipe": M["steel"], "flange_s": M["alu"], "beam": M["beam"], "halo": M["beam_halo"], "stage": M["paint_grey"],
+            "alu": M["alu"]}
     piv = bpy.data.objects.new("Turntable", None)
     sc.collection.objects.link(piv)
     piv.location = (1.8, 0.05, 0)
