@@ -74,7 +74,7 @@ def _build(variant="illum", shot=None):
         K.floor("Floor", K.mat("FloorDark", (0.05, 0.055, 0.065), rough=0.3, coat=0.3), z=0.0)
         _lights_dark()
     if variant == "collect":                 # R8: solid, dark polished multilayer dish (R7: read as a glass dome)
-        M["coating"] = K.mat("CollectorSolidR8", (0.3, 0.29, 0.36), metal=1.0, rough=0.035, coat=1.0)
+        M["coating"] = K.mat("CollectorSolidR13", (0.6, 0.61, 0.64), metal=1.0, rough=0.04, coat=1.0)   # R13: neutral, not violet
         M["substrate"] = K.mat("CollectorBodyR8", (0.2, 0.2, 0.23), metal=1.0, rough=0.3, speck=0.2)
     M["cone"] = (K.beam_column_mat("EUVCone", K.VIOLET, strength=0.6, edge=0.8, core=0.0, vol=0.02)   # R11: see-through
                  if variant == "collect" else K.beam_column_mat("EUVCone", K.VIOLET, strength=1.4, edge=0.4, core=0.06, vol=0.15))
@@ -91,9 +91,29 @@ def _build(variant="illum", shot=None):
     if variant == "title":                   # R5 (H13): the title's PO bay uses the non-crossing M1..M6 zig-zag
         B.PO = [Vector(v) for v in PO_ZIGZAG]
         B.PO_R = [0.24, 0.22, 0.26, 0.22, 0.24, 0.2]
-    B.FRONT_POSTS_SKIP = (-4.0, -0.9) if variant == "tour" else ()
+    if variant == "tour":                    # R13 (R12: "in / out overlap into one vertical column"): the fold mirror
+        import hero_kit_r10 as HK10          # and PO1 move out so the cones meet the mask at ~20 deg each side
+        B.G2 = Vector((-0.2, 0.3, 2.3))      # (label keeps "约 5.4°（角度放大示意）"); fine absorber-line mask
+        B.PO = [Vector(v) for v in B.PO]
+        B.PO[0] = Vector((1.3, 0.25, 2.3))
+        HK10.MASK_STYLE[0] = "r13"
+    B.FRONT_FLANGE[0] = variant != "collect"
+    B.FRONT_POSTS_SKIP = (-4.0, -0.9) if variant == "tour" else ((-6.0,) if variant == "collect" else ())
     B.LIP_SKIP_X = (0.6,) if variant == "tour" else ()
-    B.machine(M, studio=studio, cut=True, beam=variant not in ("title", "tour"), bounce=8.0 if studio else 20.0)
+    B.machine(M, studio=studio, cut=True, beam=variant not in ("title", "tour", "illum"), bounce=8.0 if studio else 20.0)
+    if variant == "illum":                   # R13 (R12: "4-5 violet segments per screen"): one bright path IF -> mask,
+        pts, rad = B.beam_path(0, 6)         # the PO legs behind stay a dim ghost
+        mb = K.MB()
+        K.beam_columns(mb, pts, rad)
+        K.cone_beam(mb, B.IF, Vector((B.COLL.x + 0.28, 0, B.COLL.z)), 0.62)
+        mb.obj("IllumBeam", M["beam_wide"])
+        foci = list(BR.FOCI)
+        pts, rad = B.beam_path(5)
+        mb = K.MB()
+        K.beam_columns(mb, pts, rad, spots=False)
+        mb.obj("IllumBeamPO", BR.soft_mat("EUVSoftDimI", K.VIOLET, strength=0.35, alpha=0.18))
+        BR.FOCI[:] = foci
+        K.bounce_lights([B.FFM, B.PFM, B.G1, B.G2, B.MASK + Vector((0, -0.1, -0.15))], energy=20.0)
     if variant == "title":
         _sequential_beam(M, n)
     if variant == "tour":                    # R4: one segment at a time; the PO path after the mask stays dim
@@ -103,10 +123,13 @@ def _build(variant="illum", shot=None):
         K.beam_columns(mb, pts, rad)
         K.cone_beam(mb, B.IF, Vector((B.COLL.x + 0.28, 0, B.COLL.z)), 0.62)
         mb.obj("TourBeam", M["beam_wide"])
+        BR.SPOTS[:] = [sp_ for sp_ in BR.SPOTS if (sp_[0] - B.MASK).length > 0.05]   # R13: the mask slit is its spot
+        foci = list(BR.FOCI)
         pts, rad = B.beam_path(mi)
         mb = K.MB()
-        K.beam_columns(mb, pts, rad)
+        K.beam_columns(mb, pts, rad, spots=False)
         mb.obj("TourBeamPO", BR.soft_mat("EUVSoftDim", K.VIOLET, strength=0.5, alpha=0.25))
+        BR.FOCI[:] = foci                    # R13: no glow beads / spots on the dim PO ghost
         K.bounce_lights([B.FFM, B.PFM, B.G1, B.G2, B.MASK + Vector((0, -0.1, -0.15))], energy=20.0)
     sc["hdri"] = "hangar_interior"
     sc["hdri_strength"] = 0.25 if not studio else 0.5
@@ -136,8 +159,15 @@ def _build(variant="illum", shot=None):
         K.key_path(cam, tgt, [(1, (-8.4, -4.4, 3.3), (-7.4, 0.0, 2.3)),
                               (round(f1 * 0.25), (-6.6, -4.2, 3.0), (-5.6, 0.1, 2.5)),
                               (round(f1 * 0.55), (-3.4, -4.6, 3.3), (-2.5, 0.2, 3.0)),
-                              (round(f1 * 0.85), (0.22, -1.05, 3.7), (0.55, 0.3, 4.3)),     # R12: push onto the mask
-                              (f1, (0.24, -1.0, 3.72), (0.55, 0.3, 4.31))])
+                              # R13: under the mask, looking up across the beam plane: the mask face fills
+                              # ~1/3 of the frame, the incident cone comes in from lower left, the reflected
+                              # cone leaves lower right
+                              (round(f1 * 0.85), (0.55, -1.2, 3.0), (0.55, 0.25, 4.0)),
+                              (f1, (0.58, -1.15, 3.02), (0.56, 0.25, 4.02))])
+        tl = K.MB()                              # short dashed normal under the mask: the angle reads against it
+        for k in range(6):
+            tl.cyl((B.MASK.x, B.MASK.y, B.MASK.z - 0.12 - k * 0.12), 0.004, 0.06, seg=8)
+        tl.obj("MaskNormal", K.emit_mat("MaskNormalR13", (0.85, 0.9, 1.0), 3.0))
     elif variant == "collect":
         cam.data.lens = 30
         cam.data.dof.use_dof = True
@@ -150,9 +180,34 @@ def _build(variant="illum", shot=None):
         # the collector face (>= 1/4 frame) looks at the lens, IF stays at the right edge; thinner cone; glint card
         cam.data.lens = 26
         # R12 (R11: "mirror face hidden"): closer, more on the dish axis; collector face >= 1/4 frame, IF at the edge
-        K.key_path(cam, tgt, [(1, (-5.35, -3.75, 3.05), (-7.2, 0.0, 2.35)), (f1, (-5.65, -3.45, 2.9), (-7.35, 0.0, 2.33))])
+        # R13 (R12 H2: "three frames barely move; IF out of frame; cone not read"): a real 1.6 m dolly-in + truck-left
+        # on a curve, focus pulling from the IF / cone mouth onto the dish. Collector, plasma, the converging cone
+        # and IF stay in frame the whole move; the dish grows from ~1/4 to ~0.4 of frame height.
+        cam.data.lens = 24
+        cam.data.dof.aperture_fstop = 5.6
+        K.key_path(cam, tgt, [(1, (-3.9, -4.9, 3.6), (-6.0, 0.0, 2.45)),
+                              (round(f1 * 0.5), (-4.6, -4.0, 3.2), (-6.2, 0.0, 2.42)),
+                              (f1, (-5.3, -3.15, 2.82), (-6.5, 0.0, 2.4))])
         K.area("DishGlint", (-5.6, 2.9, 3.9), B.COLL, 2.2, 520, (0.95, 0.96, 1.0))
         K.area("DishKey", (-5.0, -2.2, 3.6), B.COLL, 1.6, 260, (1.0, 0.98, 0.95))
+        # grazing studio strip skimming the coated face from above-front: one long highlight band across the dish
+        K.area("DishGraze", (-7.35, -0.9, 3.55), B.COLL + Vector((0.1, 0, 0.1)), 0.7, 520, (1.0, 0.99, 0.97), size_y=2.4)
+        K.area("DishGrazeLo", (-7.5, 1.1, 1.2), B.COLL, 0.6, 200, (0.92, 0.95, 1.0), size_y=1.6)
+        # the reflected cone, drawn as 16 bright edge rays from the dish rim to IF (the volume alone read as a tube)
+        rays = K.MB()
+        Rr, ff = 0.62, 0.42
+        for a in range(16):
+            ang = 2 * math.pi * (a + 0.5) / 16
+            rim = Vector((B.COLL.x + Rr * Rr / (4 * ff), Rr * math.cos(ang), B.COLL.z + Rr * math.sin(ang)))
+            m_, l_ = K._orient(rim, B.IF)
+            rays.cyl_m(m_, 0.004, l_, seg=8, r2=0.0015)
+        rays.obj("CollectRays", K.emit_mat("CollectRayR13", K.VIOLET, 4.0, halo=0.75))
+        K.clean_cycles(sc, indirect=1.0)                 # R13: fireflies on the cone mouth / posts
+        try:
+            sc.cycles.blur_glossy = 2.0
+            sc.cycles.sample_clamp_direct = 8.0
+        except AttributeError:
+            pass
         pl = K.MB()                                     # plasma at the first focus (small violet-white glow)
         pl.sphere(B.PLASMA, 0.035, 20)
         pl.obj("PlasmaCore", K.emit_mat("PlasmaCoreR8", (0.92, 0.88, 1.0), 40.0))
@@ -504,6 +559,21 @@ def _po_turntable(sc, M, n):
         for (yc, zc, w_, h_) in ((0.75, 1.55, 0.7, 1.0), (0.75, 2.75, 0.7, 1.3), (0.75, 3.75, 0.7, 0.62),
                                  (0.12, 2.2, 0.46, 2.3), (0.12, 3.75, 0.46, 0.62)):
             H11.housing_plate(HP, Vector((x, yc, zc)), (w_ - 0.03, 0.035, h_ - 0.03), (sg, 0, 0), key="brushed")
+    # R13 (R12: "still a flat sheet box; M5 / M6 indistinct"): a thick cast housing around the open box - a heavy
+    # base flange and roof flange with rounded edges, rounded corner columns, 5 external ribs per side wall and a
+    # visible 9 cm shell section on the cut front edges
+    cast.box((1.8, 0.05, 1.0), (2.75, 2.35, 0.16))                            # base flange
+    cast.box((1.8, 0.05, 4.18), (2.75, 2.35, 0.14))                            # roof flange
+    for x in (0.44, 3.16):
+        for y in (-1.07, 1.17):
+            cast.cyl((x, y, 2.59), 0.11, 3.06, seg=28)                         # rounded corner columns
+        for k in range(5):                                                     # external ribs on the side walls
+            y = -0.75 + k * 0.42
+            cast.box((x + (-0.06 if x < 1 else 0.06), y, 2.59), (0.12, 0.06, 3.0))
+    for x in (0.44, 3.16):                                                     # shell section at the cut front
+        mbs["section"].box((x, -1.12, 2.59), (0.24, 0.012, 3.04))
+    mbs["section"].box((1.8, -1.13, 1.0), (2.75, 0.012, 0.16))
+    mbs["section"].box((1.8, -1.13, 4.18), (2.75, 0.012, 0.14))
     mats = {"frame": M["alu"], "bolt": M["steel"], "mirror": M["mirror"], "gold": M["gold"], "copper": M["copper"],
             "mount": M["alu"], "housing": M["paint"], "greeble": M["alu"], "anod": M["anod"], "steel": M["steel"],
             "led": M["led_c"], "cable_b": M["cable_b"], "cable_o": M["cable_o"], "cable_g": M["cable_g"],
@@ -518,7 +588,7 @@ def _po_turntable(sc, M, n):
     piv.location = (1.8, 0.05, 0)
     for k, mb in mbs.items():
         if len(mb.bm.verts):
-            ob = mb.obj("PO_" + k, mats[k], bevel={"housing": 0.012, "stage": 0.02, "cast": 0.015}.get(k, 0.0))
+            ob = mb.obj("PO_" + k, mats[k], bevel={"housing": 0.012, "stage": 0.02, "cast": 0.035}.get(k, 0.0))
             ob.parent = piv
             ob.location -= piv.location
         else:
@@ -540,7 +610,15 @@ def _po_turntable(sc, M, n):
     sc["hdri_strength"] = 0.5
     sc["vignette"] = 0.3
     sc.camera = cam
-    K.anchors("B7_06", {"po": Vector((1.8, 0.05, 2.5)), "eng": Vector((4.05, -1.7, 1.8)), "top": Vector((1.8, 0.05, 4.1)),
+    # R13: anchors on the M5 / M6 rings where the light lands (they turn with the table)
+    ring_pts = {}
+    for key, loc in (("m5r", (AX.x + r5 * 0.72, 0.0, z5 + 0.02)), ("m6r", (AX.x - r6 * 0.7, 0.0, z6 - 0.02))):
+        e_ = bpy.data.objects.new("Anchor_" + key, None)
+        sc.collection.objects.link(e_)
+        e_.location = Vector(loc) - piv.location
+        e_.parent = piv
+        ring_pts[key] = e_
+    K.anchors("B7_06", {**ring_pts, "po": Vector((1.8, 0.05, 2.5)), "eng": Vector((4.05, -1.7, 1.8)), "top": Vector((1.8, 0.05, 4.1)),
                         "m6": Vector((1.8, 0.05, 2.0)), "m5": Vector((1.8, 0.05, 1.36)), "entry": Vector((0.75, 0.3, 4.3))})
     return sc
 
@@ -690,6 +768,73 @@ def _wafer_mat(pitch=0.034, street=0.1):
     nt.links.new(fac.outputs[0], rr.inputs["Value"])
     nt.links.new(rr.outputs["Result"], b.inputs["Roughness"])
     return m
+
+
+def _wafer_mat_r13(pitch=0.073, street=0.07):
+    """R13 (R12: "wafer reads as black glass with white lines"): silver-grey polished silicon with a metallic sheen
+    (roughness 0.12, catches the sheen card), thin scribe streets, and inside every die field a fine device pattern:
+    two banks of dense line / space (x and y), a pad ring and a darker logic block. Object-space, pitch in metres."""
+    m = K.mat("WaferSiR13", (0.52, 0.53, 0.57), metal=1.0, rough=0.12)
+    nt = m.node_tree
+    b = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sp = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(tc.outputs["Object"], sp.inputs[0])
+
+    def op(o, a, b_=None):
+        nd = nt.nodes.new("ShaderNodeMath"); nd.operation = o
+        for i, v in enumerate((a, b_)):
+            if v is None:
+                continue
+            if isinstance(v, (int, float)):
+                nd.inputs[i].default_value = v
+            else:
+                nt.links.new(v, nd.inputs[i])
+        return nd.outputs[0]
+    fx = op("FRACT", op("DIVIDE", sp.outputs["X"], pitch))
+    fy = op("FRACT", op("DIVIDE", sp.outputs["Y"], pitch * 1.25))
+    streets = op("MAXIMUM", op("LESS_THAN", fx, street), op("LESS_THAN", fy, street))
+    lines_x = op("LESS_THAN", op("FRACT", op("DIVIDE", sp.outputs["X"], pitch / 22)), 0.5)
+    lines_y = op("LESS_THAN", op("FRACT", op("DIVIDE", sp.outputs["Y"], pitch / 20)), 0.5)
+    left = op("LESS_THAN", fx, 0.55)
+    top = op("LESS_THAN", fy, 0.5)
+    pat = op("ADD", op("MULTIPLY", op("MULTIPLY", left, top), lines_x),
+             op("MULTIPLY", op("MULTIPLY", op("SUBTRACT", 1.0, left), top), lines_y))
+    logic = op("MULTIPLY", op("SUBTRACT", 1.0, top), op("MULTIPLY", op("GREATER_THAN", fx, 0.2), op("LESS_THAN", fx, 0.8)))
+    v = op("ADD", op("MULTIPLY", pat, 0.5), op("MULTIPLY", logic, 0.25))      # 0 bare Si .. 0.75 dense pattern
+    v = op("MAXIMUM", op("MULTIPLY", streets, 1.2), v)
+    col = nt.nodes.new("ShaderNodeMix"); col.data_type = "RGBA"
+    col.inputs["A"].default_value = (*K.lin((0.44, 0.45, 0.5)), 1)
+    col.inputs["B"].default_value = (*K.lin((0.2, 0.21, 0.27)), 1)
+    nt.links.new(op("MINIMUM", v, 1.0), col.inputs["Factor"])
+    nt.links.new(col.outputs["Result"], b.inputs["Base Color"])
+    rr = nt.nodes.new("ShaderNodeMapRange")
+    rr.inputs["To Min"].default_value = 0.1
+    rr.inputs["To Max"].default_value = 0.32
+    nt.links.new(v, rr.inputs["Value"])
+    nt.links.new(rr.outputs["Result"], b.inputs["Roughness"])
+    return m
+
+
+def _darken(prefixes, k=0.35):
+    """R13: dim the foreground stage materials (B8_03: "foreground grooved grid fights the wafer")."""
+    done = {}
+    for o in bpy.data.objects:
+        if o.type != "MESH" or not o.name.startswith(prefixes):
+            continue
+        for slot in o.material_slots:
+            m = slot.material
+            if m is None:
+                continue
+            if m.name not in done:
+                d = m.copy()
+                d.name = m.name + "_DK"
+                bs = next((n for n in d.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None) if d.use_nodes else None
+                if bs is not None and not bs.inputs["Base Color"].is_linked:
+                    c = bs.inputs["Base Color"].default_value
+                    bs.inputs["Base Color"].default_value = (c[0] * k, c[1] * k, c[2] * k, 1)
+                done[m.name] = d
+            slot.material = done[m.name]
 
 
 def scan_knots(n):
@@ -873,6 +1018,9 @@ def _scan_r5(sc, M, n, shot):
     sl = K.MB()
     sl.box((0, WY, WZ + 0.0035), (0.014, 0.2, 0.002))
     sl.obj("SlitW", K.emit_mat("SlitGlow", K.VIOLET, 30.0))
+    sl2 = K.MB()                                         # R13: lit field band around the slit
+    sl2.box((0, WY, WZ + 0.003), (0.075, 0.3, 0.0015))
+    sl2.obj("SlitField", K.emit_mat("SlitFieldR13", (0.72, 0.6, 1.0), 4.0, halo=0.45))
     for i, p_ in enumerate((ff, pf, g2, m1, m2, m3, m4, mask_c + Vector((0, 0, -0.1)), waf_c + Vector((0, 0, 0.12)))):
         K.point(f"Bounce{i}", p_ + Vector((0, -0.25, 0)), 12, K.VIOLET, 0.08)
     # dense parts kit on both back walls + top-of-bay electronics (k2B: no bare wall left)
@@ -1095,12 +1243,12 @@ def _scan_r12(sc, M, n, shot):
     for o in bpy.data.objects:
         if o.name.startswith("WBase_"):
             o.location.y += WY
-    ob = wp["wafer"].obj("WStage_wafer", _wafer_mat(pitch=0.073, street=0.07))
+    ob = wp["wafer"].obj("WStage_wafer", _wafer_mat_r13(pitch=0.073, street=0.07))   # R13: Si sheen + device pattern
     ob.parent = wpiv
     HK.finish(PM, M, "WStageK", parent=wpiv)
     ex = K.MB()
     ex.box((0.5, 0, 0), (1.0, 0.26, 0.0016))
-    exo = ex.obj("Exposed", K.emit_mat("ExposedGlowR12", K.VIOLET, 0.7, halo=0.25))
+    exo = ex.obj("Exposed", K.emit_mat("ExposedGlowR13", K.VIOLET, 1.6, halo=0.35))     # R13: fields under the slit brighter
     exo.parent = wpiv
     exo.location = (-a_w, 0, WZ + 0.0012)
     _keys_linear(exo, "scale", [(1, 0.001), (n, 2 * a_w)], index=0)
@@ -1182,6 +1330,9 @@ def _scan_r12(sc, M, n, shot):
     sl = K.MB()
     sl.box((0, WY, WZ + 0.0035), (0.016, 0.26, 0.002))
     sl.obj("SlitW", K.emit_mat("SlitGlow", K.VIOLET, 30.0))
+    sl2 = K.MB()                                         # R13: lit field band around the slit
+    sl2.box((0, WY, WZ + 0.003), (0.075, 0.3, 0.0015))
+    sl2.obj("SlitField", K.emit_mat("SlitFieldR13", (0.72, 0.6, 1.0), 4.0, halo=0.45))
     for i, p_ in enumerate((ff, pf, g2, m1, m2, m3, m4, mask_c + Vector((0, 0, -0.1)))):
         K.point(f"Bounce{i}", p_ + Vector((0, 0.15, 0)), 10, K.VIOLET, 0.03)   # behind the beam: no blobs in the wafer
     # bay walls + stage-services wall under the bays: hero_kit_r12 (no type repeats until all 14 are used)
@@ -1217,19 +1368,22 @@ def _scan_r12(sc, M, n, shot):
     tk.box((0, yr, zr), (2 * a_r + 0.02, 0.006, 0.006))
     yw0, zw = 0.6, 0.62                                       # on the granite behind the mover (in frame)
     yw = yw0 + WY
-    for i in range(0, 9):
+    for i in range(0, 9):                                     # R13: taller ticks, thicker bar
         x = a_w - i * U / 8
-        h = 0.045 if i in (0, 8) else 0.02
-        tk.box((x, yw, zw - h / 2), (0.004, 0.006, h))
-    tk.box((0, yw, zw), (2 * a_w + 0.01, 0.006, 0.005))
+        h = 0.07 if i in (0, 8) else (0.05 if i == 4 else 0.03)
+        tk.box((x, yw, zw - h / 2), (0.006, 0.008, h))
+    tk.box((0, yw, zw), (2 * a_w + 0.012, 0.008, 0.008))
     tk.box((0, yw + 0.03, 0.55), (2 * a_w + 0.08, 0.07, 0.02))                # ruler foot on the granite
     for x in (-a_w - 0.035, a_w + 0.035):
         tk.box((x, yw + 0.02, 0.585), (0.006, 0.006, 0.07))
     tk.obj("Rulers", ink)
     for i in range(9):
         _txt(f"RD{i}", str(i), (-a_r + i * U, yr, zr - 0.14), 0.1, ink)
-    _txt("WD0", "0", (a_w, yw, zw + 0.045), 0.04, ink)
-    _txt("WD1", "1", (-a_w, yw, zw + 0.045), 0.04, ink)
+    # R13 (R12: "1 0 reads backwards"): the wafer ruler is a signed coordinate increasing to the right like the
+    # mask ruler (0 .. 8 ->); the wafer runs the other way, from 0 down to -1
+    _txt("WD0", "0", (a_w, yw, zw + 0.06), 0.065, ink)
+    _txt("WDh", "-0.5", (0.0, yw, zw + 0.06), 0.045, ink)
+    _txt("WD1", "-1", (-a_w, yw, zw + 0.06), 0.065, ink)
     brk = K.MB()
     for x in (-a_r - 0.08, a_r + 0.08):
         brk.box((x, (yr - 0.25) / 2 + 0.05, zr + 0.05), (0.03, 0.42, 0.02))
@@ -1283,7 +1437,11 @@ def _scan_r12(sc, M, n, shot):
     K.area("UnderFill", (0.0, -1.9, 0.95), (0.0, 0.6, 0.75), 2.4, 25, (0.9, 0.93, 1.0), size_y=0.4)
     # the polished wafer mirrors this soft card toward the main camera (silicon sheen across half the disc)
     K.area("WaferSheen", (0.15, -0.2, 1.3), (0.0, WY, WZ), 1.0, 12, (0.75, 0.8, 1.0), size_y=0.35)
+    # R13: a broad overhead card in the wafer's mirror direction (metallic sheen over most of the disc) and darker
+    # foreground stage parts so the wafer is the brightest object
+    K.area("WaferSheenR13", (0.2, -0.35, 1.35), (0.0, WY, WZ), 1.6, 22, (0.92, 0.94, 1.0), size_y=0.7)
     _depth_layers(M, MZ, WZ)
+    _darken(("WBase_", "FG_"), 0.4)
     # main camera: low 3/4 onto the wafer stage, slow truck for parallax
     cam, tgt = K.camera("CamR2", lens=30)
     K.key_path(cam, tgt, [(1, (-0.35, -2.2, 1.68), (0.02, -0.62, 0.9)), (n, (0.1, -2.22, 1.66), (0.06, -0.62, 0.9))],
