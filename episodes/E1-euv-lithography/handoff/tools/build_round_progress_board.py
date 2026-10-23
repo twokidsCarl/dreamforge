@@ -137,7 +137,7 @@ def e1_rounds():
         ("R1", "scores_round1.json", E1_WORK / "round1" / "contact.jpg"),
         ("R1-recal", "scores_round1_recalibrated.json", E1_WORK / "round1" / "contact.jpg"),
         ("R2", "scores_round2.json", E1_WORK / "round2" / "contact_round2.jpg"),
-    ] + [(f"R{k}", f"scores_round{k}.json", E1_WORK / f"round{k}" / f"contact_round{k}.jpg") for k in range(3, 10)]
+    ] + [(f"R{k}", f"scores_round{k}.json", E1_WORK / f"round{k}" / f"contact_round{k}.jpg") for k in range(3, 11)]
     rows = []
     for lab, fn, contact in mapping:
         sp = E1_P1 / fn
