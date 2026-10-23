@@ -68,7 +68,7 @@ def materials(M):
     out["screen"] = M["screenR10"]
     out["cable_g"] = M.get("cable_g", M["paint_grey"])
     if "mask_r10" not in M:
-        M["mask_r10"] = mask_material()
+        M["mask_r10"] = mask_material_r13() if MASK_STYLE[0] == "r13" else mask_material()
     out["mask"] = M["mask_r10"]
     return out
 
@@ -773,6 +773,63 @@ def _math(nt, op, a, b=None, v=None):
         else:
             nt.links.new(x, m.inputs[i])
     return m.outputs[0]
+
+
+MASK_STYLE = ["r10"]      # R13: r2_cutaway sets "r13" for C_03 (fine absorber lines, no voronoi camouflage)
+
+
+def mask_material_r13(name="EUVMaskR13", fields=(2, 2), lines=110.0):
+    """R13 (R12: "mask pattern reads as camouflage"): a reticle layout of fine absorber lines on the bright Mo/Si
+    multilayer. Absorber border, 2 x 2 die fields, each die split into four regular blocks: vertical line / space,
+    horizontal line / space, a contact-pad array and a coarser vertical bus block. Pure step functions, no noise."""
+    m = K.mat(name, (0.72, 0.7, 0.82), metal=1.0, rough=0.08, coat=0.6)
+    nt = m.node_tree
+    b = K._bsdf(m)
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sp = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(tc.outputs["Generated"], sp.inputs[0])
+    x, y = sp.outputs["X"], sp.outputs["Y"]
+
+    def inside(c, lo, hi):
+        return _math(nt, "MULTIPLY", _math(nt, "GREATER_THAN", c, lo), _math(nt, "LESS_THAN", c, hi))
+
+    def stripes(c, n, duty=0.5):
+        return _math(nt, "LESS_THAN", _math(nt, "FRACT", _math(nt, "MULTIPLY", c, n)), duty)
+    core = _math(nt, "MULTIPLY", inside(x, 0.07, 0.93), inside(y, 0.07, 0.93))
+    fx = _math(nt, "FRACT", _math(nt, "DIVIDE", _math(nt, "SUBTRACT", x, 0.07), 0.86 / fields[0]))
+    fy = _math(nt, "FRACT", _math(nt, "DIVIDE", _math(nt, "SUBTRACT", y, 0.07), 0.86 / fields[1]))
+    die = _math(nt, "MULTIPLY", inside(fx, 0.05, 0.95), inside(fy, 0.05, 0.95))
+    blk = _math(nt, "MULTIPLY", inside(fx, 0.08, 0.92), inside(fy, 0.08, 0.92))
+    lx, ly = _math(nt, "LESS_THAN", fx, 0.5), _math(nt, "LESS_THAN", fy, 0.5)
+    hx, hy = _math(nt, "SUBTRACT", 1.0, lx), _math(nt, "SUBTRACT", 1.0, ly)
+    gap = _math(nt, "MULTIPLY", _math(nt, "GREATER_THAN", _math(nt, "ABSOLUTE", _math(nt, "SUBTRACT", fx, 0.5)), 0.02),
+                _math(nt, "GREATER_THAN", _math(nt, "ABSOLUTE", _math(nt, "SUBTRACT", fy, 0.5)), 0.02))
+    vl, hl = stripes(x, lines), stripes(y, lines)
+    pads = _math(nt, "MULTIPLY", stripes(x, lines * 0.4, 0.55), stripes(y, lines * 0.4, 0.55))
+    bus = stripes(x, lines * 0.3, 0.7)
+    q = [(_math(nt, "MULTIPLY", lx, ly), vl), (_math(nt, "MULTIPLY", hx, ly), hl),
+         (_math(nt, "MULTIPLY", lx, hy), pads), (_math(nt, "MULTIPLY", hx, hy), bus)]
+    pat = None
+    for sel, v_ in q:
+        t_ = _math(nt, "MULTIPLY", sel, v_)
+        pat = t_ if pat is None else _math(nt, "ADD", pat, t_)
+    # 1 = reflective multilayer: streets / borders / gaps reflective-free (absorber), lines inside blocks reflective
+    absorb = _math(nt, "MULTIPLY", _math(nt, "MULTIPLY", blk, gap), _math(nt, "SUBTRACT", 1.0, pat))
+    refl = _math(nt, "MULTIPLY", _math(nt, "MULTIPLY", core, die), _math(nt, "SUBTRACT", 1.0, absorb))
+    mc = nt.nodes.new("ShaderNodeMix")
+    mc.data_type = "RGBA"
+    mc.inputs["A"].default_value = (*K.lin((0.05, 0.05, 0.06)), 1)     # absorber (TaN, dark)
+    mc.inputs["B"].default_value = (*K.lin((0.82, 0.8, 0.86)), 1)       # multilayer, near-neutral
+    nt.links.new(refl, mc.inputs["Factor"])
+    nt.links.new(mc.outputs["Result"], b.inputs["Base Color"])
+    rr = nt.nodes.new("ShaderNodeMapRange")
+    rr.inputs["To Min"].default_value = 0.5
+    rr.inputs["To Max"].default_value = 0.05
+    nt.links.new(refl, rr.inputs["Value"])
+    nt.links.new(rr.outputs["Result"], b.inputs["Roughness"])
+    b.inputs["Emission Color"].default_value = (*K.lin(K.VIOLET), 1)
+    nt.links.new(_math(nt, "MULTIPLY", refl, 0.18), b.inputs["Emission Strength"])
+    return m
 
 
 def mask_material(name="EUVMaskR10", fields=(3, 4), lines=70.0):

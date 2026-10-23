@@ -9,6 +9,10 @@
   * landing spot - three stacked, slightly lifted discs on the mirror plane (halo emission), a soft footprint
                    that tells where the light lands (k4A).
 
+Round 13 (R12 review: "2B beams still read as constant-width tubes at 960x540"): waist 0.3 -> 0.12 of the smaller
+end (an hourglass you can see at review size), a small glow bead at every waist / focus apex, landing spots 1.5x
+wider and ~2x brighter. Shots importing this: r2_cutaway (A0_10 B5_01 C_03 B3_02 B8_03 B8_03M B7_06).
+
 Use: import beam_r12 as BR; BR.install(K, M) swaps kit_r2.beam_columns and the beam materials of a shot;
 BR.flush(M) builds the landing spots collected so far (call once at the end of a build).
 """
@@ -18,7 +22,8 @@ import bpy
 from mathutils import Vector
 
 SPOTS = []                 # (centre, normal, radius)
-WAIST = [0.3]              # waist radius / smaller end radius
+FOCI = []                  # R13: (centre, radius) glow beads at waists / focus apexes
+WAIST = [0.12]              # waist radius / smaller end radius
 _ORIG = {}
 
 
@@ -76,13 +81,16 @@ def columns(mb, pts, radii, seg=40, spots=True, waist=True):
             for p, q, r1, r2 in ((a, w, ra, rw), (w, b, rw, rb)):
                 m, l_ = K._orient(p, q)
                 mb.cyl_m(m, r1, l_, seg=seg, r2=r2)
+            FOCI.append((w, max(0.012, rw * 1.1)))
         else:
+            if waist and min(ra, rb) <= 0.045 and max(ra, rb) > 0.1:     # R13: a cone out of / into a focus (IF)
+                FOCI.append((a if ra < rb else b, max(0.012, min(ra, rb) * 1.0)))
             m, l_ = K._orient(a, b)
             mb.cyl_m(m, ra, L, seg=seg, r2=rb)
     if spots:
         for j in range(1, len(pts) - 1):
             n = K.mirror_normal(pts[j - 1], pts[j], pts[j + 1])
-            SPOTS.append((pts[j], n, max(0.02, radii[j] * 1.05)))
+            SPOTS.append((pts[j], n, max(0.03, radii[j] * 1.55)))   # R13: 1.05 -> 1.55
 
 
 def install(K, M, strength=2.2, alpha=0.75):
@@ -93,10 +101,17 @@ def install(K, M, strength=2.2, alpha=0.75):
     M["beam_wide"] = soft_mat("EUVSoft", K.VIOLET, strength, alpha)
     M["cone"] = soft_mat("EUVSoftCone", K.VIOLET, strength * 0.8, alpha * 0.85)
     SPOTS.clear()
+    FOCI.clear()
 
 
 def flush(M=None, name="LandingSpots"):
     import kit_r2 as K
+    if FOCI:                                  # R13: glow beads where the light pinches
+        fb = K.MB()
+        for c, r in FOCI:
+            fb.sphere(c, r, 16)
+        FOCI.clear()
+        fb.obj(name + "Foci", K.emit_mat("BeamFocusR13", (0.86, 0.78, 1.0), 6.0, halo=0.85))
     if not SPOTS:
         return None
     mb = K.MB()
@@ -105,4 +120,4 @@ def flush(M=None, name="LandingSpots"):
         for k, f in enumerate((1.0, 0.62, 0.32)):
             mb.cyl(c + n * (0.006 + 0.002 * k), r * f, 0.001, rot=q.to_euler(), seg=40)
     SPOTS.clear()
-    return mb.obj(name, K.emit_mat("LandingSpotR12", (0.78, 0.66, 1.0), 5.0, halo=0.45))
+    return mb.obj(name, K.emit_mat("LandingSpotR13", (0.82, 0.72, 1.0), 7.5, halo=0.5))

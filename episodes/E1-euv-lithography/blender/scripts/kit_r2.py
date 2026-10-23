@@ -731,7 +731,7 @@ def anchors(shot, points):
     if not shot:
         return
     out = os.path.join(C.render_root(), "shots", shot, "anchors")
-    pts = {k: Vector(v) for k, v in points.items()}
+    pts = {k: (v if isinstance(v, bpy.types.Object) else Vector(v)) for k, v in points.items()}   # R13: objects follow
 
     def h(sc, *_):
         cam = sc.camera
@@ -739,6 +739,8 @@ def anchors(shot, points):
             return
         res = {}
         for k, p in pts.items():
+            if isinstance(p, bpy.types.Object):
+                p = p.matrix_world.translation
             v = world_to_camera_view(sc, cam, p)
             res[k] = [round(v.x, 4), round(1 - v.y, 4), round(v.z, 3)]
         os.makedirs(out, exist_ok=True)

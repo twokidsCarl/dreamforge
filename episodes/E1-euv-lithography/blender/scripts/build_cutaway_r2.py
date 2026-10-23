@@ -33,6 +33,7 @@ WAFER = Vector((1.75, 0.0, 0.62))
 
 
 R12 = [False]             # R12: r2_cutaway switches the bay walls to hero_kit_r12.wall_r12 (14 types, no DIN rows)
+FRONT_FLANGE = [True]     # R13: B3_02 drops the vessel's front flange ring (it hid the cone between plasma and IF)
 
 
 def _wall():
@@ -100,6 +101,8 @@ def _vessel(M, mbs, cut):
     a0, a1 = (-35, 215) if cut else (0, 360)    # gap centred on -Y (local 270 deg)
     v.shell(c, 1.28, 1.36, 2.6, a0, a1, rot=rot, seg=72)                # cut away towards -Y
     for dx in (-1.3, 1.3):
+        if dx > 0 and not FRONT_FLANGE[0]:
+            continue
         fl.ring(c + Vector((dx, 0, 0)), 1.5, 1.3, 0.1, rot=rot, seg=72)
         bolt.bolts(c + Vector((dx + (0.06 if dx > 0 else -0.06), 0, 0)), 1.42, 36, 0.022, 0.05, rot=rot)
     # end dish behind the collector
