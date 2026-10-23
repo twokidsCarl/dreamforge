@@ -40,8 +40,8 @@
 2. **冒烟减量**：开卡前只冒烟「最低分镜 + 本轮改过的镜 + 本轮工单烟测门槛镜」，**禁止 24 镜全冒烟**。
 3. **GPU 渲**：`handoff/tools/pod_styleframes.py p1/roundN_jobs.txt --cap-usd 2`（1×A40）→ 拉回 → **必定 Terminate**，确认本会话 E1 pods=`[]`；2D 在 box 上跑。
 4. **重叠**：帧一拉回 → 立刻起隔离独立审；同时可按上轮 + 本轮已知缺口起草 R(n+1) 结构草稿（**未过线才落地改代码**；若本轮过线则丢弃草稿）。**审分未出完前不要租下一轮 GPU**。
-5. **审分并行**：隔离审拆成 **2–3 路**并行（按镜头分组），每路写部分 scores；主进程合并 `scores_roundN.json` + 一篇 `REVIEW_roundN_independent.md`。仍 **全量盲审**（防尺度漂移），禁止只审改过的镜。审稿目录只放 SCALE / BRIEF / FACTS / refs / frames，不给改动说明。
-6. **收尾钉死**（同一回合、禁止 sleep 轮询）：REVIEW/STATUS 一出 → 更新 `score_timeline.png`（仅 SCALE_v2，`--ep E1`）→ squash-merge 自合 → **立刻推 Carl（只要时间轴图）** → 若未过线同回合开下一轮 job。用文件出现 / 进程退出叫醒，禁止空等。
+5. **审分并行 + 金控校准**：隔离审拆成 **2–3 路**并行（按镜头分组），每路写部分 scores；主进程合并 `scores_roundN.json` + 一篇 `REVIEW_roundN_independent.md`。仍 **全量盲审**，禁止只审改过的镜。审稿包另加 **3–4 张金控帧**（上轮已评分、本轮像素未改；文件名 `ctrl_<shot>_r{prev}.png`）；审稿**盲打**金控（不给历史分）；主进程算 Δ = mean(金控盲分 − 历史分)，全部镜头分减 Δ 得 drift-adjusted；**过线只认校正后**（均分≥92 且单张≥88）；STATUS/REVIEW 双轨写 raw 与 adjusted。审稿目录只放 SCALE / BRIEF / FACTS / refs / frames（含 ctrl），不给改动说明、不给历史分。
+6. **收尾钉死**（同一回合、禁止 sleep 轮询）：REVIEW/STATUS 一出（含 Δ）→ 更新 `score_timeline.png`（仅 SCALE_v2，`--ep E1`，可旁注 Δ）→ 写 `PIPELINE_RETRO.md` 本轮 1–3 条 → squash-merge 自合 → **立刻推 Carl（只要时间轴图，文案用校正后分数）** → 若未过线同回合开下一轮 job。用文件出现 / 进程退出叫醒，禁止空等。
 
 旧 5 步精神保留：改 → 渲 → 合成 → 独立审 → 记账推送；加速点是重叠、冒烟减量、审分并行、收尾立刻推。
 每轮 GPU 仍约 4–10 分钟（约 $0.04–0.10）；墙钟瓶颈在改结构 + 审分。
@@ -356,5 +356,5 @@ R11 审的共同根因：每镜可命名件约 5–6 种（k2B 10+），端子�
 ### 渲染与交付
 - `p1/round12_jobs.txt`（24 镜，帧同 R11），`tools/pod_styleframes.py p1/round12_jobs.txt --cap-usd 2`；渲完**立刻 Terminate**，确认本会话 E1 pods=`[]`。
 - 合成：`tools/compose_round12.py` → `/workspace/e1work/p1/round12/`。
-- 隔离独立审 **2–3 路并行**（全量 24 镜盲审）→ 合并 `REVIEW_round12_independent.md`、`scores_round12.json`；`score_timeline.png` 加 R12（仅 SCALE_v2，`--ep E1`）；`E1_SPEND.md` 记账。
-- 收尾钉死：STATUS 一出 → 时间轴 → squash-merge → 立刻推 Carl（只要时间轴）→ 未过线同回合开 R13。禁止 sleep 轮询。
+- 隔离独立审 **2–3 路并行**（全量 24 镜盲审）+ **金控 3–4 张**（候选：R11 未结构性改动的 `A0_02` / `D_07` / `B4_10` / `B9_05`，复制 round11 帧为 `ctrl_*_r11.png`；历史分只给主进程）→ 合并 `REVIEW_round12_independent.md`、`scores_round12.json`（raw + drift-adjusted + Δ）；**过线只认校正后**；`score_timeline.png` 加 R12（仅 SCALE_v2，`--ep E1`，旁注 Δ）；`E1_SPEND.md` 记账；追加 `PIPELINE_RETRO.md`。
+- 收尾钉死：STATUS 一出（双轨）→ 时间轴 → RETRO → squash-merge → 立刻推 Carl（只要时间轴，文案用校正后）→ 未过线同回合开 R13。禁止 sleep 轮询。
