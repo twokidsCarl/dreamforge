@@ -30,10 +30,11 @@
 | 片头标题卡 | LOCKED（1C：白衬线短句 + 主角全景 + 人做尺度） | E1 选图包 2026-10-23 |
 | 机器 / 装置 | LOCKED（工业类：2A 棚光 + 2B 极细致剖视） | E1 选图包 2026-10-23 |
 | 光 / 光束 | LOCKED（CG 体积光 + 机理插画放大框，3A+D / 4A+D） | E1 选图包 2026-10-23 |
-| 分子 / 原子 | LOCKED（生物：Goodsell；无机：电镜截面 4D、CG 互连 6C、放大框 6D） | E2 v1.2 + E1 2026-10-23 |
+| 分子 / 原子 | LOCKED（生物 Goodsell **仅微观**；无机：电镜 4D、CG 互连 6C、放大框 6D） | E2 v1.3 + E1 2026-10-23 |
 | 示意图 / 信息图 | LOCKED（7A 3D 实物同屏；5C、7C 是反例） | E1 选图包 2026-10-23 |
 | 数据 / 图表 | LOCKED（7A，数字压在 3D 实物上） | E1 选图包 2026-10-23 |
 | 纪实 / 真实世界 | LOCKED（8A 夜间货机钠灯 + 8C 冷白洁净室） | E1 选图包 2026-10-23 |
-| 人物 | PARTIAL（剪影构图 9A+B 已锁；诺奖漫画肖像画法未问） | Carl 2026-10-22 + E1 2026-10-23 |
+| 人物 | PARTIAL（剪影 9A+B；E2 脸无颗粒已锁；诺奖具体画法未问） | Carl 2026-10-22/23 + E1 |
+| 动物 / 活体 | LOCKED（宏观写实；禁球团颗粒；地面不蠕动） | E2 PREFERENCES v1.3 2026-10-23 |
 
-E1 选图包 v1（`picks/E1/`）已回答并锁定，见 `topics/E1-euv-lithography.md`。偏好版本 `CHANNEL_PREFERENCES.md` v1.1。
+E1 选图包 v1（`picks/E1/`）已回答并锁定，见 `topics/E1-euv-lithography.md`。E2 PREFERENCES **v1.3**（2026-10-23）作废整片插画家族、恢复按尺度多风格。偏好版本 `CHANNEL_PREFERENCES.md` **v1.2**。
