@@ -107,7 +107,8 @@ def _mats():
     M["coll"] = K.mat("CollectorML", (0.36, 0.34, 0.44), metal=1.0, rough=0.04, coat=0.5)
     M["chamber"] = K.mat("ChamberSteel", (0.3, 0.32, 0.36), metal=1.0, rough=0.34, brushed=0.12)
     M["hole"] = K.mat("PortHole", (0.01, 0.012, 0.018), rough=0.9)
-    M["window"] = K.emit_mat("WindowGlow", (0.25, 0.4, 0.75), 0.6)
+    # R3: smoked viewport glass (the R2 glowing blue disc read as an unexplained "blue window")
+    M["window"] = K.mat("ViewportSmoked", (0.03, 0.035, 0.045), metal=0.0, rough=0.04, coat=1.0)
     M["plasma_core"] = K.emit_mat("PlasmaCore", (0.93, 0.88, 1.0), 8.0)
     M["plasma_halo"] = vol_glow("PlasmaHalo", (0.72, 0.6, 1.0), 9.0)
     M["plasma_haze"] = vol_glow("PlasmaHaze", K.VIOLET, 0.9)
@@ -342,6 +343,7 @@ def build(variant="cold", shot=None):
     n = K.nframes(shot) if shot else 120
     sc = C.reset_scene(n)
     M = _mats()
+    K.clean_cycles(sc)
     sc["hdri"] = "hangar_interior"
     sc["hdri_strength"] = 0.06
     sc["vignette"] = 0.35
@@ -433,7 +435,7 @@ def _prepulse(sc, M, cam, tgt, n):
 def _debris(M, seed=4):
     rnd = random.Random(seed)
     objs = []
-    for key, cnt, rr in (("hot", 40, (0.004, 0.008)), ("warm", 60, (0.003, 0.007)), ("cool", 80, (0.003, 0.006))):
+    for key, cnt, rr in (("hot", 20, (0.004, 0.008)), ("warm", 30, (0.003, 0.007)), ("cool", 40, (0.003, 0.006))):
         mb = K.MB()
         for _ in range(cnt):
             v = Vector((rnd.gauss(0, 1), rnd.gauss(0, 1), rnd.gauss(0, 1))).normalized()
@@ -472,7 +474,10 @@ def _track(sc, M, cam, tgt, n):
     """B1_08 (92 frames): droplets fall past a lock line at z = 0; each carries its own cyan reticle that
     thickens while that droplet is locked."""
     _dark_world()
-    chamber(M, seed=3, collector=True)
+    objs = chamber(M, seed=3, collector=True)
+    for o in objs:                            # R3: no gold MLI patch (read as a beige block behind the drops)
+        if o.name.startswith("MLI"):
+            o.hide_render = True
     lights_chamber(1.0)
     r = 0.012
     sp, v = 0.13, 0.0042                      # spacing (m), speed (m / frame)

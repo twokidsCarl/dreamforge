@@ -22,7 +22,10 @@ FFM = Vector((-2.15, 0.15, 3.85))        # field facet mirror
 PFM = Vector((-3.55, 0.25, 2.05))        # pupil facet mirror
 G1 = Vector((-1.35, 0.3, 2.75))          # grazing / condenser mirror
 MASK = Vector((0.55, 0.3, 4.35))         # mask surface (pattern faces down)
-PO = [Vector(v) for v in ((1.05, 0.25, 1.75), (1.55, 0.15, 3.75), (2.15, 0.05, 1.45), (1.25, -0.05, 3.25),
+# R3: grazing fold mirror right under the mask so the beam meets the mask at ~6 deg from the normal (was ~35 deg,
+# contradicting the "约 6° 斜入射" label); PO mirror 1 sits at the mirror-image 6 deg on the other side.
+G2 = Vector((0.30, 0.3, 2.0))            # incidence atan(0.25 / 2.35) = 6.1 deg
+PO = [Vector(v) for v in ((0.82, 0.25, 1.75), (1.55, 0.15, 3.75), (2.15, 0.05, 1.45), (1.25, -0.05, 3.25),
                          (2.45, -0.05, 2.85), (1.75, 0.0, 1.35))]
 WAFER = Vector((1.75, 0.0, 0.62))
 
@@ -123,6 +126,29 @@ def _collector(M, mbs):
             f_ = mb.bm.faces.new((verts[i][j], verts[i][k], verts[i + 1][k], verts[i + 1][j]))
             f_.smooth = True
     mb.bm.faces.ensure_lookup_table()
+    # R3: a thick shell, not a film: substrate back surface 9 cm behind the reflective face, rim band, and
+    # cooling channels running radially over the back
+    sub = mbs["substrate"]
+    back = []
+    for i in range(nr + 1):
+        r = hole + (R - hole) * i / nr
+        x = COLL.x + r * r / (4 * f) - 0.09
+        back.append([sub.bm.verts.new((x, r * math.cos(2 * math.pi * j / na), COLL.z + r * math.sin(2 * math.pi * j / na)))
+                     for j in range(na)])
+    for i in range(nr):
+        for j in range(na):
+            k = (j + 1) % na
+            sub.bm.faces.new((back[i][j], back[i + 1][j], back[i + 1][k], back[i][k])).smooth = True
+    rimx0 = COLL.x + R * R / (4 * f)
+    sub.ring((rimx0 - 0.045, 0, COLL.z), R, R - 0.004, 0.09, rot=(0, math.radians(90), 0), seg=na)
+    sub.ring((COLL.x + hole * hole / (4 * f) - 0.045, 0, COLL.z), hole + 0.004, hole, 0.09, rot=(0, math.radians(90), 0), seg=32)
+    for a in range(16):
+        ang = 2 * math.pi * a / 16
+        pts = []
+        for i in range(0, nr + 1, 2):
+            r = hole + 0.04 + (R - hole - 0.06) * i / nr
+            pts.append(Vector((COLL.x + r * r / (4 * f) - 0.11, r * math.cos(ang), COLL.z + r * math.sin(ang))))
+        mbs["copper"].path(pts, 0.014, seg=8)
     rot = (0, math.radians(90), 0)
     rimx = COLL.x + R * R / (4 * f)
     mbs["flange"].ring((rimx, 0, COLL.z), R + 0.08, R - 0.01, 0.06, rot=rot, seg=72)
@@ -158,6 +184,19 @@ def _module_box(mbs, x0, x1, z0, z1, y_back=1.1, y_front=-1.0, seed=0, ribs=True
             bolt.cyl((x0 + 0.06 + i * 0.12, y_front - 0.035, z), 0.012, 0.02, rot=(math.radians(90), 0, 0), seg=6)
     for x in (x0, x1):
         fl.box((x, y_back - (y_back - y_front) * 0.45, cz), (0.1, 0.06, H + 0.1))
+    # R3 cut skin: the removed cover is shown as a sawn-off outer panel lip (pale paint) with its section face
+    # (contrasting colour) along the opening, so the box reads as cut open, not as a lid taken off
+    if "section" in mbs:
+        sk, sec = mbs["skin"], mbs["section"]
+        lip = 0.16
+        yf = y_front - 0.05
+        sk.box((cx, yf, z0 - 0.02 + lip / 2), (W + 0.2, 0.06, lip))                       # bottom lip
+        sec.box((cx, yf - 0.002, z0 - 0.02 + lip), (W + 0.2, 0.064, 0.012))
+        for x, sgn in ((x0, 1), (x1, -1)):                                                  # side lips
+            sk.box((x + sgn * lip * 0.35, yf, cz), (lip * 0.7, 0.06, H))
+            sec.box((x + sgn * lip * 0.7, yf - 0.002, cz), (0.012, 0.064, H))
+        sk.box((cx, yf, z1 + 0.02 - lip * 0.3), (W + 0.2, 0.06, lip * 0.6))                # top lip
+        sec.box((cx, yf - 0.002, z1 + 0.02 - lip * 0.6), (W + 0.2, 0.064, 0.012))
     if ribs:
         for i in range(1, int(W / 0.45)):
             h.box((x0 + i * 0.45, y_back - 0.04, cz), (0.03, 0.05, H))
@@ -271,8 +310,11 @@ def _illuminator(M, mbs):
         for j in range(-3, 4):
             off = R @ Vector((i * 0.055, j * 0.115, 0)) - n * (0.0004 * (i * i + j * j * 4))
             tilt = (rnd.uniform(-0.06, 0.06), rnd.uniform(-0.06, 0.06), 0)
-            mbs["mirror"].box(FFM + off, (0.05, 0.105, 0.02), rot=(q.to_euler().x + tilt[0], q.to_euler().y + tilt[1],
-                                                                 q.to_euler().z))
+            e = (q.to_euler().x + tilt[0], q.to_euler().y + tilt[1], q.to_euler().z)
+            mbs["mirror"].box(FFM + off, (0.05, 0.105, 0.012), rot=e)
+            mbs["substrate"].box(FFM + off - n * 0.02, (0.052, 0.107, 0.03), rot=e)
+            if abs(i) <= 5 and abs(j) <= 2 and (i * 7 + j * 3) % 4:              # the beam's footprint on the facets
+                mbs["spot"].box(FFM + off + n * 0.008, (0.04, 0.09, 0.002), rot=e)
     car.cyl_m(Matrix.Translation(FFM - n * 0.05) @ R.to_4x4(), 0.42, 0.06, seg=6)
     for k in range(4):
         a = math.radians(45 + 90 * k)
@@ -289,13 +331,26 @@ def _illuminator(M, mbs):
     for ring_i, (rr, cnt) in enumerate([(0.0, 1), (0.09, 8), (0.18, 15), (0.27, 22), (0.36, 28)]):
         for k in range(cnt):
             a = 2 * math.pi * k / cnt
-            mbs["mirror"].cyl_m(Matrix.Translation(PFM + R2 @ Vector((rr * math.cos(a), rr * math.sin(a), 0)))
-                                @ R2.to_4x4(), 0.038, 0.02, seg=20)
+            c = PFM + R2 @ Vector((rr * math.cos(a), rr * math.sin(a), 0))
+            mbs["mirror"].cyl_m(Matrix.Translation(c) @ R2.to_4x4(), 0.038, 0.012, seg=20)
+            mbs["substrate"].cyl_m(Matrix.Translation(c - n2 * 0.018) @ R2.to_4x4(), 0.04, 0.026, seg=20)
+            if ring_i >= 2 and (abs(math.cos(a)) > 0.8):                      # dipole illumination spots
+                mbs["spot"].cyl_m(Matrix.Translation(c + n2 * 0.008) @ R2.to_4x4(), 0.032, 0.002, seg=16)
     car.cyl_m(Matrix.Translation(PFM - n2 * 0.04) @ R2.to_4x4(), 0.44, 0.05, seg=48)
     mbs["flange"].ring(PFM - n2 * 0.02, 0.47, 0.42, 0.08, rot=q2.to_euler())
     car.tube(PFM - n2 * 0.08, PFM - n2 * 0.08 + Vector((0, 0, -0.5)), 0.06)
     # condenser / grazing mirror
-    K.mirror_with_mount(mbs["mirror"], mbs["mount"], mbs["bolt"], G1, K.mirror_normal(PFM, G1, MASK), 0.22, seed=2)
+    _mirror(mbs, G1, K.mirror_normal(PFM, G1, G2), 0.22, seed=2)
+    _mirror(mbs, G2, K.mirror_normal(G1, G2, MASK), 0.17, seed=3)
+    for k in range(4):                                                    # G2 support column down to the base frame
+        a = math.radians(45 + 90 * k)
+        mbs["frame"].tube(G2 + Vector((0.12 * math.cos(a), 0.3 + 0.12 * math.sin(a), -0.25)),
+                          Vector((0.3 + 0.25 * math.cos(a), 0.6 + 0.25 * math.sin(a), 0.4)), 0.03)
+
+
+def _mirror(mbs, p, n, r, seed=0):
+    return K.mirror_with_mount(mbs["mirror"], mbs["mount"], mbs["bolt"], p, n, r, seed=seed, mbsub=mbs["substrate"],
+                               mbspot=mbs["spot"], spot=0.8, mbpipe=mbs["copper"], mbcable=mbs["cable_b" if seed % 2 else "cable_o"])
 
 
 def _reticle_stage(M, mbs):
@@ -327,8 +382,8 @@ def _projection(M, mbs):
         mbs["frame"].ring((1.8, 0.5, z), 1.1, 1.0, 0.06, seg=64)
     for i, p in enumerate(PO):
         n = K.mirror_normal(pts[i], p, pts[i + 2])
-        r = [0.26, 0.22, 0.34, 0.2, 0.3, 0.42][i]
-        plate = K.mirror_with_mount(mbs["mirror"], mbs["mount"], mbs["bolt"], p, n, r, seed=i)
+        r = PO_R[i]
+        plate = _mirror(mbs, p, n, r, seed=i)
         # tie each mirror plate back to the housing wall
         mbs["mount"].tube(plate, Vector((plate.x, 1.08, plate.z)), 0.035)
         mbs["anod"].box(Vector((plate.x, 1.0, plate.z)), (0.22, 0.12, 0.22))
@@ -380,11 +435,22 @@ def _services(M, mbs):
                 mbs["led"].box((x - 0.38, 1.66, 0.5 + j * 0.3), (0.03, 0.01, 0.02))
 
 
-def machine(M, studio=False, cut=True, beam=True):
+PO_R = [0.26, 0.22, 0.34, 0.2, 0.3, 0.42]
+
+
+def beam_path(start=0, end=None):
+    """The violet path IF -> illuminator -> G2 -> mask -> PO -> wafer with a k4A-style column radius at each
+    point (focus = thin, mirrors = ~80 % of the mirror radius)."""
+    pts = [IF, FFM, PFM, G1, G2, MASK] + PO + [WAFER]
+    rad = [0.03, 0.27, 0.22, 0.15, 0.12, 0.1] + [r * 0.7 for r in PO_R] + [0.02]
+    return pts[start:end], rad[start:end]
+
+
+def machine(M, studio=False, cut=True, beam=True, bounce=20.0):
     mbs = {k: K.MB() for k in ("frame", "bolt", "wall", "grate", "vessel", "flange", "flange_s", "glass", "pump",
                                 "mirror", "gold", "copper", "mount", "housing", "greeble", "anod", "stage", "steel",
                                 "mask", "rstage", "alu", "led", "cable_b", "cable_o", "cable_g", "pipe", "granite", "wafer",
-                                "beam", "halo", "cone")}
+                                "beam", "halo", "cone", "substrate", "spot", "vol", "skin", "section")}
     _frame(M, mbs, studio)
     _vessel(M, mbs, cut)
     _collector(M, mbs)
@@ -394,8 +460,8 @@ def machine(M, studio=False, cut=True, beam=True):
     _wafer_stage(M, mbs)
     _services(M, mbs)
     if beam:
-        path = [IF, FFM, PFM, G1, MASK] + PO + [WAFER]
-        K.beam(mbs["beam"], mbs["halo"], path, r=0.022, halo=3.4)
+        path, radii = beam_path()
+        K.beam_columns(mbs["vol"], path, radii)
         # collector cones: plasma -> collector rim (emission) and collector -> IF (converging)
         K.cone_beam(mbs["cone"], IF, Vector((COLL.x + 0.28, 0, COLL.z)), 0.62)
         mbs["cone"].sphere(PLASMA, 0.06, 16)
@@ -406,9 +472,14 @@ def machine(M, studio=False, cut=True, beam=True):
             "stage": M["paint"], "rstage": M["paint"], "alu": M["alu"], "steel": M["steel"], "mask": M["mirror"], "led": M["led_c"],
             "cable_b": M["cable_b"], "cable_o": M["cable_o"], "cable_g": M["cable_g"], "pipe": M["steel"],
             "granite": M["granite"], "wafer": M["wafer"] if "wafer" in M else M["mirror"],
-            "beam": M["beam"], "halo": M["beam_halo"], "cone": M.get("cone", M["beam_halo"])}
+            "beam": M["beam"], "halo": M["beam_halo"], "cone": M.get("cone", M["beam_halo"]),
+            "substrate": M["substrate"], "spot": M["spot"], "vol": M["beam_wide"],
+            "skin": M["paint"], "section": M.get("section", M["copper"])}
+    mats["mirror"] = M["coating"]
     bev = {"frame": 0.02, "housing": 0.012, "stage": 0.015, "rstage": 0.015, "greeble": 0.006, "anod": 0.008, "flange_s": 0.008,
            "granite": 0.02, "vessel": 0.01}
+    if beam and bounce:
+        K.bounce_lights([FFM, PFM, G1, G2, MASK + Vector((0, -0.1, -0.15))] + PO, energy=bounce)
     objs = {}
     for k, mb in mbs.items():
         if len(mb.bm.verts):

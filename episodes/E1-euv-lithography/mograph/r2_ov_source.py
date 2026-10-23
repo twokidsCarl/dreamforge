@@ -197,6 +197,8 @@ def ov_B1_10(img, t, dur, W, H):
             if x0 == x:
                 d.line([(x0 + pr * 0.32, cy - pr), (x0 + pr * 0.32, cy + pr)], fill=(*CYAN, 255), width=round(2.2 * k))
             f = font(round(34 * k))
+            if x0 == x and p < 0.06:                 # R3: no second "25 µm" before the sheet has started to spread
+                continue
             if x0 == x:
                 draw_text(d, (x0 + pr * 0.32 + 8 * k, cy), lab, f, fill=(*CYAN, 255), anchor="lm")
             else:
@@ -204,7 +206,7 @@ def ov_B1_10(img, t, dur, W, H):
 
     u = ease((t - 1.2) / 2.0)
     anchor = (W * (0.49 + (0.46 - 0.49) * u), H * (0.64 + (0.46 - 0.64) * u))
-    magnifier(L, anchor, (0.19 * W, 0.4 * H), 0.22 * H, inner, a, title=f"锡滴 25 µm → 薄饼 ≈{um:.0f} µm")
+    magnifier(L, anchor, (0.19 * W, 0.4 * H), 0.22 * H, inner, a, title="锡滴 25 µm" if p < 0.06 else f"锡滴 25 µm → 薄饼 ≈{um:.0f} µm")
     return L.compose(img)
 
 
@@ -357,5 +359,8 @@ def ov_B1_22(img, t, dur, W, H):
     L.text((x0 + step * 4 + 0.085 * W, y - 4), "示意", 0.03 * H, INK2, a, anchor="ra")
     return L.compose(img)
 
+
+# B2_08 (R3): the reaction lines live once, in the in-frame panel; the storyboard label repeated them
+NO_STORYBOARD_LABELS = {"B2_08"}
 
 OVERLAYS = {"B1_10": ov_B1_10, "A0_01": ov_A0_01, "B2_08": ov_B2_08, "B1_18": ov_B1_18, "B1_22": ov_B1_22}

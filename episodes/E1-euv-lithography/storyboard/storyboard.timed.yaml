@@ -7911,9 +7911,6 @@ shots:
   - text: 5100 家供应商
     facts:
     - F50
-  - text: 各地区数量据 ASML 2025 年报；地区内位置为示意
-    facts:
-    - F50
   engine: cycles
   sfx:
   - 顶灯一排排点亮的继电器声

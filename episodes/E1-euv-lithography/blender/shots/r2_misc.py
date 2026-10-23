@@ -467,8 +467,10 @@ def _mirror(sc, n):
     bm.free()
     mir = bpy.data.objects.new("MirrorCap", me)
     sc.collection.objects.link(mir)
-    sub = K.mat("ULE", (0.18, 0.19, 0.22), rough=0.25, speck=0.2)
-    me.materials.append(M["mirror"])
+    sub = K.mat("MirrorBase", (0.7, 0.71, 0.74), metal=1.0, rough=0.22, brushed=0.06)   # R3: polished metal base
+    sc["hdri"] = "hangar_interior"
+    sc["hdri_strength"] = 0.35
+    me.materials.append(M["coating"])
     me.materials.append(sub)
     # cut face material: substrate with a thin layered band at the top (coating) via z gradient
     cut = _new_mat("CutFace")
@@ -542,10 +544,13 @@ def _mirror(sc, n):
     din = Vector((-0.55, -0.15, 1.0)).normalized()
     nrm = Vector((0, 0, 1))
     dout = (din - 2 * din.dot(nrm) * nrm) * -1
-    bc, bh = K.MB(), K.MB()
-    K.beam(bc, bh, [hit + din * 6.0, hit, hit + Vector((-dout.x, -dout.y, dout.z)) * 6.0], r=0.035, halo=3.5)
-    bc.obj("Beam", M["beam"])
-    bh.obj("BeamHalo", M["beam_halo"])
+    bc = K.MB()                                              # R3: volume-light column, footprint spot on the face
+    K.beam_columns(bc, [hit + din * 6.0, hit, hit + Vector((-dout.x, -dout.y, dout.z)) * 6.0], [0.16, 0.1, 0.16])
+    bc.obj("Beam", M["beam_wide"])
+    sp = K.MB()
+    sp.cyl((hit.x, hit.y, hit.z + 0.003), 0.12, 0.002, seg=32)
+    sp.obj("BeamSpot", M["spot"])
+    K.point("BeamHitLight", hit + Vector((0, 0, 0.25)), 15, K.VIOLET, 0.1)
     K.floor("Floor", K.mat("FloorDark", (0.04, 0.045, 0.055), rough=0.35), z=-1.2)
     K.area("Key", (-3, -4, 5), (0, 0, 0), 4, 900, (0.95, 0.96, 1.0))
     K.area("Rim", (3, 4, 3), (0, 0, 0), 5, 700, (0.75, 0.8, 1.0))
@@ -605,13 +610,14 @@ def _pellicle(sc, n):
     gap = 0.055                                  # frame height = membrane stand-off (x10 scale, illustrative)
     fz = 0.152 + gap / 2
     fr = K.MB()
-    fw, fh, bar, ht = 1.32, 1.06, 0.035, gap
+    fw, fh, bar, ht = 1.32, 1.06, 0.022, gap
     for (cx, cy, sx, sy) in [(0, fh / 2, fw, bar), (0, -fh / 2, fw, bar), (fw / 2, 0, bar, fh), (-fw / 2, 0, bar, fh)]:
         fr.box((cx, cy, fz), (sx, sy, ht))
     for sx in (-1, 1):                         # vent holes / pins on the frame sides
         for k in range(7):
             fr.cyl((sx * (fw / 2 + 0.018), -fh / 2 + (k + 0.5) * fh / 7, fz), 0.008, 0.006, rot=(0, math.radians(90), 0), seg=10)
-    fr.obj("PelFrame", K.mat("FrameAlu", (0.72, 0.73, 0.76), metal=1.0, rough=0.3, brushed=0.06), bevel=0.004)
+    # R3 5A: thin black anodized frame (the R2 silver frame + gap read as a thick glass tray)
+    fr.obj("PelFrame", K.mat("FrameBlack", (0.03, 0.03, 0.035), metal=0.6, rough=0.32, speck=0.1), bevel=0.003)
     # membrane: near-transparent, faint grey haze, glossy sheen at grazing angles, slight sag
     mem = _new_mat("Membrane")
     nt, nn, l = _nodes(mem)
@@ -629,13 +635,13 @@ def _pellicle(sc, n):
     fres = nn.new("ShaderNodeLayerWeight")
     fres.inputs["Blend"].default_value = 0.25
     m1 = nn.new("ShaderNodeMixShader")
-    m1.inputs["Fac"].default_value = 0.035
+    m1.inputs["Fac"].default_value = 0.04
     l.new(tr.outputs[0], m1.inputs[1])
     l.new(df.outputs[0], m1.inputs[2])
     m2 = nn.new("ShaderNodeMixShader")
     fk = nn.new("ShaderNodeMath")
     fk.operation = "MULTIPLY"
-    fk.inputs[1].default_value = 0.22
+    fk.inputs[1].default_value = 0.28
     l.new(fres.outputs["Fresnel"], fk.inputs[0])
     l.new(fk.outputs[0], m2.inputs["Fac"])
     l.new(m1.outputs[0], m2.inputs[1])
@@ -667,6 +673,8 @@ def _pellicle(sc, n):
     K.area("Fill", (3.5, -2, 2), (0, 0, 0.3), 3, 350, (0.9, 0.95, 1.0))
     K.area("Rim", (0, 4, 2.5), (0, 0, 0.3), 4, 700, (0.92, 0.95, 1.0))
     sw = K.area("Sweep", (-3, 2.5, 1.6), (0, 0, 0.4), 0.25, 450, (1, 1, 1), size_y=4)
+    sw.visible_camera = False                    # R3: the strip and its glints made the speckle block on the frame edge
+    sc.cycles.sample_clamp_direct = 6.0
     sw.location = (-3.0, 2.5, 1.6)
     sw.keyframe_insert("location", frame=1)
     sw.location = (3.0, 2.5, 1.6)
@@ -937,51 +945,78 @@ def _bokeh_backdrop(sc, y0=40.0, seed=0, count=26):
     K.area("BkKey", (0, y0 - 6, 18), (0, y0 + 10, 0), 30, 9000, (0.7, 0.75, 1.0))
 
 
+def _machine_backdrop(sc):
+    """R3 (H14 fix): the real de-cased machine (same cutaway kit as C_03 / B5_01) as the out-of-focus world behind
+    data overlays, instead of a dark void with abstract bokeh."""
+    import build_cutaway_r2 as B
+    M = K.palette()
+    M["wafer"] = K.mat("WaferSi", (0.32, 0.33, 0.42), metal=1.0, rough=0.08)
+    M["cone"] = K.beam_column_mat("EUVCone", K.VIOLET, strength=1.4, edge=0.4, core=0.06, vol=0.15)
+    K.world_dark(0.55)
+    K.floor("Floor", K.mat("FloorDark", (0.05, 0.055, 0.065), rough=0.3, coat=0.3), z=0.0)
+    K.area("Key", (-6, -8, 8), (-2, 0, 2), 5, 2400, (0.95, 0.96, 1.0))
+    K.area("Rim", (-3, 6, 7), (-3, 0, 2), 10, 1800, (0.7, 0.75, 1.0))
+    K.area("FillR", (7, -5, 3), (2, 0, 2), 4, 600, (0.6, 0.7, 1.0))
+    K.area("Top", (-3, 0, 12), (-3, 0, 0), 14, 600, (0.9, 0.92, 1.0), size_y=4)
+    B.machine(M, studio=False, cut=True)
+    sc["hdri"] = "hangar_interior"
+    sc["hdri_strength"] = 0.25
+    K.clean_cycles(sc)
+    return B
+
+
 def _wave(sc, n):
-    K.world_dark(1.0)
-    _bokeh_backdrop(sc, y0=30.0, seed=4)
-    pts, rad = [], []
-    N = 900
-    x0, x1 = -6.0, 6.0
-    phase = 0.0
-    for i in range(N + 1):
-        t = i / N
-        x = x0 + (x1 - x0) * t
-        lam = 2.2 * (1 - t) ** 2.2 + 0.06            # chirp: long -> 13.5 "pen tip"
-        phase += 2 * math.pi * ((x1 - x0) / N) / lam
-        amp = 1.0 * (1 - t) ** 1.2 + 0.03
-        pts.append((x, 0.0, amp * math.sin(phase)))
-        rad.append(1.0 * (1 - t) + 0.12)
-    ob, cd = _wave_curve("Wave", pts, rad, K.emit_mat("WaveM", K.VIOLET, 9.0))
-    cd.bevel_depth = 0.045
-    oh, ch = _wave_curve("WaveHalo", pts, rad, K.emit_mat("WaveHaloM", K.VIOLET, 2.5, halo=0.5))
-    ch.bevel_depth = 0.13
-    for c in (cd, ch):
-        c.bevel_factor_end = 0.35
+    """A2_08: 193 nm (grey) and 13.5 nm (violet) as two equal-length waves stacked above the wafer stage, in
+    front of the out-of-focus projection optics; the violet period is the grey one / 14.3, so the viewer can
+    count ~14 violet crests per grey crest. No floating boxes."""
+    B = _machine_backdrop(sc)
+    cx, y, span = 1.55, -2.6, 1.8
+    lam193 = span / 2.0
+    lam135 = lam193 / 14.3
+    z193, z135 = 1.95, 1.55
+    g = [(cx - span / 2 + span * i / 599, y, z193 + 0.11 * math.sin(2 * math.pi * (span * i / 599) / lam193))
+         for i in range(600)]
+    og, cg = _wave_curve("Wave193", g, [1.0] * 600, K.emit_mat("Grey193", (0.72, 0.75, 0.82), 3.0))
+    cg.bevel_depth = 0.006
+    v = [(cx - span / 2 + span * i / 2399, y, z135 + 0.07 * math.sin(2 * math.pi * (span * i / 2399) / lam135))
+         for i in range(2400)]
+    ov, cv = _wave_curve("Wave135", v, [1.0] * 2400, K.emit_mat("WaveM", K.VIOLET, 14.0))
+    cv.bevel_depth = 0.0045
+    oh, ch = _wave_curve("Wave135Halo", v, [1.0] * 2400, K.emit_mat("WaveHaloM", K.VIOLET, 2.5, halo=0.5))
+    ch.bevel_depth = 0.014
+    for c in (cv, ch):
+        c.bevel_factor_end = 0.08
         c.keyframe_insert("bevel_factor_end", frame=1)
         c.bevel_factor_end = 1.0
-        c.keyframe_insert("bevel_factor_end", frame=round(n * 0.7))
-    # 193 nm comparison wave: grey, long, constant, behind
-    g = []
-    for i in range(400):
-        x = x0 + (x1 - x0) * i / 399
-        g.append((x, 1.2, 0.9 * math.sin(2 * math.pi * x / 3.4)))
-    og, cg = _wave_curve("Wave193", g, [1.0] * 400, K.emit_mat("Grey193", (0.55, 0.58, 0.66), 1.2))
-    cg.bevel_depth = 0.02
-    cam, tgt = K.camera("CamR2", lens=40)
-    _dof(cam, 0.7, tgt)
-    K.key_path(cam, tgt, [(1, (-1.0, -10.5, 0.8), (0.0, 0, 0)), (n, (1.8, -8.6, 0.5), (2.2, 0, 0))])
+        c.keyframe_insert("bevel_factor_end", frame=round(n * 0.72))
+    # equal-length bracket: two thin end ticks spanning both waves
+    br = K.MB()
+    for x in (cx - span / 2, cx + span / 2):
+        br.box((x, y, (z193 + z135) / 2), (0.004, 0.004, 0.62))
+    br.obj("SpanTicks", K.emit_mat("TickInk", (0.8, 0.84, 0.92), 2.0))
+    cam, tgt = K.camera("CamR2", lens=35)
+    K.key_path(cam, tgt, [(1, (1.25, -5.0, 1.9), (1.45, 0, 1.6)), (n, (1.75, -4.6, 1.8), (1.6, 0, 1.6))],
+               interp="LINEAR")
+    foc = bpy.data.objects.new("WaveFocus", None)
+    sc.collection.objects.link(foc)
+    foc.location = (cx, y, (z193 + z135) / 2)
+    _dof(cam, 0.3, foc)
+    K.anchors("A2_08", {"w193": Vector((cx - span / 2 + lam193 * 0.25, y, z193 + 0.11)),
+                        "w135": Vector((cx + span * 0.3, y, z135 + 0.07)),
+                        "span_l": Vector((cx - span / 2, y, z135 - 0.31)), "span_r": Vector((cx + span / 2, y, z135 - 0.31)),
+                        "wafer": B.WAFER})
     return cam
 
 
 def _bokeh(sc, n):
-    K.world_dark(1.0)
-    _bokeh_backdrop(sc, y0=12.0, seed=9, count=60)
-    cam, tgt = K.camera("CamR2", lens=50)
-    cam.data.dof.use_dof = True
-    cam.data.dof.aperture_fstop = 0.5
-    cam.data.dof.focus_distance = 1.5
-    K.key_path(cam, tgt, [(1, (-2.0, -2.0, 0.6), (0, 30, 0)), (n, (2.0, -2.0, -0.4), (1.0, 30, 0))])
+    """A2_03: out-of-focus machine (projection optics, violet path, wafer) under the formula overlay; anchors for
+    the lambda -> beam and NA -> mirror leader lines."""
+    B = _machine_backdrop(sc)
+    cam, tgt = K.camera("CamR2", lens=32)
+    K.key_path(cam, tgt, [(1, (0.6, -4.6, 2.7), (1.6, 0, 2.55)), (n, (1.4, -4.4, 2.5), (1.9, 0, 2.5))],
+               interp="LINEAR")
+    _dof(cam, 0.35, None, dist=1.4)
+    K.anchors("A2_03", {"beam": B.PO[1].lerp(B.PO[2], 0.5), "mirror": B.PO[5], "wafer": B.WAFER, "mask": B.MASK})
     return cam
 
 
@@ -994,6 +1029,7 @@ def build(variant="space", shot=None):
     sc = C.reset_scene(n)
     sc["vignette"] = 0.3
     sc["film_grain"] = 0.1
+    K.clean_cycles(sc)
     cam = VARIANTS[variant](sc, n)
     sc.camera = cam
     return sc

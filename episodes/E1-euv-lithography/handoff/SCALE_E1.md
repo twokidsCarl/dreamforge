@@ -97,4 +97,4 @@ E1《一台光刻机里发生了什么》风格帧、样片和成片的审美分
 3. 不用 sleep 轮询等子代理；等不到就主笔自打并标「暂评」。
 4. 自评与独立分差 >5，以独立分为准并写原因。
 5. 工程 QA（黑帧、ASR、事实 yaml）与审美分分开报。
-6. 每轮出分后更新 `handoff/p1/score_timeline.png`，随汇报附上；交 Carl 时附 `calib_vs_roundN_comparison.jpg`（选中参考与新帧并排）。
+6. 每轮出分后更新 `handoff/p1/score_timeline.png`（与 E2 同格式：门槛线+均分/最低曲线），随汇报只附该图；交 Carl 时另附 `calib_vs_roundN_comparison.jpg`（选中参考与新帧并排）。
