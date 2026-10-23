@@ -13,6 +13,11 @@ Round 13 (R12 review: "2B beams still read as constant-width tubes at 960x540"):
 end (an hourglass you can see at review size), a small glow bead at every waist / focus apex, landing spots 1.5x
 wider and ~2x brighter. Shots importing this: r2_cutaway (A0_10 B5_01 C_03 B3_02 B8_03 B8_03M B7_06).
 
+Round 14 (R13 review: waist glow beads read as "floating white dots / light turning in mid-air"; the waist was
+the R13 knob, so R14 removes it instead of retuning it): no waists, no beads. Legs alternate opening / narrowing
+between mirror landing spots (_sizes), the only highlights are the landing spots on mirrors; timed_path lights a
+path leg by leg (current leg bright, earlier legs a dim ghost, later legs not yet lit) so no two bright beams cross.
+
 Use: import beam_r12 as BR; BR.install(K, M) swaps kit_r2.beam_columns and the beam materials of a shot;
 BR.flush(M) builds the landing spots collected so far (call once at the end of a build).
 """
@@ -22,8 +27,8 @@ import bpy
 from mathutils import Vector
 
 SPOTS = []                 # (centre, normal, radius)
-FOCI = []                  # R13: (centre, radius) glow beads at waists / focus apexes
-WAIST = [0.12]              # waist radius / smaller end radius
+FOCI = []                  # R13 glow beads: R14 never fills or draws them (kept so old callers do not break)
+CONV = [0.38]               # R14: narrow-end footprint / mirror radius on alternate mirrors
 _ORIG = {}
 
 
@@ -65,32 +70,96 @@ def soft_mat(name, color, strength=2.2, alpha=0.75, power=1.6, invert=False):
     return m
 
 
-def columns(mb, pts, radii, seg=40, spots=True, waist=True):
-    """Tapered legs with a waist between two mirror-sized ends; landing spots on the interior points."""
+def _side(mb, m, r1, r2, L, seg):
+    """R14: an open cone wall (no end caps - a cap seen at an angle read as a flat disc floating on the beam)."""
+    V = mb.bm.verts.new
+    a = [V(m @ Vector((r1 * math.cos(2 * math.pi * i / seg), r1 * math.sin(2 * math.pi * i / seg), -L / 2))) for i in range(seg)]
+    b = [V(m @ Vector((r2 * math.cos(2 * math.pi * i / seg), r2 * math.sin(2 * math.pi * i / seg), L / 2))) for i in range(seg)]
+    for i in range(seg):
+        j = (i + 1) % seg
+        f = mb.bm.faces.new((a[i], a[j], b[j], b[i]))
+        f.smooth = True
+
+
+def _sizes(radii, conv=None):
+    """R14: beam width at every point. Interior mirrors alternate wide / narrow, so each leg visibly opens up
+    or narrows down between two landing spots (a cone, never a constant-width ribbon and never an hourglass waist
+    in mid-air). The end points keep their given radius (a focus stays thin)."""
+    conv = CONV[0] if conv is None else conv
+    s = [max(r, 0.004) for r in radii]
+    if len(s) < 3:
+        return s
+    wide = s[0] < 0.06                       # starting at a focus -> the first mirror carries the wide footprint
+    for j in range(1, len(s) - 1):
+        s[j] = s[j] if wide else s[j] * conv
+        wide = not wide
+    return s
+
+
+def columns(mb, pts, radii, seg=40, spots=True, waist=None):
+    """R14: tapered soft cones between landing spots (drop-in for kit_r2.beam_columns). `waist` is accepted for
+    compatibility and ignored: R13's mid-air waists + glow beads read as "floating white dots" and are gone."""
     import kit_r2 as K
     pts = [Vector(p) for p in pts]
-    for i, ((a, b), (ra, rb)) in enumerate(zip(zip(pts, pts[1:]), zip(radii, radii[1:]))):
-        L = (b - a).length
-        if L < 1e-4:
-            continue
-        ra, rb = max(ra, 0.004), max(rb, 0.004)
-        if waist and min(ra, rb) > 0.045 and L > 0.5:                   # mirror -> mirror: converge to a focus, spread again
-            t = ra / (ra + rb)
-            w = Vector(a.lerp(b, t))
-            rw = max(0.006, WAIST[0] * min(ra, rb))
-            for p, q, r1, r2 in ((a, w, ra, rw), (w, b, rw, rb)):
-                m, l_ = K._orient(p, q)
-                mb.cyl_m(m, r1, l_, seg=seg, r2=r2)
-            FOCI.append((w, max(0.012, rw * 1.1)))
-        else:
-            if waist and min(ra, rb) <= 0.045 and max(ra, rb) > 0.1:     # R13: a cone out of / into a focus (IF)
-                FOCI.append((a if ra < rb else b, max(0.012, min(ra, rb) * 1.0)))
-            m, l_ = K._orient(a, b)
-            mb.cyl_m(m, ra, L, seg=seg, r2=rb)
+    s = _sizes(radii)
+    for (a, b), (ra, rb) in zip(zip(pts, pts[1:]), zip(s, s[1:])):
+        m, L = K._orient(a, b)
+        if L > 1e-4:
+            _side(mb, m, ra, rb, L, seg)
     if spots:
         for j in range(1, len(pts) - 1):
             n = K.mirror_normal(pts[j - 1], pts[j], pts[j + 1])
-            SPOTS.append((pts[j], n, max(0.03, radii[j] * 1.55)))   # R13: 1.05 -> 1.55
+            SPOTS.append((pts[j], n, max(0.03, s[j] * 1.35)))
+
+
+def _anim_mul(mat, keys):
+    """Key the alpha / strength multipliers of a soft_mat by a factor: keys = [(frame, factor)]."""
+    mul = [nd for nd in mat.node_tree.nodes if nd.type == "MATH" and nd.operation == "MULTIPLY"]
+    hi = [nd.inputs[1].default_value for nd in mul]
+    for f, k in keys:
+        for nd, h_ in zip(mul, hi):
+            nd.inputs[1].default_value = h_ * k
+            nd.inputs[1].keyframe_insert("default_value", frame=f)
+
+
+def timed_path(pts, radii, sched, n, name="TimedBeam", strength=2.2, alpha=0.75, dim=0.14, seg=40, ramp=6, no_spot=()):
+    """R14 (R13: "two beams cross in mid-air; 4-5 violet segments per screen"): one object per leg, lit in story
+    order. sched[i] = (t_on, t_dim) as fractions of the shot: hidden before t_on, bright from t_on, dimmed to a
+    ghost (dim) after t_dim (None = stays bright). The landing spot at the end of a leg appears with the leg."""
+    import kit_r2 as K
+    pts = [Vector(p) for p in pts]
+    s = _sizes(radii)
+    objs = []
+    for i, ((a, b), (ra, rb)) in enumerate(zip(zip(pts, pts[1:]), zip(s, s[1:]))):
+        t_on, t_dim = sched[i]
+        mb = K.MB()
+        m, L = K._orient(a, b)
+        _side(mb, m, ra, rb, L, seg)
+        mat = soft_mat(f"{name}Mat{i}", K.VIOLET, strength, alpha)
+        ob = mb.obj(f"{name}{i}", mat)
+        f_on = max(1, round(1 + (n - 1) * t_on))
+        keys = [(1, 0.0 if f_on > 1 else 1.0)]
+        if f_on > 1:
+            keys += [(f_on, 0.0), (f_on + ramp, 1.0)]
+        if t_dim is not None:
+            f_d = round(1 + (n - 1) * t_dim)
+            keys += [(f_d, 1.0), (f_d + ramp, dim)]
+        _anim_mul(mat, keys)
+        objs.append(ob)
+        if i + 1 < len(pts) - 1 and i not in no_spot:              # landing spot where this leg lands
+            nrm = K.mirror_normal(pts[i], pts[i + 1], pts[i + 2])
+            sm = K.MB()
+            q = Vector((0, 0, 1)).rotation_difference(nrm)
+            for k, f in enumerate((1.0, 0.62, 0.32)):
+                sm.cyl(pts[i + 1] + nrm * (0.006 + 0.002 * k), max(0.03, rb * 1.35) * f, 0.001, rot=q.to_euler(), seg=40)
+            so = sm.obj(f"{name}Spot{i}", K.emit_mat(f"{name}SpotMat{i}", (0.82, 0.72, 1.0), 7.5, halo=0.5))
+            if f_on > 1:
+                so.hide_render = True
+                so.keyframe_insert("hide_render", frame=1)
+                so.keyframe_insert("hide_render", frame=f_on + ramp // 2 - 1)
+                so.hide_render = False
+                so.keyframe_insert("hide_render", frame=f_on + ramp // 2)
+    return objs
 
 
 def install(K, M, strength=2.2, alpha=0.75):
@@ -106,12 +175,7 @@ def install(K, M, strength=2.2, alpha=0.75):
 
 def flush(M=None, name="LandingSpots"):
     import kit_r2 as K
-    if FOCI:                                  # R13: glow beads where the light pinches
-        fb = K.MB()
-        for c, r in FOCI:
-            fb.sphere(c, r, 16)
-        FOCI.clear()
-        fb.obj(name + "Foci", K.emit_mat("BeamFocusR13", (0.86, 0.78, 1.0), 6.0, halo=0.85))
+    FOCI.clear()                              # R14: no glow beads anywhere
     if not SPOTS:
         return None
     mb = K.MB()
