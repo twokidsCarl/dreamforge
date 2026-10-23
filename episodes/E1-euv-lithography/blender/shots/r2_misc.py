@@ -477,7 +477,20 @@ def _space(sc, n):
     start = E + _up * earth_r * 1.011
     # R14 (root cause #7, B4_10 #1): metaphor beam is cold white - orange is reserved for the CO2 drive laser
     COLD = (0.82, 0.92, 1.0)
-    _laser(start, ball.location, r=0.03, r_end=0.0012, color=COLD)
+    # R16 (root cause #3, B4_10 "光束一样粗，到球上像插进去"): the beam is a soft cone that narrows to a pin and fades
+    # out in the last few cm before the ball; a small landing spot on the ball face marks where it arrives
+    import misc_kit_r16 as MK
+    _hit = ball.location + (start - ball.location).normalized() * ball_r * 1.01
+    _Lb = (_hit - start).length
+    _st = [k / 40 for k in range(40)] + [1 - x / _Lb for x in (0.4, 0.2, 0.1, 0.05, 0.03, 0.015, 0.006)] + [1.0]
+    _st = sorted(set(_st))
+    _ff = 0.045 / _Lb                                    # fade over the last ~4.5 cm (ball = 4.8 cm)
+    MK.fade_cone("Laser", start, _hit, 0.03, 0.0006,
+                 MK.fade_beam_mat("LaserR16", COLD, 16.0, 1.0, 0.8, fade0=0.004, fade1=_ff), seg=16, stations=_st,
+                 core=0)
+    MK.fade_cone("LaserHalo", start, _hit, 0.12, 0.0015,
+                 MK.fade_beam_mat("LaserHaloR16", COLD, 5.0, 0.5, 1.2, fade0=0.004, fade1=_ff * 2.5), seg=16,
+                 stations=_st, core=0)
     # R14 (B4_10 #3 "激光从大气层边缘凭空出来"): a visible emitter on the ground - a small observatory pad + dome
     # on the Earth's surface with a soft footprint glow where the beam leaves it
     up = _up
@@ -502,7 +515,10 @@ def _space(sc, n):
     # R15 (root cause #4, B4_10 "零碎青色虚线段像断掉的尺寸线"): the dashed rule passes the camera in the middle
     # third and reads as broken fragments -> removed; the distance lives in the Moon tag only
     rl.bm.free()
-    spot = _uv_sphere("Spot", ball.location - dirb * ball_r * 0.15, ball_r * 0.35, 24, K.emit_mat("SpotM", COLD, 20.0))
+    # R16: flat soft landing spot ON the ball face toward Earth (was a glowing sphere poking out = 'plugged in')
+    _dir = (start - ball.location).normalized()
+    MK.spot_cap("Spot", ball.location, ball_r * 1.006, _dir, 16, K.emit_mat("SpotR16", COLD, 3.0, halo=0.35))
+    MK.spot_cap("SpotCore", ball.location, ball_r * 1.008, _dir, 6, K.emit_mat("SpotCoreR16", COLD, 10.0, halo=0.7))
     # R14 (B4_10 #3): contact shadow so the ball sits ON the regolith (soft dark disc under it)
     sh = _new_mat("BallContactShadow")
     nt_, nn_, l_ = _nodes(sh)
@@ -582,6 +598,10 @@ def _globe(sc, n):
     nl = _ll(*NL, R)
     rnd = random.Random(6)
     arc_mat = K.emit_mat("ArcCyan", K.CYAN, 6.0)
+    # R16 (root cause #5, A0_06 "弧线在荷兰汇成白爆点"): arcs at half brightness and they END on a ring around the NL
+    # node (ring radius RING) instead of all meeting in one point
+    arc_mat = K.emit_mat("ArcCyanR16", K.CYAN, 3.0)
+    RING = 0.11
     pts = []
     for lon, lat, w in SUPPLIER_HUBS:
         for _ in range(max(1, w // 4)):
@@ -597,10 +617,14 @@ def _globe(sc, n):
         sp.points.add(N - 1)
         h = 0.02 + 0.07 * (a - nl).length / (2 * R)          # R8: arcs hug the globe (great-circle routes)
         h = 0.006 + 0.03 * (a - nl).length / (2 * R)         # R14 (A0_06 #2): lower still - routes on the surface
+        t_end = 1.0
+        _ang = a.normalized().angle(nl.normalized())
+        if _ang > 1e-4:
+            t_end = max(0.2, 1.0 - (RING / R) / _ang)
         for k in range(N):
-            t = k / (N - 1)
+            t = t_end * k / (N - 1)
             p = a.normalized().slerp(nl.normalized(), t) if hasattr(Vector, "slerp") else a.lerp(nl, t)
-            p = p.normalized() * (R * (1.0 + h * math.sin(math.pi * t)))
+            p = p.normalized() * (R * (1.0 + h * math.sin(math.pi * t / t_end) * 1.0))
             sp.points[k].co = (*p, 1)
         cd.bevel_depth = 0.0035
         cd.bevel_resolution = 2
@@ -631,8 +655,12 @@ def _globe(sc, n):
             ob.keyframe_insert("hide_render", frame=t_on - 1)
             ob.hide_render = False
             ob.keyframe_insert("hide_render", frame=t_on)
-    _uv_sphere("NLPoint", nl * 1.004, 0.032, 24, K.emit_mat("NLWhite", (1, 1, 1), 25.0))
-    _uv_sphere("NLHalo", nl * 1.004, 0.06, 24, K.emit_mat("NLHaloM", (0.85, 0.95, 1.0), 3.0, halo=0.6))
+    # R16: NL = a small dim core inside a thin bright ring where the routes arrive (was a 25x white sphere + halo)
+    import misc_kit_r16 as MK
+    _uv_sphere("NLPoint", nl * 1.003, 0.018, 24, K.emit_mat("NLCoreR16", (0.85, 0.95, 1.0), 5.0))
+    rmb = K.MB()
+    MK.spot_ring(rmb, nl * 1.004, nl.normalized(), RING, w=0.14)
+    rmb.obj("NLRing", K.emit_mat("NLRingR16", (0.75, 0.95, 1.0), 5.0))
     _sun("Sun", (math.radians(55), 0, math.radians(-30)), 2.6, (0.8, 0.88, 1.0))   # R14: key up, light ratio >= 8:1
     _sun("SunRim", (math.radians(100), 0, math.radians(160)), 3.0, (1.0, 0.92, 0.8))   # R8: terminator / rim light
     # turn Europe toward the camera (camera on -Y): rotate so lon 5 sits at -Y
@@ -705,6 +733,15 @@ def _mirror(sc, n):
             _bs.inputs[_k].default_value = _v
     if "Subsurface Radius" in _bs.inputs:
         _bs.inputs["Subsurface Radius"].default_value = (1.0, 0.8, 0.6)
+    # R16 (root cause #5, B4_07 "切面基底哑光灰像塑料"): Zerodur / ULE-like glass-ceramic - warm amber, polished,
+    # light scatters inside (subsurface, no transmission: R14's transmissive rim blew out)
+    sub = K.mat("GlassCeramicR16", (0.4, 0.35, 0.29), rough=0.16, coat=0.5)
+    _bs = next(x for x in sub.node_tree.nodes if x.type == "BSDF_PRINCIPLED")
+    for _k, _v in (("Subsurface Weight", 0.2), ("Subsurface Scale", 0.05)):
+        if _k in _bs.inputs:
+            _bs.inputs[_k].default_value = _v
+    if "Subsurface Radius" in _bs.inputs:
+        _bs.inputs["Subsurface Radius"].default_value = (1.0, 0.6, 0.3)
     M["coating"] = K.mat("MoSiPolishedR6", (0.8, 0.78, 0.9), metal=1.0, rough=0.025, coat=0.7)
     sc["hdri"] = "hangar_interior"
     sc["hdri_strength"] = 0.35
@@ -752,6 +789,7 @@ def _mirror(sc, n):
     band.operation = "LESS_THAN"
     band.inputs[1].default_value = 0.014                      # R14: a thin line, not a 3 cm stripe
     band.inputs[1].default_value = 0.009                      # R15: thinner, brighter coating band
+    band.inputs[1].default_value = 0.016                      # R16: coating edge exaggerated to 2-3 px, metal-bright
     l.new(dz.outputs[0], band.inputs[0])
     mix = nn.new("ShaderNodeMix")
     mix.data_type = "RGBA"
@@ -771,6 +809,15 @@ def _mirror(sc, n):
     bp_.inputs["Strength"].default_value = 0.3
     l.new(nz_.outputs["Fac"], bp_.inputs["Height"])
     l.new(bp_.outputs["Normal"], b.inputs["Normal"])
+    # R16 (root cause #5): the section is POLISHED glass-ceramic (warm amber, glossy, inner scatter), not ground grey
+    mix.inputs["A"].default_value = (*K.lin((0.38, 0.33, 0.27)), 1)
+    b.inputs["Roughness"].default_value = 0.14
+    bp_.inputs["Strength"].default_value = 0.05
+    for _k, _v in (("Subsurface Weight", 0.2), ("Subsurface Scale", 0.05), ("Coat Weight", 0.5)):
+        if _k in b.inputs:
+            b.inputs[_k].default_value = _v
+    if "Subsurface Radius" in b.inputs:
+        b.inputs["Subsurface Radius"].default_value = (1.0, 0.6, 0.3)
     l.new(band.outputs[0], mix.inputs["Factor"])
     l.new(ramp.outputs["Color"], mix.inputs["B"])
     l.new(mix.outputs["Result"], b.inputs["Base Color"])
@@ -810,12 +857,13 @@ def _mirror(sc, n):
     # R14 (root cause #1, B4_07 #2 "实心白色胶囊端头"): open soft-edged cones - the incoming light narrows onto
     # the landing spot, the reflected light opens out of the SAME spot; no caps, no column, no end bead
     rout = Vector((-din.x, -din.y, din.z))
-    bc = K.MB()
-    _open_cone(bc, hit + din * 6.0, hit, 0.17, 0.06, seg=56)
-    bc.obj("Beam", _soft_beam_mat("EUVInR14", strength=2.6, alpha=0.75))
-    bo = K.MB()
-    _open_cone(bo, hit, hit + rout * 6.0, 0.06, 0.2, seg=56)
-    bo.obj("BeamOut", _soft_beam_mat("EUVOutR14", strength=1.9, alpha=0.6))
+    # R16 (root cause #3, B4_07 "等粗实心光管"): the incoming cone converges INTO the landing spot and the reflected
+    # cone opens out of it; both far ends fade out (no cut-off ends), soft core instead of a solid tube
+    import misc_kit_r16 as MK
+    MK.fade_cone("Beam", hit + din * 6.0, hit, 0.2, 0.05,
+                 MK.fade_beam_mat("EUVInR16", strength=2.6, alpha=0.7, fade0=0.5, fade1=0.03), seg=56)
+    MK.fade_cone("BeamOut", hit, hit + rout * 6.0, 0.05, 0.24,
+                 MK.fade_beam_mat("EUVOutR16", strength=1.9, alpha=0.55, fade0=0.03, fade1=0.55), seg=56)
     # R6: mount detail: coolant ring with branch lines, three edge sensors, cable loom off the base
     det, cu, cab = K.MB(), K.MB(), K.MB()
     cu.ring((0, 0, -th - 0.13), R * 1.16, R * 1.12, 0.03, seg=96)
@@ -888,7 +936,7 @@ def _pellicle(sc, n):
     # mask: 1.52 x 1.52 x 0.064 (x10 scale), dark multilayer top with absorber pattern
     mb = K.MB()
     mb.box((0, 0, 0.12), (1.52, 1.52, 0.064))
-    mask = mb.obj("Mask", K.mat("MaskSide", (0.2, 0.21, 0.23), rough=0.3), bevel=0.006)
+    mask = mb.obj("Mask", K.mat("MaskSideR16", (0.06, 0.065, 0.075), metal=0.6, rough=0.12, coat=0.6), bevel=0.012)   # R16: polished chamfered blank
     top = _new_mat("MaskTop")
     nt, nn, l = _nodes(top)
     b = next(x for x in nn if x.type == "BSDF_PRINCIPLED")
@@ -913,6 +961,29 @@ def _pellicle(sc, n):
     rr.inputs["To Max"].default_value = 0.3
     l.new(bw.outputs["Val"], rr.inputs["Value"])
     l.new(rr.outputs["Result"], b.inputs["Roughness"])
+    # R16 (root cause #5, B6_12 "基底像灰塑料、图形像平面贴图"): dark reflective Mo/Si multilayer blank (near-mirror,
+    # reflects the studio) with the absorber pattern as matte, slightly RAISED lines (bump from the layout)
+    thr = nn.new("ShaderNodeMapRange")
+    thr.interpolation_type = "SMOOTHSTEP"
+    thr.inputs["From Min"].default_value = 0.38
+    thr.inputs["From Max"].default_value = 0.52
+    l.new(bw.outputs["Val"], thr.inputs["Value"])
+    cr.color_ramp.elements[0].color = (*K.lin((0.05, 0.055, 0.075)), 1)     # multilayer: dark, glossy
+    cr.color_ramp.elements[1].color = (*K.lin((0.36, 0.36, 0.42)), 1)       # absorber (TaN): matte grey
+    l.new(thr.outputs["Result"], cr.inputs["Fac"])
+    rr.inputs["To Min"].default_value = 0.06
+    rr.inputs["To Max"].default_value = 0.5
+    l.new(thr.outputs["Result"], rr.inputs["Value"])
+    mtl = nn.new("ShaderNodeMapRange")
+    mtl.inputs["To Min"].default_value = 0.9
+    mtl.inputs["To Max"].default_value = 0.15
+    l.new(thr.outputs["Result"], mtl.inputs["Value"])
+    l.new(mtl.outputs["Result"], b.inputs["Metallic"])
+    bmp = nn.new("ShaderNodeBump")
+    bmp.inputs["Strength"].default_value = 0.6
+    bmp.inputs["Distance"].default_value = 0.002
+    l.new(thr.outputs["Result"], bmp.inputs["Height"])
+    l.new(bmp.outputs["Normal"], b.inputs["Normal"])
     mt = K.MB()
     mt.box((0, 0, 0.1525), (1.44, 1.44, 0.002))
     mt.obj("MaskTop", top)
@@ -985,6 +1056,8 @@ def _pellicle(sc, n):
     fk.inputs[1].default_value = 0.07                  # R5: less sheen, so it is not a dark lid
     fk.inputs[1].default_value = 0.11                  # R14: a little more sheen so the tension bands read
     fk.inputs[1].default_value = 0.05                  # R15: no grey lid; the sweep strip draws ONE thin band
+    fk.operation = "MULTIPLY_ADD"                       # R16 (root cause #5): ~3 % base reflectance -> a grazing
+    fk.inputs[2].default_value = 0.03                   # sweep band crosses the whole film (it reads as a sheet)
     gl.inputs["Roughness"].default_value = 0.035
     l.new(fres.outputs["Fresnel"], fk.inputs[0])
     l.new(fk.outputs[0], m2.inputs["Fac"])
@@ -1046,6 +1119,7 @@ def _pellicle(sc, n):
     sw.data.size = 0.9
     sw.data.energy = 260
     sw.data.size, sw.data.energy = 0.18, 160      # R15: one thin grazing highlight band, not a broad haze
+    sw.data.size, sw.data.energy = 0.3, 520       # R16: the sweep band is clearly visible across the film
     try:
         rc = bpy.data.collections.new("SweepReceivers")
         rc.objects.link(mo)
@@ -1409,14 +1483,14 @@ def _wafer(sc, n):
     # projection optics' bottom housing with its violet exposure aperture above the stage
     import parts_kit_r8 as PK
     Mk = K.palette()
+    # R16 (root cause #5, B8_17 "墙面同一种面板铺满，7 种件"): the repeated-block wall is replaced by a service wall
+    # of 15 different nameable parts (pumps, valves, viewport, gauges, valve island, ion pump, PSU, drag chain,
+    # linear axis, manifold, hoses, harness), pushed back 1.6 m and thrown out of focus
+    import misc_kit_r16 as MK
     bw = K.MB()
-    bw.box((1.0, 4.6, 1.6), (12.0, 0.1, 4.6))
+    bw.box((1.0, 6.3, 1.6), (16.0, 0.1, 6.0))
     bw.obj("BackWall", Mk["anod"])
-    import hero_kit_r10 as HK                         # R10: nameable parts (no PCB / LED boxes)
-    P = HK.new_parts()
-    import hero_kit_r11 as HK11            # R11: non-repeating blocks
-    HK11.wall_r11(P, -4.5, 6.5, -0.4, 3.8, 4.55, seed=21, scale=1.6, depth=1.4)
-    HK.finish(P, Mk, "B8_17Kit")
+    MK.parts_wall_r16(Mk, (1.4, 6.2, -1.3), 3.0)
     po = K.MB()
     po.cyl((1.4, 2.4, 3.35), 1.6, 1.3, seg=96)
     po.ring((1.4, 2.4, 2.68), 1.65, 0.5, 0.08, seg=96)
@@ -1427,8 +1501,11 @@ def _wafer(sc, n):
     ap.cyl((1.4, 2.4, 2.67), 0.45, 0.01, seg=64)
     ap.obj("POAperture17", K.emit_mat("POAp17", K.VIOLET, 5.0))
     K.area("BackWash", (1.0, 1.0, 4.5), (1.0, 4.6, 1.5), 6, 700, (0.8, 0.85, 1.0))
+    bpy.data.objects["BackWash"].location = (1.0, 2.0, 5.0)
+    bpy.data.objects["BackWash"].data.energy = 1100
     cam, tgt = K.camera("CamR2", lens=32)
     _dof(cam, 8.0, tgt)
+    cam.data.dof.aperture_fstop = 1.4                  # R16: back wall defocused, wafer + optics stay sharp
     # R15 (B8_17 "零件挤在上沿被裁掉一半"): camera ~10 deg lower, aim raised, so the optics bottom and the cassette
     # sit whole in frame above the wafer
     K.key_path(cam, tgt, [(1, (-1.0, -6.0, 3.0), (1.1, 0.5, 0.45)), (n, (0.4, -5.8, 2.7), (1.4, 0.5, 0.45))])
@@ -1494,6 +1571,9 @@ def _machine_backdrop(sc, keep=None, dim=1.0):
     spots = []
     orig, orig_cone = K.beam_columns, K.cone_beam
     K.beam_columns = _r14_columns_factory(spots, keep)
+    if keep:                                   # R16 (root cause #3): each leg a fading cone into its landing spot
+        import misc_kit_r16 as MK
+        K.beam_columns, _r16_built = MK.columns_factory_r16(spots, keep, mat=(2.4 * dim, 0.55 * min(1.0, 0.4 + dim)))
     if keep:                                   # R15: no collector cone either - one path only
         K.cone_beam = lambda *a_, **k_: None
     try:
