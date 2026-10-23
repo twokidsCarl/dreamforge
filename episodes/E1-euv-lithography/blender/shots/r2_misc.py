@@ -468,6 +468,13 @@ def _space(sc, n):
     ball = _uv_sphere("GolfBall", surf + nrm * ball_r * 0.9, ball_r, 96,
                       _bump_mat("Golf", (0.93, 0.93, 0.92), 0.35, 260.0, 0, bump=0.9, dimples=True))
     ball.scale = (1, 1, 1)
+    # R17 (root cause #4 landing surface, B4_10 "凹坑随机大小，像一颗小月球"): the light must land on something that
+    # reads as a golf ball - regular near-hexagonal dimples in white glossy plastic (geometry, not voronoi bump)
+    import misc_beam_r17 as BR17
+    _bl = ball.location.copy()
+    bpy.data.objects.remove(ball, do_unlink=True)
+    ball = BR17.golf_ball_r17("GolfBall", _bl, ball_r, K.mat("GolfR17", (0.94, 0.94, 0.93), rough=0.28, coat=0.6),
+                              depth=0.03, subdiv=7)
     # tee-like little dust ring under the ball
     start = E + (ball.location - E).normalized() * earth_r * 1.01
     # R14 (B4_10 #3): leave from a ground point on the camera-facing hemisphere (the R13 start sat on the limb, so
@@ -491,6 +498,15 @@ def _space(sc, n):
     MK.fade_cone("LaserHalo", start, _hit, 0.12, 0.0015,
                  MK.fade_beam_mat("LaserHaloR16", COLD, 5.0, 0.5, 1.2, fade0=0.004, fade1=_ff * 2.5), seg=16,
                  stations=_st, core=0)
+    # R17 (root cause #4, B4_10 −3.14): change ROUTE - no halo shell, no needle fade: the beam is ONE thin cold core
+    # from the station to the ball (slight taper), it ends hard ON the ball face where a landing highlight + a
+    # small light make the ball itself light up
+    for nm in ("Laser", "LaserHalo"):
+        bpy.data.objects.remove(bpy.data.objects[nm], do_unlink=True)
+    BR17.thin_core("LaserR17", start, _hit, 0.016, COLD, 14.0, 1.0, fade0=0.002, seg=16, r_end=0.0006)
+    _bh = K.point("BallHitR17", _hit + (start - ball.location).normalized() * 0.012, 0.006, COLD, 0.004)
+    _bh.visible_camera = False
+    _bh.visible_glossy = False
     # R14 (B4_10 #3 "激光从大气层边缘凭空出来"): a visible emitter on the ground - a small observatory pad + dome
     # on the Earth's surface with a soft footprint glow where the beam leaves it
     up = _up
@@ -503,6 +519,8 @@ def _space(sc, n):
     eg = K.MB()
     _landing_spot(eg, g0 + up * 0.02, up, 0.3)
     eg.obj("EmitterGlow", K.emit_mat("EmitterGlowM", COLD, 9.0, halo=0.6))
+    # R17 (B4_10 R16 "激光从地球边缘插进去"): the beam leaves from ONE visible bright station point on the ground
+    _uv_sphere("StationR17", g0 + up * 0.03, 0.08, 16, K.emit_mat("StationR17M", COLD, 40.0))
     # R8: Earth-Moon distance rule under the beam (dashed, end ticks), scale cue for "380,000 km"
     rl = K.MB()
     e0, m0 = E + (MO - E).normalized() * (earth_r + 0.6), MO - (MO - E).normalized() * (moon_r + 0.6)
@@ -519,6 +537,11 @@ def _space(sc, n):
     _dir = (start - ball.location).normalized()
     MK.spot_cap("Spot", ball.location, ball_r * 1.006, _dir, 16, K.emit_mat("SpotR16", COLD, 3.0, halo=0.35))
     MK.spot_cap("SpotCore", ball.location, ball_r * 1.008, _dir, 6, K.emit_mat("SpotCoreR16", COLD, 10.0, halo=0.7))
+    # R17: the dimpled ball surface sits up to 3 % below r -> landing highlight = one soft cap hugging the ball
+    for nm in ("Spot", "SpotCore"):
+        bpy.data.objects.remove(bpy.data.objects[nm], do_unlink=True)
+    MK.spot_cap("SpotR17", ball.location, ball_r * 1.004, _dir, 8, K.emit_mat("SpotR17M", COLD, 2.0, halo=0.35))
+    MK.spot_cap("SpotCoreR17", ball.location, ball_r * 1.006, _dir, 3, K.emit_mat("SpotCoreR17M", COLD, 10.0, halo=0.8))
     # R14 (B4_10 #3): contact shadow so the ball sits ON the regolith (soft dark disc under it)
     sh = _new_mat("BallContactShadow")
     nt_, nn_, l_ = _nodes(sh)
@@ -579,6 +602,9 @@ SUPPLIER_HUBS = [  # (lon, lat, weight) illustrative regional hubs; NL is the de
     (139.7, 35.7, 8), (135.5, 34.7, 5), (127.0, 37.5, 6), (121.0, 24.8, 6), (121.5, 31.2, 4), (114.1, 22.5, 3),
     (103.8, 1.35, 3), (77.6, 12.9, 2), (34.8, 32.1, 3)]
 NL = (5.47, 51.44)
+# R17: 8 supplier regions (illustrative share, from the hub weights above; NL itself is the landing ring)
+SUPPLIER_REGIONS_R17 = [(11.5, 48.2, 48), (-0.5, 47.0, 21), (-118.0, 35.5, 18), (-73.5, 41.5, 10),
+                        (134.0, 36.0, 19), (119.5, 27.5, 13), (34.8, 32.1, 3), (92.0, 10.0, 5)]
 
 
 def _ll(lon, lat, r):
@@ -672,6 +698,58 @@ def _globe(sc, n):
     ce = _ll(-28, 40, 1).normalized()
     K.key_path(cam, tgt, [(1, tuple(cn * 8.6 + Vector((0.4, 0, -0.6))), (0, 0, 0.35)),
                           (n, tuple(ce * 7.4), tuple(_ll(-12, 42, R) * 0.45))])
+    # R17 (root cause #4 applied to the globe = ONE readable path per supplier region into ONE landing point;
+    # A0_06 R16 "欧洲堆成一团白色噪点，读不出一张网" / "地球顶部被裁"): the scattered dot texture and the ~40 jittered
+    # arcs + 26 hub blobs are replaced by 8 regional discs (area ~ supplier share) each sending one route that
+    # lands on the NL ring; camera aim raised ~10 % of frame so Scandinavia / N. America sit whole in frame
+    for nd in m.node_tree.nodes:
+        if nd.type == "MATH" and nd.operation == "MULTIPLY" and abs(nd.inputs[1].default_value - 9.0) < 1e-6:
+            nd.inputs[1].default_value = 0.0
+    for ob in list(bpy.data.objects):
+        if ob.name.startswith(("Arc", "Hub")):
+            bpy.data.objects.remove(ob, do_unlink=True)
+    import misc_beam_r17 as BR17
+    _arc17 = K.emit_mat("ArcCyanR17", K.CYAN, 4.0)
+    for k, (lon, lat, w) in enumerate(SUPPLIER_REGIONS_R17):
+        a = _ll(lon, lat, R)
+        r_ = 0.035 * math.sqrt(w / 10.0)
+        t_on = 1 + int(n * (0.06 + 0.07 * k))
+        disc = BR17.landing(f"RegionR17_{k}", a, a.normalized(), r_, color=(0.55, 0.95, 1.0), strength=6.0,
+                            lift=0.004)
+        rmb = K.MB()
+        MK.spot_ring(rmb, a * 1.0025, a.normalized(), r_, w=0.12)
+        ring = rmb.obj(f"RegionRingR17_{k}", K.emit_mat(f"RegionRingR17M{k}", (0.6, 0.95, 1.0), 6.0))
+        cd = bpy.data.curves.new(f"RouteR17_{k}", "CURVE")
+        cd.dimensions = "3D"
+        sp = cd.splines.new("POLY")
+        N = 48
+        sp.points.add(N - 1)
+        _ang = a.normalized().angle(nl.normalized())
+        t0 = min(0.4, (r_ / R) / _ang)
+        t1 = max(t0 + 0.1, 1.0 - (RING / R) / _ang)
+        h = 0.01 + 0.05 * (a - nl).length / (2 * R)
+        for i in range(N):
+            t = t0 + (t1 - t0) * i / (N - 1)
+            p = a.normalized().slerp(nl.normalized(), t)
+            sp.points[i].co = (*(p.normalized() * (R * (1.0 + h * math.sin(math.pi * t)))), 1)
+        cd.bevel_depth = 0.005
+        cd.bevel_resolution = 2
+        rob = bpy.data.objects.new(f"RouteR17_{k}", cd)
+        sc.collection.objects.link(rob)
+        rob.data.materials.append(_arc17)
+        cd.bevel_factor_end = 0.0
+        cd.keyframe_insert("bevel_factor_end", frame=t_on)
+        cd.bevel_factor_end = 1.0
+        cd.keyframe_insert("bevel_factor_end", frame=t_on + int(n * 0.2))
+        for ob in (disc, ring):
+            ob.hide_render = True
+            ob.keyframe_insert("hide_render", frame=1)
+            ob.keyframe_insert("hide_render", frame=t_on - 1)
+            ob.hide_render = False
+            ob.keyframe_insert("hide_render", frame=t_on)
+    tgt.animation_data_clear()
+    K.key_path(cam, tgt, [(1, tuple(cn * 8.6 + Vector((0.4, 0, -0.6))), (0, 0, 0.62)),
+                          (n, tuple(ce * 7.4), tuple(_ll(-12, 42, R) * 0.45 + Vector((0, 0, 0.36))))])
     K.anchors("A0_06", {"nl": nl})
     return cam
 
@@ -864,6 +942,14 @@ def _mirror(sc, n):
                  MK.fade_beam_mat("EUVInR16", strength=2.6, alpha=0.7, fade0=0.5, fade1=0.03), seg=56)
     MK.fade_cone("BeamOut", hit, hit + rout * 6.0, 0.05, 0.24,
                  MK.fade_beam_mat("EUVOutR16", strength=1.9, alpha=0.55, fade0=0.03, fade1=0.55), seg=56)
+    # R17 (root cause #4, B4_07 "缺口处一团紫光透进镜体"): change ROUTE - no cones at all: the light is one thin
+    # core in and one thin core out, meeting in a single elliptical highlight ON the coating; the violet point
+    # lights that lit the notch / substrate are removed (below), so nothing violet sits inside the blank
+    import misc_beam_r17 as BR17
+    for nm in ("Beam", "BeamOut"):
+        bpy.data.objects.remove(bpy.data.objects[nm], do_unlink=True)
+    BR17.thin_core("BeamR17", hit + din * 6.0, hit, 0.011, K.VIOLET, 9.0, 0.95, fade0=0.45, glossy=False)
+    BR17.thin_core("BeamOutR17", hit, hit + rout * 6.0, 0.011, K.VIOLET, 7.0, 0.95, fade1=0.45, glossy=False)
     # R6: mount detail: coolant ring with branch lines, three edge sensors, cable loom off the base
     det, cu, cab = K.MB(), K.MB(), K.MB()
     cu.ring((0, 0, -th - 0.13), R * 1.16, R * 1.12, 0.03, seg=96)
@@ -883,11 +969,11 @@ def _mirror(sc, n):
     det.obj("EdgeSensors", M["anod"], bevel=0.004)
     cu.obj("CoolantRing", M["copper"])
     cab.obj("SensorCables", M["cable_b"])
-    sp = K.MB()                                              # R14: soft footprint on the coating
-    _landing_spot(sp, hit, Vector((0, 0, 1)), 0.085)
-    spo = sp.obj("BeamSpot", K.emit_mat("BeamSpotR14", (0.62, 0.5, 1.0), 2.2, halo=0.45))
+    # R17: one soft elliptical highlight lying on the coating (stretched along the beam's footprint) replaces the
+    # R14 stacked-disc footprint + its 15 W violet light
+    spo = BR17.landing("BeamSpotR17", hit, Vector((0, 0, 1)), 0.085, color=(0.82, 0.72, 1.0), strength=12.0,
+                       squash=0.55, major=Vector((din.x, din.y, 0)), lift=0.005)
     spo.visible_glossy = False                               # its mirror image read as a second white blob
-    K.point("BeamHitLight", hit + Vector((0, 0, 0.25)), 15, K.VIOLET, 0.1)
     K.floor("Floor", K.mat("FloorDark", (0.04, 0.045, 0.055), rough=0.35), z=-1.2)
     K.area("Key", (-3, -4, 5), (0, 0, 0), 4, 900, (0.95, 0.96, 1.0))
     K.area("Rim", (3, 4, 3), (0, 0, 0), 5, 700, (0.75, 0.8, 1.0))
@@ -896,7 +982,7 @@ def _mirror(sc, n):
         bpy.data.objects[nm].visible_glossy = False   # images in the coating or the rim
         bpy.data.objects[nm].visible_camera = False
     bpy.data.objects["Strip"].data.energy = 160
-    K.point("Glow", hit + Vector((0, 0, 0.3)), 60, K.VIOLET, 0.1)
+    # R17: no 60 W violet "Glow" over the hit - it lit the notch faces violet ("light passing into the mirror")
     for nm in ("Glow", "BeamHitLight"):          # R14: the two point-light spheres (and their mirror images) were
         o_ = bpy.data.objects.get(nm)            # the white "capsule end" over the landing spot
         if o_ is not None:
@@ -1037,6 +1123,9 @@ def _pellicle(sc, n):
     out = next(x for x in nn if x.type == "OUTPUT_MATERIAL")
     tr = nn.new("ShaderNodeBsdfTransparent")
     tr.inputs["Color"].default_value = (0.93, 0.93, 0.94, 1)
+    # R17 (B6_12 R16 "膜像一块茶色玻璃板，透过去的图形被整体压暗"): ~97 % neutral transmission - the film is
+    # carried by its grazing sweep highlight (R16 material kept), not by darkening the pattern under it
+    tr.inputs["Color"].default_value = (0.975, 0.975, 0.975, 1)
     gl = nn.new("ShaderNodeBsdfGlossy")
     gl.inputs["Roughness"].default_value = 0.06
     gl.inputs["Roughness"].default_value = 0.22         # R14: broad soft tension band, not a thin white streak
@@ -1101,7 +1190,8 @@ def _pellicle(sc, n):
     dim_o.keyframe_insert("hide_render", frame=f_dim)
     K.anchors("B6_12", {"gap_top": Vector((gx, gy, z_top)), "gap_bot": Vector((gx, gy, z_bot)),
                         "gap_mid": Vector((gx + 0.03, gy, (z_top + z_bot) / 2)),
-                        "film": Vector((-0.15, 0.1, z_top)), "mask": Vector((0.45, -0.62, 0.153))})
+                        "film": Vector((-0.15, 0.1, z_top)), "mask": Vector((0.45, -0.62, 0.153)),
+                        "pattern": Vector((0.22, -0.3, 0.1535))})       # R17: mask leader lands on the pattern
     # studio lights; one strip sweeps to drag a grazing highlight across the membrane
     K.area("Key", (-3, -3.5, 4.5), (0, 0, 0.3), 3, 900, (1, 0.99, 0.97))
     K.area("Fill", (3.5, -2, 2), (0, 0, 0.3), 3, 350, (0.9, 0.95, 1.0))
@@ -1445,6 +1535,25 @@ def _wafer(sc, n):
     for fc in C.fcurves(so.animation_data.action):
         for kp in fc.keyframe_points:
             kp.interpolation = "LINEAR"
+    # R17 (root cause #4, B8_17 "曝光点是悬空的白色短线 + 一团紫雾，看不出光从哪里来"): change ROUTE - the fog
+    # curtain is removed; ONE thin violet core comes straight down from above the frame and lands in the slit,
+    # and a small light at the slit makes the landing visibly light the fields around it
+    import misc_beam_r17 as BR17
+    co.hide_render = True
+    core17 = BR17.thin_core("ExposeCoreR17", Vector((0, 0, 0.003)), Vector((0, 0, 3.2)), 0.007, K.VIOLET, 10.0,
+                            0.95, fade1=0.35, seg=12)
+    core17.parent = so
+    lt17 = K.point("SlitLightR17", (0, 0, 0.05), 1.2, K.VIOLET, 0.03)
+    lt17.parent = so
+    lt17.visible_camera = False
+    lt17.visible_glossy = False
+    lt17.data.keyframe_insert("energy", frame=round(n * 0.9) + 2)
+    lt17.data.energy = 0.0
+    lt17.data.keyframe_insert("energy", frame=round(n * 0.9) + 4)
+    # R17 (B8_17 "已曝光场是均匀发光的紫色平块，像屏幕贴图"): exposed fields become a dim violet latent image over
+    # the visible die pattern; only the field under the slit is bright, so the scan reads strip by strip
+    hot.inputs["To Max"].default_value = 0.16
+    al.inputs[1].default_value = 0.3
     # R14 (B8_17 #2): wafer notch at 6 o'clock
     ntc = K.MB()
     ntc.cyl((0, -R, 0.0045), 0.035, 0.0105, seg=24)
@@ -1551,7 +1660,7 @@ def _bokeh_backdrop(sc, y0=40.0, seed=0, count=26):
     K.area("BkKey", (0, y0 - 6, 18), (0, y0 + 10, 0), 30, 9000, (0.7, 0.75, 1.0))
 
 
-def _machine_backdrop(sc, keep=None, dim=1.0):
+def _machine_backdrop(sc, keep=None, dim=1.0, r17=None):
     """R3 (H14 fix): the real de-cased machine (same cutaway kit as C_03 / B5_01) as the out-of-focus world behind
     data overlays, instead of a dark void with abstract bokeh."""
     import build_cutaway_r2 as B
@@ -1574,12 +1683,33 @@ def _machine_backdrop(sc, keep=None, dim=1.0):
     if keep:                                   # R16 (root cause #3): each leg a fading cone into its landing spot
         import misc_kit_r16 as MK
         K.beam_columns, _r16_built = MK.columns_factory_r16(spots, keep, mat=(2.4 * dim, 0.55 * min(1.0, 0.4 + dim)))
+    if r17 is not None:                        # R17 (root cause #4): change ROUTE - thin cores + landing highlights
+        import misc_beam_r17 as BR17
+        K.beam_columns, _r17_built = BR17.columns_factory_r17(spots, keep, r_core=r17.get("r", 0.016),
+                                                              strength=r17.get("core", 7.0), color=r17.get("color"))
+        # the hexapod mirror faces carried a built-in violet emissive disc each (M["spot"]) = "glowing discs facing
+        # the camera, read as spotlights": they become plain polished mirror metal
+        M["spot"] = K.mat("MirrorFaceR17", (0.78, 0.78, 0.82), metal=1.0, rough=0.06)
     if keep:                                   # R15: no collector cone either - one path only
         K.cone_beam = lambda *a_, **k_: None
     try:
         B.machine(M, studio=False, cut=True)
     finally:
         K.beam_columns, K.cone_beam = orig, orig_cone
+    if r17 is not None:
+        # every mirror the path touches gets ONE soft highlight on its face + a small light that lights its mount;
+        # the other mirrors lose their violet bounce lights (they read as a row of spotlights) and stay metal
+        for p, nrm, j in spots:
+            BR17.landing(f"LandR17_{j}", p, nrm, r17.get("spot", 0.09), strength=r17.get("spot_e", 5.0),
+                         light=r17.get("light", 6.0), squash=0.7, color=r17.get("spot_c"))
+        BR17.prune_bounce({j - 1 for _p, _n, j in spots})
+        for ob in bpy.data.objects:
+            if ob.type == "LIGHT" and ob.name.startswith("Bounce"):
+                ob.data.energy *= r17.get("bounce", 0.6)
+        sc["hdri"] = "hangar_interior"
+        sc["hdri_strength"] = 0.25
+        K.clean_cycles(sc)
+        return B
     smb = K.MB()
     for p, nrm, r in spots:
         _landing_spot(smb, p, nrm, r)
@@ -1596,7 +1726,11 @@ def _wave(sc, n):
     count ~14 violet crests per grey crest. No floating boxes."""
     # R15 (root cause #4, A2_08 "背景紫光束与 13.5 nm 紫波同色抢眼"): one dim PO fold only (30 %), so violet
     # belongs to the foreground wave
-    B = _machine_backdrop(sc, keep=(6, 11), dim=0.3)
+    # R17 (root cause #4, A2_08 "背景虚焦里仍有几条交叉紫光柱，和前景紫波抢色"): background route = one thin
+    # neutral cool-grey core + its mirror highlights (no violet cones, mirror discs no longer emissive), so violet
+    # belongs to the 13.5 nm wave only
+    B = _machine_backdrop(sc, keep=(9, 11), dim=0.3, r17=dict(r=0.012, core=2.5, spot=0.08, spot_e=1.6, light=0.0, bounce=0.0,
+                                                               color=(0.72, 0.76, 0.84), spot_c=(0.8, 0.84, 0.9)))
     cx, y, span = 1.55, -2.6, 1.8
     lam193 = span / 2.0
     lam135 = lam193 / 14.3
@@ -1605,12 +1739,16 @@ def _wave(sc, n):
          for i in range(600)]
     og, cg = _wave_curve("Wave193", g, [1.0] * 600, K.emit_mat("Grey193", (0.72, 0.75, 0.82), 3.0))
     cg.bevel_depth = 0.006
-    v = [(cx - span / 2 + span * i / 2399, y, z135 + 0.07 * math.sin(2 * math.pi * (span * i / 2399) / lam135))
+    # R17 (A2_08 R16 "紫波振幅只有白波一半、发光更强 → 读成更弱 / 不同的东西"): SAME amplitude (0.11) as the
+    # 193 nm wave, same line width, no extra halo - only the wavelength (and the colour) differs
+    A135 = 0.11
+    v = [(cx - span / 2 + span * i / 2399, y, z135 + A135 * math.sin(2 * math.pi * (span * i / 2399) / lam135))
          for i in range(2400)]
-    ov, cv = _wave_curve("Wave135", v, [1.0] * 2400, K.emit_mat("WaveM", K.VIOLET, 14.0))
-    cv.bevel_depth = 0.0045
+    ov, cv = _wave_curve("Wave135", v, [1.0] * 2400, K.emit_mat("WaveMR17", K.VIOLET, 6.0))
+    cv.bevel_depth = 0.006
     oh, ch = _wave_curve("Wave135Halo", v, [1.0] * 2400, K.emit_mat("WaveHaloM", K.VIOLET, 2.5, halo=0.5))
     ch.bevel_depth = 0.014
+    oh.hide_render = True
     for c in (cv, ch):
         c.bevel_factor_end = 0.08
         c.keyframe_insert("bevel_factor_end", frame=1)
@@ -1634,7 +1772,7 @@ def _wave(sc, n):
     foc.location = (cx, y, (z193 + z135) / 2)
     _dof(cam, 0.5, foc)
     K.anchors("A2_08", {"w193": Vector((cx - span / 2 + lam193 * 0.25, y, z193 + 0.11)),
-                        "w135": Vector((cx + span * 0.3, y, z135 + 0.07)),
+                        "w135": Vector((cx + span * 0.3, y, z135 + A135)),
                         "span_l": Vector((cx - span / 2, y, z135 - 0.31)), "span_r": Vector((cx + span / 2, y, z135 - 0.31)),
                         "p0": Vector((cx - span / 2, y, z135 - 0.12)), "p1": Vector((cx - span / 2 + lam193, y, z135 - 0.12)),
                         "wafer": B.WAFER})
@@ -1644,7 +1782,11 @@ def _wave(sc, n):
 def _bokeh(sc, n):
     """A2_03: out-of-focus machine (projection optics, violet path, wafer) under the formula overlay; anchors for
     the lambda -> beam and NA -> mirror leader lines."""
-    B = _machine_backdrop(sc, keep=(6, 11), dim=0.75)    # R15: one W-shaped PO fold (was a net of 4-5 columns)
+    # R15: keep=(6, 11) one W-shaped PO fold (was a net of 4-5 columns)
+    # R17 (root cause #4, A2_03 "3-4 crossing violet columns out of glowing discs = spotlights"): the scene above is
+    # rebuilt with ONE V-shaped return PO3 -> PO4 -> PO5 (then the NA cone onto the wafer) drawn as thin cores,
+    # one soft highlight on each mirror it hits; no wide cones, the untouched mirrors are plain metal
+    B = _machine_backdrop(sc, keep=(9, 11), dim=0.75, r17=dict(r=0.014, core=9.0, spot=0.1, spot_e=6.0, light=8.0))
     # R14 (root cause #7 / review A2_03 #1 "NA 只有文字，没有画面"): the last PO mirror's full converging light cone
     # onto the wafer point (see-through, bright silhouette) + its half-angle theta drawn as a cyan arc at the apex
     # and a dashed cyan axis; it fades in when the narration reaches NA (~50 %)
@@ -1688,7 +1830,7 @@ def _bokeh(sc, n):
     foc.location = tuple(po5.lerp(wf, 0.35))                 # R14: focus holds mirror + cone + theta arc
     foc.keyframe_insert("location", frame=round(n * 0.75))
     _dof(cam, 1.6, foc)
-    K.anchors("A2_03", {"beam": B.PO[1].lerp(B.PO[2], 0.5), "mirror": B.PO[5], "wafer": B.WAFER, "mask": B.MASK,
+    K.anchors("A2_03", {"beam": B.PO[3].lerp(B.PO[4], 0.5), "mirror": B.PO[5], "wafer": B.WAFER, "mask": B.MASK,
                         "theta": arc[8] + perp * 0.06, "na_apex": wf})
     return cam
 

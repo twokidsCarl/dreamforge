@@ -852,7 +852,7 @@ def pancake(M, c, R, name="Pancake", seed=1):
 # R16 root cause #2: the single shapeless weak cool rim per variant (spherical point light, round soft highlight)
 RIM_R16 = {"cold": dict(rim=(-0.25, 0.42, 0.5), rim_energy=90.0, rim_radius=0.25),
            "prepulse": dict(rim=(0.35, 0.6, 0.55), rim_energy=24.0, rim_radius=0.25),
-           "contrast": dict(rim=(0.2, 0.9, 0.9), rim_energy=30.0),
+           "contrast": dict(rim=None),                  # R17 #1: no rim light (R16 neon flange)
            "track": dict(rim=(-0.5, 0.5, 0.6), rim_energy=14.0),
            "clean": dict(rim=(0.3, 0.9, 0.9), rim_energy=10.0, rim_radius=0.5),
            "spectrum": dict(rim=(-0.2, 0.9, 0.8), rim_energy=8.0)}
@@ -870,10 +870,12 @@ def build(variant="cold", shot=None):
     cam, tgt = K.camera("CamR2", lens=50)
     fn = {"cold": _cold, "prepulse": _prepulse, "contrast": _contrast, "track": _track, "clean": _clean_r6,
           "spectrum": _spectrum, "amps": _amps}[variant]
-    fn(sc, M, cam, tgt, n)
+    post = fn(sc, M, cam, tgt, n)
     if variant != "amps":                         # R16 #2: gold control B1_22 (amps) keeps its R15 lighting
         import source_kit_r16 as SK
         SK.relight_r16(sc, **RIM_R16[variant])
+        if callable(post):                        # R17: shapeless (point / sphere) fills added after the relight
+            post(sc)
     sc.camera = cam
     return sc
 
@@ -899,9 +901,9 @@ def _cold(sc, M, cam, tgt, n):
     nxt = single("DropletNext", M["tin"], lambda mb: mb.sphere((0, 0, 0), r, 48))
     # R15: the next droplet stays well above the sheet's rim (R14: it sat on the face and read as a blob)
     key_loc(nxt, [(1, (0, 0, 0.62)), (n, (0, 0, 0.36))])
-    root, parts = pancake_r15(M, (0, 0, 0), r)
-    import source_kit_r16 as SK
-    parts.append(SK.pancake_rim_r16(root, M["tin"], seed=3))     # R16 #2: thick rolled rim + flung droplets
+    import source_r17 as S17
+    # R17 #3 (R16: "glass lens / porthole"): opaque convex tin disc + crown ligaments, no rolled-rim torus
+    root, parts = S17.pancake_r17(M, (0, 0, 0), r, seed=3, glint=((0.5, 0.55, 0.05), 2.0))
     key_scale(root, [(hit1 + 2, r * 1.2), (hit2 - 6, r * 9.5), (hit2 + 4, r * 10.5)])
     for ob in parts:
         show_between(ob, hit1 + 3, boom - 1)
@@ -947,6 +949,10 @@ def _cold(sc, M, cam, tgt, n):
     cam.data.keyframe_insert("lens", frame=boom + 50)
     K.anchors("A0_01", _rim_markers(root))
 
+    def post(sc_):       # R17 #2: part of the R15 fill level back, shapeless (sphere) lights only
+        S17.shapeless_fill_r17(0.35)
+    return post
+
 
 def _prepulse(sc, M, cam, tgt, n):
     """B1_10: frames 32 / 69 / 107 of 126: thin pre-pulse hits, the sheet spreads, the next droplet for scale.
@@ -965,9 +971,9 @@ def _prepulse(sc, M, cam, tgt, n):
     show_between(drop, 1, hit + 2)
     nxt = single("DropletNext", M["tin"], lambda mb: mb.sphere((0, 0, 0), r, 48))
     key_loc(nxt, [(1, (0, 0, 0.36)), (n, (0, 0, 0.27))])   # R15: stays above the rim (R14: on the face)
-    root, parts = pancake_r15(M, (0, 0, 0), r)
-    import source_kit_r16 as SK
-    parts.append(SK.pancake_rim_r16(root, M["tin"], seed=4))     # R16 #2: thick rolled rim + flung droplets
+    import source_r17 as S17
+    # R17 #3 (R16: "glass lens / porthole"): opaque convex tin disc + crown ligaments, no rolled-rim torus
+    root, parts = S17.pancake_r17(M, (0, 0, 0), r, seed=4, glint=((-0.45, 0.6, -0.35), 1.2))
     key_scale(root, [(hit + 2, r * 1.2), (hit + 40, r * 9.0), (n, r * 12.0)])
     for ob in parts:
         show_between(ob, hit + 3)
@@ -986,6 +992,10 @@ def _prepulse(sc, M, cam, tgt, n):
     # R15 #3: pulled back (~1/3 frame) so the nozzle / wall give scale; the 300 um dimension line rides on anchors
     K.key_path(cam, tgt, [(1, (-0.52, -0.6, 0.12), (-0.03, 0, 0.05)), (n, (-0.48, -0.72, 0.15), (-0.02, 0, 0.06))])
     K.anchors("B1_10", _rim_markers(root))
+
+    def post(sc_):       # R17 #2: part of the R15 fill level back, shapeless (sphere) lights only
+        S17.shapeless_fill_r17(0.35)
+    return post
 
 
 def _debris(M, seed=4):
@@ -1120,6 +1130,14 @@ def _debris_r16(M, seed=4):
 
 
 def _contrast(sc, M, cam, tgt, n):
+    """B1_15 (36 frames). R17 root cause #1 (three rounds capped H1 + H2 on the inside-bowl / rim / off-axis camera
+    family): asset route changed to the B3_02 collector (blender/scripts/b115_r17.py), half-cut, external 3/4 view,
+    plasma at the first focus, push-in + focus pull. The R16 build is kept below as _contrast_r16 (unused)."""
+    import b115_r17 as B115
+    return B115.build_contrast(sc, M, cam, tgt, n, __import__(__name__))
+
+
+def _contrast_r16(sc, M, cam, tgt, n):
     """B1_15 (36 frames). R16 root cause #1 (R15: 20 deg off-axis camera -> no mirror face, H1): camera near the
     collector's optical axis, in front of the dish: a deep ellipsoidal collector whose first focus IS the plasma
     site fills the frame (>= 1/3), its polished face full of the plasma's glow, the central hole beside the plasma
@@ -1283,6 +1301,11 @@ def _track(sc, M, cam, tgt, n):
     K.key_path(cam, tgt, [(1, (0.2, -0.72, 0.08), (0, 0, 0.045)), (n, (-0.18, -0.64, 0.0), (0, 0, 0.03))],
                interp="LINEAR")
 
+    def post(sc_):       # R17 #2 (R16 review B1_08 #2: "background nearly black"): R15 fill level, shapeless lights
+        import source_r17 as S17
+        S17.shapeless_fill_r17(0.8)
+    return post
+
 
 def _clean(sc, M, cam, tgt, n):
     """B2_08 (242 frames): across the collector surface: grey tin deposits on the mirror, the plasma's violet
@@ -1346,9 +1369,15 @@ def _clean_r6(sc, M, cam, tgt, n):
     _metals_r15(M, coll_rough=0.07)                  # R15 #2: shared mirror_r15 collector; a touch of polish
     # haze so the softboxes read as soft highlights on the metal (R14: "dark-blue matte plate, not a mirror")
     M["tin_dep"] = K.mat("TinDepositDull", (0.16, 0.16, 0.17), metal=0.5, rough=0.8, speck=0.5)
-    for ob in chamber(M, seed=5):
+    import b115_r17 as B115
+    import source_r17 as S17
+    for ob in chamber(M, seed=5, collector=False):
         if ob.name.startswith("MLI"):
             ob.hide_render = True
+    # R17 #2 (R16: "a translucent violet ghost disc"): the solid ellipsoidal B3_02 collector (thick shell, ground
+    # blank, bolted flange, cooling back), same vertex / radius as before; deposits + streamlines follow its face
+    B115.collector_b302(M, name="CollB208")
+    _F = B115.B_F
     lights_chamber(0.45)
     pl, li = plasma(M, (0, 0, 0), 0.022, li_color=PLASMA_LIGHT_R14)
     for ob in pl[1:]:
@@ -1415,8 +1444,8 @@ def _clean_r6(sc, M, cam, tgt, n):
             rr = rnd.uniform(0.22, 0.45)
         y, z = rr * math.cos(a), rr * math.sin(a)
         s = rnd.uniform(0.002, 0.0045)
-        nrm = Vector((1, -y / (2 * COLL_F), -z / (2 * COLL_F))).normalized()
-        p = Vector((coll_x(rr), y, z)) + nrm * 0.0006
+        nrm = Vector((1, -y / (2 * _F), -z / (2 * _F))).normalized()
+        p = Vector((B115.face_x(rr), y, z)) + nrm * 0.0006
         dep.cyl_m(Matrix.Translation(p) @ Vector((0, 0, 1)).rotation_difference(nrm).to_matrix().to_4x4(),
                   s, s * 0.35, seg=12)
     dep.obj("TinDeposits", M["tin_dep"])
@@ -1429,8 +1458,8 @@ def _clean_r6(sc, M, cam, tgt, n):
         rr = 0.22 + 0.03 * i
         a = math.radians(55 + 7 * i)
         y, z = rr * math.cos(a), rr * math.sin(a)
-        nrm = Vector((1, -y / (2 * COLL_F), -z / (2 * COLL_F))).normalized()
-        p0 = Vector((coll_x(rr), y, z))
+        nrm = Vector((1, -y / (2 * _F), -z / (2 * _F))).normalized()
+        p0 = Vector((B115.face_x(rr), y, z))
         p1 = p0 + nrm * 0.18
         p3 = port + nrm_p * 0.06 + Vector((0, 0, (i - 4) * 0.02))
         p2 = p1.lerp(p3, 0.5) + Vector((0.12, 0, 0.18))
@@ -1462,15 +1491,21 @@ def _clean_r6(sc, M, cam, tgt, n):
     hz.sphere((COLL_X + 0.3, 0.0, 0.1), 0.5, 32)
     hob = hz.obj("H2Glow", vol_glow("H2GlowM", (0.62, 0.55, 1.0), 0.015))
     camera_only(hob)
-    dep_pt = Vector((coll_x(0.33), 0.33 * math.cos(math.radians(80)), 0.33 * math.sin(math.radians(80))))
-    K.anchors("B2_08", {"dep": dep_pt, "dish": Vector((coll_x(0.6), -0.45, -0.38)), "pump": port + nrm_p * 0.06,
-                        "rim": Vector((coll_x(COLL_R), -COLL_R * 0.7, -COLL_R * 0.7))})
+    dep_pt = Vector((B115.face_x(0.33), 0.33 * math.cos(math.radians(80)), 0.33 * math.sin(math.radians(80))))
+    K.anchors("B2_08", {"dep": dep_pt, "dish": Vector((B115.face_x(0.6), -0.45, -0.38)), "pump": port + nrm_p * 0.06,
+                        "rim": Vector((B115.face_x(COLL_R), -COLL_R * 0.7, -COLL_R * 0.7))})
     cam.data.lens = 20
     cam.data.dof.use_dof = True
     cam.data.dof.aperture_fstop = 5.6
     cam.data.dof.focus_object = tgt
     K.key_path(cam, tgt, [(1, (0.55, -0.98, 0.28), (-0.72, 0.05, 0.08)),
                           (n, (0.05, -0.66, 0.36), (-0.8, 0.07, 0.24))], interp="BEZIER")
+
+    def post(sc_):       # R17 #2: the R15 fill levels (lights_chamber 0.45 + dish softboxes) as shapeless lights
+        S17.shapeless_fill_r17(0.45, extra=(("DishSoftA", (0.6, -0.9, 0.9), 1.0, 5.0, (0.88, 0.9, 1.0)),
+                                            ("DishSoftB", (0.5, 0.9, -0.7), 0.8, 6.0, (0.88, 0.9, 1.0), False),
+                                            ("Graze", (-0.3, -1.0, -0.2), 0.5, 10.0, (0.88, 0.9, 1.0))))
+    return post
 
 
 def _spectrum(sc, M, cam, tgt, n):
@@ -1480,7 +1515,12 @@ def _spectrum(sc, M, cam, tgt, n):
     # R14 (root cause #6): neutral mirror collector; (R13 frames: the plasma was a hard white disc = "floating white
     # dot") the soft volumetric k3A core of B1_15 instead, light near-neutral so the vessel metal is not tinted
     _metals_r15(M, coll_rough=0.008)                 # R15 #2: shared mirror_r15 collector
-    chamber(M, seed=6)
+    import b115_r17 as B115
+    import source_r17 as S17
+    chamber(M, seed=6, collector=False)
+    # R17 #2 (R16: "background barely reads, chamber too dark"): the solid B3_02 collector behind the plasma (its
+    # bolted edge + the nozzle / catcher read through the defocus); the plasma sits at its first focus (origin)
+    B115.collector_b302(M, name="CollB118")
     lights_chamber(0.55)
     pl, li = plasma_r10(M, (0, 0, 0), 0.04, energy=40.0, gas=1.3, li_color=PLASMA_LIGHT_R14, mirror_core=True)
     # R6 (D): the plasma pulses (50 kHz shown as a slow shimmer) instead of a constant glow
@@ -1500,6 +1540,10 @@ def _spectrum(sc, M, cam, tgt, n):
     # R6 (D): a real push towards the plasma with a slight arc (R5: three near-identical frames)
     K.key_path(cam, tgt, [(1, (0.7, -0.56, 0.2), (-0.49, -0.08, 0.0)), (n, (0.42, -0.4, 0.1), (-0.5, 0.02, -0.02))],
                interp="LINEAR")
+
+    def post(sc_):       # R17 #2: R15 fill levels (lights_chamber 0.55 + collector softbox) as shapeless lights
+        S17.shapeless_fill_r17(0.55, extra=(("CollSoftbox", (0.2, -1.0, 0.75), 0.7, 30.0, (0.85, 0.9, 1.0)),))
+    return post
 
 
 # ---------------------------------------------------------------- CO2 amplifier chain
