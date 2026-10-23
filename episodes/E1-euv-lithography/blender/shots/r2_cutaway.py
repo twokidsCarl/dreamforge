@@ -541,6 +541,17 @@ def _bay_fill(M, x0, x1, z0, z1, yb, seed=0, tag="B"):
         mb.obj(f"{tag}Fill_{k}", mats[k], bevel=0.004 if k in ("frame", "drive", "tray") else 0.0)
 
 
+def _depth_layers(M, MZ, WZ):
+    """R7 (B8_03 H13): foreground layer for the oblique camera - a cut frame post and the near edge of the
+    metrology deck between the two stages, with cable chains, so the shot has >= 3 depth planes."""
+    fg = {k: K.MB() for k in ("post", "sec")}
+    for x in (-2.75, 2.7):
+        fg["post"].box((x, -1.05, 1.75), (0.14, 0.14, 3.5))
+        fg["sec"].box((x, -1.121, 1.75), (0.142, 0.004, 3.5))
+    for k, m_ in (("post", M["alu_dark"]), ("sec", M["section"])):
+        fg[k].obj("FG_" + k, m_, bevel=0.006 if k == "post" else 0.0)
+
+
 def _scan_r5(sc, M, n, shot):
     """B8_03 (R5 rebuild). R4 review: the long upper-left illumination leg read as hitting a PO mirror and the
     stage travel could not be read (D 55). Now:
@@ -550,7 +561,8 @@ def _scan_r5(sc, M, n, shot):
       * reticle stage travels 8 units (1.6 m), wafer stage 1 unit (0.2 m) the opposite way, on numbered rulers
         with the same unit; the exposed stripe grows on the wafer; calm, dark, defocused services wall."""
     MZ, WZ = 2.75, 0.62
-    th6 = math.tan(math.radians(6.0))
+    # R7 (H9): EXE (High-NA) data only -> chief ray at the mask 5.4 deg, same machine as the 8x scan ratio
+    th6 = math.tan(math.radians(5.4))
     mask_c, waf_c = Vector((0, 0, MZ)), Vector((0, 0, WZ))
     g2 = Vector((-th6 * 1.25, 0, MZ - 1.25))                 # last illuminator mirror
     # R6 (H13): real illuminator train (field facets -> pupil facets -> G1 -> G2) and six PO mirrors M1-M6 in
@@ -694,8 +706,12 @@ def _scan_r5(sc, M, n, shot):
     core.obj("ScanCore", M["beam"])
     halo.obj("ScanHalo", M["beam_halo"])
     col = K.MB()
-    K.beam_columns(col, pts, [0.03, 0.03, 0.03, 0.03, 0.035, 0.03, 0.03, 0.04, 0.035, 0.035, 0.03, 0.025, 0.01])
-    col.obj("ScanCol", K.beam_column_mat("EUVColS", K.VIOLET, strength=0.9, edge=0.18, core=0.02, vol=0.05))
+    K.beam_columns(col, pts, [0.05, 0.05, 0.055, 0.05, 0.055, 0.05, 0.05, 0.065, 0.06, 0.06, 0.05, 0.04, 0.012])
+    col.obj("ScanCol", K.beam_column_mat("EUVColS", K.VIOLET, strength=1.1, edge=0.26, core=0.035, vol=0.16))
+    # R7: volumetric sleeve (k4A light-in-air), very faint, wider than the column
+    sv = K.MB()
+    K.beam_columns(sv, pts, [0.11, 0.11, 0.12, 0.11, 0.12, 0.1, 0.1, 0.13, 0.12, 0.12, 0.1, 0.08, 0.02], seg=32)
+    sv.obj("ScanSleeve", K.beam_column_mat("EUVSleeve", K.VIOLET, strength=0.35, edge=0.03, core=0.0, vol=0.05))
     sl = K.MB()
     sl.box((0, 0, WZ + 0.0035), (0.012, 0.11, 0.002))
     sl.obj("SlitW", K.emit_mat("SlitGlow", K.VIOLET, 30.0))
@@ -777,12 +793,15 @@ def _scan_r5(sc, M, n, shot):
     K.area("BayFillL", (-1.0, -2.2, 1.55), (-1.0, 0.25, 1.5), 1.2, 60, (0.9, 0.93, 1.0))
     K.area("BayFillP", (1.0, -2.6, 1.7), (0.95, 0.4, 1.6), 1.6, 110, (0.9, 0.93, 1.0))
     K.area("RimPO", (2.8, 1.2, 2.6), (0.95, 0.0, 1.6), 1.2, 160, (0.75, 0.82, 1.0))
-    cam, tgt = K.camera("CamR2", lens=31)
-    K.key_path(cam, tgt, [(1, (-0.1, -6.0, 1.95), (0.12, 0.2, 1.72)), (n, (0.4, -5.7, 1.9), (0.22, 0.2, 1.72))],
+    # R7 (H13 depth): high 3/4 camera looking down into both bays, so front section edge / beam / back-plate
+    # mechatronics / services wall read as separate layers; slow crane drift for parallax
+    _depth_layers(M, MZ, WZ)
+    cam, tgt = K.camera("CamR2", lens=25)
+    K.key_path(cam, tgt, [(1, (-1.9, -4.7, 3.95), (0.05, 0.25, 1.68)), (n, (-1.3, -4.85, 3.75), (0.2, 0.25, 1.66))],
                interp="LINEAR")
     cam.data.dof.use_dof = True
-    cam.data.dof.aperture_fstop = 2.8
-    cam.data.dof.focus_distance = 5.9
+    cam.data.dof.aperture_fstop = 4.0
+    cam.data.dof.focus_distance = (Vector((-1.6, -4.8, 3.85)) - Vector((0.1, 0.1, 1.75))).length
     sc["hdri"] = "hangar_interior"
     sc["hdri_strength"] = 0.15
     sc["vignette"] = 0.35

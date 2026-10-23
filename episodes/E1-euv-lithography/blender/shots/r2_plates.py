@@ -94,7 +94,7 @@ def build(variant="freighter", shot=None):
         lit = None
         _freighter_life(n, H, aspect)
     elif variant == "crates":
-        keys = [(1, -1.2, -0.2, 13.4), (n, 1.0, 0.0, 13.0)]               # truck along the crate row
+        keys = [(1, -1.6, -0.3, 13.6), (n, 1.5, 0.15, 11.6)]              # R7: truck + push (R6 read as static)
         lit = None
     else:
         keys = [(1, 0.6, 0.0, 13.8), (n, 1.6, 0.1, 12.4)]                 # push toward the suited pair
