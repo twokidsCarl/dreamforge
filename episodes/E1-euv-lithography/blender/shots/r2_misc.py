@@ -153,7 +153,7 @@ def _clouds_mat():
     return m
 
 
-def _earth_mat(night=False, dots=None):
+def _earth_mat(night=False, dots=None, solid=False):
     """Equirect land map on a UV sphere: dark ocean, muted land (day) or faint cyan coastlines (night),
     optional supplier-dot emission revealed by an animated threshold. Returns (material, reveal_socket)."""
     m = _new_mat("Earth" + ("Night" if night else ""))
@@ -180,7 +180,22 @@ def _earth_mat(night=False, dots=None):
     col = n.new("ShaderNodeMix")
     col.data_type = "RGBA"
     l.new(land.outputs["Result"], col.inputs["Factor"])
-    if night:
+    if night and solid:
+        # R14 (A0_06 #1 "陆地几乎和海一样暗，玻璃壳像空泡泡"): solid land with terrain - the NASA photo darkened
+        # to a dusk tone (land ~8x brighter than the ocean), so the globe reads as a planet, not a glass bubble
+        ph = n.new("ShaderNodeTexImage")
+        ph.image = bpy.data.images.load(os.path.join(TEX, "nasa_bluemarble_2048.jpg"), check_existing=True)
+        ph.interpolation = "Cubic"
+        l.new(uv.outputs["UV"], ph.inputs["Vector"])
+        dk = n.new("ShaderNodeMix")
+        dk.data_type = "RGBA"
+        dk.blend_type = "MULTIPLY"
+        dk.inputs["Factor"].default_value = 1.0
+        dk.inputs["B"].default_value = (0.62, 0.62, 0.66, 1)
+        l.new(ph.outputs["Color"], dk.inputs["A"])
+        col.inputs["A"].default_value = (0.002, 0.006, 0.02, 1)
+        l.new(dk.outputs["Result"], col.inputs["B"])
+    elif night:
         col.inputs["A"].default_value = (0.003, 0.009, 0.03, 1)
         col.inputs["B"].default_value = (0.03, 0.07, 0.12, 1)
     else:
@@ -194,6 +209,8 @@ def _earth_mat(night=False, dots=None):
     l.new(col.outputs["Result"], b.inputs["Base Color"])
     rough = n.new("ShaderNodeMapRange")              # glossy ocean, matte land
     rough.inputs["To Min"].default_value = 0.45 if night else 0.25
+    if solid:
+        rough.inputs["To Min"].default_value = 0.62            # R14: less glassy ocean sheen
     rough.inputs["To Max"].default_value = 0.8
     l.new(land.outputs["Result"], rough.inputs["Value"])
     l.new(rough.outputs["Result"], b.inputs["Roughness"])
@@ -203,7 +220,7 @@ def _earth_mat(night=False, dots=None):
         # faint cyan coastlines
         cm = n.new("ShaderNodeMath")
         cm.operation = "MULTIPLY"
-        cm.inputs[1].default_value = 0.6
+        cm.inputs[1].default_value = 0.25 if solid else 0.6
         l.new(coast.outputs["Result"], cm.inputs[0])
         em_add = cm
     if dots:
@@ -354,15 +371,18 @@ def _sun(name, rot, energy, color=(1, 0.97, 0.92), angle=0.5):
     return ob
 
 
-def _laser(a, b, r=0.02, name="Laser", r_end=None):
+def _laser(a, b, r=0.02, name="Laser", r_end=None, color=None):
+    color = K.ORANGE if color is None else color
     mb, mh = K.MB(), K.MB()
     if r_end is None:
         K.beam(mb, mh, [a, b], r=r, halo=4.0)
     else:                                    # tapered: wide enough to read from Earth, needle-thin at the target
         mb.tube(a, b, r, seg=12, r2=r_end)
         mh.tube(a, b, r * 4.0, seg=16, r2=r_end * 3.0)
-    mb.obj(name, K.emit_mat(name + "Core", K.ORANGE, 30.0))
-    mh.obj(name + "Halo", K.emit_mat(name + "HaloM", K.ORANGE, 4.0, halo=0.5))
+    o1 = mb.obj(name, K.emit_mat(name + "Core", color, 30.0))
+    o2 = mh.obj(name + "Halo", K.emit_mat(name + "HaloM", color, 4.0, halo=0.5))
+    for o_ in (o1, o2):                       # R14: the beam cast a long dark line across the Moon
+        o_.visible_shadow = False
 
 
 def _dof(cam, fstop, focus_obj=None, dist=None):
@@ -372,6 +392,56 @@ def _dof(cam, fstop, focus_obj=None, dist=None):
         cam.data.dof.focus_object = focus_obj
     elif dist:
         cam.data.dof.focus_distance = dist
+
+
+# ------------------------------------------------------------------ R14 beam look (root cause #1)
+# R13 review: beams read as constant-width ribbons with capsule end caps. R14: open (uncapped) soft-edged cones
+# that open / narrow between landing spots; the only highlight is a soft disc ON the mirror where the light lands.
+def _open_cone(mb, a, b, ra, rb, seg=48):
+    """Uncapped cone shell a -> b (no end discs = no capsule ends)."""
+    m, L = K._orient(a, b)
+    if L < 1e-5:
+        return
+    bm = mb.bm
+    ring = []
+    for z, r in ((-L / 2, ra), (L / 2, rb)):
+        ring.append([bm.verts.new(m @ Vector((r * math.cos(2 * math.pi * i / seg), r * math.sin(2 * math.pi * i / seg), z)))
+                     for i in range(seg)])
+    p, q = ring
+    for i in range(seg):
+        j = (i + 1) % seg
+        f = bm.faces.new((p[i], p[j], q[j], q[i]))
+        f.smooth = True
+
+
+def _soft_beam_mat(name, color=None, strength=2.2, alpha=0.75, power=1.6, invert=False):
+    import beam_r12 as BR                     # material only: never BR.install() here (it swaps kit globals)
+    return BR.soft_mat(name, K.VIOLET if color is None else color, strength, alpha, power, invert)
+
+
+def _landing_spot(mb, p, nrm, r):
+    """Soft footprint: three stacked discs just above the mirror plane (halo emission)."""
+    q = Vector((0, 0, 1)).rotation_difference(Vector(nrm).normalized())
+    for k, f in enumerate((1.0, 0.62, 0.32)):
+        mb.cyl(Vector(p) + Vector(nrm).normalized() * (0.004 + 0.002 * k), r * f, 0.001, rot=q.to_euler(), seg=40)
+
+
+def _r14_columns_factory(spots):
+    """Drop-in for K.beam_columns inside build_cutaway_r2.machine (only for the A2_03 / A2_08 backdrop): legs
+    alternate opening / narrowing (wide footprint on one mirror, narrow on the next), no waists, no beads, open
+    cones; landing spots are collected into `spots` and built once by the caller."""
+    def cols(mb, pts, radii, seg=40):
+        pts = [Vector(p) for p in pts]
+        s = [max(r, 0.004) for r in radii]
+        wide = True
+        for j in range(1, len(s) - 1):
+            s[j] = s[j] if wide else s[j] * 0.38
+            wide = not wide
+        for (a, b), (ra, rb) in zip(zip(pts, pts[1:]), zip(s, s[1:])):
+            _open_cone(mb, a, b, ra, rb, seg=seg)
+        for j in range(1, len(pts) - 1):
+            spots.append((pts[j], K.mirror_normal(pts[j - 1], pts[j], pts[j + 1]), max(0.03, s[j] * 1.3)))
+    return cols
 
 
 # ------------------------------------------------------------------ variants
@@ -396,7 +466,26 @@ def _space(sc, n):
     ball.scale = (1, 1, 1)
     # tee-like little dust ring under the ball
     start = E + (ball.location - E).normalized() * earth_r * 1.01
-    _laser(start, ball.location, r=0.03, r_end=0.0012)
+    # R14 (B4_10 #3): leave from a ground point on the camera-facing hemisphere (the R13 start sat on the limb, so
+    # the beam seemed to come out of the atmosphere edge)
+    _dcam = Vector((-9.0, -14.0, 3.5)).normalized()
+    _up = ((ball.location - E).normalized() + _dcam * 1.1).normalized()
+    start = E + _up * earth_r * 1.011
+    # R14 (root cause #7, B4_10 #1): metaphor beam is cold white - orange is reserved for the CO2 drive laser
+    COLD = (0.82, 0.92, 1.0)
+    _laser(start, ball.location, r=0.03, r_end=0.0012, color=COLD)
+    # R14 (B4_10 #3 "激光从大气层边缘凭空出来"): a visible emitter on the ground - a small observatory pad + dome
+    # on the Earth's surface with a soft footprint glow where the beam leaves it
+    up = _up
+    g0 = E + up * earth_r * 1.0095                              # above the cloud shell (1.008 r), else hidden
+    q = Vector((0, 0, 1)).rotation_difference(up)
+    em = K.MB()
+    em.cyl(g0, 0.11, 0.012, rot=q.to_euler(), seg=40)
+    em.sphere(g0 + up * 0.012, 0.045, 20)
+    em.obj("Emitter", K.mat("EmitterDome", (0.85, 0.86, 0.88), metal=0.6, rough=0.25))
+    eg = K.MB()
+    _landing_spot(eg, g0 + up * 0.02, up, 0.3)
+    eg.obj("EmitterGlow", K.emit_mat("EmitterGlowM", COLD, 9.0, halo=0.6))
     # R8: Earth-Moon distance rule under the beam (dashed, end ticks), scale cue for "380,000 km"
     rl = K.MB()
     e0, m0 = E + (MO - E).normalized() * (earth_r + 0.6), MO - (MO - E).normalized() * (moon_r + 0.6)
@@ -406,8 +495,44 @@ def _space(sc, n):
         rl.tube(a_ + off, b_ + off, 0.03, seg=6)
     for p_ in (e0, m0):
         rl.tube(p_ + off + Vector((0, 0, -0.5)), p_ + off + Vector((0, 0, 0.5)), 0.035, seg=6)
-    rl.obj("DistanceRule", K.emit_mat("RuleInk", (0.7, 0.85, 0.95), 2.0))
-    spot = _uv_sphere("Spot", ball.location - dirb * ball_r * 0.15, ball_r * 0.35, 24, K.emit_mat("SpotM", K.ORANGE, 20.0))
+    rl.obj("DistanceRule", K.emit_mat("RuleInk", K.CYAN, 2.0))        # R14: metrology cyan (was white-ish)
+    spot = _uv_sphere("Spot", ball.location - dirb * ball_r * 0.15, ball_r * 0.35, 24, K.emit_mat("SpotM", COLD, 20.0))
+    # R14 (B4_10 #3): contact shadow so the ball sits ON the regolith (soft dark disc under it)
+    sh = _new_mat("BallContactShadow")
+    nt_, nn_, l_ = _nodes(sh)
+    for x in list(nn_):
+        if x.type != "OUTPUT_MATERIAL":
+            nn_.remove(x)
+    o_ = next(x for x in nn_ if x.type == "OUTPUT_MATERIAL")
+    tco = nn_.new("ShaderNodeTexCoord")
+    gr = nn_.new("ShaderNodeTexGradient")
+    gr.gradient_type = "SPHERICAL"
+    mp_ = nn_.new("ShaderNodeMapping")
+    mp_.inputs["Scale"].default_value = (1.0, 1.0, 1.0)
+    l_.new(tco.outputs["Object"], mp_.inputs["Vector"])
+    l_.new(mp_.outputs["Vector"], gr.inputs["Vector"])
+    pw_ = nn_.new("ShaderNodeMath")
+    pw_.operation = "POWER"
+    pw_.inputs[1].default_value = 1.6
+    l_.new(gr.outputs["Fac"], pw_.inputs[0])
+    k_ = nn_.new("ShaderNodeMath")
+    k_.operation = "MULTIPLY"
+    k_.inputs[1].default_value = 0.85
+    l_.new(pw_.outputs[0], k_.inputs[0])
+    tr_ = nn_.new("ShaderNodeBsdfTransparent")
+    dk_ = nn_.new("ShaderNodeBsdfDiffuse")
+    dk_.inputs["Color"].default_value = (0.0, 0.0, 0.0, 1)
+    mx_ = nn_.new("ShaderNodeMixShader")
+    l_.new(k_.outputs[0], mx_.inputs["Fac"])
+    l_.new(tr_.outputs[0], mx_.inputs[1])
+    l_.new(dk_.outputs[0], mx_.inputs[2])
+    l_.new(mx_.outputs[0], o_.inputs["Surface"])
+    shm = K.MB()
+    shm.cyl(Vector((0, 0, 0)), 1.0, 0.0005, seg=48)
+    sho = shm.obj("BallShadow", sh)
+    sho.location = surf + nrm * 0.0008
+    sho.rotation_euler = Vector((0, 0, 1)).rotation_difference(nrm).to_euler()
+    sho.scale = (ball_r * 1.7, ball_r * 1.7, 1.0)
     _sun("Sun", (math.radians(60), math.radians(10), math.radians(-40)), 4.0)
     K.point("BallFill", ball.location + nrm * 0.2 + Vector((0.1, -0.1, 0.05)), 2.0, (0.8, 0.85, 1.0), 0.05)
     side = nrm.cross(dirb).normalized()
@@ -443,9 +568,9 @@ def _ll(lon, lat, r):
 def _globe(sc, n):
     _stars_world(top=(0.01, 0.016, 0.035), density=260, bright=5.0, share=0.5)   # R8: star field
     R = 2.0
-    m, reveal = _earth_mat(night=True, dots=os.path.join(TEX, "worldmap_dots.png"))
+    m, reveal = _earth_mat(night=True, dots=os.path.join(TEX, "worldmap_dots.png"), solid=True)
     g = _uv_sphere("Globe", (0, 0, 0), R, 160, m)
-    _atmosphere("GlobeAtmo", (0, 0, 0), R * 1.015, color=(0.2, 0.55, 0.95), strength=1.2)
+    _atmosphere("GlobeAtmo", (0, 0, 0), R * 1.015, color=(0.2, 0.55, 0.95), strength=0.6)   # R14: shell halved
     _key_value(reveal, [(1, 0.18), (round(n * 0.85), 0.9), (n, 0.95)])
     # arcs to the Netherlands
     nl = _ll(*NL, R)
@@ -465,6 +590,7 @@ def _globe(sc, n):
         N = 24
         sp.points.add(N - 1)
         h = 0.02 + 0.07 * (a - nl).length / (2 * R)          # R8: arcs hug the globe (great-circle routes)
+        h = 0.006 + 0.03 * (a - nl).length / (2 * R)         # R14 (A0_06 #2): lower still - routes on the surface
         for k in range(N):
             t = k / (N - 1)
             p = a.normalized().slerp(nl.normalized(), t) if hasattr(Vector, "slerp") else a.lerp(nl, t)
@@ -483,7 +609,7 @@ def _globe(sc, n):
         cd.keyframe_insert("bevel_factor_end", frame=st + int(n * 0.25))
     _uv_sphere("NLPoint", nl * 1.004, 0.022, 24, K.emit_mat("NLWhite", (1, 1, 1), 25.0))
     _uv_sphere("NLHalo", nl * 1.004, 0.06, 24, K.emit_mat("NLHaloM", (0.85, 0.95, 1.0), 3.0, halo=0.6))
-    _sun("Sun", (math.radians(55), 0, math.radians(-30)), 1.6, (0.75, 0.85, 1.0))
+    _sun("Sun", (math.radians(55), 0, math.radians(-30)), 2.6, (0.8, 0.88, 1.0))   # R14: key up, light ratio >= 8:1
     _sun("SunRim", (math.radians(100), 0, math.radians(160)), 3.0, (1.0, 0.92, 0.8))   # R8: terminator / rim light
     # turn Europe toward the camera (camera on -Y): rotate so lon 5 sits at -Y
     g.rotation_euler = (0, 0, 0)
@@ -539,6 +665,15 @@ def _mirror(sc, n):
     # R6: R5 blank read as matte plastic / cake. Polished multilayer face that mirrors the studio, fine-ground
     # (sand-blasted) glass-ceramic sides with a chamfer catching the rim light
     sub = K.mat("GlassCeramicGround", (0.66, 0.63, 0.58), rough=0.55, speck=0.35, coat=0.15)
+    # R14 (root cause #6, B4_07 #1 "哑光白石膏 / 切开的蛋糕"): glass-ceramic blank - warm amber, part
+    # translucent with internal depth (subsurface + some transmission), polished sides catching the studio
+    sub = K.mat("GlassCeramicR14", (0.6, 0.55, 0.48), rough=0.12, transmission=0.45, ior=1.54, coat=0.4)
+    _bs = next(x for x in sub.node_tree.nodes if x.type == "BSDF_PRINCIPLED")
+    for _k, _v in (("Subsurface Weight", 0.35), ("Subsurface Scale", 0.08)):
+        if _k in _bs.inputs:
+            _bs.inputs[_k].default_value = _v
+    if "Subsurface Radius" in _bs.inputs:
+        _bs.inputs["Subsurface Radius"].default_value = (1.0, 0.8, 0.6)
     M["coating"] = K.mat("MoSiPolishedR6", (0.8, 0.78, 0.9), metal=1.0, rough=0.025, coat=0.7)
     sc["hdri"] = "hangar_interior"
     sc["hdri_strength"] = 0.35
@@ -584,16 +719,24 @@ def _mirror(sc, n):
     l.new(sep.outputs["Z"], dz.inputs[1])
     band = nn.new("ShaderNodeMath")
     band.operation = "LESS_THAN"
-    band.inputs[1].default_value = 0.03
+    band.inputs[1].default_value = 0.014                      # R14: a thin line, not a 3 cm stripe
     l.new(dz.outputs[0], band.inputs[0])
     mix = nn.new("ShaderNodeMix")
     mix.data_type = "RGBA"
     mix.inputs["A"].default_value = (*K.lin((0.5, 0.48, 0.44)), 1)   # R6: fine-ground glass-ceramic, not blue plastic
     b.inputs["Roughness"].default_value = 0.6
-    nz_ = nn.new("ShaderNodeTexNoise")
-    nz_.inputs["Scale"].default_value = 900.0
+    # R14: neutral-grey ground section with fine horizontal grinding marks (was a flat matte plaster wall)
+    mix.inputs["A"].default_value = (*K.lin((0.34, 0.34, 0.35)), 1)
+    b.inputs["Roughness"].default_value = 0.38
+    nz_ = nn.new("ShaderNodeTexWave")
+    nz_.wave_type = "BANDS"
+    nz_.bands_direction = "Z"
+    nz_.inputs["Scale"].default_value = 140.0
+    nz_.inputs["Distortion"].default_value = 3.0
+    nz_.inputs["Detail"].default_value = 4.0
+    l.new(tc.outputs["Object"], nz_.inputs["Vector"])
     bp_ = nn.new("ShaderNodeBump")
-    bp_.inputs["Strength"].default_value = 0.12
+    bp_.inputs["Strength"].default_value = 0.3
     l.new(nz_.outputs["Fac"], bp_.inputs["Height"])
     l.new(bp_.outputs["Normal"], b.inputs["Normal"])
     l.new(band.outputs[0], mix.inputs["Factor"])
@@ -604,6 +747,14 @@ def _mirror(sc, n):
     mt.inputs[1].default_value = 0.8
     l.new(band.outputs[0], mt.inputs[0])
     l.new(mt.outputs[0], b.inputs["Metallic"])
+    ramp.color_ramp.elements[0].color = (0.55, 0.53, 0.65, 1)       # R14: bright top-coat line on the section
+    ramp.color_ramp.elements[1].color = (1.0, 0.98, 1.0, 1)
+    b.inputs["Emission Color"].default_value = (0.85, 0.85, 1.0, 1)
+    em_ = nn.new("ShaderNodeMath")
+    em_.operation = "MULTIPLY"
+    em_.inputs[1].default_value = 0.9
+    l.new(band.outputs[0], em_.inputs[0])
+    l.new(em_.outputs[0], b.inputs["Emission Strength"])
     me.materials.append(cut)
     # mount: ring, hexapod and base, bolts
     mbm, mbb = K.MB(), K.MB()
@@ -623,13 +774,15 @@ def _mirror(sc, n):
     din = Vector((-0.75, -0.2, 1.0)).normalized()          # R6: more oblique so in / out form a visible V
     nrm = Vector((0, 0, 1))
     dout = (din - 2 * din.dot(nrm) * nrm) * -1
-    bc = K.MB()                                              # R3: volume-light column, footprint spot on the face
-    K.beam_columns(bc, [hit + din * 6.0, hit, hit + Vector((-dout.x, -dout.y, dout.z)) * 6.0], [0.12, 0.08, 0.12])
-    # (the R5 out-leg above retraced the in-leg; dout itself is the reflected direction -> draw it)
-    bc.obj("Beam", M["beam_wide"])
+    # R14 (root cause #1, B4_07 #2 "实心白色胶囊端头"): open soft-edged cones - the incoming light narrows onto
+    # the landing spot, the reflected light opens out of the SAME spot; no caps, no column, no end bead
+    rout = Vector((-din.x, -din.y, din.z))
+    bc = K.MB()
+    _open_cone(bc, hit + din * 6.0, hit, 0.17, 0.06, seg=56)
+    bc.obj("Beam", _soft_beam_mat("EUVInR14", strength=2.6, alpha=0.75))
     bo = K.MB()
-    K.beam_columns(bo, [hit, hit + Vector((din.x * -1, din.y * -1, din.z)) * 6.0], [0.08, 0.13])
-    bo.obj("BeamOut", K.beam_column_mat("EUVOut", K.VIOLET, strength=1.0, edge=0.45, core=0.08, vol=0.12))
+    _open_cone(bo, hit, hit + rout * 6.0, 0.06, 0.2, seg=56)
+    bo.obj("BeamOut", _soft_beam_mat("EUVOutR14", strength=1.9, alpha=0.6))
     # R6: mount detail: coolant ring with branch lines, three edge sensors, cable loom off the base
     det, cu, cab = K.MB(), K.MB(), K.MB()
     cu.ring((0, 0, -th - 0.13), R * 1.16, R * 1.12, 0.03, seg=96)
@@ -649,15 +802,21 @@ def _mirror(sc, n):
     det.obj("EdgeSensors", M["anod"], bevel=0.004)
     cu.obj("CoolantRing", M["copper"])
     cab.obj("SensorCables", M["cable_b"])
-    sp = K.MB()
-    sp.cyl((hit.x, hit.y, hit.z + 0.003), 0.12, 0.002, seg=32)
-    sp.obj("BeamSpot", M["spot"])
+    sp = K.MB()                                              # R14: soft footprint on the coating
+    _landing_spot(sp, hit, Vector((0, 0, 1)), 0.085)
+    spo = sp.obj("BeamSpot", K.emit_mat("BeamSpotR14", (0.62, 0.5, 1.0), 2.2, halo=0.45))
+    spo.visible_glossy = False                               # its mirror image read as a second white blob
     K.point("BeamHitLight", hit + Vector((0, 0, 0.25)), 15, K.VIOLET, 0.1)
     K.floor("Floor", K.mat("FloorDark", (0.04, 0.045, 0.055), rough=0.35), z=-1.2)
     K.area("Key", (-3, -4, 5), (0, 0, 0), 4, 900, (0.95, 0.96, 1.0))
     K.area("Rim", (3, 4, 3), (0, 0, 0), 5, 700, (0.75, 0.8, 1.0))
     K.area("Strip", (-4, 2, 2.5), (0, 0, 0), 0.6, 300, (1, 1, 1), size_y=6)
     K.point("Glow", hit + Vector((0, 0, 0.3)), 60, K.VIOLET, 0.1)
+    for nm in ("Glow", "BeamHitLight"):          # R14: the two point-light spheres (and their mirror images) were
+        o_ = bpy.data.objects.get(nm)            # the white "capsule end" over the landing spot
+        if o_ is not None:
+            o_.visible_camera = False
+            o_.visible_glossy = False
     # cut edge midpoint (wedge between a_cut0 / a_cut1) for the push-in
     am = (a_cut0 + a_cut1) / 2
     edge = Vector((R * 0.8 * math.cos(a_cut0), R * 0.8 * math.sin(a_cut0), -0.04))
@@ -682,7 +841,9 @@ def _mirror(sc, n):
 
 def _pellicle(sc, n):
     K.world_studio(0.42)
-    flo = K.mat("StudioFloor", (0.3, 0.31, 0.33), rough=0.25, coat=0.5)
+    # R14 (B6_12 #3 "竖直白色亮条 / 漏光"): the sweep strip mirrored in the glossy coated floor behind the frame
+    # as a vertical white bar -> satin floor without clear coat (the sweep still glints on the membrane)
+    flo = K.mat("StudioFloor", (0.3, 0.31, 0.33), rough=0.6, coat=0.0)
     K.floor("Floor", flo, z=0.0)
     M = K.palette(studio=True)
     # mask: 1.52 x 1.52 x 0.064 (x10 scale), dark multilayer top with absorber pattern
@@ -726,6 +887,29 @@ def _pellicle(sc, n):
     for sx in (-1, 1):                         # vent holes / pins on the frame sides
         for k in range(7):
             fr.cyl((sx * (fw / 2 + 0.018), -fh / 2 + (k + 0.5) * fh / 7, fz), 0.008, 0.006, rot=(0, math.radians(90), 0), seg=10)
+    # R14 (B6_12 #1 "框太简单：一根黑方管"): vent holes (dark recessed slots) along all four sides, corner
+    # clamp blocks with screws that hold the frame to the mask, and a pale adhesive line where the film is bonded
+    vh, cl, sc_, gl_ = K.MB(), K.MB(), K.MB(), K.MB()
+    for (cx, cy, ax, L_) in [(0, -fh / 2, "x", fw), (0, fh / 2, "x", fw), (-fw / 2, 0, "y", fh), (fw / 2, 0, "y", fh)]:
+        for k in range(9):
+            t = -L_ / 2 + (k + 0.5) * L_ / 9
+            if ax == "x":
+                vh.box((t, cy + math.copysign(bar / 2 + 0.0006, cy), fz), (0.03, 0.0015, ht * 0.32))
+            else:
+                vh.box((cx + math.copysign(bar / 2 + 0.0006, cx), t, fz), (0.0015, 0.03, ht * 0.32))
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            c0 = Vector((sx * (fw / 2 + 0.03), sy * (fh / 2 + 0.03), 0.152 + 0.022))
+            cl.box(c0, (0.09, 0.09, 0.044))
+            cl.box(c0 + Vector((-sx * 0.045, -sy * 0.045, 0.018)), (0.05, 0.05, 0.012))   # jaw over the frame corner
+            sc_.cyl(c0 + Vector((0, 0, 0.023)), 0.012, 0.004, seg=16)
+    for (cx, cy, sx, sy) in [(0, fh / 2 - bar / 2, fw - bar, 0.0025), (0, -fh / 2 + bar / 2, fw - bar, 0.0025),
+                             (fw / 2 - bar / 2, 0, 0.0025, fh - bar), (-fw / 2 + bar / 2, 0, 0.0025, fh - bar)]:
+        gl_.box((cx, cy, fz + ht / 2 + 0.0006), (sx, sy, 0.0012))
+    vh.obj("PelVents", K.mat("VentDark", (0.0, 0.0, 0.0), rough=0.9, spec=0.0))
+    cl.obj("PelClamps", K.mat("ClampAlu", (0.62, 0.63, 0.66), metal=1.0, rough=0.28, brushed=0.15), bevel=0.003)
+    sc_.obj("PelClampScrews", K.mat("ScrewSteel", (0.5, 0.5, 0.52), metal=1.0, rough=0.2))
+    gl_.obj("PelGlueLine", K.mat("GlueLine", (0.78, 0.76, 0.7), rough=0.35))
     # R3 5A: thin black anodized frame (the R2 silver frame + gap read as a thick glass tray)
     fr.obj("PelFrame", K.mat("FrameBlack", (0.03, 0.03, 0.035), metal=0.6, rough=0.32, speck=0.1), bevel=0.003)
     # membrane: near-transparent, faint grey haze, glossy sheen at grazing angles, slight sag
@@ -739,6 +923,7 @@ def _pellicle(sc, n):
     tr.inputs["Color"].default_value = (0.93, 0.93, 0.94, 1)
     gl = nn.new("ShaderNodeBsdfGlossy")
     gl.inputs["Roughness"].default_value = 0.06
+    gl.inputs["Roughness"].default_value = 0.22         # R14: broad soft tension band, not a thin white streak
     gl.inputs["Color"].default_value = (0.95, 0.95, 0.96, 1)
     df = nn.new("ShaderNodeBsdfDiffuse")
     df.inputs["Color"].default_value = (0.6, 0.6, 0.62, 1)
@@ -752,15 +937,20 @@ def _pellicle(sc, n):
     fk = nn.new("ShaderNodeMath")
     fk.operation = "MULTIPLY"
     fk.inputs[1].default_value = 0.07                  # R5: less sheen, so it is not a dark lid
+    fk.inputs[1].default_value = 0.11                  # R14: a little more sheen so the tension bands read
     l.new(fres.outputs["Fresnel"], fk.inputs[0])
     l.new(fk.outputs[0], m2.inputs["Fac"])
     l.new(m1.outputs[0], m2.inputs[1])
     l.new(gl.outputs[0], m2.inputs[2])
     l.new(m2.outputs[0], out.inputs["Surface"])
     bm = bmesh.new()
-    nx, ny = 40, 32
+    nx, ny = 120, 96
     vs = [[bm.verts.new(((i / nx - 0.5) * (fw - bar), (j / ny - 0.5) * (fh - bar),
-                         fz + ht / 2 - 0.004 * math.sin(math.pi * i / nx) * math.sin(math.pi * j / ny)))
+                         fz + ht / 2 - 0.004 * math.sin(math.pi * i / nx) * math.sin(math.pi * j / ny)
+                         # R14 (B6_12 #1 "膜面是一片乳白平面"): faint tension ripples so the sweep light
+                         # draws long grazing highlight bands across the stretched film
+                         + 0.0012 * math.sin(math.pi * i / nx) * math.sin(math.pi * j / ny)
+                         * math.sin(2 * math.pi * (3.0 * i / nx + 0.6 * j / ny))))
            for j in range(ny + 1)] for i in range(nx + 1)]
     for i in range(nx):
         for j in range(ny):
@@ -785,6 +975,21 @@ def _pellicle(sc, n):
     sw = K.area("Sweep", (-3, 2.5, 1.6), (0, 0, 0.4), 0.25, 450, (1, 1, 1), size_y=4)
     sw.visible_camera = False                    # R3: the strip and its glints made the speckle block on the frame edge
     sc.cycles.sample_clamp_direct = 6.0
+    for nm in ("Key", "Fill", "Rim"):            # R14: no light panel / its floor glint may show up as a white bar
+        o_ = bpy.data.objects.get(nm)
+        if o_ is not None:
+            o_.visible_camera = False
+    bpy.data.objects["Rim"].visible_glossy = False
+    # R14 (B6_12 #3): the sweep strip lit the far floor as a white hot spot / vertical bar -> light-link it to the
+    # membrane only, and widen it so it draws a broad tension band across the film instead of a thin white line
+    sw.data.size = 0.9
+    sw.data.energy = 260
+    try:
+        rc = bpy.data.collections.new("SweepReceivers")
+        rc.objects.link(mo)
+        sw.light_linking.receiver_collection = rc
+    except Exception:
+        pass
     sw.location = (-3.0, 2.5, 1.6)
     sw.keyframe_insert("location", frame=1)
     sw.location = (3.0, 2.5, 1.6)
@@ -1037,14 +1242,75 @@ def _wafer(sc, n):
     l.new(mx2.outputs[0], out.inputs["Surface"])
     fo, keep = _fields_mesh(sc, R, 0.0095)
     fo.data.materials.append(fm)
-    # scan slit above the wafer following the current field (thin violet bar)
-    slit = K.MB()
-    slit.box((0, 0, 0), (0.26, 0.02, 0.004))
-    so = slit.obj("Slit", K.emit_mat("SlitM", K.VIOLET, 4.0, halo=0.3))
+    # R14 (root cause #7, B8_17 #1 "物镜头下没有光，场格自己变紫"): the exposure itself - a violet slit band lies on
+    # the field being exposed and a soft curtain of violet light comes down onto it (fading out upward, so it reads
+    # as light from the optics above, not a solid bar); both track the scan, the field fills in behind it
+    sm = K.MB()
+    sm.box((0, 0, 0), (0.25, 0.05, 0.002))
+    so = sm.obj("Slit", K.emit_mat("SlitM", K.VIOLET, 7.0))
+    cur = _new_mat("SlitCurtain")
+    nt, nn, l = _nodes(cur)
+    for x in list(nn):
+        if x.type != "OUTPUT_MATERIAL":
+            nn.remove(x)
+    out_ = next(x for x in nn if x.type == "OUTPUT_MATERIAL")
+    tcg = nn.new("ShaderNodeTexCoord")
+    sz = nn.new("ShaderNodeSeparateXYZ")
+    l.new(tcg.outputs["Generated"], sz.inputs[0])
+    iv = nn.new("ShaderNodeMath")
+    iv.operation = "SUBTRACT"
+    iv.inputs[0].default_value = 1.0
+    l.new(sz.outputs["Z"], iv.inputs[1])
+    pw = nn.new("ShaderNodeMath")
+    pw.operation = "POWER"
+    pw.inputs[1].default_value = 2.2
+    l.new(iv.outputs[0], pw.inputs[0])
+    al_ = nn.new("ShaderNodeMath")
+    al_.operation = "MULTIPLY"
+    al_.inputs[1].default_value = 0.55
+    l.new(pw.outputs[0], al_.inputs[0])
+    st_ = nn.new("ShaderNodeMath")
+    st_.operation = "MULTIPLY"
+    st_.inputs[1].default_value = 2.2
+    l.new(pw.outputs[0], st_.inputs[0])
+    em_ = nn.new("ShaderNodeEmission")
+    em_.inputs["Color"].default_value = (*K.lin(K.VIOLET), 1)
+    l.new(st_.outputs[0], em_.inputs["Strength"])
+    tr_ = nn.new("ShaderNodeBsdfTransparent")
+    mx_ = nn.new("ShaderNodeMixShader")
+    l.new(al_.outputs[0], mx_.inputs["Fac"])
+    l.new(tr_.outputs[0], mx_.inputs[1])
+    l.new(em_.outputs[0], mx_.inputs[2])
+    l.new(mx_.outputs[0], out_.inputs["Surface"])
+    cbm = bmesh.new()                                     # frustum: wide at the top, slit-sized at the wafer
+    H = 0.75
+    vb = [cbm.verts.new((sx * 0.125, sy * 0.025, 0.0)) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+    vt = [cbm.verts.new((sx * 0.2, sy * 0.11, H)) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+    for i_ in range(4):
+        j_ = (i_ + 1) % 4
+        cbm.faces.new((vb[i_], vb[j_], vt[j_], vt[i_]))
+    cme = bpy.data.meshes.new("SlitCurtain")
+    cbm.to_mesh(cme)
+    cbm.free()
+    co = bpy.data.objects.new("SlitCurtain", cme)
+    sc.collection.objects.link(co)
+    cme.materials.append(cur)
+    co.parent = so
     for k, (_, j, i, cx, cy) in enumerate(keep):
-        if k % 6 == 0 or k == len(keep) - 1:
-            so.location = (cx, cy, 0.03)
-            so.keyframe_insert("location", frame=1 + round((k / len(keep)) * n * 0.9))
+        so.location = (cx, cy, 0.0105)
+        so.keyframe_insert("location", frame=1 + (k / len(keep)) * n * 0.9)
+    so.keyframe_insert("location", frame=round(n * 0.9) + 2)
+    so.scale = (1, 1, 1)
+    so.keyframe_insert("scale", frame=round(n * 0.9) + 2)
+    so.scale = (0.001, 0.001, 0.001)                    # scan done: the light goes off
+    so.keyframe_insert("scale", frame=round(n * 0.9) + 4)
+    for fc in C.fcurves(so.animation_data.action):
+        for kp in fc.keyframe_points:
+            kp.interpolation = "LINEAR"
+    # R14 (B8_17 #2): wafer notch at 6 o'clock
+    ntc = K.MB()
+    ntc.cyl((0, -R, 0.0045), 0.035, 0.0105, seg=24)
+    ntc.obj("WaferNotch", K.mat("NotchDk", (0.02, 0.02, 0.025), rough=0.6))
     # finished wafers stacking up in a cassette at the right
     cas = K.MB()
     cx0 = 3.4
@@ -1155,7 +1421,21 @@ def _machine_backdrop(sc):
     K.area("Rim", (-3, 6, 7), (-3, 0, 2), 10, 1800, (0.7, 0.75, 1.0))
     K.area("FillR", (7, -5, 3), (2, 0, 2), 4, 600, (0.6, 0.7, 1.0))
     K.area("Top", (-3, 0, 12), (-3, 0, 0), 14, 600, (0.9, 0.92, 1.0), size_y=4)
-    B.machine(M, studio=False, cut=True)
+    # R14 (root cause #1, A2_03 / A2_08 "等宽、满是条纹噪点的发光柱"): soft open cones that open / narrow between
+    # mirror landing spots, no streak noise; K.beam_columns is swapped only for this call and restored after
+    M["beam_wide"] = _soft_beam_mat("EUVSoftR14", strength=2.4, alpha=0.7)
+    M["cone"] = _soft_beam_mat("EUVSoftConeR14", strength=1.9, alpha=0.6)
+    spots = []
+    orig = K.beam_columns
+    K.beam_columns = _r14_columns_factory(spots)
+    try:
+        B.machine(M, studio=False, cut=True)
+    finally:
+        K.beam_columns = orig
+    smb = K.MB()
+    for p, nrm, r in spots:
+        _landing_spot(smb, p, nrm, r)
+    smb.obj("LandingSpotsR14", K.emit_mat("LandingSpotR14", (0.82, 0.72, 1.0), 7.0, halo=0.5))
     sc["hdri"] = "hangar_interior"
     sc["hdri_strength"] = 0.25
     K.clean_cycles(sc)
@@ -1215,20 +1495,51 @@ def _bokeh(sc, n):
     """A2_03: out-of-focus machine (projection optics, violet path, wafer) under the formula overlay; anchors for
     the lambda -> beam and NA -> mirror leader lines."""
     B = _machine_backdrop(sc)
+    # R14 (root cause #7 / review A2_03 #1 "NA 只有文字，没有画面"): the last PO mirror's full converging light cone
+    # onto the wafer point (see-through, bright silhouette) + its half-angle theta drawn as a cyan arc at the apex
+    # and a dashed cyan axis; it fades in when the narration reaches NA (~50 %)
+    po5, wf = Vector(B.PO[5]), Vector(B.WAFER)
+    u = (po5 - wf).normalized()
+    perp = u.cross(Vector((0, 1, 0))).normalized()
+    rim = 0.27
+    nmb = K.MB()
+    _open_cone(nmb, po5, wf, rim, 0.004, seg=64)
+    na_cone = nmb.obj("NACone", _soft_beam_mat("NAConeMat", strength=1.8, alpha=0.4, power=0.8))
+    L = (po5 - wf).length
+    e = ((po5 + perp * rim) - wf).normalized()
+    th = math.acos(max(-1.0, min(1.0, u.dot(e))))
+    amb = K.MB()
+    ar = 0.8
+    arc = [wf + (u * math.cos(th * k / 16) + perp * math.sin(th * k / 16)) * ar for k in range(17)]
+    for a_, b_ in zip(arc, arc[1:]):
+        amb.tube(a_, b_, 0.006, seg=8)
+    for k in range(9):                                           # dashed optical axis apex -> mirror
+        amb.tube(wf + u * L * (0.06 + k * 0.1), wf + u * L * (0.11 + k * 0.1), 0.003, seg=6)
+    amb.tube(wf, wf + e * L * 1.0, 0.003, seg=6)                 # the cone edge ray the angle is measured to
+    na_ink = amb.obj("NATheta", K.emit_mat("NAThetaInk", K.CYAN, 3.5))
+    f_on = round(n * 0.48)
+    for ob in (na_cone, na_ink):
+        ob.hide_render = True
+        ob.keyframe_insert("hide_render", frame=1)
+        ob.keyframe_insert("hide_render", frame=f_on - 1)
+        ob.hide_render = False
+        ob.keyframe_insert("hide_render", frame=f_on)
     cam, tgt = K.camera("CamR2", lens=32)
     # R6 (D): push in + rack focus: starts soft (formula beat), focus pulls onto the projection mirror the NA
     # leader points at, so the background changes and the leader lands on a sharp mirror and its light cone
-    K.key_path(cam, tgt, [(1, (0.5, -4.7, 2.75), (1.6, 0, 2.55)), (n, (1.6, -3.7, 2.45), (2.0, 0, 2.45))],
+    # R14: the end pose tilts down so the whole NA cone (mirror -> wafer apex) and its theta arc are in frame
+    K.key_path(cam, tgt, [(1, (0.5, -4.7, 2.75), (1.6, 0, 2.55)), (n, (1.55, -3.9, 2.05), (1.95, 0, 1.55))],
                interp="BEZIER")
     foc = bpy.data.objects.new("NAFocus", None)
     sc.collection.objects.link(foc)
     foc.location = (0.9, -3.0, 2.6)
     foc.keyframe_insert("location", frame=1)
     foc.keyframe_insert("location", frame=round(n * 0.35))
-    foc.location = tuple(B.PO[5])
+    foc.location = tuple(po5.lerp(wf, 0.35))                 # R14: focus holds mirror + cone + theta arc
     foc.keyframe_insert("location", frame=round(n * 0.75))
-    _dof(cam, 1.2, foc)
-    K.anchors("A2_03", {"beam": B.PO[1].lerp(B.PO[2], 0.5), "mirror": B.PO[5], "wafer": B.WAFER, "mask": B.MASK})
+    _dof(cam, 1.6, foc)
+    K.anchors("A2_03", {"beam": B.PO[1].lerp(B.PO[2], 0.5), "mirror": B.PO[5], "wafer": B.WAFER, "mask": B.MASK,
+                        "theta": arc[8] + perp * 0.06, "na_apex": wf})
     return cam
 
 

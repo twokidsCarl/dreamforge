@@ -33,6 +33,7 @@ WAFER = Vector((1.75, 0.0, 0.62))
 
 
 R12 = [False]             # R12: r2_cutaway switches the bay walls to hero_kit_r12.wall_r12 (14 types, no DIN rows)
+IF_CUT = [False]          # R14: B3_02 saws the front half of the IF neck cone open so the convergence point shows
 FRONT_FLANGE = [True]     # R13: B3_02 drops the vessel's front flange ring (it hid the cone between plasma and IF)
 
 
@@ -194,6 +195,35 @@ def _collector(M, mbs):
                           (-8.5, 1.2 * math.cos(ang), COLL.z + 1.2 * math.sin(ang)), 0.03)
 
 
+
+def _cone_shell(mb, msec, a, b, ra, rb, t, a0, a1, seg=48):
+    """R14: a cone wall from a (radius ra) to b (radius rb), thickness t, kept between angles a0..a1 (deg, local
+    frame with 270 deg = -Y); the sawn edges get light-grey section strips (msec)."""
+    m, L = K._orient(a, b)
+    k = max(2, int(seg * (a1 - a0) / 360) + 1)
+    V = mb.bm.verts.new
+    g = {}
+    for zi, (z, r) in enumerate(((-L / 2, ra), (L / 2, rb))):
+        for ri, rr in enumerate((r, r - t)):
+            for i in range(k):
+                an = math.radians(a0 + (a1 - a0) * i / (k - 1))
+                g[zi, ri, i] = V(m @ Vector((rr * math.cos(an), rr * math.sin(an), z)))
+    F = mb.bm.faces.new
+    for i in range(k - 1):
+        F((g[0, 0, i], g[0, 0, i + 1], g[1, 0, i + 1], g[1, 0, i]))
+        F((g[1, 1, i], g[1, 1, i + 1], g[0, 1, i + 1], g[0, 1, i]))
+        F((g[1, 0, i], g[1, 0, i + 1], g[1, 1, i + 1], g[1, 1, i]))
+        F((g[0, 1, i], g[0, 1, i + 1], g[0, 0, i + 1], g[0, 0, i]))
+    for i in (0, k - 1):
+        q = (g[0, 0, i], g[1, 0, i], g[1, 1, i], g[0, 1, i])
+        F(q if i == 0 else q[::-1])
+        an = math.radians(a0 + (a1 - a0) * i / (k - 1))
+        for zz, rr in ((-L / 2, ra), (L / 2, rb)):
+            pass
+        p0 = m @ Vector(((ra - t / 2) * math.cos(an), (ra - t / 2) * math.sin(an), -L / 2))
+        p1 = m @ Vector(((rb - t / 2) * math.cos(an), (rb - t / 2) * math.sin(an), L / 2))
+        msec.tube(p0, p1, t * 0.7, seg=6)
+
 def _module_box(mbs, x0, x1, z0, z1, y_back=1.1, y_front=-1.0, seed=0, ribs=True):
     """An open-front optics housing: back plate, floor, roof, side walls with lightening holes simulated by
     ribs, edge flanges and bolt rows, greebles on the outside."""
@@ -308,7 +338,10 @@ def _illuminator(M, mbs):
                          (PFM.lerp(G1, 0.5), 0.3), (G1.lerp(MASK, 0.4), 0.3)])
     # intermediate-focus neck: cone from the vessel, bellows, gate valve
     v = mbs["vessel"]
-    v.tube((-5.85, 0, 2.38), (-4.75, 0, 2.53), 0.42, seg=40, r2=0.14)
+    if IF_CUT[0]:
+        _cone_shell(v, mbs["section"], Vector((-5.85, 0, 2.38)), Vector((-4.75, 0, 2.53)), 0.42, 0.14, 0.025, 20, 200)
+    else:
+        v.tube((-5.85, 0, 2.38), (-4.75, 0, 2.53), 0.42, seg=40, r2=0.14)
     for k in range(9):
         mbs["flange"].ring(Vector((-4.7 + k * 0.035, 0, 2.55)), 0.2, 0.13, 0.02, rot=(0, math.radians(90), 0))
     mbs["flange"].ring((-4.35, 0, 2.55), 0.32, 0.12, 0.08, rot=(0, math.radians(90), 0))
