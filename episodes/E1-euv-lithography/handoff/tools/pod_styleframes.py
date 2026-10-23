@@ -166,8 +166,16 @@ cat /root/jobs.txt | xargs -P {a.procs} -L 1 bash -c 'run "$0" "$1"'
     r = pull(ip, port, "/root/r/shots", os.path.join(EP, "renders/shots"))
     pull(ip, port, "/root/r/logs", os.path.join(EP, "renders/review/p1_logs"))
     log("pull rc", r.returncode, r.stderr[-200:])
-    got = {s: len(glob.glob(os.path.join(EP, f"renders/shots/{s}/sample/*.png"))) for s, _ in jobs}
+    # R21 RETRO: count only the job frames written by THIS run (a failed pull used to report stale frames and exit 0)
+    def fresh(s, fr):
+        ps = [os.path.join(EP, f"renders/shots/{s}/sample/{int(f):04d}.png") for f in fr.split(",")]
+        return sum(1 for q in ps if os.path.exists(q) and os.path.getmtime(q) >= t0 - 600)
+    got = {s: fresh(s, fr) for s, fr in jobs}
     log("GOT", got)
+    miss = {s: n for (s, fr), n in zip(jobs, got.values()) if n < len(fr.split(","))}
+    if r.returncode != 0 or miss:
+        log("PULL_INCOMPLETE", miss)
+        raise SystemExit(3)
 
 
 if __name__ == "__main__":
