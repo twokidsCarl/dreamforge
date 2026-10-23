@@ -562,22 +562,93 @@ def person(name, loc, height=1.75, pose="stand", facing=0.0, color=(0.03, 0.035,
     return figures.person(name, loc, height=height, pose=pose, facing=facing, mat=m, role="env")
 
 
+def _cloth_mat(name, color):
+    """R8: bunny-suit fabric: cloth sheen + soft wrinkle bump (two noise scales), not a smooth plastic shell."""
+    m = mat(name, color, rough=0.72, spec=0.25)
+    nt = m.node_tree
+    b = _bsdf(m)
+    if "Sheen Weight" in b.inputs:
+        b.inputs["Sheen Weight"].default_value = 0.6
+        b.inputs["Sheen Roughness"].default_value = 0.4
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    mp = nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Scale"].default_value = (1.0, 1.0, 3.2)            # wrinkles run mostly around the limbs
+    n1 = nt.nodes.new("ShaderNodeTexNoise")
+    n1.inputs["Scale"].default_value = 9.0
+    n1.inputs["Detail"].default_value = 3.0
+    n1.inputs["Distortion"].default_value = 1.2
+    n2 = nt.nodes.new("ShaderNodeTexNoise")
+    n2.inputs["Scale"].default_value = 60.0
+    n2.inputs["Detail"].default_value = 2.0
+    nt.links.new(tc.outputs["Object"], mp.inputs["Vector"])
+    nt.links.new(mp.outputs["Vector"], n1.inputs["Vector"])
+    nt.links.new(tc.outputs["Object"], n2.inputs["Vector"])
+    b1 = nt.nodes.new("ShaderNodeBump")
+    b1.inputs["Strength"].default_value = 0.55
+    b1.inputs["Distance"].default_value = 0.02
+    b2 = nt.nodes.new("ShaderNodeBump")
+    b2.inputs["Strength"].default_value = 0.12
+    b2.inputs["Distance"].default_value = 0.003
+    nt.links.new(n1.outputs["Fac"], b1.inputs["Height"])
+    nt.links.new(n2.outputs["Fac"], b2.inputs["Height"])
+    nt.links.new(b1.outputs["Normal"], b2.inputs["Normal"])
+    nt.links.new(b2.outputs["Normal"], b.inputs["Normal"])
+    return m
+
+
 def suit_person(name, loc, height=1.75, pose="stand", facing=0.0):
-    """9A/9B clean-room silhouette: white bunny suit (soft cloth sheen) + dark visor band, no face."""
+    """9A/9B clean-room figure, no face. R8 (R7 review: "smooth white dummy, toy-like"): wrinkled fabric with
+    sheen, hood opening framing a dark goggle visor + white face mask, front zip, blue nitrile gloves with cuff
+    seams, pale-blue boot covers with soles."""
     import figures
-    m = mat(name + "Suit", (0.86, 0.87, 0.9), rough=0.62, spec=0.3)
+    m = _cloth_mat(name + "Suit", (0.86, 0.87, 0.9))
     ob = figures.person(name, loc, height=height, pose=pose, facing=facing, mat=m, role="env")
     k = height / 1.75
     a = math.radians(facing)
-    off = Vector((0.0, -0.105 * k, 1.63 * k))
-    off = Vector((off.x * math.cos(a) - off.y * math.sin(a), off.x * math.sin(a) + off.y * math.cos(a), off.z))
-    v = MB()
-    v.sphere(Vector(loc) + off, 0.075 * k, 20)
+    L = Vector(loc)
+
+    def P(x, y, z):
+        v = Vector((x, y, z)) * k
+        return L + Vector((v.x * math.cos(a) - v.y * math.sin(a), v.x * math.sin(a) + v.y * math.cos(a), v.z))
+    rot = (0, 0, a)
+    parts = {key: MB() for key in ("visor", "mask", "hood", "zip", "glove", "boot", "sole")}
+    parts["hood"].ring(P(0, -0.112, 1.615), 0.092 * k, 0.07 * k, 0.03 * k, rot=(math.radians(90), 0, a), seg=32)
+    parts["mask"].sphere(P(0, -0.1, 1.555), 0.058 * k, 16)
+    parts["zip"].box(P(0, -0.142, 1.16), (0.012 * k, 0.01 * k, 0.5 * k), rot=rot)
+    for z in (1.0, 1.15, 1.3):                                                    # snap closures
+        parts["zip"].sphere(P(0.03, -0.14, z), 0.008 * k, 8)
+    stride = 0.16 if pose == "walk" else 0.0
+    for sgn in (-1, 1):
+        if pose == "work" and sgn == 1:
+            hand, wrist = P(0.2, -0.38, 1.12), P(0.215, -0.31, 1.115)
+        else:
+            sw = -stride * sgn * 0.8
+            hand, wrist = P(0.25 * sgn, sw, 0.8), P(0.25 * sgn, sw * 0.88, 0.86)
+        parts["glove"].sphere(hand, 0.052 * k, 16)
+        parts["glove"].tube(wrist, hand, 0.045 * k, seg=14)
+        parts["hood"].ring(wrist, 0.062 * k, 0.04 * k, 0.025 * k,
+                           rot=Vector((0, 0, 1)).rotation_difference(hand - wrist).to_euler(), seg=20)
+        foot = P(0.1 * sgn, stride * sgn, 0.1)
+        toe = P(0.1 * sgn, stride * sgn - 0.12, 0.07)
+        parts["boot"].tube(foot + Vector((0, 0, 0.12 * k)), foot, 0.1 * k, seg=16)
+        parts["boot"].tube(foot, toe, 0.082 * k, seg=16)
+        parts["sole"].box((foot + toe) / 2 - Vector((0, 0, 0.065 * k)), (0.12 * k, 0.26 * k, 0.025 * k), rot=rot)
+    v = parts.pop("visor")
+    v.sphere(P(0, -0.105, 1.63), 0.075 * k, 20)
     vo = v.obj(name + "Visor", mat(name + "VisorM", (0.02, 0.022, 0.03), metal=0.3, rough=0.08, coat=1.0))
-    vo.scale = (1.25, 0.55, 0.62)
-    vo.data.transform(Matrix.Translation(-(Vector(loc) + off)))
-    vo.location = Vector(loc) + off
-    vo.rotation_euler = (0, 0, a)
+    c = P(0, -0.105, 1.63)
+    vo.data.transform(Matrix.Translation(-c))
+    vo.location = c
+    vo.scale = (1.25, 0.55, 0.5)
+    vo.rotation_euler = rot
+    mats = {"mask": mat(name + "MaskM", (0.93, 0.94, 0.95), rough=0.8),
+            "hood": _cloth_mat(name + "SeamM", (0.74, 0.76, 0.8)),
+            "zip": mat(name + "ZipM", (0.45, 0.47, 0.52), metal=0.6, rough=0.35),
+            "glove": mat(name + "GloveM", (0.22, 0.36, 0.78), rough=0.35, coat=0.3),
+            "boot": _cloth_mat(name + "BootM", (0.62, 0.7, 0.82)),
+            "sole": mat(name + "SoleM", (0.12, 0.13, 0.15), rough=0.6)}
+    for key, mb in parts.items():
+        mb.obj(name + "_" + key, mats[key])
     return ob
 
 

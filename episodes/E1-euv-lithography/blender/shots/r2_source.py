@@ -449,7 +449,7 @@ def _debris(M, seed=4):
             v = Vector((rnd.gauss(0, 1), rnd.gauss(0, 1), rnd.gauss(0, 1))).normalized()
             d = {"hot": rnd.uniform(0.08, 0.25), "warm": rnd.uniform(0.2, 0.45), "cool": rnd.uniform(0.35, 0.7)}[key]
             p = v * d
-            mb.tube(p, p + v * rnd.uniform(0.006, 0.02), rnd.uniform(*rr) * 0.4, seg=6)     # short motion streak
+            mb.tube(p, p + v * rnd.uniform(0.01, 0.028), rnd.uniform(*rr) * 0.35, seg=6)     # R8: a bit longer streak
         ob = mb.obj("Debris_" + key, M[key])
         ob.visible_shadow = False
         objs.append(ob)
@@ -461,7 +461,7 @@ def _contrast(sc, M, cam, tgt, n):
     fills the right half, close and sharp, mirroring the violet-white glow and a grazing softbox; hot tin debris
     reduced so it no longer reads as fireworks."""
     _dark_world()
-    M["coll"] = K.mat("CollectorMLPolished", (0.8, 0.78, 0.86), metal=1.0, rough=0.025, coat=0.6)
+    M["coll"] = K.mat("CollectorMLPolished", (0.82, 0.8, 0.88), metal=1.0, rough=0.008, coat=1.0)
     for ob in chamber(M, seed=2):              # R5: no stiffening rings / ribs / MLI between camera and dish
         if ob.name.startswith(("ChamberRings", "MLI", "WallLines")):
             ob.hide_render = True
@@ -489,8 +489,17 @@ def _contrast(sc, M, cam, tgt, n):
     sc.collection.objects.link(foc)
     foc.location = (-0.6, 0.0, 0.0)
     cam.data.dof.focus_object = foc
-    K.key_path(cam, tgt, [(1, (0.78, -0.42, 0.16), (-0.6, 0.06, -0.03)), (n, (0.72, -0.37, 0.14), (-0.62, 0.08, -0.03))],
+    # R8 (F): camera close to the optical axis, so the plasma sits right in front of the central hole (first focus
+    # on the axis, depth by perspective), slow push-in; a faint dashed axis line hole -> plasma -> IF
+    K.key_path(cam, tgt, [(1, (0.98, -0.11, 0.07), (-0.9, 0.0, -0.01)), (n, (0.8, -0.09, 0.06), (-0.9, 0.0, -0.01))],
                interp="LINEAR")
+    ax = K.MB()
+    for k in range(11):
+        x0 = COLL_X - 0.05 + k * 0.12
+        ax.tube((x0, 0, 0), (x0 + 0.06, 0, 0), 0.0025, seg=6)
+    ax_ob = ax.obj("OpticalAxis", K.emit_mat("AxisInk", (0.5, 0.85, 0.95), 2.5))
+    ax_ob.visible_glossy = False
+
 
 
 def _track(sc, M, cam, tgt, n):
@@ -702,7 +711,7 @@ def _spectrum(sc, M, cam, tgt, n):
     """B1_18 (194 frames): R4 (H14 fix): the real source chamber behind the spectrum HUD: polished collector dish
     and the plasma on the right half, softly out of focus (f/2.8) but recognisable; the HUD sits on the left."""
     _dark_world()
-    M["coll"] = K.mat("CollectorMLPolished", (0.8, 0.78, 0.86), metal=1.0, rough=0.025, coat=0.6)
+    M["coll"] = K.mat("CollectorMLPolished", (0.82, 0.8, 0.88), metal=1.0, rough=0.008, coat=1.0)
     chamber(M, seed=6)
     lights_chamber(0.55)
     pl, li = plasma(M, (0, 0, 0), 0.03)

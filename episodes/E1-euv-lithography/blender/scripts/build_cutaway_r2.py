@@ -201,90 +201,47 @@ def _module_box(mbs, x0, x1, z0, z1, y_back=1.1, y_front=-1.0, seed=0, ribs=True
         for i in range(1, int(W / 0.45)):
             h.box((x0 + i * 0.45, y_back - 0.04, cz), (0.03, 0.05, H))
     # outside greebles on the roof
-    K.greeble(mbs["greeble"], (x0, y_front + 0.1, z1 + 0.025), (1, 0, 0), (0, 1, 0), (0, 0, 1), W, y_back - y_front - 0.2,
-              int(W * 9), 0.08, 0.35, 0.03, 0.18, seed=seed)
+    import parts_kit_r8 as PK                 # R8: named roof parts instead of greeble boxes
+    P = PK.new_parts()
+    ym = (y_back + y_front) / 2
+    for k in range(max(1, int(W / 1.3))):
+        x = x0 + (k + 0.5) * W / max(1, int(W / 1.3))
+        PK.turbo_pump(P, (x - 0.25, ym + 0.2, z1 + 0.05), (0, 0, 1), 0.15)
+        PK.gate_valve(P, (x + 0.3, ym - 0.25, z1 + 0.12), (0, 1, 0), 0.07)
+    PK.cable_tray(P, x0 + 0.1, x1 - 0.1, z1 + 0.06, y_back - 0.1, seed=seed)
+    PENDING_KITS.append(P)
+
+
+PENDING_KITS = []        # R8: parts-kit batches waiting for finish (machine() / _po_turntable flush them)
+
+
+def flush_kits(M, parent=None, tag="Kit"):
+    import parts_kit_r8 as PK
+    out = []
+    while PENDING_KITS:
+        P = PENDING_KITS.pop(0)
+        out += PK.finish(P, M, f"{tag}{len(PENDING_KITS)}", parent=parent)
+    return out
 
 
 def _interior_fill(mbs, x0, x1, z0, z1, y_back=1.1, seed=0, keep=()):
-    """Dense inside of a de-cased housing (2B): greebled back plate, an internal strut cage, actuator / sensor
-    blocks with LEDs, coolant lines with clamps, coloured wiring looms and gold-foil patches.
-    keep: [(centre Vector, radius)] spheres kept clear for the optics and the beam."""
-    rnd = random.Random(seed)
+    """R8: the de-cased housing's back plate carries a real parts kit (parts_kit_r8: turbo pumps on elbows, gate
+    valves, gauges + viewports, bellows, card cages, cable tray, coolant manifold, drag chain) instead of the
+    R2-R7 random greeble boxes / actuator blocks / gold patches. Keeps the internal strut cage."""
+    import parts_kit_r8 as PK
     W, H = x1 - x0, z1 - z0
+    P = PK.new_parts()
+    # the wall sits ~0.9 m behind the beam plane, so its parts never block the optics: no keep-clear zones
+    PK.populate_wall(P, x0 + 0.08, x1 - 0.08, z0 + 0.06, z1 - 0.06, y_back - 0.025, seed=seed,
+                     scale=1.9 if H > 2.0 else 1.2)
+    PENDING_KITS.append(P)
 
     def clear(p, r=0.0):
         return all((Vector(p) - c).length > rr + r for c, rr in keep)
-
-    # back plate greebles (inside face) in 3 depth layers
-    for layer, (n, smin, smax, dmin, dmax) in enumerate([(int(W * H * 8), 0.12, 0.45, 0.015, 0.05),
-                                                          (int(W * H * 4), 0.06, 0.2, 0.06, 0.14),
-                                                          (int(W * H * 2), 0.15, 0.3, 0.1, 0.22)]):
-        tgt = mbs["greeble"] if layer != 1 else mbs["anod"]
-        for _ in range(n):
-            sx, sz, d = rnd.uniform(smin, smax), rnd.uniform(smin, smax), rnd.uniform(dmin, dmax)
-            c = Vector((rnd.uniform(x0 + sx / 2 + 0.05, x1 - sx / 2 - 0.05), y_back - 0.03 - d / 2,
-                        rnd.uniform(z0 + sz / 2 + 0.05, z1 - sz / 2 - 0.05)))
-            if clear(c, 0.05) or layer == 0:
-                tgt.box(c, (sx, d, sz))
-    # round parts on the back plate: motors with flanges + bolt circles, connector panels with plugs
-    for _ in range(int(W * H * 3)):
-        c = Vector((rnd.uniform(x0 + 0.15, x1 - 0.15), y_back - 0.05, rnd.uniform(z0 + 0.15, z1 - 0.15)))
-        r = rnd.uniform(0.04, 0.11)
-        L = rnd.uniform(0.06, 0.2)
-        rot = (math.radians(90), 0, 0)
-        mbs["alu"].cyl(c + Vector((0, -L / 2, 0)), r, L, rot=rot, seg=24)
-        mbs["flange_s"].cyl(c + Vector((0, -0.012, 0)), r * 1.45, 0.02, rot=rot, seg=24)
-        mbs["bolt"].bolts(c + Vector((0, -0.025, 0)), r * 1.25, 6, r * 0.09, 0.012, rot=rot)
-    for _ in range(int(W * H * 1.2)):
-        c = Vector((rnd.uniform(x0 + 0.2, x1 - 0.2), y_back - 0.04, rnd.uniform(z0 + 0.2, z1 - 0.2)))
-        mbs["anod"].box(c, (0.22, 0.03, 0.12))
-        for k in range(4):
-            mbs["steel"].cyl(c + Vector((-0.075 + k * 0.05, -0.03, 0)), 0.014, 0.04, rot=(math.radians(90), 0, 0), seg=10)
-            K.cable_run(mbs[("cable_b", "cable_o", "cable_g")[k % 3]],
-                        [c + Vector((-0.075 + k * 0.05, -0.05, 0)), c + Vector((-0.075 + k * 0.05, -0.12, -0.15)),
-                         c + Vector((-0.2 + k * 0.03, -0.1, -0.5))], n=1, r=0.006, spread=0.0, seed=k)
-    # internal strut cage (front-to-back members), skipping the optics
     for i in range(1, int(W / 0.7) + 1):
         x = x0 + i * W / (int(W / 0.7) + 1)
         for z in (z0 + 0.12, z1 - 0.12):
             mbs["frame"].box((x, y_back - 0.55, z), (0.07, 1.0, 0.07))
-        if clear((x, 0.6, (z0 + z1) / 2), 0.1):
-            mbs["frame"].box((x, y_back - 0.1, (z0 + z1) / 2), (0.06, 0.08, H - 0.2))
-    # actuator / sensor blocks with status LEDs
-    for _ in range(int(W * H * 2.2)):
-        c = Vector((rnd.uniform(x0 + 0.2, x1 - 0.2), rnd.uniform(0.35, y_back - 0.15), rnd.uniform(z0 + 0.2, z1 - 0.2)))
-        if not clear(c, 0.25):
-            continue
-        sz = (rnd.uniform(0.1, 0.24), rnd.uniform(0.12, 0.3), rnd.uniform(0.08, 0.2))
-        mbs["anod" if rnd.random() < 0.6 else "housing"].box(c, sz)
-        if rnd.random() < 0.5:
-            mbs["anod"].cyl(c + Vector((0, -sz[1] / 2 - 0.04, 0)), min(sz[0], sz[2]) * 0.35, 0.08,
-                            rot=(math.radians(90), 0, 0), seg=20)            # motor / encoder can
-        if rnd.random() < 0.6:
-            mbs["led"].box(c + Vector((sz[0] * 0.3, -sz[1] / 2 - 0.003, sz[2] * 0.3)), (0.02, 0.006, 0.012))
-    # coolant lines with clamps along the back and roof
-    for k in range(3):
-        z = z0 + 0.25 + k * 0.17
-        y = y_back - 0.18 - k * 0.06
-        pts = [(x0 + 0.08, y, z), (x0 + 0.08, y, z1 - 0.3 - k * 0.1), (x1 - 0.3, y, z1 - 0.3 - k * 0.1),
-               (x1 - 0.08, y, z1 - 0.5 - k * 0.1), (x1 - 0.08, y, z0 + 0.1)]
-        mbs["pipe" if k != 1 else "copper"].path(pts, 0.018 + 0.006 * k, seg=12)
-        for a, b in zip(pts, pts[1:]):
-            L = (Vector(b) - Vector(a)).length
-            for t in [i / max(1, int(L / 0.35)) for i in range(1, max(1, int(L / 0.35)))]:
-                q = Vector(a).lerp(Vector(b), t)
-                mbs["steel"].box(q, (0.05, 0.06, 0.05))
-    # wiring looms (blue / orange / grey) snaking from the actuators to the roof
-    for k in range(5):
-        col = ("cable_b", "cable_o", "cable_g", "cable_b", "cable_g")[k]
-        x = rnd.uniform(x0 + 0.3, x1 - 0.3)
-        pts = [(x, y_back - 0.12, z0 + 0.15), (x + rnd.uniform(-0.3, 0.3), y_back - 0.2, (z0 + z1) / 2),
-               (x + rnd.uniform(-0.2, 0.2), y_back - 0.15, z1 - 0.15), (x, y_back - 0.6, z1 - 0.06)]
-        K.cable_run(mbs[col], pts, n=rnd.randint(4, 8), r=0.007, spread=0.03, seed=seed * 10 + k)
-    # gold-foil (MLI) patches on a few blocks
-    for _ in range(int(W * H * 0.8)):
-        c = Vector((rnd.uniform(x0 + 0.2, x1 - 0.2), y_back - 0.09, rnd.uniform(z0 + 0.2, z1 - 0.2)))
-        mbs["gold"].box(c, (rnd.uniform(0.15, 0.35), 0.03, rnd.uniform(0.12, 0.3)))
 
 
 def _illuminator(M, mbs):
@@ -364,8 +321,22 @@ def _reticle_stage(M, mbs):
             bolt.cyl((MASK.x - 1.7 + k * 0.3, y, z + 0.17), 0.012, 0.02, seg=6)
     st.box((MASK.x, MASK.y, z + 0.1), (0.85, 0.85, 0.12))                 # chuck
     mbs["mask"].box((MASK.x, MASK.y, z + 0.02), (0.6, 0.6, 0.03))         # mask (pattern faces down)
-    for k in range(13):                                                   # R4: absorber pattern on the face
-        mbs["anod"].box((MASK.x - 0.24 + k * 0.04, MASK.y, z + 0.003), (0.018, 0.5, 0.004))
+    # R8 (C_03: "mask reads as a vent grille"): a reflective reticle with a 3 x 4 grid of die fields, each a
+    # fine low-contrast line / pad pattern, a clear border with alignment marks, and four clamps on the chuck
+    import random as _rr
+    rq = _rr.Random(5)
+    for i in range(3):
+        for j in range(4):
+            cx, cy = MASK.x - 0.17 + i * 0.17, MASK.y - 0.195 + j * 0.13
+            for k in range(9):                                            # fine lines across the die
+                mbs["greeble"].box((cx - 0.06 + k * 0.015, cy, z + 0.0035), (0.004, 0.1, 0.0015))
+            for _ in range(4):                                            # pads / blocks
+                mbs["greeble"].box((cx + rq.uniform(-0.05, 0.05), cy + rq.uniform(-0.04, 0.04), z + 0.0035),
+                                   (rq.uniform(0.01, 0.03), rq.uniform(0.01, 0.03), 0.0015))
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            mbs["led"].box((MASK.x + sx * 0.27, MASK.y + sy * 0.27, z + 0.0035), (0.012, 0.012, 0.0015))   # marks
+            mbs["steel"].box((MASK.x + sx * 0.33, MASK.y + sy * 0.24, z + 0.03), (0.07, 0.1, 0.03))       # clamps
     mbs["anod"].box((MASK.x - 1.4, 0, z + 0.5), (0.4, 1.6, 0.25))          # linear motors
     mbs["anod"].box((MASK.x + 1.4, 0, z + 0.5), (0.4, 1.6, 0.25))
     for k in range(8):
@@ -483,6 +454,7 @@ def machine(M, studio=False, cut=True, beam=True, bounce=20.0):
            "granite": 0.02, "vessel": 0.01}
     if beam and bounce:
         K.bounce_lights([FFM, PFM, G1, G2, MASK + Vector((0, -0.1, -0.15))] + PO, energy=bounce)
+    flush_kits(M, tag="R8Kit")
     objs = {}
     for k, mb in mbs.items():
         if len(mb.bm.verts):

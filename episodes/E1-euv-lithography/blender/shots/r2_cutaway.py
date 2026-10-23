@@ -62,7 +62,10 @@ def build(variant="illum", shot=None):
         K.world_dark(0.55)
         K.floor("Floor", K.mat("FloorDark", (0.05, 0.055, 0.065), rough=0.3, coat=0.3), z=0.0)
         _lights_dark()
-    M["cone"] = (K.beam_column_mat("EUVCone", K.VIOLET, strength=1.0, edge=0.22, core=0.03, vol=0.06)
+    if variant == "collect":                 # R8: solid, dark polished multilayer dish (R7: read as a glass dome)
+        M["coating"] = K.mat("CollectorSolidR8", (0.3, 0.29, 0.36), metal=1.0, rough=0.035, coat=1.0)
+        M["substrate"] = K.mat("CollectorBodyR8", (0.2, 0.2, 0.23), metal=1.0, rough=0.3, speck=0.2)
+    M["cone"] = (K.beam_column_mat("EUVCone", K.VIOLET, strength=1.3, edge=0.7, core=0.0, vol=0.04)
                  if variant == "collect" else K.beam_column_mat("EUVCone", K.VIOLET, strength=1.4, edge=0.4, core=0.06, vol=0.15))
     K.clean_cycles(sc)
     if variant == "po":
@@ -122,7 +125,17 @@ def build(variant="illum", shot=None):
         cam.data.dof.focus_object = tgt
         cam.data.lens = 24
         cam.data.dof.aperture_fstop = 8
-        K.key_path(cam, tgt, [(1, (-5.6, -4.3, 3.3), (-6.5, 0.0, 2.35)), (f1, (-6.6, -2.9, 3.0), (-7.6, 0.0, 2.3))])
+        # R8 (F): keep collector AND intermediate focus in frame the whole shot so the cone visibly converges on IF
+        K.key_path(cam, tgt, [(1, (-5.7, -4.9, 3.25), (-6.25, 0.0, 2.4)), (f1, (-6.5, -4.5, 3.05), (-6.45, 0.0, 2.38))])
+        pl = K.MB()                                     # plasma at the first focus (small violet-white glow)
+        pl.sphere(B.PLASMA, 0.035, 20)
+        pl.obj("PlasmaCore", K.emit_mat("PlasmaCoreR8", (0.92, 0.88, 1.0), 40.0))
+        ph = K.MB()
+        ph.sphere(B.PLASMA, 0.12, 24)
+        ph.obj("PlasmaHalo", K.emit_mat("PlasmaHaloR8", K.VIOLET, 4.0, halo=0.8))
+        ifm = K.MB()                                    # the cone's apex: a bright pinch point at IF
+        ifm.sphere(B.IF, 0.03, 16)
+        ifm.obj("IFPinch", K.emit_mat("IFPinchR8", (0.85, 0.8, 1.0), 25.0))
         # tin droplet stream through the plasma point
         dm = K.MB()
         for k in range(14):
@@ -134,7 +147,7 @@ def build(variant="illum", shot=None):
         lz.obj("LaserCore", M["laser"])
         for o in bpy.data.objects:                       # no plasma yet in this shot: drop the point lights that
             if o.name in ("PlasmaGlow", "IFGlow"):       # made glossy fireflies around the focus
-                o.data.energy *= 0.15
+                o.data.energy *= 0.35
         lh.obj("LaserHalo", M["laser_halo"])
     sc.camera = cam
     K.anchors(shot, {"plasma": B.PLASMA, "coll": B.COLL + Vector((0.12, 0, 0.35)), "hole": B.COLL + Vector((0.02, 0, 0)),
@@ -426,6 +439,9 @@ def _po_turntable(sc, M, n):
             ob.location -= piv.location
         else:
             mb.bm.free()
+    for ob in B.flush_kits(M, tag="POKit"):          # R8: parts kit inside the PO cage turns with it
+        ob.parent = piv
+        ob.location -= piv.location
     piv.rotation_euler = (0, 0, math.radians(-38))
     piv.keyframe_insert("rotation_euler", frame=1)
     piv.rotation_euler = (0, 0, math.radians(4))
@@ -548,8 +564,14 @@ def _depth_layers(M, MZ, WZ):
     for x in (-2.75, 2.7):
         fg["post"].box((x, -1.05, 1.75), (0.14, 0.14, 3.5))
         fg["sec"].box((x, -1.121, 1.75), (0.142, 0.004, 3.5))
-    for k, m_ in (("post", M["alu_dark"]), ("sec", M["section"])):
+    for k, m_ in (("post", M["alu_dark"]), ("sec", M["alu_dark"])):
         fg[k].obj("FG_" + k, m_, bevel=0.006 if k == "post" else 0.0)
+
+
+def scan_knots(n):
+    """(frame, u) knots of the B8_03 scan; u = 0..1 of the full stroke."""
+    fr = [1 + round((n - 1) * p) for p in (0.245, 0.545, 0.85)]
+    return [(1, 0.0)] + list(zip(fr, (0.25, 0.55, 0.85))) + [(n, 1.0)]
 
 
 def _scan_r5(sc, M, n, shot):
@@ -562,7 +584,8 @@ def _scan_r5(sc, M, n, shot):
         with the same unit; the exposed stripe grows on the wafer; calm, dark, defocused services wall."""
     MZ, WZ = 2.75, 0.62
     # R7 (H9): EXE (High-NA) data only -> chief ray at the mask 5.4 deg, same machine as the 8x scan ratio
-    th6 = math.tan(math.radians(5.4))
+    # R8: the in / out legs drawn at 10 deg so they separate on screen; the label says "angle enlarged, ~5.4 deg"
+    th6 = math.tan(math.radians(10.0))
     mask_c, waf_c = Vector((0, 0, MZ)), Vector((0, 0, WZ))
     g2 = Vector((-th6 * 1.25, 0, MZ - 1.25))                 # last illuminator mirror
     # R6 (H13): real illuminator train (field facets -> pupil facets -> G1 -> G2) and six PO mirrors M1-M6 in
@@ -575,7 +598,7 @@ def _scan_r5(sc, M, n, shot):
     pts = [src, ff, pf, g1, g2, mask_c + Vector((0, 0, -0.012)), m1, m2, m3, m4, m5, m6,
            waf_c + Vector((0, 0, 0.004))]
     alu, anod, steel = M["alu"], M["anod"], M["steel"]
-    M["section"] = K.mat("SectionMetalR6", (0.4, 0.41, 0.44), metal=1.0, rough=0.32, brushed=0.1)
+    M["section"] = K.mat("SectionCutR8", (0.42, 0.17, 0.07), rough=0.62)        # R8: cut faces in a cut colour
     dk = K.mat("WallDark", (0.05, 0.055, 0.065), metal=0.5, rough=0.5)
     U = 0.2                                                    # one ruler unit
     a_r, a_w = 4 * U, U / 2                                    # stage travel half-ranges (8 : 1)
@@ -643,18 +666,20 @@ def _scan_r5(sc, M, n, shot):
 
     # ---- illumination module (under-left of the mask): cut-open box, horizontal feed, last mirror G2
     il = {k: K.MB() for k in ("box", "sec", "bolt", "port")}
-    il["box"].box((-1.05, 0.25, 1.52), (1.9, 0.08, 0.62))         # back plate
-    il["box"].box((-1.05, 0.0, 1.85), (1.9, 0.6, 0.05))           # top plate (with exit port)
-    il["box"].box((-1.05, 0.0, 1.19), (1.9, 0.6, 0.05))
-    il["box"].box((-2.0, 0.0, 1.52), (0.05, 0.6, 0.66))
-    il["sec"].box((-1.05, -0.302, 1.85), (1.9, 0.01, 0.052))
-    il["sec"].box((-1.05, -0.302, 1.19), (1.9, 0.01, 0.052))
-    il["sec"].box((-2.0, -0.302, 1.52), (0.052, 0.01, 0.66))
-    il["port"].ring((g2.x + th6 * 0.35, 0, 1.88), 0.1, 0.06, 0.05, seg=32)
-    il["bolt"].bolts((g2.x + th6 * 0.35, 0, 1.905), 0.08, 8, 0.008, 0.012)
+    il["box"].box((-1.05, 0.27, 1.52), (1.9, 0.12, 0.66))         # R8: 12 cm walls (vacuum housing, not sheet)
+    il["box"].box((-1.05, 0.0, 1.87), (1.9, 0.66, 0.11))          # top plate (with exit port)
+    il["box"].box((-1.05, 0.0, 1.17), (1.9, 0.66, 0.11))
+    il["box"].box((-2.02, 0.0, 1.52), (0.11, 0.66, 0.8))
+    il["sec"].box((-1.05, -0.332, 1.87), (1.9, 0.006, 0.112))
+    il["sec"].box((-1.05, -0.332, 1.17), (1.9, 0.006, 0.112))
+    il["sec"].box((-2.02, -0.332, 1.52), (0.112, 0.006, 0.8))
+    for x in (-1.95, -0.15):                                      # edge flanges with bolt rows
+        il["port"].box((x, -0.34, 1.52), (0.08, 0.04, 0.8))
+    il["port"].ring((g2.x + th6 * 0.35, 0, 1.94), 0.1, 0.06, 0.05, seg=32)
+    il["bolt"].bolts((g2.x + th6 * 0.35, 0, 1.965), 0.08, 8, 0.008, 0.012)
     il["port"].ring((-1.95, 0, g2.z), 0.1, 0.06, 0.06, rot=(0, math.radians(90), 0), seg=32)
     for i in range(14):
-        il["bolt"].cyl((-1.95 + i * 0.13, -0.27, 1.88), 0.01, 0.02, seg=6)
+        il["bolt"].cyl((-1.95 + i * 0.13, -0.3, 1.93), 0.01, 0.02, seg=6)
     il["box"].obj("Illum_box", anod, bevel=0.008)
     il["sec"].obj("Illum_sec", M["section"])
     il["bolt"].obj("Illum_bolt", steel)
@@ -662,13 +687,13 @@ def _scan_r5(sc, M, n, shot):
 
     # ---- projection optics: cut-open cage (back plate, cut side walls, flanges with ports), 3 solid mirrors
     cg, sec, fl = K.MB(), K.MB(), K.MB()
-    cg.box((0.95, 0.42, 1.6), (1.9, 0.06, 1.42))
-    for x in (0.03, 1.87):
-        cg.box((x, 0.1, 1.6), (0.05, 0.66, 1.42))
-        sec.box((x, -0.232, 1.6), (0.052, 0.01, 1.42))
-    for z in (0.9, 2.3):
-        cg.box((0.95, 0.1, z), (1.9, 0.66, 0.05))
-        sec.box((0.95, -0.232, z), (1.9, 0.01, 0.052))
+    cg.box((0.95, 0.45, 1.6), (1.9, 0.12, 1.42))                  # R8: 11-12 cm walls + cut faces
+    for x in (0.0, 1.9):
+        cg.box((x, 0.1, 1.6), (0.11, 0.66, 1.5))
+        sec.box((x, -0.232, 1.6), (0.112, 0.006, 1.5))
+    for z in (0.88, 2.32):
+        cg.box((0.95, 0.1, z), (2.0, 0.66, 0.1))
+        sec.box((0.95, -0.232, z), (2.0, 0.006, 0.102))
         for i in range(16):
             K.MB.cyl(fl, (0.1 + i * 0.115, -0.2, z + 0.03), 0.01, 0.02, seg=6)
     cg.obj("POCage", anod, bevel=0.008)
@@ -719,8 +744,21 @@ def _scan_r5(sc, M, n, shot):
                             waf_c + Vector((0, 0, 0.12)))):
         K.point(f"Bounce{i}", p_ + Vector((0, -0.22, 0)), 7, K.VIOLET, 0.06)
     # R6 (H13): fill both bays with named mechatronics (frames, trays, manifolds, flanges, drives, terminals)
-    _bay_fill(M, -1.95, -0.2, 1.24, 1.8, 0.21, seed=11, tag="Il")
-    _bay_fill(M, 0.1, 1.82, 0.95, 2.25, 0.39, seed=12, tag="PO")
+    # R8 (H13): both bays carry the shared parts kit (pumps, gate valves, gauges, card cages, manifold, chain)
+    import parts_kit_r8 as PK
+    keep = [(a.lerp(b, k / 6), 0.13) for a, b in zip(pts, pts[1:]) for k in range(7)]
+    P = PK.new_parts()
+    PK.populate_wall(P, -1.92, -0.18, 1.24, 1.8, 0.21, seed=11, keep=keep, scale=0.62, chain=False)
+    PK.populate_wall(P, 0.1, 1.8, 0.95, 2.25, 0.39, seed=13, keep=keep, scale=0.7)
+    PK.turbo_pump(P, (-1.55, 0.0, 1.93), (0, 0, 1), 0.1)                    # roof pump on the illuminator
+    PK.gate_valve(P, (-2.2, 0.05, 1.5), (1, 0, 0), 0.06)                      # side port valve
+    PK.turbo_pump(P, (-2.5, 0.05, 1.5), (-1, 0, 0), 0.09)
+    PK.turbo_pump(P, (1.62, 0.12, 2.38), (0, 0, 1), 0.09)                     # roof pump on the PO housing
+    PK.gauge(P, (1.96, 0.0, 1.9), (1, 0, 0), 0.035)
+    PK.bellows(P, (1.96, 0.0, 1.3), (2.35, 0.0, 1.3), 0.06)
+    PK.drag_chain(P, Vector((-1.9, 0.62, 0.56)), 1.3, R=0.07, w=0.12)        # wafer-stage energy chain
+    PK.drag_chain(P, Vector((-2.4, 0.32, MZ + 0.54)), 1.5, R=0.06, w=0.1)    # reticle-stage energy chain
+    PK.finish(P, M, "B8Kit")
 
     # ---- rulers (same unit U for both stages): reticle 0..8 under the bridge, wafer 0..1 on the granite front
     ink = K.emit_mat("RulerInk", (0.86, 0.9, 0.96), 3.0)
@@ -762,8 +800,11 @@ def _scan_r5(sc, M, n, shot):
     gm.box((-a_r, yr - 0.002, zr - 0.03), (0.02, 0.004, 0.075))
     gm.box((a_w, yw - 0.002, zw + 0.025), (0.012, 0.004, 0.07))
     gm.obj("StartMarks", K.emit_mat("StartInk", (0.35, 0.55, 0.6), 1.5))
-    _keys_linear(rpiv, "location", [(1, -a_r), (n, a_r)], index=0)
-    _keys_linear(wpiv, "location", [(1, a_w), (n, -a_w)], index=0)
+    # R8: the three review frames (25 / 55 / 85 %) land exactly on u = 0.25 / 0.55 / 0.85, so the read-outs are
+    # 2.00 / 0.25, 4.40 / 0.55, 6.80 / 0.85 grid units - a steady 8 : 1 (mograph/r2_ov_zr8.py uses the same knots)
+    knots = scan_knots(n)
+    _keys_linear(rpiv, "location", [(f, -a_r + 2 * a_r * u) for f, u in knots], index=0)
+    _keys_linear(wpiv, "location", [(f, a_w - 2 * a_w * u) for f, u in knots], index=0)
 
     # ---- calm services wall: far, dark panels with seams, two columns, a tray; out of focus
     wl = {k: K.MB() for k in ("panel", "seam", "col", "tray", "pipe")}
@@ -791,13 +832,14 @@ def _scan_r5(sc, M, n, shot):
     K.area("POKey", (2.6, -2.8, 2.0), (0.9, 0.2, 1.6), 2.0, 300, (0.95, 0.97, 1.0))
     K.area("IlKey", (-2.5, -2.5, 2.4), (-1.0, 0.2, 1.5), 1.6, 160, (0.95, 0.97, 1.0))
     K.area("BayFillL", (-1.0, -2.2, 1.55), (-1.0, 0.25, 1.5), 1.2, 60, (0.9, 0.93, 1.0))
-    K.area("BayFillP", (1.0, -2.6, 1.7), (0.95, 0.4, 1.6), 1.6, 110, (0.9, 0.93, 1.0))
+    K.area("BayFillP", (1.0, -2.6, 1.7), (0.95, 0.4, 1.6), 1.6, 160, (0.9, 0.93, 1.0))
+    K.area("BayFillI", (-1.0, -2.4, 2.2), (-1.0, 0.2, 1.5), 1.4, 110, (0.9, 0.93, 1.0))   # R8: light the kit
     K.area("RimPO", (2.8, 1.2, 2.6), (0.95, 0.0, 1.6), 1.2, 160, (0.75, 0.82, 1.0))
     # R7 (H13 depth): high 3/4 camera looking down into both bays, so front section edge / beam / back-plate
     # mechatronics / services wall read as separate layers; slow crane drift for parallax
     _depth_layers(M, MZ, WZ)
-    cam, tgt = K.camera("CamR2", lens=25)
-    K.key_path(cam, tgt, [(1, (-1.9, -4.7, 3.95), (0.05, 0.25, 1.68)), (n, (-1.3, -4.85, 3.75), (0.2, 0.25, 1.66))],
+    cam, tgt = K.camera("CamR2", lens=28)                                    # R8: tighter on the bays
+    K.key_path(cam, tgt, [(1, (-1.75, -4.3, 3.8), (0.05, 0.25, 1.78)), (n, (-1.15, -4.45, 3.6), (0.2, 0.25, 1.76))],
                interp="LINEAR")
     cam.data.dof.use_dof = True
     cam.data.dof.aperture_fstop = 4.0

@@ -55,7 +55,8 @@ def _key_value(sock, frames_vals, interp="LINEAR"):
         sock.keyframe_insert("default_value", frame=f)
 
 
-def _stars_world(top=(0.012, 0.018, 0.04), bottom=(0.003, 0.004, 0.01), density=420, strength=1.0):
+def _stars_world(top=(0.012, 0.018, 0.04), bottom=(0.003, 0.004, 0.01), density=420, strength=1.0, bright=0.6,
+                 share=0.7):
     """Dark-blue space gradient with sparse small stars (not pure black)."""
     C.set_world(top=top, horizon=tuple((a + b) / 2 for a, b in zip(top, bottom)), bottom=bottom, strength=strength)
     w = bpy.context.scene.world
@@ -74,12 +75,12 @@ def _stars_world(top=(0.012, 0.018, 0.04), bottom=(0.003, 0.004, 0.01), density=
     nz.noise_dimensions = "3D"
     gate = nt.nodes.new("ShaderNodeMath")
     gate.operation = "GREATER_THAN"
-    gate.inputs[1].default_value = 0.7
+    gate.inputs[1].default_value = share
     mul = nt.nodes.new("ShaderNodeMath")
     mul.operation = "MULTIPLY"
     mul2 = nt.nodes.new("ShaderNodeMath")
     mul2.operation = "MULTIPLY"
-    mul2.inputs[1].default_value = 0.6
+    mul2.inputs[1].default_value = bright
     add = nt.nodes.new("ShaderNodeMix")
     add.data_type = "RGBA"
     add.blend_type = "ADD"
@@ -375,7 +376,7 @@ def _dof(cam, fstop, focus_obj=None, dist=None):
 
 # ------------------------------------------------------------------ variants
 def _space(sc, n):
-    _stars_world(density=380)
+    _stars_world(density=260, bright=5.0, share=0.5)          # R8: a visible star field, not an empty blue void
     E = Vector((0, 0, 0))
     MO = Vector((44, 16, 4))
     earth_r, moon_r = 5.0, 1.36
@@ -391,11 +392,21 @@ def _space(sc, n):
     ball_r = 0.024
     surf = MO + nrm * moon_r
     ball = _uv_sphere("GolfBall", surf + nrm * ball_r * 0.9, ball_r, 96,
-                      _bump_mat("Golf", (0.93, 0.93, 0.92), 0.35, 260.0, 0, bump=0.35, dimples=True))
+                      _bump_mat("Golf", (0.93, 0.93, 0.92), 0.35, 260.0, 0, bump=0.9, dimples=True))
     ball.scale = (1, 1, 1)
     # tee-like little dust ring under the ball
     start = E + (ball.location - E).normalized() * earth_r * 1.01
     _laser(start, ball.location, r=0.03, r_end=0.0012)
+    # R8: Earth-Moon distance rule under the beam (dashed, end ticks), scale cue for "380,000 km"
+    rl = K.MB()
+    e0, m0 = E + (MO - E).normalized() * (earth_r + 0.6), MO - (MO - E).normalized() * (moon_r + 0.6)
+    off = Vector((0, 0, -2.2))
+    for k in range(40):
+        a_, b_ = e0.lerp(m0, k / 40), e0.lerp(m0, (k + 0.55) / 40)
+        rl.tube(a_ + off, b_ + off, 0.03, seg=6)
+    for p_ in (e0, m0):
+        rl.tube(p_ + off + Vector((0, 0, -0.5)), p_ + off + Vector((0, 0, 0.5)), 0.035, seg=6)
+    rl.obj("DistanceRule", K.emit_mat("RuleInk", (0.7, 0.85, 0.95), 2.0))
     spot = _uv_sphere("Spot", ball.location - dirb * ball_r * 0.15, ball_r * 0.35, 24, K.emit_mat("SpotM", K.ORANGE, 20.0))
     _sun("Sun", (math.radians(60), math.radians(10), math.radians(-40)), 4.0)
     K.point("BallFill", ball.location + nrm * 0.2 + Vector((0.1, -0.1, 0.05)), 2.0, (0.8, 0.85, 1.0), 0.05)
@@ -430,7 +441,7 @@ def _ll(lon, lat, r):
 
 
 def _globe(sc, n):
-    _stars_world(top=(0.01, 0.016, 0.035), density=300)
+    _stars_world(top=(0.01, 0.016, 0.035), density=260, bright=5.0, share=0.5)   # R8: star field
     R = 2.0
     m, reveal = _earth_mat(night=True, dots=os.path.join(TEX, "worldmap_dots.png"))
     g = _uv_sphere("Globe", (0, 0, 0), R, 160, m)
@@ -453,10 +464,10 @@ def _globe(sc, n):
         sp = cd.splines.new("POLY")
         N = 24
         sp.points.add(N - 1)
-        h = 0.12 + 0.35 * (a - nl).length / (2 * R)
+        h = 0.02 + 0.07 * (a - nl).length / (2 * R)          # R8: arcs hug the globe (great-circle routes)
         for k in range(N):
             t = k / (N - 1)
-            p = a.lerp(nl, t)
+            p = a.normalized().slerp(nl.normalized(), t) if hasattr(Vector, "slerp") else a.lerp(nl, t)
             p = p.normalized() * (R * (1.0 + h * math.sin(math.pi * t)))
             sp.points[k].co = (*p, 1)
         cd.bevel_depth = 0.0035
@@ -473,6 +484,7 @@ def _globe(sc, n):
     _uv_sphere("NLPoint", nl * 1.004, 0.022, 24, K.emit_mat("NLWhite", (1, 1, 1), 25.0))
     _uv_sphere("NLHalo", nl * 1.004, 0.06, 24, K.emit_mat("NLHaloM", (0.85, 0.95, 1.0), 3.0, halo=0.6))
     _sun("Sun", (math.radians(55), 0, math.radians(-30)), 1.6, (0.75, 0.85, 1.0))
+    _sun("SunRim", (math.radians(100), 0, math.radians(160)), 3.0, (1.0, 0.92, 0.8))   # R8: terminator / rim light
     # turn Europe toward the camera (camera on -Y): rotate so lon 5 sits at -Y
     g.rotation_euler = (0, 0, 0)
     cam, tgt = K.camera("CamR2", lens=50)
@@ -817,9 +829,9 @@ def _photons(sc, n):
         t0 = rnd.uniform(-0.2, 0.95) * n
         dur = n * 0.35
         mb, mh = K.MB(), K.MB()
-        mb.sphere((0, 0, 0), 0.022, 10)
-        mb.tube((0, 0, 0), (0, 0, 0.35), 0.008, seg=8, r2=0.0005)
-        mh.sphere((0, 0, 0), 0.06, 10)
+        mb.sphere((0, 0, 0), 0.012, 10)                 # R8: finer, shorter photon streaks (R7: "laser rods")
+        mb.tube((0, 0, 0), (0, 0, 0.13), 0.004, seg=8, r2=0.0003)
+        mh.sphere((0, 0, 0), 0.035, 10)
         ob = mb.obj(f"Ph{i}", core)
         oh = mh.obj(f"PhH{i}", halo)
         oh.parent = ob
@@ -848,12 +860,15 @@ def _photons(sc, n):
     ch.ring((0.0, 3.2, -0.14), 4.35, 4.05, 0.05, seg=160)
     ch.obj("ChuckR7", K.mat("ChuckDk", (0.08, 0.085, 0.1), metal=0.6, rough=0.35), bevel=0.02)
     po = K.MB()
-    po.cyl((0.6, 4.6, 3.9), 2.2, 1.2, seg=96)
-    po.ring((0.6, 4.6, 3.28), 2.25, 0.7, 0.08, seg=96)
-    po.bolts((0.6, 4.6, 3.24), 1.9, 24, 0.04, 0.05)
+    # R8: housing lowered / moved into the top of frame (R7: it sat above the frame, the top read as empty)
+    po.cyl((0.6, 3.6, 2.35), 2.2, 1.2, seg=96)
+    po.ring((0.6, 3.6, 1.73), 2.25, 0.7, 0.08, seg=96)
+    po.bolts((0.6, 3.6, 1.69), 1.9, 24, 0.04, 0.05)
+    for k in range(6):                                   # stiffening ribs + flange stack, readable when defocused
+        po.ring((0.6, 3.6, 2.0 + k * 0.12), 2.24, 2.16, 0.04, seg=96)
     po.obj("POBottom", K.mat("POHousing", (0.55, 0.56, 0.6), metal=1.0, rough=0.25, brushed=0.1))
     ap = K.MB()
-    ap.cyl((0.6, 4.6, 3.27), 0.68, 0.01, seg=64)
+    ap.cyl((0.6, 3.6, 1.72), 0.68, 0.01, seg=64)
     ap.obj("POAperture", K.emit_mat("POAp", K.VIOLET, 6.0))
     cam, tgt = K.camera("CamR2", lens=35)
     _dof(cam, 2.8, tgt)
@@ -1060,6 +1075,26 @@ def _wafer(sc, n):
     K.area("CasSheen", (6, -2.5, 4), (3.4, 0, 0.6), 3, 900, (0.95, 0.97, 1.0))   # sheen on cassette / chuck rim
     K.area("ChuckKick", (-3.5, -1.5, 0.6), (0, 0, 0), 2, 250, (0.85, 0.9, 1.0))
     K.floor("Floor", K.mat("FloorDark", (0.04, 0.045, 0.055), rough=0.35), z=-0.48)
+    # R8 (R7: "dark grey empty background"): the machine behind, out of focus - a parts-kit service wall and the
+    # projection optics' bottom housing with its violet exposure aperture above the stage
+    import parts_kit_r8 as PK
+    Mk = K.palette()
+    bw = K.MB()
+    bw.box((1.0, 4.6, 1.6), (12.0, 0.1, 4.6))
+    bw.obj("BackWall", Mk["anod"])
+    P = PK.new_parts()
+    PK.populate_wall(P, -4.5, 6.5, -0.4, 3.8, 4.55, seed=21, scale=1.8)
+    PK.finish(P, Mk, "B8_17Kit")
+    po = K.MB()
+    po.cyl((1.4, 2.4, 3.35), 1.6, 1.3, seg=96)
+    po.ring((1.4, 2.4, 2.68), 1.65, 0.5, 0.08, seg=96)
+    for k in range(5):
+        po.ring((1.4, 2.4, 2.9 + k * 0.14), 1.64, 1.57, 0.04, seg=96)
+    po.obj("POBottom17", K.mat("POHousing17", (0.55, 0.56, 0.6), metal=1.0, rough=0.25, brushed=0.1))
+    ap = K.MB()
+    ap.cyl((1.4, 2.4, 2.67), 0.45, 0.01, seg=64)
+    ap.obj("POAperture17", K.emit_mat("POAp17", K.VIOLET, 5.0))
+    K.area("BackWash", (1.0, 1.0, 4.5), (1.0, 4.6, 1.5), 6, 700, (0.8, 0.85, 1.0))
     cam, tgt = K.camera("CamR2", lens=32)
     _dof(cam, 8.0, tgt)
     K.key_path(cam, tgt, [(1, (-1.0, -5.6, 3.8), (1.0, 0.2, -0.1)), (n, (0.4, -5.4, 3.3), (1.3, 0.2, -0.1))])
