@@ -25,6 +25,14 @@ import kit_r2 as K
 EP = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 TEX = os.path.join(EP, "blender", "textures")
 DIES = os.path.join(C.REPO_ROOT, "shared", "assets", "dies")
+# R20 (R20_ROOT_CAUSE row #4): shots whose R20 structural change is switched on. Remove a shot id to get R19 pixels back.
+# mograph/r2_ov_zz20m.py reads this line to switch its label change with the shot.
+R20_SHOTS = {"B6_12", "B8_17"}
+_CUR_SHOT = [None]
+
+
+def _r20(shot):
+    return _CUR_SHOT[0] == shot and shot in R20_SHOTS
 
 
 # ------------------------------------------------------------------ helpers
@@ -1312,6 +1320,11 @@ def _pellicle(sc, n):
     K.key_path(cam, tgt, [(1, (-1.4, -3.0, 2.6), (0.05, 0, 0.2)),
                           (round(n * 0.55), (-1.5, -2.5, 1.0), (0.2, -0.3, 0.2)),
                           (n, (-0.75, -1.9, 0.62), (0.25, -0.3, 0.17))])
+    if _r20("B6_12"):                            # R20 row #4: scanner pose (pattern face down), chuck parts
+        import misc_b612_r20 as P20
+        P20.apply(sc, n, cam, tgt, {"gap_top": (gx, gy, z_top), "gap_bot": (gx, gy, z_bot),
+                                    "gap_mid": (gx + 0.03, gy, (z_top + z_bot) / 2), "film": (-0.15, 0.1, z_top),
+                                    "mask": (0.45, -0.62, 0.153), "pattern": (0.22, -0.3, 0.1535)})
     sc["hdri"] = "studio_small_09"
     sc["hdri_strength"] = 0.6
     return cam
@@ -1848,6 +1861,9 @@ def _wafer(sc, n):
     # R15 (B8_17 "零件挤在上沿被裁掉一半"): camera ~10 deg lower, aim raised, so the optics bottom and the cassette
     # sit whole in frame above the wafer
     K.key_path(cam, tgt, [(1, (-1.0, -6.0, 3.0), (1.1, 0.5, 0.45)), (n, (0.4, -5.8, 2.7), (1.4, 0.5, 0.45))])
+    if _r20("B8_17"):                            # R20 row #4: 188 half-fields, soft cone -> scanning slit
+        import misc_b817_r20 as W20
+        W20.apply(sc, n, R, so, fo, _fc, keep, prog)
     sc["hdri"] = "studio_small_09"
     sc["hdri_strength"] = 0.35
     return cam
@@ -2108,6 +2124,7 @@ VARIANTS = {"space": _space, "globe": _globe, "mirror": _mirror, "pellicle": _pe
 
 def build(variant="space", shot=None):
     n = K.nframes(shot) if shot else 120
+    _CUR_SHOT[0] = shot
     sc = C.reset_scene(n)
     sc["vignette"] = 0.3
     sc["film_grain"] = 0.1

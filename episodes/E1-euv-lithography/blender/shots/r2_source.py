@@ -858,7 +858,19 @@ RIM_R16 = {"cold": dict(rim=(-0.25, 0.42, 0.5), rim_energy=90.0, rim_radius=0.25
            "spectrum": dict(rim=(-0.2, 0.9, 0.8), rim_energy=8.0)}
 
 
+# R20: shots that use the round-20 assets (remove a shot id to get its R19 pixels back)
+#   B1_15 -> b115_r20 (root cause #3); A0_01 / B1_10 -> source_r20.pancake_r20 (root cause #5, geometry only).
+#   B1_08 (_track) has no pancake / splash geometry (droplets only) -> no R20 code path.
+R20_SHOTS = {"B1_15", "A0_01", "B1_10"}
+_SHOT = [None]
+
+
+def _r20(shot_id):
+    return _SHOT[0] == shot_id and shot_id in R20_SHOTS
+
+
 def build(variant="cold", shot=None):
+    _SHOT[0] = shot
     n = K.nframes(shot) if shot else 120
     sc = C.reset_scene(n)
     M = _mats()
@@ -903,7 +915,11 @@ def _cold(sc, M, cam, tgt, n):
     key_loc(nxt, [(1, (0, 0, 0.62)), (n, (0, 0, 0.36))])
     import source_r17 as S17
     # R17 #3 (R16: "glass lens / porthole"): opaque convex tin disc + crown ligaments, no rolled-rim torus
-    root, parts = S17.pancake_r17(M, (0, 0, 0), r, seed=3, glint=((0.5, 0.55, 0.05), 2.0))
+    if _r20("A0_01"):            # R20 #5: rounded toroidal rim + irregular thin-necked ligaments (geometry only)
+        import source_r20 as S20
+        root, parts = S20.pancake_r20(M, (0, 0, 0), r, seed=3, glint=((0.5, 0.55, 0.05), 2.0))
+    else:
+        root, parts = S17.pancake_r17(M, (0, 0, 0), r, seed=3, glint=((0.5, 0.55, 0.05), 2.0))
     key_scale(root, [(hit1 + 2, r * 1.2), (hit2 - 6, r * 9.5), (hit2 + 4, r * 10.5)])
     for ob in parts:
         show_between(ob, hit1 + 3, boom - 1)
@@ -979,7 +995,11 @@ def _prepulse(sc, M, cam, tgt, n):
     key_loc(nxt, [(1, (0, 0, 0.36)), (n, (0, 0, 0.27))])   # R15: stays above the rim (R14: on the face)
     import source_r17 as S17
     # R17 #3 (R16: "glass lens / porthole"): opaque convex tin disc + crown ligaments, no rolled-rim torus
-    root, parts = S17.pancake_r17(M, (0, 0, 0), r, seed=4, glint=((-0.45, 0.6, -0.35), 1.2))
+    if _r20("B1_10"):            # R20 #5: rounded toroidal rim + irregular thin-necked ligaments (geometry only)
+        import source_r20 as S20
+        root, parts = S20.pancake_r20(M, (0, 0, 0), r, seed=4, glint=((-0.45, 0.6, -0.35), 1.2))
+    else:
+        root, parts = S17.pancake_r17(M, (0, 0, 0), r, seed=4, glint=((-0.45, 0.6, -0.35), 1.2))
     key_scale(root, [(hit + 2, r * 1.2), (hit + 40, r * 9.0), (n, r * 12.0)])
     for ob in parts:
         show_between(ob, hit + 3)
@@ -1152,7 +1172,10 @@ def _contrast(sc, M, cam, tgt, n):
     dark mirror metal inside a cut-away chamber, laser through the hole, cyan axis to the plasma, silver debris.
     R19 root cause #1 (R18 H1: dark face + oblique slice read as "a matte wall panel"): new asset b115_r19 - camera
     faces the concave side at ~3/4, bright polished face mirroring the plasma (no cards), push-in >= 15 %."""
-    import b115_r19 as B115
+    if _r20("B1_15"):
+        import b115_r20 as B115      # R20 #3: plasma outside f (small sharp image), axis to the IF, solid shell section
+    else:
+        import b115_r19 as B115
     return B115.build_contrast(sc, M, cam, tgt, n, __import__(__name__))
 
 
