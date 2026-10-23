@@ -15,9 +15,11 @@ import bpy
 import common as C
 import kit_r2 as K
 
-PLATES = {"freighter": "r2_a002.png", "crates": "r2_a003_r16.png", "cleanroom": "r2_d007.png"}
-# R16 (root cause 5, A0_03 quantity unreadable: ~20 crates visible): crates plate r2_a003_r16.png (image2, prompt
-# handoff/p1/plates/p_a003_r16.txt) = high elevated wide view, ~250 crates in blocks + ULD rows + freighter + trucks.
+PLATES = {"freighter": "r2_a002.png", "crates": "r2_a003_r10.png", "cleanroom": "r2_d007.png"}
+# R16 tried a wide image2 plate (r2_a003_r16.png, ~hundreds of crates) -> review: counts don't match (crates >> 250,
+# ~10 ULDs, 1-2 trucks). R17 (root cause 6): back to the R15 close documentary plate r2_a003_r10.png + R15 camera;
+# the exact counts (10x25 crates in 5 cyan groups, 43 ULDs, 3 freighters, 20 trucks in a row) are carried by the
+# flat stacked counter panel in mograph/r2_ov_zy17p.py.
 
 
 def _freighter_life(n, H, aspect):
@@ -96,8 +98,8 @@ def build(variant="freighter", shot=None):
         lit = None
         _freighter_life(n, H, aspect)
     elif variant == "crates":
-        keys = [(1, -2.2, -1.2, 10.6), (n, 0.0, 0.0, 17.4)]               # R16: start on the crate blocks, pull back
-                                                                          # to the whole apron (quantity reveal)
+        keys = [(1, -1.6, -0.3, 13.6), (n, 1.5, 0.15, 11.6)]              # R7/R15: truck + push (R17: R16 pull-back
+                                                                          # on the wide plate reverted, see PLATES)
         lit = None
     else:
         keys = [(1, 0.6, 0.0, 13.8), (n, 1.6, 0.1, 12.4)]                 # push toward the suited pair

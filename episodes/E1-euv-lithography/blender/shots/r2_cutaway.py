@@ -47,8 +47,14 @@ def build(variant="illum", shot=None):
     import beam_r16 as R16                    # R16 row 3: diverge -> gather legs, ends fade, line landing on the slit
     R16.install()
     R16.COLL_FADE[0] = (0.06, 0.5) if variant == "collect" else None   # R16 row 4: no violet haze over the collector
+    # R17 row 4 (R16: "beam shape changed twice, still an equal-width tube / slab; haze hides the mirrors"): route
+    # change - thin cores between mirrors + a bright landing highlight on every mirror + source cones' haze lowered
+    import beam_r17 as R17
+    R17.install()
+    R17.CORE[0] = {"title": 0.03, "illum": 0.02, "tour": 0.013, "collect": 0.02, "scan": 0.012, "po": 0.013}.get(variant, 0.02)
+    R17.HOT[0] = {"title": 2.0, "illum": 1.4, "tour": 1.3, "scan": 1.0, "po": 1.0}.get(variant, 1.0)
     sc = _build(variant, shot)
-    BR.flush()                                # R12: landing spots collected by the soft beam columns
+    BR.flush()                                # R12: landing spots collected by the soft beam columns (R17 highlights)
     return sc
 
 
@@ -136,6 +142,9 @@ def _build(variant="illum", shot=None):
             if vo is not None:
                 bpy.data.objects.remove(vo)
         BR.SPOTS[:] = []
+        import beam_r17 as R17
+        R17.LAND[:] = []
+        R17.haze(["R2_cone"], 0.6)           # R17 row 4: the collector face reads through its cone (haze lowered)
     if variant == "illum":                   # R14 (R13: "two beams cross; a white dot where they cross"): the path is
         pts, rad = B.beam_path(0, 6)         # lit leg by leg - only the current leg bright, earlier legs a ghost
         # R16 row 3 (R15: "light stops at the facet mirror, no next station"): the outgoing leg field facet ->
@@ -143,7 +152,8 @@ def _build(variant="illum", shot=None):
         BR.timed_path(pts, rad, [(0.0, 0.62), (0.2, None), (0.33, None), (0.4, None), (0.45, None)], n, "IllumLeg")
         mb = K.MB()
         K.cone_beam(mb, B.IF, Vector((B.COLL.x + 0.28, 0, B.COLL.z)), 0.62)
-        mb.obj("IllumSrcCone", M["beam_wide"])
+        # R17 row 4: the source cone keeps its R16 soft look at ~40 % (M["beam_wide"] is now the thin-core material)
+        mb.obj("IllumSrcCone", BR.soft_mat("IllumSrcConeR17", K.VIOLET, 2.2 * 0.4, 0.75 * 0.4))
         K.bounce_lights([B.FFM, B.PFM], energy=20.0)
     if variant == "title":
         _sequential_beam(M, n)
@@ -158,7 +168,9 @@ def _build(variant="illum", shot=None):
     if variant == "tour":                    # R14 (R13: "floating white dots; crossing beams mid-shot"): story order,
         mi = 6                               # one bright leg at a time; IF cone -> facets -> G2 -> mask -> PO1 (the V)
         pts, rad = B.beam_path(0, mi + 1)
-        BR.timed_path(pts, rad, [(0.0, 0.45), (0.45, 0.66), (0.66, 0.72), (0.72, 0.76), (0.76, None), (0.76, None)],
+        # R17 row 4 (R16: "at 55 % only pupil <-> field facet shows, reads as the wrong order"): the IF -> field
+        # facet leg stays lit with the next leg, so the single path reads in story order (thin cores + landings)
+        BR.timed_path(pts, rad, [(0.0, 0.66), (0.45, 0.72), (0.66, 0.76), (0.72, 0.8), (0.76, None), (0.76, None)],
                       n, "TourLeg", no_spot=(4,))            # the mask's lit slit is its own landing mark
         BR.SPOTS[:] = []
         _cut_faces("R2_housing", (0.42, 0.78), (-1.3, 1.3), (2.0, 4.32))   # R14: the PO wall plate under the mask
@@ -168,6 +180,11 @@ def _build(variant="illum", shot=None):
         cm = BR.soft_mat("TourSrcCone", K.VIOLET, 2.2, 0.75)
         mb.obj("TourSrcCone", cm)
         BR._anim_mul(cm, [(1, 1.0), (round(n * 0.45), 1.0), (round(n * 0.45) + 6, 0.14)])
+        import beam_r17 as R17
+        R17.haze(["TourSrcCone"], 0.4)       # R17 row 4: collector + IF read through the source cone
+        pg = bpy.data.objects.get("PlasmaGlow")   # (with the haze lowered its glossy reflection read as a white dot)
+        if pg is not None:
+            pg.visible_glossy = False
         pts, rad = B.beam_path(mi)
         mb = K.MB()
         K.beam_columns(mb, pts, rad, spots=False)
@@ -466,20 +483,40 @@ def _scan_closeup(sc, M, n, shot):
 
 def _sequential_beam(M, n):
     """A0_10: the violet path lights up module by module (source cone -> illuminator -> mask + PO -> wafer)."""
-    segs = [(None, 1), ((0, 6), 0.3), ((5, None), 0.6)]
+    # R17 row 4 (R16: "mid bay has an upper and a lower leg that cross; more than one path"): ONE left-to-right
+    # path - IF -> field facet -> fold G2 -> mask -> PO -> wafer (the pupil-facet / G1 detour that crossed the
+    # IF leg is deleted); thin cores + a landing highlight on every mirror, each appearing with its segment
+    import beam_r12 as BR
+    import beam_r17 as R17
+    full, _r = B.beam_path()
+    main = [B.IF, B.FFM, B.G2, B.MASK]
+    segs = [(None, 1), (main, 0.3), ([B.MASK] + full[6:], 0.6)]
     for i, (rng, start) in enumerate(segs):
         mb = K.MB()
+        lands = []
         if rng is None:
             K.cone_beam(mb, B.IF, Vector((B.COLL.x + 0.28, 0, B.COLL.z)), 0.62)
             mat = M["cone"]
-        else:                                # R9: solid k4A shafts (mirror-sized) on the non-crossing path
-            pts, rad = B.beam_path(*rng)
-            K.beam_columns(mb, pts, rad)
-            import beam_r12 as BR
-            mat = BR.soft_mat(f"EUVShaft{i}", K.VIOLET, strength=3.0, alpha=0.8)
+        else:
+            pts = [Vector(p) for p in rng]
+            for j, (a, b) in enumerate(zip(pts, pts[1:])):
+                R17.core_leg(mb, a, b)
+            ext = pts + ([Vector(full[6])] if i == 1 else [])      # segment 1 ends on the mask (bounce -> PO1)
+            for j in range(1, len(ext) - 1):
+                lands += R17._land_objs(ext[j], K.mirror_normal(ext[j - 1], ext[j], ext[j + 1]), 1.0,
+                                        f"TitleLand{i}_{j}")
+            mat = R17.core_mat(f"EUVCore{i}", 7.0, 0.95)
         ob = mb.obj(f"BeamSeg{i}", mat)
         if start == 1:
+            R17.haze([ob.name], 0.5)                   # R17: lower source-cone haze, the collector reads
             continue
+        f0 = max(2, round(n * start))
+        for lo in lands:
+            lo.hide_render = True
+            lo.keyframe_insert("hide_render", frame=1)
+            lo.keyframe_insert("hide_render", frame=f0 + 5)
+            lo.hide_render = False
+            lo.keyframe_insert("hide_render", frame=f0 + 6)
         f0 = max(2, round(n * start))
         ob.hide_render = True
         ob.keyframe_insert("hide_render", frame=f0 - 1)
@@ -1055,12 +1092,16 @@ def _po_barrels_r15(sc, M, n):
     HK._turbo(HP, Vector((1.12 * math.cos(math.radians(170)), 1.12 * math.sin(math.radians(170)), 2.05)),
               (math.cos(math.radians(170)), math.sin(math.radians(170)), 0), 0.11)
     HK12.ion_pump(HP, -1.42, 2.72, 0.42, 0.5, 0.05, 1.0, rnd)         # near layer: named vacuum parts outside
-    HK12.gate_valve(HP, 1.5, 1.5, 0.5, 0.42, 0.12, 1.0, rnd)
+    # R17 row 5 (R16: "a valve floats at the person's hand, reads as him holding a pipe"): gate valve removed
     for a in (-8, 188):
         ang = math.radians(a)
         d = Vector((math.cos(ang), math.sin(ang), 0))
         HK.cable_harness(HP, [d * 1.1 + Vector((0, 0, 3.25)), d * 1.16 + Vector((0, 0, 2.2)), d * 1.12 + Vector((0, 0, 1.05))],
                          n=5, r=0.008)
+    # R17 row 5 (R16 H13: "cage sparse - two mirrors, three rings and rods"): M1..M4 blanks seen from the back in
+    # cells with actuators + flexures, coolant hoses and cable looms - >= 5 nameable part types inside the barrel
+    import cut_kit_r17 as CK
+    CK.po_fill(HP, mb, z_base, z_ceil, H15, HK)
     # ---- wafer stage under M5
     mb["chuck"].cyl((0, 0, zw - 0.06), 0.36, 0.1, seg=64)
     mb["chuck"].box((0, 0, zw - 0.13), (0.7, 0.7, 0.05))
@@ -1075,7 +1116,8 @@ def _po_barrels_r15(sc, M, n):
     p6.z = z6 + 0.006 * (1 - (0.38 / (r6 - 0.03)) ** 2) - 0.004
     foc = Vector((0, 0, zw + 0.002))
     top_in = Vector((0.42, 0, z_top + 0.9))
-    soft = BR.soft_mat("EUVLegR16", K.VIOLET, 3.4, 0.95, power=1.4)   # R16: brighter, the ramp dims the wide ends
+    import beam_r17 as R17
+    soft = R17.core_mat("EUVLegR17", 7.0, 0.95)                    # R17 row 4: thin bright cores
     legs = [(top_in, Vector((0.42, 0, z_top + 0.08)), 0.035, 0.035),
             (port + Vector((0, 0, -0.03)), p5, 0.035, 0.05),
             (p5, p6, 0.05, 0.085),
@@ -1083,9 +1125,14 @@ def _po_barrels_r15(sc, M, n):
     # R16 row 3 (R15: "M6 -> wafer is a constant thin tube, the gathering doesn't read"): R16 legs - the top leg
     # fades in from the mask side, the last leg is gathered from a wide M6 footprint through the M5 hole to one
     # bright wafer point (0.13 at M6 -> 0.037 at the M5 plane, inside the 0.16 hole)
+    # R17 row 4: thin cores between the mirrors (+ a faint gathered sheath only on the last, focusing leg) and
+    # bright landing highlights on M5 / M6 (beam_r17.flush)
     import beam_r16 as R16
+    import beam_r17 as R17
     for i, (a, b, ra, rb) in enumerate(legs):
-        R16.leg(mb["beam"], a, b, ra, rb, seg=48, air0=i == 0)
+        R17.core_leg(mb["beam"], a, b, air0=i == 0)
+    sheath = K.MB()
+    R16.leg(sheath, p6, foc, 0.12, 0.004, seg=48)
     BR.SPOTS.append((p5, n5, 0.07))
     BR.SPOTS.append((p6, n6, 0.11))
     fm = K.MB()
@@ -1112,6 +1159,8 @@ def _po_barrels_r15(sc, M, n):
             ob.parent = piv
         else:
             m_.bm.free()
+    ob = sheath.obj("PO17_sheath", BR.soft_mat("EUVSheathR17", K.VIOLET, 1.2, 0.3, power=1.6))
+    ob.parent = piv
     ob = wf.obj("PO15_wafer", _wafer_mat_r14(pitch=0.05, street=0.07))
     ob.parent = piv
     ob = fm.obj("PO15_focus", K.emit_mat("WaferFocusR14", (0.9, 0.85, 1.0), 30.0))
@@ -1780,18 +1829,30 @@ def _scan_r12(sc, M, n, shot):
     HK.finish(PF, M, "WBase_PM")
     wp = {k: K.MB() for k in ("wafer",)}
     WR = 0.42                                                    # R12: wafer is the subject (>= 1/4 frame)
-    wp["wafer"].cyl((0, 0, WZ - 0.0015), WR, 0.003, seg=192)
+    # R17 row 5 (R16: "wafer = black glass with white lines on a white plate with a hole"): die-map silicon with a
+    # bevelled edge (cut_kit_r17), the white ceramic plate + pin-chuck recess are replaced by a dark round chuck
+    import cut_kit_r17 as CK
+    wedge = K.MB()
+    CK.wafer_r17(wp["wafer"], wedge, (0, 0, WZ), WR, thick=0.008, bevel=0.0045)
     PM = HK.new_parts()
     HK.planar_mover(PM, 0.0, 0.0, zpl, mover_w=MW, wafer_r=WR, wafer=False)
+    PM["ceramic"].bm.free()
+    PM["ceramic"] = K.MB()
+    HK._cyl(PM["alu_dark"], (0, 0, zpl + 0.015 + 0.115), (0, 0, 1), WR * 1.035, 0.05, seg=128)
     wpiv = bpy.data.objects.new("WStage", None)
     sc.collection.objects.link(wpiv)
     wpiv.location.y = WY
     for o in bpy.data.objects:
         if o.name.startswith("WBase_"):
             o.location.y += WY
-    ob = wp["wafer"].obj("WStage_wafer", _wafer_mat_r14(pitch=0.073, street=0.07))   # R14: dark mirror Si + dies
+    ob = wp["wafer"].obj("WStage_wafer", CK.wafer_mat_r17(R=WR))                    # R17: die-map Si
+    ob.parent = wpiv
+    ob = wedge.obj("WStage_waferEdge", K.mat("WaferBevelR17", (0.78, 0.79, 0.82), metal=0.9, rough=0.22))
     ob.parent = wpiv
     HK.finish(PM, M, "WStageK", parent=wpiv)
+    fr_ = bpy.data.objects.get("WStageK_alu")                  # R17: the mover frame no longer reads as a white plate
+    if fr_ is not None:
+        fr_.data.materials[0] = M["anod"]
     ex = K.MB()
     ex.box((0.5, 0, 0), (1.0, 0.26, 0.0016))
     exo = ex.obj("Exposed", K.emit_mat("ExposedGlowR13", K.VIOLET, 1.6, halo=0.35))     # R13: fields under the slit brighter
