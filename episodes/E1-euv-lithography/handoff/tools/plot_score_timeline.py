@@ -64,9 +64,10 @@ def main():
                 label="均分（金控校正后，过线以此为准）")
         ax.plot([a[0] for a in adj], [a[2] for a in adj], "s", mfc="none", mec="#d62728", mew=2, ms=10,
                 label="最低（金控校正后）")
-        for i, aa, am, dl in adj:
-            ax.annotate(f"校正 {aa:g} / {am:g}\nΔ={dl:+.2f}", (i, aa), textcoords="offset points", xytext=(-48, 18),
-                        ha="center", fontsize=8, color="#444444")
+        for k, (i, aa, am, dl) in enumerate(adj):     # R13: staggered rows in the top band (labels collided)
+            ax.annotate(f"校正 {aa:g} / {am:g}\nΔ={dl:+.2f}", (i, aa), xytext=(i, 98.6 - 3.6 * (k % 2)),
+                        textcoords="data", ha="center", va="top", fontsize=8, color="#444444",
+                        arrowprops=dict(arrowstyle="-", color="#999999", lw=0.6))
     for i, (a, m, lab) in enumerate(zip(avg, mins, min_labs)):
         ax.annotate(
             f"{a:g}", (i, a), textcoords="offset points", xytext=(0, 10),
