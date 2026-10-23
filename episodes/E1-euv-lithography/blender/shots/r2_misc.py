@@ -657,6 +657,14 @@ def _mirror(sc, n):
                           (n, tuple(edge + gapdir * 0.55 + Vector((0, 0, 0.12)) + Vector((-math.sin(a_cut0), math.cos(a_cut0), 0)) * 0.35), edge)])
     sc["hdri"] = "studio_small_09"
     sc["hdri_strength"] = 0.6
+    # R7 (F): magnifier leader lands on the thin coating at the TOP of the cut face, not mid-substrate
+    sc.camera = cam
+    coat = {}
+    for k, f in enumerate((0.55, 0.7, 0.8, 0.9)):
+        rr = R * f
+        zt = sag_r - math.sqrt(sag_r * sag_r - rr * rr)
+        coat[f"coat{k}"] = Vector((rr * math.cos(a_cut0), rr * math.sin(a_cut0), zt - 0.004))
+    K.anchors("B4_07", coat)
     return cam
 
 
@@ -788,8 +796,8 @@ def _resist_lines(sc, x0, x1, y0, y1, pitch, h, seed=0):
         x = x0
         while x < x1:
             L = rnd.uniform(0.012, 0.03)
-            w = pitch * 0.5 * rnd.uniform(0.9, 1.1)
-            mb.box((x + L / 2, y + rnd.uniform(-0.003, 0.003), h / 2), (L * 1.1, w, h))
+            w = pitch * 0.5 * rnd.uniform(0.8, 1.18)          # R7: visible line-edge roughness
+            mb.box((x + L / 2, y + rnd.uniform(-0.006, 0.006), h / 2), (L * 1.1, w, h * rnd.uniform(0.92, 1.05)))
             x += L
         y += pitch
     return mb.obj("Resist", K.mat("ResistM", (0.42, 0.36, 0.52), rough=0.35, speck=0.15))
@@ -830,9 +838,27 @@ def _photons(sc, n):
     K.area("Key", (-3, -3, 4), (0, 0, 0), 3, 500, (0.9, 0.93, 1.0))
     K.area("Rim", (2, 4, 2), (0, 0, 0), 4, 400, (0.75, 0.8, 1.0))
     K.point("VGlow", (0, 0, 1.5), 120, K.VIOLET, 0.5)
+    # R7 (macro anchor): the wafer's bevelled edge + chuck behind the resist field, and the projection optics'
+    # last mirror housing above, defocused, with the violet exposure light coming out of its aperture
+    wb = K.MB()
+    wb.cyl((0.0, 3.2, -0.12), 3.9, 0.06, seg=160)
+    wb.obj("WaferBody", K.mat("SiEdge", (0.3, 0.31, 0.36), metal=1.0, rough=0.08))
+    ch = K.MB()
+    ch.cyl((0.0, 3.2, -0.32), 4.3, 0.34, seg=160)
+    ch.ring((0.0, 3.2, -0.14), 4.35, 4.05, 0.05, seg=160)
+    ch.obj("ChuckR7", K.mat("ChuckDk", (0.08, 0.085, 0.1), metal=0.6, rough=0.35), bevel=0.02)
+    po = K.MB()
+    po.cyl((0.6, 4.6, 3.9), 2.2, 1.2, seg=96)
+    po.ring((0.6, 4.6, 3.28), 2.25, 0.7, 0.08, seg=96)
+    po.bolts((0.6, 4.6, 3.24), 1.9, 24, 0.04, 0.05)
+    po.obj("POBottom", K.mat("POHousing", (0.55, 0.56, 0.6), metal=1.0, rough=0.25, brushed=0.1))
+    ap = K.MB()
+    ap.cyl((0.6, 4.6, 3.27), 0.68, 0.01, seg=64)
+    ap.obj("POAperture", K.emit_mat("POAp", K.VIOLET, 6.0))
     cam, tgt = K.camera("CamR2", lens=35)
     _dof(cam, 2.8, tgt)
-    K.key_path(cam, tgt, [(1, (-1.6, -3.4, 1.4), (0.2, 0.2, 0.3)), (n, (-0.9, -2.9, 1.0), (0.2, 0.2, 0.25))])
+    # R7 (D): a real crane-down + push (R6 moved ~0.5 m and read as static)
+    K.key_path(cam, tgt, [(1, (-2.3, -3.9, 2.1), (0.2, 0.5, 0.45)), (n, (-0.6, -2.6, 0.9), (0.25, 0.2, 0.2))])
     return cam
 
 
@@ -850,6 +876,7 @@ def _fields_mesh(sc, wafer_r, z, fx=0.26, fy=0.165, count=188):
     keep = sorted(cells[:count], key=lambda c: (c[1], c[2] if c[1] % 2 == 0 else -c[2]))
     bm = bmesh.new()
     uvl = bm.loops.layers.uv.new("UVMap")
+    uvc = bm.loops.layers.uv.new("Cell")                # R7: per-field corner UV -> one scribe border per field
     g = 0.006
     for k, (_, j, i, cx, cy) in enumerate(keep):
         vs = [bm.verts.new((cx + sx * (fx / 2 - g), cy + sy * (fy / 2 - g), z)) for sx, sy in
@@ -857,6 +884,7 @@ def _fields_mesh(sc, wafer_r, z, fx=0.26, fy=0.165, count=188):
         f = bm.faces.new(vs)
         for lp, (u, v) in zip(f.loops, ((0, 0), (1, 0), (1, 1), (0, 1))):
             lp[uvl].uv = ((k + 0.5) / count, 0.0)
+            lp[uvc].uv = (u, v)
     me = bpy.data.meshes.new("Fields")
     bm.to_mesh(me)
     bm.free()
@@ -957,7 +985,41 @@ def _wafer(sc, n):
     l.new(al.outputs[0], mx.inputs["Fac"])
     l.new(tr.outputs[0], mx.inputs[1])
     l.new(em.outputs[0], mx.inputs[2])
-    l.new(mx.outputs[0], out.inputs["Surface"])
+    # R7 (F, B8_17): every one of the 188 fields gets one dark scribe border, so the cell count reads as 188
+    cuv = nn.new("ShaderNodeUVMap")
+    cuv.uv_map = "Cell"
+    cs = nn.new("ShaderNodeSeparateXYZ")
+    l.new(cuv.outputs["UV"], cs.inputs[0])
+    edges = []
+    for comp in ("X", "Y"):
+        inv = nn.new("ShaderNodeMath")
+        inv.operation = "SUBTRACT"
+        inv.inputs[0].default_value = 1.0
+        l.new(cs.outputs[comp], inv.inputs[1])
+        mn = nn.new("ShaderNodeMath")
+        mn.operation = "MINIMUM"
+        l.new(cs.outputs[comp], mn.inputs[0])
+        l.new(inv.outputs[0], mn.inputs[1])
+        edges.append(mn)
+    mn2 = nn.new("ShaderNodeMath")
+    mn2.operation = "MINIMUM"
+    l.new(edges[0].outputs[0], mn2.inputs[0])
+    l.new(edges[1].outputs[0], mn2.inputs[1])
+    bd = nn.new("ShaderNodeMath")
+    bd.operation = "LESS_THAN"
+    bd.inputs[1].default_value = 0.045
+    l.new(mn2.outputs[0], bd.inputs[0])
+    bdi = nn.new("ShaderNodeMath")
+    bdi.operation = "MULTIPLY"
+    l.new(bd.outputs[0], bdi.inputs[0])
+    l.new(inside.outputs[0], bdi.inputs[1])
+    dark = nn.new("ShaderNodeBsdfDiffuse")
+    dark.inputs["Color"].default_value = (0.01, 0.01, 0.012, 1)
+    mx2 = nn.new("ShaderNodeMixShader")
+    l.new(bdi.outputs[0], mx2.inputs["Fac"])
+    l.new(mx.outputs[0], mx2.inputs[1])
+    l.new(dark.outputs[0], mx2.inputs[2])
+    l.new(mx2.outputs[0], out.inputs["Surface"])
     fo, keep = _fields_mesh(sc, R, 0.0095)
     fo.data.materials.append(fm)
     # scan slit above the wafer following the current field (thin violet bar)

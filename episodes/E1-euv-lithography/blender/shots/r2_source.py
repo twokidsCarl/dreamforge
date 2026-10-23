@@ -534,7 +534,8 @@ def _track(sc, M, cam, tgt, n):
         else:
             lk.hide_render = True
     cam.data.lens = 50
-    K.key_path(cam, tgt, [(1, (0.03, -0.72, 0.02), (0, 0, 0.02)), (n, (-0.03, -0.66, 0.0), (0, 0, 0.0))],
+    # R7 (D): an arc around the droplet line so the chamber wall slides behind the drops (R6 read as static)
+    K.key_path(cam, tgt, [(1, (0.2, -0.72, 0.06), (0, 0, 0.02)), (n, (-0.18, -0.64, -0.02), (0, 0, 0.0))],
                interp="LINEAR")
 
 

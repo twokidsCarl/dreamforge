@@ -187,3 +187,28 @@ R4 已解封、本轮不许回退：B1_15 的 H1、B2_08 的 H6、B1_18 的 H14�
 - 合成：`tools/compose_round6.py` → `/workspace/e1work/p1/round6/`（strip、`contact_round6.jpg`、`calib_vs_round6_comparison.jpg`）。
 - 隔离独立审 → `REVIEW_round6_independent.md`、`scores_round6.json`；**`score_timeline.png` 加 R6**（推 Carl 只要这张）；`E1_SPEND.md` 记账。
 - 禁止空等：样张一更新，同一回合出 REVIEW（含均分）。
+
+## 第 7 轮工单（2026-10-23 改写：按 `REVIEW_round6_independent.md`，先解 B8_03 的 H13 + H9，再抬 under-88 组）
+
+依据：R6 独立审均分 **86.11**，最低 B8_03 79.85（H13 + H9），≥88：A0_02 88.6、B4_10 88.2、A0_01 88.1（D_07 87.95）。门槛不变（均分 ≥92 且单张 ≥88）。SCALE_E1 v2 不变。
+本轮预算：GPU ≤ $2（1×A40）；不用 image2。今日已花约 $0.87，守住日 $25。
+不许回退：R5/R6 解封项（B8_03 H2、B7_06 / A0_10 H13、B1_15 H1、B2_08 H6、B1_18 H14、C_03 H13）；≥88 的 A0_01 / A0_02 / B4_10 不动。
+
+### 改法清单
+
+| 优先 | 镜头 | R6 | 命中 | 第 7 轮改法 | 实现 |
+|---|---|---|---|---|---|
+| 1 | **B8_03** | 79.85 | H13 H9 | **只用 EXE（High-NA）数据**：掩模入射角几何改为 5.4°，标注「High-NA：约 5.4° 斜射」+「High-NA 扫描向缩小 8× → 行程 8 倍」（同一代机）；机位改**高位 3/4 斜俯视**＋缓慢升降漂移，前景剖切立柱 / 光束 / 后板机电件 / 服务墙 ≥3 层景深；光束加宽体积光柱＋外层淡体积套（k4A 光在空气里）；标注 3 块 → 2 块 | `r2_cutaway.py` `_scan_r5`、新增 `_depth_layers`；`mograph/r2_ov_zr7.py` |
+| 1 | **C_03** | 85.5 | H9 风险 | 掩模站标注去掉「约 6°」（NXE 数据），改「斜射进来 · 反射出电路图形」，不写度数 | `r2_ov_zr7.py` |
+| 2 | B8_17 | 86.75 | — | 188 个场各画一圈暗色划片线（逐场 UV），格数读成 188，不再被芯片纹理读成 300+ | `r2_misc.py` `_fields_mesh`、`_wafer` |
+| 2 | B4_07 | 87.0 | — | 放大框引线改挂在剖面**顶面膜层**（3D 锚点 coat*），标注写明「只在镜面最顶层 · 总厚约 0.3 μm」 | `r2_misc.py` `_mirror` 锚点、`r2_ov_zr7.py` |
+| 3 | B9_05 | 87.25 | — | 宏观锚：晶圆倒角边缘＋吸盘入画；线条加线边粗糙；机位升降＋推近（R6 几乎静止） | `r2_misc.py` `_photons`、`_resist_lines` |
+| 3 | B1_08 | 85.2 | — | 机位绕锡滴线弧形移动，腔壁在背后滑动（D） | `r2_source.py` `_track` |
+| 3 | A0_03 | 84.0 | — | 平移＋推近加大（ortho 13.6 → 11.6，横移 3.1） | `r2_plates.py` |
+| — | 其余 | — | — | 不动 | — |
+
+### 渲染与交付
+- `p1/round7_jobs.txt`（24 镜，帧同 R6），`tools/pod_styleframes.py p1/round7_jobs.txt --cap-usd 2`（分块同步）；渲完**立刻 Terminate**，确认 `GET /pods = []`。
+- 合成：`tools/compose_round7.py` → `/workspace/e1work/p1/round7/`（strip、`contact_round7.jpg`、`calib_vs_round7_comparison.jpg`）。
+- 隔离独立审 → `REVIEW_round7_independent.md`、`scores_round7.json`；**`score_timeline.png` 加 R7（仅 SCALE_v2）**；`E1_SPEND.md` 记账。
+- 禁止空等：样张一更新，同一回合出 REVIEW（含均分）。
