@@ -120,6 +120,84 @@ def emit_mat(name, color, strength, halo=0.0):
     return m
 
 
+def vol_mat(name, color, density=1.0, emit=None):
+    """Volume-light beam: transparent surface + emissive / scattering volume, so the beam reads as lit air
+    (soft, brighter along its axis) instead of a solid glowing rod (R2 review, 2B gap 3)."""
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    for n in list(nt.nodes):
+        if n.type != "OUTPUT_MATERIAL":
+            nt.nodes.remove(n)
+    out = next(n for n in nt.nodes if n.type == "OUTPUT_MATERIAL")
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    nt.links.new(tr.outputs[0], out.inputs["Surface"])
+    pv = nt.nodes.new("ShaderNodeVolumePrincipled")
+    pv.inputs["Color"].default_value = (*lin(color), 1)
+    pv.inputs["Density"].default_value = 0.15 * density
+    pv.inputs["Emission Color"].default_value = (*lin(color), 1)
+    pv.inputs["Emission Strength"].default_value = emit if emit is not None else 2.0 * density
+    nt.links.new(pv.outputs[0], out.inputs["Volume"])
+    return m
+
+
+def beam_column_mat(name, color, strength=1.5, edge=0.6, core=0.1, vol=0.18):
+    """k4A-style wide beam column: translucent violet shell, more opaque towards the silhouette, faint
+    streaks along the beam, and a thin emissive volume inside so it reads as light filling air."""
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    for n in list(nt.nodes):
+        if n.type != "OUTPUT_MATERIAL":
+            nt.nodes.remove(n)
+    out = next(n for n in nt.nodes if n.type == "OUTPUT_MATERIAL")
+    em = nt.nodes.new("ShaderNodeEmission")
+    em.inputs["Color"].default_value = (*lin(color), 1)
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    mp = nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Scale"].default_value = (60.0, 60.0, 0.6)          # streaks along the local beam axis (generated Z)
+    nz = nt.nodes.new("ShaderNodeTexNoise")
+    nz.inputs["Scale"].default_value = 3.0
+    nz.inputs["Detail"].default_value = 2.0
+    nt.links.new(tc.outputs["Object"], mp.inputs["Vector"])
+    nt.links.new(mp.outputs["Vector"], nz.inputs["Vector"])
+    st = nt.nodes.new("ShaderNodeMapRange")
+    st.inputs["To Min"].default_value = strength * 0.65
+    st.inputs["To Max"].default_value = strength * 1.5
+    nt.links.new(nz.outputs["Fac"], st.inputs["Value"])
+    nt.links.new(st.outputs["Result"], em.inputs["Strength"])
+    lw = nt.nodes.new("ShaderNodeLayerWeight")
+    lw.inputs["Blend"].default_value = 0.5
+    mr = nt.nodes.new("ShaderNodeMapRange")                        # facing 1 (centre) -> core alpha, 0 (edge) -> edge alpha
+    mr.inputs["To Min"].default_value = edge
+    mr.inputs["To Max"].default_value = core
+    nt.links.new(lw.outputs["Facing"], mr.inputs["Value"])
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    mx = nt.nodes.new("ShaderNodeMixShader")
+    nt.links.new(mr.outputs["Result"], mx.inputs["Fac"])
+    nt.links.new(tr.outputs[0], mx.inputs[1])
+    nt.links.new(em.outputs[0], mx.inputs[2])
+    nt.links.new(mx.outputs[0], out.inputs["Surface"])
+    if vol:
+        ve = nt.nodes.new("ShaderNodeEmission")
+        ve.inputs["Color"].default_value = (*lin(color), 1)
+        ve.inputs["Strength"].default_value = vol
+        nt.links.new(ve.outputs[0], out.inputs["Volume"])
+    return m
+
+
+def clean_cycles(sc, indirect=4.0):
+    """Clamp indirect light: kills the black / white firefly blocks the R2 review flagged (B6_12, B4_07)."""
+    try:
+        sc.cycles.sample_clamp_indirect = indirect
+        sc.cycles.sample_clamp_direct = 0.0
+        sc.cycles.blur_glossy = 1.0
+        sc.cycles.caustics_reflective = False
+        sc.cycles.caustics_refractive = False
+    except AttributeError:
+        pass
+
+
 def palette(studio=False):
     """The shared material set. studio=True: 2A white-product panels are brighter."""
     return {
@@ -138,6 +216,14 @@ def palette(studio=False):
         "cable_o": mat("CableOrange", (0.9, 0.45, 0.12), rough=0.45),
         "cable_g": mat("CableGrey", (0.5, 0.52, 0.55), rough=0.5),
         "mirror": mat("EUVMirror", (0.86, 0.84, 0.92), metal=1.0, rough=0.02, coat=0.3),
+        # R3: a solid mirror = coated face that catches the studio lights (not a black hole) on a thick
+        # pale glass-ceramic substrate, with the beam's footprint as a soft violet spot
+        "coating": mat("MoSiCoating", (0.74, 0.7, 0.86), metal=1.0, rough=0.13, coat=0.8),
+        "substrate": mat("MirrorBody", (0.82, 0.82, 0.85), metal=1.0, rough=0.16, brushed=0.06),
+        "spot": emit_mat("BeamSpot", VIOLET, 6.0, halo=0.9),
+        "beam_wide": beam_column_mat("EUVColumn", VIOLET),
+        "section": mat("SectionFace", (0.46, 0.47, 0.5), rough=0.55),
+        "beam_vol": vol_mat("EUVVolume", VIOLET, 2.2),
         "glass": mat("ViewGlass", (0.9, 0.95, 1.0), rough=0.02, transmission=1.0, ior=1.5),
         "led_c": emit_mat("LEDCyan", CYAN, 6.0),
         "led_o": emit_mat("LEDAmber", (1.0, 0.6, 0.2), 5.0),
@@ -301,15 +387,26 @@ def mirror_normal(prev, p, nxt):
     return ((Vector(prev) - Vector(p)).normalized() + (Vector(nxt) - Vector(p)).normalized()).normalized()
 
 
-def mirror_with_mount(mbm, mbmount, mbbolt, p, n, r, thick=0.05, struts=True, seed=0):
-    """Mirror disc at p facing n (front face sits on p), with a mount ring, a back plate and a hexapod."""
+def mirror_with_mount(mbm, mbmount, mbbolt, p, n, r, thick=0.05, struts=True, seed=0, mbsub=None, mbspot=None,
+                      mbpipe=None, mbcable=None, spot=0.32):
+    """Solid mirror at p facing n (front face sits on p): coated face disc on a thick substrate (mbsub), mount
+    ring + bolt circle, back plate, hexapod; R3 adds the beam footprint spot (mbspot), two cooling lines and a
+    cable loom from the back plate (mbpipe / mbcable) so every bounce point reads as a real, serviced mirror."""
     p, n = Vector(p), Vector(n).normalized()
     q = Vector((0, 0, 1)).rotation_difference(n)
     R = q.to_matrix().to_4x4()
-    back = p - n * (thick / 2 + 0.002)
-    mbm.cyl_m(Matrix.Translation(back) @ R, r, thick, seg=48)
-    mbmount.ring(back - n * 0.01, r * 1.12, r * 0.98, thick * 1.6, rot=q.to_euler(), seg=48)
-    mbbolt.bolts(back - n * 0.01 + n * thick * 0.85, r * 1.05, 12, r * 0.025, 0.02, rot=q.to_euler())
+    if mbsub is not None:
+        thick = max(thick, r * 0.32)
+        mbm.cyl_m(Matrix.Translation(p - n * 0.004) @ R, r * 0.985, 0.008, seg=64)       # coated face
+        back = p - n * (thick / 2 + 0.008)
+        mbsub.cyl_m(Matrix.Translation(back) @ R, r, thick, seg=64)                       # solid substrate
+    else:
+        back = p - n * (thick / 2 + 0.002)
+        mbm.cyl_m(Matrix.Translation(back) @ R, r, thick, seg=48)
+    if mbspot is not None and spot:
+        mbspot.cyl_m(Matrix.Translation(p + n * 0.002) @ R, r * spot, 0.002, seg=32)
+    mbmount.ring(back - n * 0.01, r * 1.12, r * 0.98, thick * 1.3, rot=q.to_euler(), seg=48)
+    mbbolt.bolts(back - n * 0.01 + n * thick * 0.7, r * 1.05, 12, r * 0.025, 0.02, rot=q.to_euler())
     plate = p - n * (thick + r * 0.55)
     mbmount.cyl_m(Matrix.Translation(plate) @ R, r * 0.9, 0.04, seg=6)
     if struts:
@@ -321,15 +418,50 @@ def mirror_with_mount(mbm, mbmount, mbbolt, p, n, r, thick=0.05, struts=True, se
             mbmount.tube(top, bot, r * 0.035, seg=8)
             mbbolt.sphere(top, r * 0.05, 8)
             mbbolt.sphere(bot, r * 0.05, 8)
+            mbmount.cyl_m(Matrix.Translation(top.lerp(bot, 0.5)) @ R, r * 0.06, r * 0.09, seg=10)   # actuator can
+    side = R @ Vector((1, 0, 0))
+    up = R @ Vector((0, 1, 0))
+    if mbpipe is not None:                       # cooling in / out from the substrate back, bent away from the beam
+        for s_ in (-1, 1):
+            a = back - n * (thick * 0.5) + side * (s_ * r * 0.35)
+            b = a - n * r * 0.5
+            c = b + side * (s_ * r * 1.4) - n * r * 0.3
+            mbpipe.path([a, b, c, c - n * r * 0.9], r * 0.04, seg=10)
+            mbbolt.cyl_m(Matrix.Translation(a) @ R, r * 0.07, r * 0.08, seg=8)
+    if mbcable is not None:
+        rnd = random.Random(seed)
+        for k in range(4):
+            o = up * (r * (0.2 + 0.08 * k)) + side * (rnd.uniform(-0.1, 0.1) * r)
+            mbcable.path([plate + o, plate + o - n * r * 0.6 - up * r * 0.4, plate + o - n * r * 1.4 - up * r * 1.1],
+                         r * 0.018, seg=6)
     return plate
 
 
-def beam(mbcore, mbhalo, pts, r=0.03, halo=3.2):
+def beam(mbcore, mbhalo, pts, r=0.03, halo=3.2, mbvol=None, vol=6.0):
+    """Beam polyline: thin emissive core + soft halo; with mbvol, also a wide volume-light sleeve (R3)."""
     for a, b in zip(pts, pts[1:]):
         mbcore.tube(a, b, r, seg=12)
         mbhalo.tube(a, b, r * halo, seg=16)
+        if mbvol is not None:
+            mbvol.tube(a, b, r * vol, seg=20)
     for p in pts[1:-1]:
         mbcore.sphere(p, r * 1.4, 10)
+        if mbvol is not None:
+            mbvol.sphere(p, r * vol, 16)
+
+
+def beam_columns(mb, pts, radii, seg=40):
+    """Wide tapered beam columns between consecutive optical points (radius radii[i] at pts[i])."""
+    for (a, b), (ra, rb) in zip(zip(pts, pts[1:]), zip(radii, radii[1:])):
+        m, L = _orient(a, b)
+        if L > 1e-4:
+            mb.cyl_m(m, max(ra, 0.004), L, seg=seg, r2=max(rb, 0.004))
+
+
+def bounce_lights(pts, energy=25.0, radius=0.15, offset=None):
+    """Violet point lights at the bounce points, so the beam actually lights the mirror mounts around it."""
+    for i, p in enumerate(pts):
+        point(f"Bounce{i}", Vector(p) + (Vector(offset) if offset else Vector((0, -0.15, 0))), energy, VIOLET, radius)
 
 
 def cone_beam(mbhalo, apex, base_c, base_r, seg=48):
@@ -428,6 +560,25 @@ def person(name, loc, height=1.75, pose="stand", facing=0.0, color=(0.03, 0.035,
     import figures
     m = mat(name + "Suit", color, rough=0.75)
     return figures.person(name, loc, height=height, pose=pose, facing=facing, mat=m, role="env")
+
+
+def suit_person(name, loc, height=1.75, pose="stand", facing=0.0):
+    """9A/9B clean-room silhouette: white bunny suit (soft cloth sheen) + dark visor band, no face."""
+    import figures
+    m = mat(name + "Suit", (0.86, 0.87, 0.9), rough=0.62, spec=0.3)
+    ob = figures.person(name, loc, height=height, pose=pose, facing=facing, mat=m, role="env")
+    k = height / 1.75
+    a = math.radians(facing)
+    off = Vector((0.0, -0.105 * k, 1.63 * k))
+    off = Vector((off.x * math.cos(a) - off.y * math.sin(a), off.x * math.sin(a) + off.y * math.cos(a), off.z))
+    v = MB()
+    v.sphere(Vector(loc) + off, 0.075 * k, 20)
+    vo = v.obj(name + "Visor", mat(name + "VisorM", (0.02, 0.022, 0.03), metal=0.3, rough=0.08, coat=1.0))
+    vo.scale = (1.25, 0.55, 0.62)
+    vo.data.transform(Matrix.Translation(-(Vector(loc) + off)))
+    vo.location = Vector(loc) + off
+    vo.rotation_euler = (0, 0, a)
+    return ob
 
 
 def anchors(shot, points):

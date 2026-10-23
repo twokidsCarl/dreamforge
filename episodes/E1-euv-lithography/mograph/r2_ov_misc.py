@@ -18,6 +18,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "..", "..", "shared", "tools"))
 from overlay_labels import font, mono_font, serif_font  # noqa: E402
 from richtext import draw_text, text_bbox  # noqa: E402
+from r2_ov_common import anchor as _anchor  # noqa: E402
 
 VIOLET = (138, 92, 255)
 VIOLET_L = (178, 150, 255)
@@ -258,9 +259,9 @@ def ov_A0_06(img, t, dur, W, H):
     u = t / dur
     a = fade(t, 0.1)
     n = int(round(5100 * ease(min(1.0, (u - 0.02) / 0.8))))
-    L_.panel((0.04, 0.34, 0.33, 0.62), a)
-    L_.text((0.07, 0.37), f"{n:,}", 0.11, CYAN, a, kind="mono", glow=0.5)
-    L_.text((0.07, 0.52), "家供应商", 0.045, INK, a)
+    L_.panel((0.66, 0.05, 0.95, 0.31), a)
+    L_.text((0.69, 0.07), f"{n:,}", 0.11, CYAN, a, kind="mono", glow=0.5)
+    L_.text((0.69, 0.22), "家供应商", 0.045, INK, a)
     pn = track(t, dur, [(0.0, (0.49, 0.36)), (1.0, (0.47, 0.39))])
     a2 = fade(t, dur * 0.45)
     L_.leader((pn[0] - 0.08, pn[1] - 0.12), pn, a2, color=INK)
@@ -375,8 +376,8 @@ def ov_B8_17(img, t, dur, W, H):
         a = fade(t, dur * s0)
         if a <= 0:
             continue
-        x = 0.03 + k * 0.2
-        L_.panel((x, 0.05, x + 0.185, 0.27), a)
+        x = 0.03 + k * 0.17                       # R3: tighter row so card 3 no longer covers the wafer stack
+        L_.panel((x, 0.05, x + 0.16, 0.27), a)
         p = ease((u - s0) / max(0.05, s1 - s0))
         if k == 0:
             s = str(int(round(188 * p)))
@@ -389,30 +390,38 @@ def ov_B8_17(img, t, dur, W, H):
                 kind="mono" if s.replace("+", "").replace(",", "").replace(".", "").isdigit() else "sans", glow=0.4)
         L_.text((x + 0.015, 0.19), unit, 0.036, INK2, a)
     a0 = fade(t, 0.3)
-    L_.leader((0.12, 0.27), (0.26, 0.52), a0, color=VIOLET_L)
+    L_.leader((0.11, 0.27), (0.26, 0.52), a0, color=VIOLET_L)
     a1 = fade(t, dur * 0.3)
-    L_.leader((0.32, 0.27), (0.62, 0.38), a1)
+    L_.leader((0.28, 0.27), (0.62, 0.38), a1)
     return L_.compose(img).convert("RGB")
 
 
 def ov_A2_08(img, t, dur, W, H):
+    """R3: tags on the two 3D waves (anchored), the equal-length bracket and the 14x count."""
     L_ = L(W, H)
-    u = t / dur
-    a = fade(t, 0.15)
-    L_.leader((0.12, 0.2), (0.2, 0.33), a, color=INK2)
-    L_.tag((0.12, 0.2), ["193 nm", "上一代光刻光"], a, color=INK2, accent=INK2, anchor="lb")
-    a2 = fade(t, dur * 0.5)
-    tip = track(t, dur, [(0.5, (0.8, 0.5)), (0.75, (0.9, 0.5)), (1.0, (0.93, 0.5))])
-    L_.leader((tip[0] - 0.06, 0.7), tip, a2, color=VIOLET_L)
-    L_.tag((tip[0] - 0.06, 0.7), ["13.5 nm"], a2, size=0.05, color=VIOLET_L, accent=VIOLET, anchor="rt")
+    g = _anchor("A2_08", t, "w193", (0.25, 0.32))
+    v = _anchor("A2_08", t, "w135", (0.7, 0.55))
+    a = fade(t, 0.1)
+    L_.leader((g[0] - 0.02, g[1] - 0.14), g, a, color=INK2)
+    L_.tag((g[0] - 0.02, g[1] - 0.12), ["193 nm", "上一代光刻光（深紫外）"], a, size=0.05, color=INK, accent=INK2, anchor="lb")
+    a2 = fade(t, dur * 0.3)
+    L_.leader((v[0] + 0.02, v[1] + 0.2), v, a2, color=VIOLET_L)
+    L_.tag((v[0] + 0.02, v[1] + 0.2), ["13.5 nm", "极紫外 EUV"], a2, size=0.05, color=VIOLET_L, accent=VIOLET, anchor="lt")
+    a3 = fade(t, dur * 0.72)
+    l = _anchor("A2_08", t, "span_l", (0.12, 0.66))
+    r = _anchor("A2_08", t, "span_r", (0.88, 0.66))
+    if a3 > 0:
+        L_.line(l, r, INK2, a3, 2)
+        L_.tag(((l[0] + r[0]) / 2 - 0.12, l[1] + 0.015), ["同样长度里：短约 14 倍"], a3, size=0.05, accent=VIOLET)
     return L_.compose(img).convert("RGB")
 
 
 def ov_A2_03(img, t, dur, W, H):
+    """R3: the formula sits on the out-of-focus machine (no full-screen panel); lambda points at the violet beam,
+    NA at a projection mirror's light cone."""
     L_ = L(W, H)
     u = t / dur
-    # dark wash so the formula reads on the bokeh plate
-    L_.panel((0.08, 0.2, 0.92, 0.8), fade(t, 0.0), alpha=0.42, radius=24)
+    L_.panel((0.14, 0.27, 0.86, 0.55), fade(t, 0.0), alpha=0.38, radius=18)     # local backing for the formula only
     terms = [("CD", INK, "能画多细", 0.0), ("=", INK2, None, 0.06), ("k₁", INK2, "工艺因子", 0.12),
              ("·", INK2, None, 0.16), ("λ", VIOLET_L, "光的波长", 0.22), ("/", INK2, None, 0.3),
              ("NA", CYAN, "数值孔径", 0.36)]
@@ -422,6 +431,7 @@ def ov_A2_03(img, t, dur, W, H):
     ws = [text_bbox(L_.d, (0, 0), s, f)[2] + 0.03 * W for s, *_ in terms]
     x = 0.5 * W - sum(ws) / 2
     yb = 0.44 * H
+    pos = {}
     for (s, col, name, t0), w in zip(terms, ws):
         a = fade(u * dur, t0 * dur, f=0.5)
         draw_text(L_.d, (x + w / 2, yb), s, f, fill=(*col, int(255 * a)), anchor="ms")
@@ -429,25 +439,19 @@ def ov_A2_03(img, t, dur, W, H):
             draw_text(L_.g, (x + w / 2, yb), s, f, fill=(*col, int(160 * a)), anchor="ms")
         if name:
             L_.text(((x + w / 2) / W, 0.49), name, 0.038, col if col != INK2 else INK, a, anchor="mt")
+        pos[s] = ((x + w / 2) / W, 0.29)
         x += w
-    # linked visual: lambda shrinks -> CD shrinks
-    a2 = fade(t, dur * 0.45, dur * 0.8)
-    if a2 > 0:
-        k = ease((u - 0.48) / 0.28)
-        lam = 0.09 * (1 - 0.7 * k)
-        x0, y0 = 0.22, 0.66
-        pts = []
-        for i in range(160):
-            xx = x0 + 0.26 * i / 159
-            pts.append((xx * W, (y0 + 0.025 * math.sin(2 * math.pi * (xx - x0) / lam)) * H))
-        L_.d.line(pts, fill=(*VIOLET_L, int(255 * a2)), width=L_.px(4))
-        L_.g.line(pts, fill=(*VIOLET, int(180 * a2)), width=L_.px(10))
-        L_.text((0.22, 0.71), "λ 变短", 0.036, VIOLET_L, a2)
-        cw = 0.12 * (1 - 0.7 * k)
-        L_.d.rectangle((0.66 * W - cw * W / 2, 0.64 * H, 0.66 * W + cw * W / 2, 0.68 * H), fill=(*INK, int(230 * a2)))
-        L_.text((0.66, 0.71), "→ 线条更细（CD 变小）", 0.036, INK, a2, anchor="mt")
-    a3 = fade(t, dur * 0.8)
-    L_.tag((0.5 - 0.15, 0.62), ["k₁ 的物理极限：0.25"], a3, size=0.05)
+    # leaders from the symbols to the real things behind
+    a1 = fade(t, dur * 0.3)
+    bm = _anchor("A2_03", t, "beam", (0.4, 0.2))
+    L_.leader(pos["λ"], (min(0.95, max(0.05, bm[0])), max(0.06, min(0.2, bm[1]))), a1, color=VIOLET_L)
+    a2 = fade(t, dur * 0.4)
+    mr = _anchor("A2_03", t, "mirror", (0.7, 0.8))
+    L_.leader((pos["NA"][0], 0.55), (min(0.95, max(0.05, mr[0])), max(0.6, min(0.8, mr[1]))), a2, color=CYAN)
+    L_.tag((min(0.8, max(0.05, mr[0])) + 0.02, max(0.6, min(0.8, mr[1])) - 0.02), ["镜子收光的锥角 → NA"], a2,
+           size=0.034, accent=CYAN)
+    a3 = fade(t, dur * 0.72)
+    L_.tag((0.5 - 0.15, 0.6), ["k₁ 的物理极限：0.25"], a3, size=0.05)
     return L_.compose(img).convert("RGB")
 
 
@@ -455,4 +459,4 @@ OVERLAYS = {"B4_10": ov_B4_10, "A0_06": ov_A0_06, "B4_07": ov_B4_07, "B6_12": ov
             "B8_17": ov_B8_17, "A2_08": ov_A2_08, "A2_03": ov_A2_03}
 
 # B4_07: the storyboard label ("比例尺 nm → pm · 原子排布示意") no longer matches the TEM magnifier
-NO_STORYBOARD_LABELS = {"B4_07"}
+NO_STORYBOARD_LABELS = {"B4_07", "A0_06"}   # A0_06 (R3): the counter now owns the upper-right zone

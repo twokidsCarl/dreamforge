@@ -18,6 +18,46 @@ import kit_r2 as K
 PLATES = {"freighter": "r2_a002.png", "crates": "r2_a003.png", "cleanroom": "r2_d007.png"}
 
 
+def _freighter_life(n, H, aspect):
+    """Foreground motion on the A0_02 plate: a backlit ground-crew silhouette walking toward the loader, a red
+    anti-collision strobe on the fuselage, and fine rain streaks falling through the sodium light."""
+    import figures
+    from mathutils import Vector
+    dark = K.mat("CrewSil", (0.006, 0.006, 0.008), rough=0.9)
+    ob = figures.person("Crew", (0, 0, 0), height=2.3, pose="walk", facing=90, mat=dark, role="env")
+    ob.rotation_euler = (math.radians(-90), 0, 0)             # stand up along +Y on the card (camera looks down -Z)
+    ob.location = (-5.2, -4.6, 0.5)
+    ob.keyframe_insert("location", frame=1)
+    ob.location = (-2.6, -4.5, 0.5)
+    ob.keyframe_insert("location", frame=n)
+    vest = K.MB()                                            # hi-vis band catching the floodlights
+    vest.box((0, 1.33, 0.25), (0.42, 0.07, 0.02))
+    vo = vest.obj("CrewVest", K.emit_mat("Vest", (0.95, 0.85, 0.25), 1.6))
+    vo.parent = ob
+    st = K.MB()
+    st.sphere((-0.6, 1.72, 0.3), 0.06, 12)
+    so = st.obj("Strobe", K.emit_mat("StrobeRed", (1.0, 0.12, 0.08), 40.0))
+    em = next(nd for nd in so.data.materials[0].node_tree.nodes if nd.type == "EMISSION")
+    for f in range(1, n + 1):                                # 1 flash / s, 3 frames long
+        v = 40.0 if (f % 24) in (0, 1, 2) or f in (35, 78, 120) and f % 24 < 12 else 0.0
+        em.inputs["Strength"].default_value = v
+        em.inputs["Strength"].keyframe_insert("default_value", frame=f)
+    rain = K.MB()
+    rnd = random.Random(11)
+    for _ in range(260):
+        x, y = rnd.uniform(-H * aspect / 2, H * aspect / 2), rnd.uniform(-H / 2, H / 2 + 6)
+        rain.box((x, y, 0.8), (0.006, rnd.uniform(0.25, 0.5), 0.004), rot=(0, 0, math.radians(8)))
+    ro = rain.obj("Rain", K.emit_mat("RainM", (0.9, 0.85, 0.75), 0.55, halo=0.22))
+    ro.location = (0, 0, 0)
+    ro.keyframe_insert("location", frame=1)
+    ro.location = (-0.8, -6.0, 0)
+    ro.keyframe_insert("location", frame=n)
+    for o in (ob, ro):
+        for fc in C.fcurves(o.animation_data.action):
+            for k in fc.keyframe_points:
+                k.interpolation = "LINEAR"
+
+
 def build(variant="freighter", shot=None):
     n = K.nframes(shot) if shot else 120
     sc = C.reset_scene(n)
@@ -49,8 +89,10 @@ def build(variant="freighter", shot=None):
     rnd = random.Random(7)
     # ortho scale: frame width; plates are 3:2, the frame 16:9 -> width-limited crop with room to move
     if variant == "freighter":
-        keys = [(1, 0.0, 0.4, 14.6), (n, 0.9, 0.35, 13.6)]               # push-in toward the open nose
+        # R3 (H2 fix): a real push + pan toward the open nose (25 % zoom), plus moving foreground life below
+        keys = [(1, -1.2, 0.2, 14.9), (n, 1.6, 0.6, 11.6)]
         lit = None
+        _freighter_life(n, H, aspect)
     elif variant == "crates":
         keys = [(1, -1.2, -0.2, 13.4), (n, 1.0, 0.0, 13.0)]               # truck along the crate row
         lit = None

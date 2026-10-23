@@ -53,6 +53,20 @@ def anchor(sid, t, name, default):
         return default
 
 
+SERIF_BOLD = "/usr/share/fonts/opentype/noto/NotoSerifCJK-Bold.ttc"
+
+
+def _font(px, serif=False, mono=False):
+    """serif=True: Noto Serif CJK SC regular; serif="bold": the Bold cut (R3 title card, 1C weight)."""
+    if serif == "bold":
+        from PIL import ImageFont
+        for path in (SERIF_BOLD, "/System/Library/Fonts/Supplemental/Songti.ttc"):
+            if os.path.exists(path):
+                return ImageFont.truetype(path, px, index=2 if path.endswith("CJK-Bold.ttc") else 0)
+        return serif_font(px)
+    return serif_font(px) if serif else mono_font(px) if mono else font(px)
+
+
 class Layer:
     def __init__(self, W, H):
         self.W, self.H = W, H
@@ -70,14 +84,14 @@ class Layer:
     def text(self, p, s, size=0.036, color=INK, a=1.0, anchor="la", serif=False, mono=False, shadow=True):
         if a <= 0 or not s:
             return
-        f = serif_font(self.s(size)) if serif else mono_font(self.s(size)) if mono else font(self.s(size))
+        f = _font(self.s(size), serif, mono)
         x, y = self.P(p)
         if shadow:
             draw_text(self.g, (x, y), s, f, fill=(0, 0, 0, int(200 * a)), anchor=anchor)
         draw_text(self.d, (x, y), s, f, fill=(*color, int(255 * a)), anchor=anchor)
 
     def bbox(self, p, s, size=0.036, anchor="la", serif=False, mono=False):
-        f = serif_font(self.s(size)) if serif else mono_font(self.s(size)) if mono else font(self.s(size))
+        f = _font(self.s(size), serif, mono)
         return text_bbox(self.d, self.P(p), s, f, anchor=anchor)
 
     def tag(self, p, lines, a=1.0, accent=CYAN, size=0.04, anchor="la"):
