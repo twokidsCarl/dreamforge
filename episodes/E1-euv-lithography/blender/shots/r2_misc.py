@@ -1084,7 +1084,8 @@ def _wafer(sc, n):
     bw.obj("BackWall", Mk["anod"])
     import hero_kit_r10 as HK                         # R10: nameable parts (no PCB / LED boxes)
     P = HK.new_parts()
-    HK.wall_r10(P, -4.5, 6.5, -0.4, 3.8, 4.55, seed=21, scale=1.6, depth=1.4)
+    import hero_kit_r11 as HK11            # R11: non-repeating blocks
+    HK11.wall_r11(P, -4.5, 6.5, -0.4, 3.8, 4.55, seed=21, scale=1.6, depth=1.4)
     HK.finish(P, Mk, "B8_17Kit")
     po = K.MB()
     po.cyl((1.4, 2.4, 3.35), 1.6, 1.3, seg=96)
