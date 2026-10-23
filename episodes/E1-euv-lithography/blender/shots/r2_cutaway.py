@@ -894,7 +894,7 @@ def _scan_r5(sc, M, n, shot):
         h = 0.07 if i % 4 == 0 else 0.03
         tk.box((x, yr, zr - h / 2), (0.007, 0.006, h))
     tk.box((0, yr, zr), (2 * a_r + 0.02, 0.006, 0.006))
-    yw0, zw = -0.62, 0.47
+    yw0, zw = 0.56, 0.6                                       # R11: on the granite top behind the mover (in frame)
     yw = yw0 + WY
     for i in range(0, 9):
         x = a_w - i * U / 8
@@ -904,8 +904,8 @@ def _scan_r5(sc, M, n, shot):
     tk.obj("Rulers", ink)
     for i in range(9):
         _txt(f"RD{i}", str(i), (-a_r + i * U, yr, zr - 0.14), 0.1, ink)
-    _txt("WD0", "0", (a_w, yw, zw - 0.12), 0.085, ink)
-    _txt("WD1", "1", (-a_w, yw, zw - 0.12), 0.085, ink)
+    _txt("WD0", "0", (a_w, yw, zw + 0.1), 0.085, ink)
+    _txt("WD1", "1", (-a_w, yw, zw + 0.1), 0.085, ink)
     brk = K.MB()                                              # ruler brackets tie the rulers to the bridge / granite
     for x in (-a_r - 0.08, a_r + 0.08):
         brk.box((x, (yr - 0.25) / 2 + 0.05, zr + 0.05), (0.03, 0.42, 0.02))
@@ -916,8 +916,8 @@ def _scan_r5(sc, M, n, shot):
     pr.box((0, (yr - 0.4) / 2 + 0.005, MZ + 0.2), (0.016, 0.24, 0.016))
     pr.box((0, yr + 0.005, MZ + 0.32), (0.016, 0.01, 0.22))
     pw.box((0, yw0 + 0.005, zw + 0.025), (0.012, 0.01, 0.07))
-    pw.box((0, -0.48, 0.63), (0.012, 0.28, 0.012))
-    pw.box((0, -0.62, 0.575), (0.012, 0.012, 0.11))
+    pw.box((0, 0.5, 0.66), (0.012, 0.14, 0.012))
+    pw.box((0, 0.565, 0.635), (0.012, 0.012, 0.05))
     pr.obj("PtrR", pm).parent = rpiv
     pw.obj("PtrW", pm).parent = wpiv
     # ghost marks of where both stages started (thin dashed outline on the rulers)

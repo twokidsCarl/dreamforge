@@ -17,7 +17,7 @@ WORK = Path("/workspace/e1work/p1")
 SERIES = [
     ("R1", "scores_round1_recalibrated.json"),  # first v2 round (recal)
 ]
-SERIES += [(f"R{n}", f"scores_round{n}.json") for n in range(2, 11)]
+SERIES += [(f"R{n}", f"scores_round{n}.json") for n in range(2, 12)]
 
 
 def load_rounds():
