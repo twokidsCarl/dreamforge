@@ -209,6 +209,188 @@ def _metals_r14(M):
     M["coll"] = _mirror_r14("CollectorMLMirrorR14")
 
 
+# ---------------------------------------------------------------- R15 (root causes #2 / #3, non-amps variants only)
+def _tin_film_r15(name="TinFilmR15"):
+    """R15 root cause #3 (R14: "crumpled aluminium foil filling the frame"): the pre-pulse sheet is a THIN liquid
+    film. Smooth liquid-tin surface (no ripple bump); in object space (unit-radius sheet) the thin centre lets most
+    light through (transparent mix ~0.7) while the rolled rim is opaque bright metal, so the sheet reads as a
+    thin liquid membrane with a bright edge instead of a solid plate."""
+    m = K.mat(name, (0.94, 0.94, 0.96), metal=1.0, rough=0.035)
+    nt = m.node_tree
+    out = next(nd for nd in nt.nodes if nd.type == "OUTPUT_MATERIAL")
+    b = next(nd for nd in nt.nodes if nd.type == "BSDF_PRINCIPLED")
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sp = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(tc.outputs["Object"], sp.inputs[0])
+    cb = nt.nodes.new("ShaderNodeCombineXYZ")
+    nt.links.new(sp.outputs["Y"], cb.inputs["X"])
+    nt.links.new(sp.outputs["Z"], cb.inputs["Y"])
+    ln = nt.nodes.new("ShaderNodeVectorMath")
+    ln.operation = "LENGTH"
+    nt.links.new(cb.outputs[0], ln.inputs[0])
+    mr = nt.nodes.new("ShaderNodeMapRange")
+    mr.interpolation_type = "SMOOTHSTEP"
+    mr.inputs["From Min"].default_value = 0.55
+    mr.inputs["From Max"].default_value = 0.9
+    mr.inputs["To Min"].default_value = 0.55
+    mr.inputs["To Max"].default_value = 0.0
+    nt.links.new(ln.outputs["Value"], mr.inputs["Value"])
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    tr.inputs["Color"].default_value = (0.92, 0.93, 0.96, 1)
+    mx = nt.nodes.new("ShaderNodeMixShader")
+    nt.links.new(mr.outputs["Result"], mx.inputs["Fac"])
+    nt.links.new(b.outputs[0], mx.inputs[1])
+    nt.links.new(tr.outputs[0], mx.inputs[2])
+    nt.links.new(mx.outputs[0], out.inputs["Surface"])
+    return m
+
+
+def _metals_r15(M, coll_rough=0.02):
+    """R15 root cause #2: the collector uses the shared mirror_r15 multilayer surface (neutral silver, no violet
+    base, no emission); liquid tin droplets stay mirror-bright; the pre-pulse sheet is the thin film above."""
+    import mirror_r15 as MR
+    M["tin"] = _liquid_tin_r14()
+    M["tin_film"] = _tin_film_r15()
+    M["coll"] = MR.ml_mirror("CollectorML_R15", rough=coll_rough)
+
+
+def pancake_r15(M, c, R, name="Pancake", seed=1):
+    """R15 root cause #3: thin liquid sheet in the YZ plane (unit radius, scaled by R): a membrane ~1/40 of its
+    radius thick, a smooth rolled rim (torus-like bead) and a few droplets flung off OUTSIDE the rim, in the sheet
+    plane - nothing sits on the face (R14 review B1_10 #1). Not repeating: the R14 crumple / rippled liquid
+    metal plate."""
+    import bmesh
+    rnd = random.Random(seed)
+    mb = K.MB()
+    na, nr = 128, 20
+    harm = [(k, rnd.uniform(0.004, 0.01), rnd.uniform(0, 6.28)) for k in (3, 5, 9)]
+
+    def rim(a):
+        return 1.0 + sum(amp * math.sin(k * a + ph) for k, amp, ph in harm)
+
+    def thick(t):                       # thin membrane, rolled bead at the rim
+        return 0.022 + 0.075 * max(0.0, (t - 0.84) / 0.16) ** 1.5
+
+    top, bot = [], []
+    for i in range(nr + 1):
+        t = i / nr
+        rt, rb = [], []
+        for j in range(na):
+            a = 2 * math.pi * j / na
+            rr = t * rim(a)
+            h = thick(t)
+            y, z = rr * math.cos(a), rr * math.sin(a)
+            rt.append(mb.bm.verts.new((h / 2, y, z)))
+            rb.append(mb.bm.verts.new((-h / 2, y, z)))
+        top.append(rt)
+        bot.append(rb)
+    for i in range(nr):
+        for j in range(na):
+            k = (j + 1) % na
+            mb.bm.faces.new((top[i][j], top[i][k], top[i + 1][k], top[i + 1][j])).smooth = True
+            mb.bm.faces.new((bot[i][j], bot[i + 1][j], bot[i + 1][k], bot[i][k])).smooth = True
+    for j in range(na):
+        k = (j + 1) % na
+        mb.bm.faces.new((top[nr][j], top[nr][k], bot[nr][k], bot[nr][j])).smooth = True
+    bmesh.ops.remove_doubles(mb.bm, verts=mb.bm.verts[:], dist=1e-5)
+    ob = mb.obj(name, M["tin_film"])
+    sub = ob.modifiers.new("Sub", "SUBSURF")
+    sub.levels = sub.render_levels = 1
+    sat = K.MB()
+    for k in range(9):                  # droplets flung off the rim, in the sheet plane
+        a = 2 * math.pi * (k + rnd.uniform(-0.3, 0.3)) / 9
+        rr = rim(a) * rnd.uniform(1.12, 1.35)
+        sat.sphere((0.0, rr * math.cos(a), rr * math.sin(a)), rnd.uniform(0.03, 0.05), 14)
+    so = sat.obj(name + "Sat", M["tin"])
+    root = bpy.data.objects.new(name + "Root", None)
+    bpy.context.scene.collection.objects.link(root)
+    root.location = c
+    ob.parent = root
+    so.parent = root
+    root.scale = (R, R, R)
+    cv = Vector(c)
+    K.area(name + "Softbox", cv + Vector((0.42, 0.48, -0.1)), cv, 0.35, 0.28, (0.9, 0.93, 1.0))
+    sb = bpy.data.objects.get(name + "Softbox")
+    if sb is not None:
+        sb.visible_camera = False
+        _link_only(sb, [ob, so])                     # R15: no white softbox rectangle in the collector mirror
+    return root, [ob, so]
+
+
+def _link_only(emitter, receivers):
+    """Cycles light linking: `emitter` only shows on / lights `receivers`."""
+    col = bpy.data.collections.new(emitter.name + "_Recv")
+    for ob in receivers:
+        col.objects.link(ob)
+    try:
+        emitter.light_linking.receiver_collection = col
+    except Exception as e:
+        print("light linking unavailable", e)
+
+
+def _rim_markers(root):
+    """Empties on the sheet's rim (top / bottom), parented to the scaled root: the overlay's 300 um dimension line
+    follows the real sheet edge on screen."""
+    out = {}
+    for k, z in (("pk_top", 1.0), ("pk_bot", -1.0)):
+        e = bpy.data.objects.new("Mark_" + k, None)
+        bpy.context.scene.collection.objects.link(e)
+        e.parent = root
+        e.location = (0, 0, z)
+        out[k] = e
+    return out
+
+
+def main_pulse_cone_r15(start, end, r0, r1, name="MainPulse"):
+    """R15 (A0_01 review #1: "main pulse drawn as a disc spot on the sheet centre"): the main CO2 pulse is a
+    soft-edged orange cone seen side-on, widening from the collector hole to cover the sheet."""
+    m = bpy.data.materials.new(name + "Mat")           # volume-only: soft glowing cone, no hard surface
+    m.use_nodes = True
+    nt = m.node_tree
+    for nd in list(nt.nodes):
+        if nd.type != "OUTPUT_MATERIAL":
+            nt.nodes.remove(nd)
+    out = next(nd for nd in nt.nodes if nd.type == "OUTPUT_MATERIAL")
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    nt.links.new(tr.outputs[0], out.inputs["Surface"])
+    ve = nt.nodes.new("ShaderNodeEmission")
+    ve.inputs["Color"].default_value = (*K.lin(K.ORANGE), 1)
+    # soft edge: strength falls off with distance from the beam axis (the beam runs along world X here)
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    sp = nt.nodes.new("ShaderNodeSeparateXYZ")
+    nt.links.new(geo.outputs["Position"], sp.inputs[0])
+    cb = nt.nodes.new("ShaderNodeCombineXYZ")
+    nt.links.new(sp.outputs["Y"], cb.inputs["Y"])
+    nt.links.new(sp.outputs["Z"], cb.inputs["Z"])
+    ln = nt.nodes.new("ShaderNodeVectorMath")
+    ln.operation = "LENGTH"
+    nt.links.new(cb.outputs[0], ln.inputs[0])
+    x0, x1 = start[0], end[0]
+    rad = nt.nodes.new("ShaderNodeMapRange")            # cone radius at this x
+    rad.clamp = False
+    rad.inputs["From Min"].default_value = x0
+    rad.inputs["From Max"].default_value = x1
+    rad.inputs["To Min"].default_value = r0
+    rad.inputs["To Max"].default_value = r1
+    nt.links.new(sp.outputs["X"], rad.inputs["Value"])
+    dv = nt.nodes.new("ShaderNodeMath")
+    dv.operation = "DIVIDE"
+    nt.links.new(ln.outputs["Value"], dv.inputs[0])
+    nt.links.new(rad.outputs["Result"], dv.inputs[1])
+    fall = nt.nodes.new("ShaderNodeMapRange")
+    fall.interpolation_type = "SMOOTHSTEP"
+    fall.inputs["From Min"].default_value = 0.0
+    fall.inputs["From Max"].default_value = 1.0
+    fall.inputs["To Min"].default_value = 3.2
+    fall.inputs["To Max"].default_value = 0.0
+    nt.links.new(dv.outputs[0], fall.inputs["Value"])
+    nt.links.new(fall.outputs["Result"], ve.inputs["Strength"])
+    nt.links.new(ve.outputs[0], out.inputs["Volume"])
+    ob = single(name, m, lambda mb: mb.tube(start, end, r0, seg=48, r2=r1))
+    camera_only(ob)
+    return ob
+
+
 def _studio_cards(name, target, cam, normal, dist=0.45, n=4, length=0.7, width=0.05, strength=6.0, spread=0.16,
                   tilt=0.6):
     """Camera-invisible emissive strips placed where a mirror at `target` (surface normal `normal`) reflects the
@@ -686,7 +868,7 @@ def _cold(sc, M, cam, tgt, n):
     laser arrives (R13 review A0_01 #1; a hair for scale was tried and dropped - it filled the frame);
     liquid-tin / neutral-mirror metals + studio cards (root cause #6, review #2)."""
     _dark_world()
-    _metals_r14(M)
+    _metals_r15(M)                                   # R15 #2 / #3: shared mirror collector + thin tin film
     chamber_r10(M, seed=7, tip_z=0.78, hide_front=away_from((0.6, -0.5)))     # R10: k3A metal vessel behind
     lights_chamber(1.0)
     r = 0.016
@@ -695,8 +877,9 @@ def _cold(sc, M, cam, tgt, n):
     key_loc(drop, [(1, (0, 0, 0.3)), (hit1, (0, 0, 0.0))])
     show_between_vis(drop, 1, hit1 + 2)               # R14: the droplet now really falls into frame
     nxt = single("DropletNext", M["tin"], lambda mb: mb.sphere((0, 0, 0), r, 48))
-    key_loc(nxt, [(1, (0, 0, 0.62)), (n, (0, 0, 0.62 - 0.3 * n / hit1))])
-    root, parts = pancake(M, (0, 0, 0), r)
+    # R15: the next droplet stays well above the sheet's rim (R14: it sat on the face and read as a blob)
+    key_loc(nxt, [(1, (0, 0, 0.62)), (n, (0, 0, 0.36))])
+    root, parts = pancake_r15(M, (0, 0, 0), r)
     key_scale(root, [(hit1 + 2, r * 1.2), (hit2 - 6, r * 9.5), (hit2 + 4, r * 10.5)])
     for ob in parts:
         show_between(ob, hit1 + 3, boom - 1)
@@ -705,10 +888,9 @@ def _cold(sc, M, cam, tgt, n):
         show_between(ob, hit1 - 3, hit1 + 6)
     for ob in flash(M, (-0.01, 0, 0), r * 1.4):
         show_between(ob, hit1, hit1 + 5)
-    for ob in laser(M, beam_start, (0, 0, 0), 0.011, "Main"):
-        show_between(ob, hit2 - 2, hit2 + 9)
-    for ob in flash(M, (-0.012, 0, 0), r * 1.1):
-        show_between(ob, hit2 + 2, boom)
+    # R15 (A0_01 review #1): main pulse = side-on soft orange cone covering the sheet, no disc spot on its centre
+    mp = main_pulse_cone_r15((COLL_X - 0.2, 0, 0), (-0.012, 0, 0), 0.025, r * 9.0, "MainPulse")
+    show_between(mp, hit2 - 4, boom)
     pl, li = plasma_r10(M, (0, 0, 0), 0.032, energy=0, li_color=PLASMA_LIGHT_R14)   # R10: volumetric core
     for ob in pl:
         show_between(ob, boom)
@@ -723,6 +905,8 @@ def _cold(sc, M, cam, tgt, n):
     tc = _studio_cards("TinCards", (0, 0, 0), (0.56, -0.5, 0.15), (1, 0, 0), dist=0.42, n=5, length=0.6,
                        width=0.035, strength=7.0, spread=0.11, tilt=0.9)
     show_between(tc, hit1 + 3, boom - 1)              # only while the sheet exists (keeps the collector calm)
+    _link_only(tc, parts)                             # R15: the cards light / mirror in the sheet only (R14: they
+                                                      # drew big white arcs in the collector behind it)
     dc = _studio_cards("DropCards", (0, 0, 0.1), (0.56, -0.41, 0.17), (0.56, -0.41, 0.07), dist=0.3, n=3,
                        length=0.25, width=0.03, strength=5.0, spread=0.08, tilt=0.5)
     show_between(dc, 1, hit1 + 2)
@@ -733,8 +917,17 @@ def _cold(sc, M, cam, tgt, n):
     sc.collection.objects.link(foc)
     key_loc(foc, [(1, (0, 0, 0.3)), (hit1, (0, 0, 0.0))])
     cam.data.dof.focus_object = foc
+    # R15 #3 (review A0_01 #1): pull back while the sheet spreads so it is ~1/3 of the frame, with the nozzle and
+    # vessel wall in view for scale (R14: the sheet filled the frame, no scale)
     K.key_path(cam, tgt, [(1, (0.6, -0.42, 0.22), (0, 0, 0.12)), (hit1, (0.52, -0.4, 0.12), (0, 0, 0.0)),
                           (n, (0.62, -0.62, 0.16), (-0.05, 0, 0.02))])
+    cam.data.keyframe_insert("lens", frame=hit1 + 6)      # lens 55 on the droplet ...
+    cam.data.lens = 24                                    # ... widens as the sheet spreads (camera stays clear of
+    cam.data.keyframe_insert("lens", frame=hit2 - 12)     # the vessel wall): sheet ~1/3 of the frame + nozzle in view
+    cam.data.keyframe_insert("lens", frame=boom + 4)
+    cam.data.lens = 40                                    # back in on the plasma for the last beat
+    cam.data.keyframe_insert("lens", frame=boom + 50)
+    K.anchors("A0_01", _rim_markers(root))
 
 
 def _prepulse(sc, M, cam, tgt, n):
@@ -743,8 +936,9 @@ def _prepulse(sc, M, cam, tgt, n):
     pulse - and the beam coming out of the collector hole behind it - are seen together; (root cause #6 / review
     #1) the sheet is liquid tin with ripples and studio reflections, the collector a neutral mirror."""
     _dark_world()
-    _metals_r14(M)
-    chamber_r10(M, seed=8, tip_z=0.42, hide_front=away_from((-0.5, -0.65)))
+    _metals_r15(M)                                   # R15 #2 / #3
+    # R15 (review B1_10 #3 "square panel grid repeated"): wall hardware (hoses, H2 nozzles, gauges) instead of liner
+    chamber_r10(M, seed=8, tip_z=0.42, hide_front=away_from((-0.5, -0.65)), liner=False)
     lights_chamber(1.0)
     r = 0.014
     hit = 30
@@ -752,8 +946,8 @@ def _prepulse(sc, M, cam, tgt, n):
     key_loc(drop, [(1, (0, 0, 0.06)), (hit, (0, 0, 0))])
     show_between(drop, 1, hit + 2)
     nxt = single("DropletNext", M["tin"], lambda mb: mb.sphere((0, 0, 0), r, 48))
-    key_loc(nxt, [(1, (0, 0, 0.30)), (n, (0, 0, 0.30 - 0.06 * n / hit))])
-    root, parts = pancake(M, (0, 0, 0), r)
+    key_loc(nxt, [(1, (0, 0, 0.36)), (n, (0, 0, 0.27))])   # R15: stays above the rim (R14: on the face)
+    root, parts = pancake_r15(M, (0, 0, 0), r)
     key_scale(root, [(hit + 2, r * 1.2), (hit + 40, r * 9.0), (n, r * 12.0)])
     for ob in parts:
         show_between(ob, hit + 3)
@@ -765,25 +959,31 @@ def _prepulse(sc, M, cam, tgt, n):
     key_energy(fl, [(hit - 1, 0), (hit, 7), (hit + 8, 0)])
     _studio_cards("TinCards", (0, 0, 0), (-0.48, -0.66, 0.14), (1, 0, 0), dist=0.4, n=5, length=0.55, width=0.03,
                   strength=7.0, spread=0.1, tilt=0.9)
-    cam.data.lens = 50
+    cam.data.lens = 30                            # R15 #3: wider -> sheet about 1/2 frame height, wall for scale
     cam.data.dof.use_dof = True
     cam.data.dof.aperture_fstop = 4
     cam.data.dof.focus_object = tgt
-    K.key_path(cam, tgt, [(1, (-0.52, -0.6, 0.12), (-0.03, 0, 0.05)), (n, (-0.44, -0.7, 0.15), (-0.02, 0, 0.06))])
+    # R15 #3: pulled back (~1/3 frame) so the nozzle / wall give scale; the 300 um dimension line rides on anchors
+    K.key_path(cam, tgt, [(1, (-0.52, -0.6, 0.12), (-0.03, 0, 0.05)), (n, (-0.48, -0.72, 0.15), (-0.02, 0, 0.06))])
+    K.anchors("B1_10", _rim_markers(root))
 
 
 def _debris(M, seed=4):
     rnd = random.Random(seed)
     objs = []
-    for key, cnt, rr in (("hot", 14, (0.004, 0.007)), ("warm", 26, (0.003, 0.006)), ("cool", 40, (0.003, 0.006))):
+    for key, cnt, rr in (("hot", 8, (0.004, 0.007)), ("warm", 16, (0.003, 0.006)), ("cool", 40, (0.003, 0.006))):
         mb = K.MB()
         for _ in range(cnt):
             v = Vector((rnd.gauss(0, 1), rnd.gauss(0, 1), rnd.gauss(0, 1))).normalized()
             d = {"hot": rnd.uniform(0.08, 0.25), "warm": rnd.uniform(0.2, 0.45), "cool": rnd.uniform(0.35, 0.7)}[key]
             p = v * d
-            mb.tube(p, p + v * rnd.uniform(0.01, 0.028), rnd.uniform(*rr) * 0.35, seg=6)     # R8: a bit longer streak
+            # R15 (review B1_15 #3 "equal white sticks read as snow / floating dots"): tapered motion streaks -
+            # thick head outward, thread-thin tail back towards the plasma, random lengths
+            ln_ = rnd.uniform(0.02, 0.06)
+            mb.tube(p, p - v * ln_, rnd.uniform(*rr) * 0.4, seg=6, r2=rnd.uniform(*rr) * 0.04)
         ob = mb.obj("Debris_" + key, M[key])
         ob.visible_shadow = False
+        ob.visible_glossy = False          # R15: no magnified white crescents of the streaks in the dish
         objs.append(ob)
     return objs
 
@@ -884,8 +1084,7 @@ def _contrast(sc, M, cam, tgt, n):
     # scattered off the coating, so the whole dish reads lit by the plasma (k3A), not half black
     # R14 (root cause #6, review B1_15 #2): neutral high-reflectance mirror - no violet base / emissive sheen; the
     # only violet on the dish is the plasma's own reflection (inner glow volumes now mirrored too)
-    _metals_r14(M)
-    M["coll"] = _mirror_r14("CollectorMLMirrorR14", rough=0.004)
+    _metals_r15(M, coll_rough=0.004)                 # R15 #2: shared mirror_r15 collector
 
     def hide(p):                                  # nothing between the camera (+X side, on axis) and the dish
         return p[0] > 0.55 and abs(p[1]) < 1.0 and abs(p[2]) < 0.9
@@ -913,7 +1112,10 @@ def _contrast(sc, M, cam, tgt, n):
     # R14 (review B1_15 #1): camera on the optical axis so the plasma sits right in front of the central hole;
     # (#3) a real push-in (1.05 -> 0.62 m) with a focus pull from the bolted rim to the plasma
     key_loc(foc, [(1, (coll_x(COLL_R), -0.3, 0.0)), (n, (0.0, 0.0, 0.0))], interp="BEZIER")
-    K.key_path(cam, tgt, [(1, (1.05, -0.07, 0.05), (-0.9, 0.0, 0.0)), (n, (0.62, -0.045, 0.03), (-0.9, 0.0, 0.0))],
+    # R15 #2 (review B1_15 #1 "a bowl of violet fog, no reflections, no centre hole"): on the dish axis a focusing
+    # mirror shows the plasma over its whole face; ~20 deg off-axis it mirrors the target tubes / barrels instead and
+    # the centre hole separates from the plasma by parallax. The plasma stays on the axis, in front of the dish (H1).
+    K.key_path(cam, tgt, [(1, (1.0, -0.36, 0.12), (-0.85, 0.02, 0.0)), (n, (0.64, -0.27, 0.09), (-0.85, 0.02, 0.0))],
                interp="BEZIER")
     ax = K.MB()
     for k in range(11):
@@ -927,7 +1129,7 @@ def _track(sc, M, cam, tgt, n):
     """B1_08 (92 frames): droplets fall past a lock line at z = 0; each carries its own cyan reticle that
     thickens while that droplet is locked."""
     _dark_world()
-    _metals_r14(M)                                # R14 root cause #6: mirror-bright liquid-tin droplets
+    _metals_r15(M)                                # R15 #2: shared mirror collector; liquid-tin droplets
     # R10: k3A metal vessel; the droplet generator nozzle is in frame (tip at z = 0.13), two droplet cameras on
     # the back wall aim at the lock line, a lit illumination window between them, the collector rim at the left
     tip_z = 0.13
@@ -1104,8 +1306,8 @@ def _clean_r6(sc, M, cam, tgt, n):
     from mathutils import Matrix
     _dark_world()
     # R14 (root cause #6, review B2_08 #2): neutral, high-reflectance multilayer mirror (was violet-grey satin)
-    _metals_r14(M)
-    M["coll"] = _mirror_r14("CollectorMLMirrorR14", rough=0.02)
+    _metals_r15(M, coll_rough=0.07)                  # R15 #2: shared mirror_r15 collector; a touch of polish
+    # haze so the softboxes read as soft highlights on the metal (R14: "dark-blue matte plate, not a mirror")
     M["tin_dep"] = K.mat("TinDepositDull", (0.16, 0.16, 0.17), metal=0.5, rough=0.8, speck=0.5)
     for ob in chamber(M, seed=5):
         if ob.name.startswith("MLI"):
@@ -1240,8 +1442,7 @@ def _spectrum(sc, M, cam, tgt, n):
     _dark_world()
     # R14 (root cause #6): neutral mirror collector; (R13 frames: the plasma was a hard white disc = "floating white
     # dot") the soft volumetric k3A core of B1_15 instead, light near-neutral so the vessel metal is not tinted
-    _metals_r14(M)
-    M["coll"] = _mirror_r14("CollectorMLMirrorR14", rough=0.008)
+    _metals_r15(M, coll_rough=0.008)                 # R15 #2: shared mirror_r15 collector
     chamber(M, seed=6)
     lights_chamber(0.55)
     pl, li = plasma_r10(M, (0, 0, 0), 0.04, energy=40.0, gas=1.3, li_color=PLASMA_LIGHT_R14, mirror_core=True)

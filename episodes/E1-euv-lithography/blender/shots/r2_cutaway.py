@@ -59,6 +59,17 @@ def _build(variant="illum", shot=None):
     studio = variant in ("title", "po")
     M = K.palette(studio=studio)
     M["wafer"] = K.mat("WaferSi", (0.32, 0.33, 0.42), metal=1.0, rough=0.08)
+    # R15 root cause 2 ("mirrors don't read as mirrors": violet glass collector, self-lit facet panel, chrome donuts):
+    # every mirror of every channel uses the one shared Mo/Si mirror surface (mirror_r15) - neutral polished metal,
+    # no emission, no violet base; blanks / substrates are fine-ground; kit beam footprints are a dim violet glow
+    # only (the bright landing spots are beam_r12's, on the legs that are actually lit)
+    import mirror_r15 as MR
+    M["mirror"] = MR.ml_mirror("EUVMirrorML_R15")
+    M["coating"] = MR.ml_mirror("EUVCoatingML_R15")
+    M["substrate"] = MR.ground_edge("EUVMirrorBlankR15", tone=0.42)
+    M["brushed"] = K.mat("BrushedAluR11", (0.7, 0.71, 0.74), metal=1.0, rough=0.22, brushed=0.35)
+    M["facet"] = MR.ml_mirror("FacetML_R15", rough=0.1, tone=0.26, coat=0.15)   # field facets: dark polished, lit only by the beam
+    M["spot"] = K.emit_mat("BeamSpotR15", K.VIOLET, 2.2, halo=0.9)
     if variant == "title":                   # k1C: near-black backdrop, product-lit machine, white serif title above
         C.set_world(top=(0.004, 0.005, 0.008), horizon=(0.03, 0.033, 0.04), bottom=(0.05, 0.05, 0.055), strength=1.0)
         flo = K.mat("StudioFloor", (0.3, 0.31, 0.33), rough=0.15, coat=0.6)
@@ -73,9 +84,9 @@ def _build(variant="illum", shot=None):
         K.world_dark(0.55)
         K.floor("Floor", K.mat("FloorDark", (0.05, 0.055, 0.065), rough=0.3, coat=0.3), z=0.0)
         _lights_dark()
-    if variant == "collect":                 # R8: solid, dark polished multilayer dish (R7: read as a glass dome)
-        M["coating"] = K.mat("CollectorSolidR13", (0.6, 0.61, 0.64), metal=1.0, rough=0.04, coat=1.0)   # R13: neutral, not violet
-        M["substrate"] = K.mat("CollectorBodyR8", (0.2, 0.2, 0.23), metal=1.0, rough=0.3, speck=0.2)
+    if variant == "collect":                 # R15: shared mirror surface (R14: "translucent violet glass")
+        M["coating"] = MR.ml_mirror("CollectorML_R15", rough=0.035)
+        M["substrate"] = MR.ground_edge("CollectorBlankR15", tone=0.3)
     M["cone"] = (K.beam_column_mat("EUVCone", K.VIOLET, strength=0.6, edge=0.8, core=0.0, vol=0.02)   # R11: see-through
                  if variant == "collect" else K.beam_column_mat("EUVCone", K.VIOLET, strength=1.4, edge=0.4, core=0.06, vol=0.15))
     # R12 (R11 review: "constant-width noisy tubes"): soft-edged cones with a waist between mirrors + landing spots
@@ -83,11 +94,11 @@ def _build(variant="illum", shot=None):
     if variant == "collect":                 # rim-lit see-through cone: the dish face stays readable behind it
         # R14 (R13: "16 converging rays read as a wire birdcage"): a soft semi-transparent volume cone, bright on its
         # axis and fading to the silhouette; the IF neck is sawn open so the apex shows
-        M["cone"] = BR.soft_mat("EUVCollectConeR14", K.VIOLET, strength=1.5, alpha=0.5, power=1.25)
-        M["coating"] = K.mat("CollectorHiR14", (0.82, 0.82, 0.85), metal=1.0, rough=0.03, coat=1.0)
+        M["cone"] = BR.soft_mat("EUVCollectConeR14", K.VIOLET, strength=1.35, alpha=0.4, power=1.25)
+        # R15: a little thinner (0.5 -> 0.4) so the mirror face shows through instead of reading as violet glass
     K.clean_cycles(sc)
     if variant == "po":
-        return _po_barrels_r14(sc, M, n)       # R14: rebuilt (R13 _po_turntable kept for reference)
+        return _po_barrels_r15(sc, M, n)       # R15: disc mirrors + k2B barrel (R14 _po_barrels_r14 kept for reference)
     # R3: the title lights the path up module by module; the scan shot draws its own narrow band
     if variant == "scan":                    # R5: rebuilt (short illumination leg under the mask, 8:1 rulers)
         return _scan_r12(sc, M, n, shot)      # R12: rebuilt around the wafer stage + PIP of the reticle stage
@@ -104,7 +115,24 @@ def _build(variant="illum", shot=None):
     B.IF_CUT[0] = variant == "collect"
     B.FRONT_POSTS_SKIP = (-4.0, -0.9) if variant == "tour" else ((-6.0,) if variant == "collect" else ())
     B.LIP_SKIP_X = (0.6,) if variant == "tour" else ()
-    B.machine(M, studio=studio, cut=True, beam=variant not in ("title", "tour", "illum"), bounce=8.0 if studio else 20.0)
+    # R15 (B5_01: "every facet glows like an LED panel"): only the facets inside the lit footprint get a beam mark
+    import hero_kit_r11 as HK11
+    import hero_kit_r15 as H15
+    _ffm = HK11.field_facet_mirror_r11
+
+    def _ffm15(P, c, n, *a, spot_mb=None, **kw):
+        return _ffm(P, c, n, *a, spot_mb=None if spot_mb is None else H15.SpotFilter(spot_mb, c, 0.2), **kw)
+    HK11.field_facet_mirror_r11 = _ffm15
+    try:
+        B.machine(M, studio=studio, cut=True, beam=variant not in ("title", "tour", "illum"), bounce=8.0 if studio else 20.0)
+    finally:
+        HK11.field_facet_mirror_r11 = _ffm
+    if variant == "collect":                 # R15 (R14: "a second beam + pupil mirror top right = two light paths"):
+        for nm in ("R2_vol", "R2_spot"):     # B3_02 shows only plasma -> collector -> IF; the downstream path is off
+            vo = bpy.data.objects.get(nm)
+            if vo is not None:
+                bpy.data.objects.remove(vo)
+        BR.SPOTS[:] = []
     if variant == "illum":                   # R14 (R13: "two beams cross; a white dot where they cross"): the path is
         pts, rad = B.beam_path(0, 6)         # lit leg by leg - only the current leg bright, earlier legs a ghost
         BR.timed_path(pts, rad, [(0.0, 0.42), (0.42, None), (0.9, None), (0.93, None), (0.96, None)], n, "IllumLeg")
@@ -149,8 +177,10 @@ def _build(variant="illum", shot=None):
         cam.data.lens = 28
         cam.data.lens = 24
         # R10: open wide on the whole illuminator (IF in, mask out), then push in on the field facet mirror
-        K.key_path(cam, tgt, [(1, (-2.2, -7.4, 3.1), (-1.9, 0.3, 3.1)),
-                              (round(f1 * 0.5), (-2.9, -5.0, 3.0), (-2.2, 0.3, 3.3)),
+        # R15 (R14: "facets only 8-10 % of frame at 25 / 55 %"): the push-in starts closer and reaches the facet
+        # mirror by mid-shot (>= 1/4 frame at 55 %), then drifts across it
+        K.key_path(cam, tgt, [(1, (-2.5, -5.6, 3.35), (-2.05, 0.3, 3.4)),
+                              (round(f1 * 0.5), (-2.55, -2.55, 3.75), (-2.15, 0.15, 3.8)),
                               (f1, (-1.45, -1.85, 4.05), (-2.12, 0.1, 3.82))])      # R12: facets >= 1/4
         cam.data.dof.use_dof = True
         cam.data.dof.aperture_fstop = 5.6
@@ -187,9 +217,10 @@ def _build(variant="illum", shot=None):
         # and IF stay in frame the whole move; the dish grows from ~1/4 to ~0.4 of frame height.
         cam.data.lens = 24
         cam.data.dof.aperture_fstop = 5.6
-        K.key_path(cam, tgt, [(1, (-3.9, -4.9, 3.6), (-6.0, 0.0, 2.45)),
-                              (round(f1 * 0.5), (-4.6, -4.0, 3.2), (-6.2, 0.0, 2.42)),
-                              (f1, (-5.3, -3.15, 2.82), (-6.5, 0.0, 2.4))])
+        # R15 (R14: "collector face 6-8 % of frame"): same dolly + truck; first half ~15 % closer onto the dish
+        K.key_path(cam, tgt, [(1, (-4.15, -4.35, 3.45), (-6.2, 0.0, 2.42)),
+                              (round(f1 * 0.5), (-4.85, -3.5, 3.1), (-6.45, 0.0, 2.4)),
+                              (f1, (-5.3, -3.15, 2.82), (-6.5, 0.0, 2.4))])     # end = R14 (IF must stay in frame)
         K.area("DishGlint", (-5.6, 2.9, 3.9), B.COLL, 2.2, 520, (0.95, 0.96, 1.0))
         K.area("DishKey", (-5.0, -2.2, 3.6), B.COLL, 1.6, 260, (1.0, 0.98, 0.95))
         # grazing studio strip skimming the coated face from above-front: one long highlight band across the dish
@@ -851,6 +882,256 @@ def _po_barrels_r14(sc, M, n):
         e_.parent = piv
         pts[key] = e_
     K.anchors("B7_06", {**pts, "eng": Vector((1.55, -1.95, 1.8)), "top": Vector((0, 0, z_top))})
+    return sc
+
+
+def _po_barrels_r15(sc, M, n):
+    """B7_06 (R15 rebuild; R15_ROOT_CAUSE row 1. R14 review: "only ~5 part types in the barrel (H13, A 72); M5 / M6
+    read as chrome donuts (torus); the incoming leg and the M6 -> wafer cone cross as an X above M5; the person is
+    half out of frame"). Not repeating R14's torus rings or R13's cone radius:
+      * M5 / M6 = thick disc aspheric blanks (hero_kit_r15.disc_mirror): polished slightly concave optical face
+        (mirror_r15.ml_mirror), 45 deg chamfer, fine-ground side / back / bore (mirror_r15.ground_edge), each
+        tilted 12 deg toward the lens so the face reads as a face, held by a 3-point flexure mount in a machined
+        cell on a hexapod, with capacitive edge sensors;
+      * barrel filled to k2B density in three depth layers: inner ribs + ring stiffeners and harness / coolant
+        runs on the back wall (far), metrology rings, sensor heads, mirror cells, hexapods, coolant loops to each
+        cell (middle), frame legs, ion pump / gate valve / CF viewports / turbo on the outer barrel (near);
+      * the incoming leg drops from a roof port OUTSIDE the M6 cell ring onto the outer M5 face; legs form one
+        zig-zag (in -> M5 -> M6 -> through the M5 hole -> wafer point) that never overlaps on screen;
+      * the camera cranes less (z 3.2 -> 2.3) on a 26 mm lens so a full-figure engineer stands beside the machine.
+    Local frame: optical axis at x = y = 0 (the turntable pivot)."""
+    import beam_r12 as BR
+    import hero_kit_r10 as HK
+    import hero_kit_r12 as HK12
+    import hero_kit_r15 as H15
+    import mirror_r15 as MR
+    import random
+    for o in [o for o in bpy.data.objects if o.type == "LIGHT"]:
+        bpy.data.objects.remove(o)
+    K.area("Key", (-4.5, -6.5, 6.5), (0, 0, 2.3), 6, 2200, (1.0, 0.98, 0.95))
+    K.area("Fill", (6, -6, 3), (0, 0, 2), 6, 600, (0.9, 0.95, 1.0))
+    K.area("RimL", (-4.5, 4.5, 5), (0, 0, 2.5), 3, 3500, (0.9, 0.93, 1.0))
+    K.area("RimR", (4.5, 4.5, 5), (0, 0, 2.5), 3, 3500, (0.9, 0.93, 1.0))
+    K.area("Softbox", (0, 0, 9), (0, 0, 0), 6, 2200, (1, 1, 1), size_y=3)
+    HK.materials(M)
+    keys = ("shell", "flange", "bolt", "section", "frame", "steel", "anod", "stage", "paint", "beam", "chuck", "mface",
+            "medge", "rib")
+    mb = {k: K.MB() for k in keys}
+    HP = HK.new_parts()
+    rnd = random.Random(15)
+    A0, A1 = -20.0, 200.0                     # kept wall: everything except the front 140 deg (centred on -Y)
+    z_base, z_mid, z_ceil, z_top = 1.0, 2.15, 3.3, 4.3
+    z6, z5, zw = 2.78, 1.64, 1.185
+    r6, r5, hole, th = 0.5, 0.52, 0.16, 0.14
+    tilt = math.radians(18)
+    n5 = Vector((0, -math.sin(tilt), math.cos(tilt)))         # M5 faces up, turned toward the lens
+    n6 = Vector((0, -math.sin(tilt), -math.cos(tilt)))        # M6 faces down, turned toward the lens
+
+    def cut_ring(z0, z1, ri, ro, key="shell", sec=True):
+        L = z1 - z0
+        mb[key].shell((0, 0, (z0 + z1) / 2), ri, ro, L, A0, A1, seg=96)
+        if sec:                               # light-grey section face on both sawn edges (wall thickness reads)
+            for a in (A0, A1):
+                d = -1 if a == A0 else 1
+                ang = math.radians(a)
+                rm = (ri + ro) / 2
+                c_ = Vector((rm * math.cos(ang), rm * math.sin(ang), (z0 + z1) / 2))
+                tang = Vector((-math.sin(ang), math.cos(ang), 0)) * d
+                mb["section"].box(c_ + tang * 0.003, (ro - ri + 0.004, 0.004, L + 0.002), rot=(0, 0, ang))
+
+    # ---- barrels + flanges, base plate, support frame (as R14)
+    cut_ring(z_base, z_mid, 0.95, 1.04)
+    cut_ring(z_mid, z_ceil, 0.9, 0.98)
+    for z, ro in ((z_base + 0.04, 1.16), (z_mid, 1.12), (z_ceil - 0.04, 1.08)):
+        cut_ring(z - 0.04, z + 0.04, 0.9, ro, key="flange")
+        for k in range(28):
+            a = A0 + 4 + (A1 - A0 - 8) * k / 27
+            ang = math.radians(a)
+            rb = ro - 0.05
+            mb["bolt"].cyl((rb * math.cos(ang), rb * math.sin(ang), z + 0.05), 0.013, 0.025, seg=6)
+    for k in range(9):
+        ang = math.radians(A0 + 12 + (A1 - A0 - 24) * k / 8)
+        for z0, z1, r_ in ((z_base + 0.08, z_mid - 0.04, 1.04), (z_mid + 0.04, z_ceil - 0.08, 0.98)):
+            c_ = Vector(((r_ + 0.04) * math.cos(ang), (r_ + 0.04) * math.sin(ang), (z0 + z1) / 2))
+            mb["flange"].box(c_, (0.08, 0.04, z1 - z0), rot=(0, 0, ang))
+    # far layer: inner ribs (radial fins) + ring stiffeners on the inside of the kept wall
+    for k in range(13):
+        ang = math.radians(A0 + 8 + (A1 - A0 - 16) * k / 12)
+        if abs(math.degrees(ang) - 90) < 9:   # no rib straight behind the optical axis (reads as a wire through it)
+            continue
+        for z0, z1, r_ in ((z_base + 0.06, z_mid - 0.06, 0.95), (z_mid + 0.06, z_ceil - 0.06, 0.9)):
+            c_ = Vector(((r_ - 0.03) * math.cos(ang), (r_ - 0.03) * math.sin(ang), (z0 + z1) / 2))
+            mb["rib"].box(c_, (0.06, 0.018, z1 - z0), rot=(0, 0, ang))
+    for z, ri in ((1.32, 0.9), (1.86, 0.9), (2.42, 0.85), (3.02, 0.85)):
+        mb["rib"].shell((0, 0, z), ri, ri + 0.06, 0.035, A0 + 4, A1 - 4, seg=72)
+    mb["paint"].cyl((0, 0, z_base - 0.04), 1.2, 0.08, seg=96)
+    mb["paint"].cyl((0, 0, z_ceil + 0.03), 0.98, 0.06, seg=96)
+    mb["shell"].cyl((0, 0, (z_ceil + z_top) / 2 + 0.03), 0.72, z_top - z_ceil - 0.06, seg=96)
+    for z in (z_ceil + 0.08, z_top - 0.02):
+        mb["flange"].ring((0, 0, z), 0.82, 0.7, 0.07, seg=96)
+        mb["bolt"].bolts((0, 0, z + 0.04), 0.77, 24, 0.012, 0.025)
+    for k in range(12):
+        ang = 2 * math.pi * k / 12
+        mb["flange"].box((0.74 * math.cos(ang), 0.74 * math.sin(ang), (z_ceil + z_top) / 2), (0.05, 0.05, 0.85),
+                         rot=(0, 0, ang))
+    mb["paint"].cyl((0, 0, z_top + 0.04), 0.74, 0.06, seg=96)
+    for k in range(4):
+        ang = math.radians(45 + 90 * k)
+        mb["steel"].ring((0.55 * math.cos(ang), 0.55 * math.sin(ang), z_top + 0.15), 0.08, 0.045, 0.035,
+                         rot=(math.radians(90), 0, ang))
+    for ang_d in (45, 135, 225, 315):
+        ang = math.radians(ang_d)
+        p_ = (1.3 * math.cos(ang), 1.3 * math.sin(ang))
+        mb["frame"].box((p_[0], p_[1], 2.15), (0.1, 0.1, 2.5))
+        mb["frame"].box((p_[0] * 0.92, p_[1] * 0.92, z_base + 0.02), (0.36, 0.12, 0.06), rot=(0, 0, ang))
+        mb["frame"].box((p_[0] * 0.88, p_[1] * 0.88, z_ceil), (0.3, 0.1, 0.06), rot=(0, 0, ang))
+        mb["anod"].cyl((p_[0], p_[1], 0.98), 0.1, 0.1, seg=24)
+    for z in (1.55, 2.85):
+        mb["frame"].shell((0, 0, z), 1.25, 1.35, 0.06, 20, 160, seg=48)
+    # ---- roof port (outside the M6 cell ring) + upper-barrel port
+    port = Vector((0.86, 0.0, z_ceil))
+    mb["flange"].ring((port.x, 0, z_ceil - 0.02), 0.09, 0.055, 0.06, seg=40)
+    mb["bolt"].bolts((port.x, 0, z_ceil - 0.055), 0.075, 8, 0.008, 0.012)
+    mb["flange"].ring((0.42, 0, z_top + 0.08), 0.11, 0.065, 0.06, seg=40)
+    # ---- M6 / M5: thick disc aspheric blanks + 3-point mounts + hexapods + edge sensors
+    c6 = Vector((0, 0, z6))
+    c5 = Vector((0, 0, z5))
+    H15.disc_mirror(mb["mface"], mb["medge"], c6, n6, r6, hole, th, sag=0.006)
+    H15.disc_mirror(mb["mface"], mb["medge"], c5, n5, r5, hole, th, sag=0.006)
+    for c_, n_, r_ in ((c6, n6, r6), (c5, n5, r5)):      # dark retaining ring on the chamfer: the face reads as a
+        HK._ring(HP["alu_dark"], c_ - n_ * 0.012, n_, r_ + 0.006, r_ - 0.034, 0.03, seg=96)   # separate optical surface
+    cell6, rc6 = H15.three_point_mount(HP, c6, n6, r6, th, phase=90)
+    cell5, rc5 = H15.three_point_mount(HP, c5, n5, r5, th, phase=90)
+    HK.hexapod(HP, Vector((0, 0, z_ceil - 0.02)), cell6 + Vector((0, 0, 0.04)), 0.34, 0.4)        # M6 from the ceiling
+    HK.hexapod(HP, Vector((0, 0.05, z_base + 0.06)), cell5 - Vector((0, 0, 0.04)), 0.66, 0.5)   # M5 from the base
+    H15.edge_sensors(HP, c6 - n6 * th * 0.5, n6, r6, k=3, phase=90)
+    H15.edge_sensors(HP, c5 - n5 * th * 0.5, n5, r5, k=3, phase=90)
+    for c_, z_ in ((cell6, z6 + 0.12), (cell5, z5 - 0.12)):          # cell spider arms to the back wall
+        for a in (55, 125):
+            ang = math.radians(a)
+            mb["anod"].box((0.74 * math.cos(ang), 0.74 * math.sin(ang), z_), (0.36, 0.05, 0.05), rot=(0, 0, ang))
+    for z in (1.95, 2.48):                                            # metrology rings with sensor heads (back)
+        mb["anod"].shell((0, 0, z), 0.8, 0.86, 0.05, 15, 165, seg=64)
+        for a in (40, 90, 140):
+            d = Vector((math.cos(math.radians(a)), math.sin(math.radians(a)), 0))
+            HP["brushed"].box(d * 0.78 + Vector((0, 0, z + 0.06)), (0.09, 0.09, 0.07))
+            HK._cyl(HP["glass"], d * 0.73 + Vector((0, 0, z + 0.06)), -d, 0.022, 0.008, seg=16)
+    for a in (35, 75, 110, 150):                                      # coolant bundles up the inner back wall
+        ang = math.radians(a)
+        p0 = Vector((0.82 * math.cos(ang), 0.82 * math.sin(ang), z_base + 0.1))
+        HK.cooling_bundle(HP, [p0, p0 + Vector((0, 0, 2.05))], k=3, r=0.011, clamp_every=0.3,
+                          up=(math.cos(ang), math.sin(ang), 0), block=False)
+    for c_, rc, zz in ((cell6, rc6, z6 + 0.2), (cell5, rc5, z5 - 0.2)):  # coolant loops: cell -> back wall
+        for s in (-1, 1):
+            a = math.radians(90 + s * 28)
+            d = Vector((math.cos(a), math.sin(a), 0))
+            p0 = Vector((c_.x, c_.y, c_.z)) + d * rc * 0.98
+            HP["hose_b" if s < 0 else "hose_w"].path([p0, p0 + d * 0.12 + Vector((0, 0, (zz - p0.z) * 0.5)),
+                                                      d * 0.84 + Vector((0, 0, zz))], 0.014, seg=10)
+    for a, z0, z1 in ((65, z_base + 0.15, z_ceil - 0.1), (118, z_base + 0.15, z_ceil - 0.1)):   # cable looms
+        ang = math.radians(a)
+        d = Vector((math.cos(ang), math.sin(ang), 0))
+        HK.cable_harness(HP, [d * 0.86 + Vector((0, 0, z1)), d * 0.84 + Vector((0, 0, (z0 + z1) / 2)),
+                              d * 0.86 + Vector((0, 0, z0))], n=6, r=0.007)
+    for a, z in ((-12, 2.7), (192, 1.6), (192, 2.75)):               # CF viewports on the outer side walls
+        ang = math.radians(a)
+        d = Vector((math.cos(ang), math.sin(ang), 0))
+        HK.flange_viewport(HP, d * 1.06 + Vector((0, 0, z)), d, 0.07, nipple=0.1)
+    HK._turbo(HP, Vector((1.12 * math.cos(math.radians(170)), 1.12 * math.sin(math.radians(170)), 2.05)),
+              (math.cos(math.radians(170)), math.sin(math.radians(170)), 0), 0.11)
+    HK12.ion_pump(HP, -1.42, 2.72, 0.42, 0.5, 0.05, 1.0, rnd)         # near layer: named vacuum parts outside
+    HK12.gate_valve(HP, 1.5, 1.5, 0.5, 0.42, 0.12, 1.0, rnd)
+    for a in (-8, 188):
+        ang = math.radians(a)
+        d = Vector((math.cos(ang), math.sin(ang), 0))
+        HK.cable_harness(HP, [d * 1.1 + Vector((0, 0, 3.25)), d * 1.16 + Vector((0, 0, 2.2)), d * 1.12 + Vector((0, 0, 1.05))],
+                         n=5, r=0.008)
+    # ---- wafer stage under M5
+    mb["chuck"].cyl((0, 0, zw - 0.06), 0.36, 0.1, seg=64)
+    mb["chuck"].box((0, 0, zw - 0.13), (0.7, 0.7, 0.05))
+    wf = K.MB()
+    wf.cyl((0, 0, zw - 0.006), 0.3, 0.004, seg=128)
+    for x, y, aim in ((0.55, 0.05, (-1, 0, 0)), (-0.05, 0.55, (0, -1, 0))):
+        HK12.interferometer_head(HP, (x, y, z_base), aim, h=zw - 0.08 - z_base)
+    # ---- the light: one zig-zag, legs only meet at their landing spots
+    p5 = c5 + Vector((0.4, 0, 0)) + n5 * 0.004
+    p5.z = z5 - 0.006 * (1 - (0.4 / (r5 - 0.03)) ** 2) + 0.004
+    p6 = c6 + Vector((-0.38, 0, 0)) + n6 * 0.004
+    p6.z = z6 + 0.006 * (1 - (0.38 / (r6 - 0.03)) ** 2) - 0.004
+    foc = Vector((0, 0, zw + 0.002))
+    top_in = Vector((0.42, 0, z_top + 0.9))
+    soft = BR.soft_mat("EUVLegR15", K.VIOLET, 2.4, 0.8, power=1.5)
+    legs = [(top_in, Vector((0.42, 0, z_top + 0.08)), 0.035, 0.035),
+            (port + Vector((0, 0, -0.03)), p5, 0.035, 0.05),
+            (p5, p6, 0.05, 0.085),
+            (p6, foc, 0.09, 0.003)]
+    for a, b, ra, rb in legs:
+        m_, L_ = K._orient(a, b)
+        mb["beam"].cyl_m(m_, ra, L_, seg=48, r2=rb)
+    BR.SPOTS.append((p5, n5, 0.07))
+    BR.SPOTS.append((p6, n6, 0.11))
+    fm = K.MB()
+    fm.cyl(foc + Vector((0, 0, 0.002)), 0.022, 0.002, seg=32)
+    fd = K.MB()
+    fd.cyl(foc + Vector((0, 0, 0.003)), 0.07, 0.001, seg=32)
+    K.bounce_lights([p5 + Vector((0, -0.15, 0.08)), p6 + Vector((0, -0.15, -0.08)), foc + Vector((0, -0.1, 0.06))], energy=5.0)
+    # ---- objects, all on the turntable
+    mats = {"shell": M["paint"], "flange": M["brushed"], "bolt": M["steel"], "section": M["section"], "frame": M["alu_dark"],
+            "steel": M["steel"], "anod": M["anod"], "stage": M["paint_grey"], "paint": M["paint"], "beam": soft,
+            "chuck": M["ceramic"], "mface": MR.ml_mirror("M56FaceR15", rough=0.12, tone=0.74, coat=0.35),
+            "medge": MR.ground_edge("M56EdgeR15", tone=0.24), "rib": M["paint_grey"]}
+    piv = bpy.data.objects.new("Turntable", None)
+    sc.collection.objects.link(piv)
+    ped = K.MB()
+    ped.cyl((0, 0, 0.45), 1.55, 0.9, seg=96)
+    ped.obj("Pedestal", M["paint_grey"], bevel=0.02)
+    rim = K.MB()
+    rim.ring((0, 0, 0.92), 1.58, 1.45, 0.04, seg=96)
+    rim.obj("PedRim", M["steel"])
+    for k, m_ in mb.items():
+        if len(m_.bm.verts):
+            ob = m_.obj("PO15_" + k, mats[k], bevel={"paint": 0.01, "frame": 0.006, "chuck": 0.006, "rib": 0.004}.get(k, 0.0))
+            ob.parent = piv
+        else:
+            m_.bm.free()
+    ob = wf.obj("PO15_wafer", _wafer_mat_r14(pitch=0.05, street=0.07))
+    ob.parent = piv
+    ob = fm.obj("PO15_focus", K.emit_mat("WaferFocusR14", (0.9, 0.85, 1.0), 30.0))
+    ob.parent = piv
+    ob = fd.obj("PO15_focusHalo", K.emit_mat("WaferFocusHaloR14", K.VIOLET, 3.0, halo=0.8))
+    ob.parent = piv
+    sp = BR.flush(name="PO15Spots")
+    if sp is not None:
+        sp.parent = piv
+    HK.finish(HP, M, "PO15K", parent=piv)
+    for ob in B.flush_kits(M, tag="PO15Kit"):
+        ob.parent = piv
+    piv.rotation_euler = (0, 0, math.radians(-14))
+    piv.keyframe_insert("rotation_euler", frame=1)
+    piv.rotation_euler = (0, 0, math.radians(12))
+    piv.keyframe_insert("rotation_euler", frame=n)
+    eng = (2.3, 1.3, 0)                    # full figure beside the machine (R14: half a head at the frame edge)
+    K.suit_person("Eng1", eng, 1.78, "stand", facing=-25)
+    K.area("EngRim", (3.6, 3.0, 2.6), (eng[0], eng[1], 1.0), 1.2, 900, (0.92, 0.95, 1.0))
+    K.area("InnerKey", (-0.9, -3.2, 3.4), (0, 0.2, 2.2), 1.6, 420, (1.0, 0.98, 0.95))
+    K.area("InnerFill", (1.6, -2.6, 1.4), (0, 0.2, 1.6), 1.2, 260, (0.9, 0.94, 1.0))
+    K.area("GrazeM5", (-1.7, -1.4, 2.0), c5, 0.8, 220, (1.0, 0.99, 0.97), size_y=1.6)    # one grazing streak per face
+    K.area("GrazeM6", (1.7, -1.4, 2.4), c6, 0.8, 220, (1.0, 0.99, 0.97), size_y=1.6)
+    cam, tgt = K.camera("CamR2", lens=26)
+    K.key_path(cam, tgt, [(1, (0.4, -4.3, 3.0), (0.1, 0, 2.15)), (round(n * 0.55), (0.55, -4.2, 2.7), (0.1, 0, 2.18)),
+                          (n, (0.7, -4.05, 2.45), (0.1, 0, 2.2))])
+    sc["hdri"] = "studio_small_09"
+    sc["hdri_strength"] = 0.5
+    sc["vignette"] = 0.3
+    sc.camera = cam
+    pts = {}
+    for key, loc in (("m5r", p5), ("m6r", p6), ("wfoc", foc), ("entry", port), ("m5h", c5), ("m6h", c6)):
+        e_ = bpy.data.objects.new("Anchor_" + key, None)
+        sc.collection.objects.link(e_)
+        e_.location = loc
+        e_.parent = piv
+        pts[key] = e_
+    K.anchors("B7_06", {**pts, "eng": Vector((eng[0], eng[1], 1.85)), "eng_ft": Vector(eng), "top": Vector((0, 0, z_top))})
     return sc
 
 
@@ -1628,9 +1909,8 @@ def _scan_r12(sc, M, n, shot):
         _txt(f"RD{i}", str(i), (-a_r + i * U, yr, zr - 0.14), 0.1, ink)
     # R13 (R12: "1 0 reads backwards"): the wafer ruler is a signed coordinate increasing to the right like the
     # mask ruler (0 .. 8 ->); the wafer runs the other way, from 0 down to -1
-    _txt("WD0", "0", (a_w, yw, zw + 0.06), 0.065, ink)
-    _txt("WDh", "-0.5", (0.0, yw, zw + 0.06), 0.045, ink)
-    _txt("WD1", "-1", (-a_w, yw, zw + 0.06), 0.065, ink)
+    # R15 (R14: "-0.5 tiny, squeezed into the ticks; misread risk; too many label layers"): no digits on the wafer
+    # ruler - the magnifier prints the current reading
     brk = K.MB()
     for x in (-a_r - 0.08, a_r + 0.08):
         brk.box((x, (yr - 0.25) / 2 + 0.05, zr + 0.05), (0.03, 0.42, 0.02))
@@ -1693,11 +1973,12 @@ def _scan_r12(sc, M, n, shot):
     _darken(("WBase_", "FG_"), 0.4)
     # main camera: low 3/4 onto the wafer stage, slow truck for parallax
     cam, tgt = K.camera("CamR2", lens=30)
-    K.key_path(cam, tgt, [(1, (-0.35, -2.2, 1.68), (0.02, -0.62, 0.9)), (n, (0.1, -2.22, 1.66), (0.06, -0.62, 0.9))],
+    # R15 (R14: "wafer ~1/5 of frame"): ~15 % closer, same slow truck
+    K.key_path(cam, tgt, [(1, (-0.3, -1.98, 1.52), (0.02, -0.66, 0.84)), (n, (0.08, -2.0, 1.5), (0.06, -0.66, 0.84))],
                interp="LINEAR")
     cam.data.dof.use_dof = True
     cam.data.dof.aperture_fstop = 8.0
-    cam.data.dof.focus_distance = 1.75
+    cam.data.dof.focus_distance = 1.5
     # picture-in-picture camera on the reticle stage (rendered as shot B8_03M, pasted by the overlay)
     camm, tgtm = K.camera("CamR2M", lens=30)
     K.key_path(camm, tgtm, [(1, (0.0, -3.3, 2.15), (0.0, 0.0, 2.78)), (n, (0.0, -3.3, 2.15), (0.0, 0.0, 2.78))],
