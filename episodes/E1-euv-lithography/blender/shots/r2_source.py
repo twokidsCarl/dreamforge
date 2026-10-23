@@ -252,7 +252,8 @@ def collector_mirror(M, hole_r=0.09):
             cool.obj("CollectorCooling", M["copper"])]
 
 
-def chamber_r10(M, seed=0, tip_z=0.45, collector=True, catcher=True, diag=(), extra_ports=True, hide_front=None):
+def chamber_r10(M, seed=0, tip_z=0.45, collector=True, catcher=True, diag=(), extra_ports=True, hide_front=None,
+                liner=True, wall_skip=None):
     """R10 (R9 review gap 4: "B1_08 / B1_10 / A0_01 backgrounds are a flat striped wall / a few arcs"): a k3A-style
     metal source vessel seen from inside. Dark brushed steel wall behind curved liner panels (seams + corner bolts,
     no bright ribs), CF ports with viewports (hero_kit_r10.flange_viewport) pointing at the plasma, tapered
@@ -272,7 +273,7 @@ def chamber_r10(M, seed=0, tip_z=0.45, collector=True, catcher=True, diag=(), ex
     w.cyl((0, 0, 1.54), R + 0.08, 0.08, seg=128)
     w.cyl((0, 0, -1.54), R + 0.08, 0.08, seg=128)
     # liner panels: 18 deg x 0.5 m curved plates, 1.2 deg seams, 4 bolts each
-    for k in range(6):
+    for k in range(6 if liner else 0):        # R12 (liner=False): no repeated panel grid (B1_15 / B1_08)
         zc = -1.25 + k * 0.5
         for j in range(20):
             a0 = j * 18.0
@@ -333,6 +334,8 @@ def chamber_r10(M, seed=0, tip_z=0.45, collector=True, catcher=True, diag=(), ex
         if any(skip(q) for q in pts) or any(math.cos(a0) < -0.5 and abs(q.z) < 0.6 for q in pts):
             continue
         H.cooling_bundle(P, pts, k=4, r=0.011, clamp_every=0.3, up=(math.cos(a0), math.sin(a0), 0), block=False)
+    if not liner:
+        _wall_parts_r12(P, sm, R, wall_skip or skip, rnd)
     # tin droplet generator through the lid, nozzle tip at (0, 0, tip_z)
     if tip_z is not None:
         H.droplet_generator(P, (0, 0, tip_z), (0, 0, -1), s=1.0, flange_at=0.3)
@@ -677,6 +680,68 @@ def _radial_sheen(m, centre, edge):
     nt.links.new(mr.outputs["Result"], b.inputs["Emission Strength"])
 
 
+def _wall_parts_r12(P, sm, R, skip, rnd):
+    """R12 (R11 review B1_15 / B1_08: "the wall is one square metal panel repeated" / "a dark flat plate"): k3A
+    vessel hardware instead of liner panels - circumferential coolant hose bundles with clamps, rows of hydrogen
+    gas inlet nozzles (flange + feed tube + nozzle tip aimed at the collector region), vacuum gauge heads on short
+    CF stubs, vertical cable trays with harnesses, machined pad plates under each group."""
+    import hero_kit_r10 as H
+
+    def wp(a, z, inset=0.0):
+        return Vector((math.cos(a) * (R - 0.04 - inset), math.sin(a) * (R - 0.04 - inset), z))
+    for zc, k_ in ((-1.15, 5), (-0.78, 4), (-0.42, 4), (0.18, 3), (0.52, 4), (0.86, 5), (1.2, 4)):            # coolant hose rings (arcs)
+        a0 = rnd.uniform(0, 2 * math.pi)
+        pts = [wp(a0 + i * 0.12, zc, 0.06) for i in range(26)]
+        segs, cur = [], []
+        for q in pts:
+            if skip(q):
+                if len(cur) > 2:
+                    segs.append(cur)
+                cur = []
+            else:
+                cur.append(q)
+        if len(cur) > 2:
+            segs.append(cur)
+        for sg in segs:
+            mid = sg[len(sg) // 2]
+            H.cooling_bundle(P, sg, k=k_, r=0.011, clamp_every=0.28, up=(-mid.x, -mid.y, 0), block=False)
+    for k in range(22):                                                        # H2 gas inlet nozzles
+        a = rnd.uniform(0, 2 * math.pi)
+        z = rnd.choice((-0.62, -0.25, 0.0, 0.28, 0.66))
+        b = wp(a, z)
+        if skip(b):
+            continue
+        d = (-b).normalized()
+        H._ring(P["alu"], b + d * 0.01, d, 0.05, 0.02, 0.025, seg=24)
+        H._bolt_circle(P, b + d * 0.025, d, 0.04, 6, 0.005, 0.008, nuts=False)
+        P["steel"].tube(b + d * 0.02, b + d * 0.16, 0.014, seg=12)
+        P["steel"].tube(b + d * 0.16, b + d * 0.2, 0.014, seg=12, r2=0.005)      # nozzle tip
+        P["steel"].tube(b + Vector((0, 0, 0.012)), b + Vector((0, 0, 0.3)), 0.006, seg=8)   # feed line
+        sm.box(b - d * 0.005, (0.08, 0.08, 0.08))                                # pad plate
+    for k in range(16):                                                        # vacuum gauge heads
+        a = rnd.uniform(0, 2 * math.pi)
+        z = rnd.uniform(-1.0, 1.0)
+        b = wp(a, z)
+        if skip(b):
+            continue
+        d = (-b).normalized()
+        H._ring(P["alu"], b + d * 0.01, d, 0.045, 0.02, 0.02, seg=24)
+        P["steel"].tube(b + d * 0.01, b + d * 0.09, 0.02, seg=16)
+        P["anod"].box(b + d * 0.13, (0.07, 0.07, 0.09))
+        P["screen"].box(b + d * 0.166, (0.035, 0.002, 0.02))
+        P["cable_k"].path([b + d * 0.13 + Vector((0, 0, 0.045)), b + d * 0.06 + Vector((0, 0, 0.12)),
+                           b + Vector((0, 0, 0.4))], 0.005, seg=6)
+    for k in range(7):                                                         # vertical cable trays
+        a = rnd.uniform(0, 2 * math.pi)
+        pts = [wp(a, -1.3 + i * 0.26, 0.03) for i in range(11)]
+        if any(skip(q) for q in pts):
+            continue
+        for q in pts[::2]:
+            d = (-q).normalized()
+            P["alu_dark"].box(q, (0.09 * abs(d.y) + 0.01, 0.09 * abs(d.x) + 0.01, 0.02))
+        H.cable_harness(P, [q + (-q).normalized() * 0.02 for q in pts], n=6, r=0.006, connector=False)
+
+
 def _contrast(sc, M, cam, tgt, n):
     """B1_15 (36 frames). R10 (R9 review, lowest shot): k3A source vessel around the collector (dark liner,
     viewports, tapered diagnostic barrels converging on the plasma, the droplet generator coming down from the
@@ -691,7 +756,7 @@ def _contrast(sc, M, cam, tgt, n):
 
     def hide(p):                                  # nothing between the camera (+X side, on axis) and the dish
         return p[0] > 0.55 and abs(p[1]) < 1.0 and abs(p[2]) < 0.9
-    chamber_r10(M, seed=12, tip_z=0.4, diag=[(150, 0.55), (205, 0.45), (95, -0.4)], hide_front=hide)
+    chamber_r10(M, seed=12, tip_z=0.4, diag=[(150, 0.55), (205, 0.45), (95, -0.4)], hide_front=hide, liner=False)
     lights_chamber(0.25)
     pl, li = plasma_r10(M, (0, 0, 0), 0.045, energy=70.0, gas=2.0)
     key_energy(li, [(1, 60), (n, 75)])
@@ -736,8 +801,13 @@ def _track(sc, M, cam, tgt, n):
 
     def hide(p):                                  # also keep the wall straight behind the droplet line calm
         a = math.degrees(math.atan2(p[1], p[0]))
-        return front(p) or (68 < a < 112 and -0.55 < p[2] < 0.5)
-    chamber_r10(M, seed=3, tip_z=tip_z, diag=[(60, 0.1), (120, 0.1)], hide_front=hide)
+        return front(p) or (lim[0] < a < lim[1] and -0.55 < p[2] < 0.5)
+    lim = (68, 112)
+
+    def hide_wall(p):                             # R12: wall hardware may come closer to the droplet line
+        a = math.degrees(math.atan2(p[1], p[0]))
+        return front(p) or (82 < a < 98 and -0.55 < p[2] < 0.5)
+    chamber_r10(M, seed=3, tip_z=tip_z, diag=[(60, 0.1), (120, 0.1)], hide_front=hide, liner=False, wall_skip=hide_wall)
     import hero_kit_r10 as H
     Pw = H.new_parts()                            # the illumination window low on the back wall
     H.flange_viewport(Pw, (0.0, CHAMBER_R - 0.04, -0.3), (0, -1, 0), 0.08, nipple=0.06, side_port=False)

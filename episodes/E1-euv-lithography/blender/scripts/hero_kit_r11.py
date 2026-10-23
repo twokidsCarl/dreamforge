@@ -339,7 +339,7 @@ def _split(rect, rnd, amin, smin, depth=0):
 
 
 def wall_r11(P, x0, x1, z0, z1, y0, seed=0, keep=(), scale=1.0, depth=1.0, blocks=None, log=None, tone="mixed",
-             front_y=None, **_ignored):
+             front_y=None, use=None, fallback=("terminal_rack", "gas_panel"), kinds_tab=None, fit_tab=None, **_ignored):
     """front_y: no vertex may come forward of this plane (keeps the line of sight to optics in front free)."""
     """Non-repeating bay wall on the plate whose front face is y = y0 (parts toward -Y).
     blocks ~ target number of blocks (default from the wall area); log (list) receives the kinds used."""
@@ -350,7 +350,12 @@ def wall_r11(P, x0, x1, z0, z1, y0, seed=0, keep=(), scale=1.0, depth=1.0, block
     amin = w * h / nb
     smin = min(0.3 * s, w / 2.2, h / 2.2)
     rects = _split((x0, z0, x1, z1), rnd, amin, smin)
-    use = {k: 0 for k in KINDS}
+    KT = kinds_tab or KINDS                      # R12: hero_kit_r12 passes its own (bigger) tables + a shared counter
+    FT = fit_tab or FIT
+    if use is None:
+        use = {}
+    for k in KT:
+        use.setdefault(k, 0)
     yb = y0
     P["solenoid" if tone == "dark" else "paint_grey"].box(((x0 + x1) / 2, yb - 0.004, (z0 + z1) / 2), (w, 0.008, h))
     # dark tone uses non-metal greys: metallic 'anod' turns white in a white studio (B7_06 smoke)
@@ -365,9 +370,9 @@ def wall_r11(P, x0, x1, z0, z1, y0, seed=0, keep=(), scale=1.0, depth=1.0, block
         bw2, bh2 = bw - g, bh - g
         asp = bw2 / bh2
         cls = "wide" if asp > 1.4 else "tall" if asp < 0.7 else "any"
-        cand = list(dict.fromkeys(FIT[cls] + (FIT["any"] if cls != "tall" else ())))
+        cand = list(dict.fromkeys(FT[cls] + (FT["any"] if cls != "tall" else ())))
         rnd.shuffle(cand)
-        kind = min(cand, key=lambda k: (use[k], k not in FIT[cls]))
+        kind = min(cand, key=lambda k: (use[k], k not in FT[cls]))
         use[kind] += 1
         kinds.append(kind)
         # own machined base plate: finish + standoff differ per block (stepped relief)
@@ -396,16 +401,17 @@ def wall_r11(P, x0, x1, z0, z1, y0, seed=0, keep=(), scale=1.0, depth=1.0, block
         dep = max(0.25, min(dep, room / max(reach, 1e-3)))          # the exact test below has the last word
         # exact test: build into a scratch batch, reject if any vertex enters a keep-clear sphere, retry flatter
         st = rnd.getstate()
-        tries = [(kind, f) for f in (1.0, 0.55, 0.3, 0.15)] + [(k_, 0.4) for k_ in ("terminal_rack", "gas_panel")
-                                                                 if k_ != kind]
+        tries = [(kind, f) for f in (1.0, 0.55, 0.3, 0.15)] + [(k_, 0.4) for k_ in sorted(fallback, key=lambda k: use.get(k, 0)) if k_ != kind]
         for kd, f in tries:                         # last resort: a shallow panel-type assembly in the same block
             rnd.setstate(st)
             T = H.new_parts()
-            KINDS[kd][0](T, cx, cz, bw2 * 0.94, bh2 * 0.94, yf, s, rnd, dep * f)
+            KT[kd][0](T, cx, cz, bw2 * 0.94, bh2 * 0.94, yf, s, rnd, dep * f)
             if not _violates(T, keep, front_y):
                 _merge(P, T)
                 if kd != kind:
                     kinds[-1] = kd
+                    use[kind] -= 1
+                    use[kd] = use.get(kd, 0) + 1
                 break
             for mb in T.values():
                 mb.bm.free()
