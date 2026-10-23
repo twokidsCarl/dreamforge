@@ -8,19 +8,19 @@ B1_02: {scene: b1_source, args: {vessel: true, rays: true}, camera: CamB1_02, st
 B1_03: {scene: b1_source, camera: CamB1_03, start: 1, step: 0.87, style: photoreal, engine: cycles}   # last frame sim ~94: ends before the pre-pulse (sim 95), lasers come in B1_09
 B1_04: {scene: b1_jet, camera: CamB1_04, start: 300, step: 0.25, style: photoreal, engine: cycles}   # flow LAM/8 per frame
 B1_07: {scene: b1_source, camera: CamB1_07, start: 1, style: photoreal, engine: cycles}
-B1_08: {scene: b1_source, camera: CamB1_08, start: 1, style: photoreal, engine: cycles}
-B1_10: {scene: b1_source, camera: CamB1_10, start: 65, style: photoreal, engine: cycles}
+# R1 (superseded by P1 round 2): B1_08: {scene: b1_source, camera: CamB1_08, start: 1, style: photoreal, engine: cycles}
+# R1 (superseded by P1 round 2): B1_10: {scene: b1_source, camera: CamB1_10, start: 65, style: photoreal, engine: cycles}
 B1_11: {scene: b1_source, camera: CamB1_11, start: 150, hold: true, style: sem, engine: eevee}
 B1_12: {scene: b1_source, camera: CamB1_12, start: 140, style: photoreal, engine: cycles}
 B1_13: {scene: b1_source, camera: CamB1_13, start: 186, style: photoreal, engine: cycles}
 B1_14: {scene: b1_source, camera: CamB1_14, start: 200, style: energy, engine: eevee}
-B1_15: {scene: b1_source, camera: CamB1_15, start: 205, style: photoreal, engine: cycles}
+# R1 (superseded by P1 round 2): B1_15: {scene: b1_source, camera: CamB1_15, start: 205, style: photoreal, engine: cycles}
 B1_21: {scene: b1_source, camera: CamB1_21, start: 260, style: photoreal, engine: cycles}
 B1_05: {scene: b1_jet, camera: CamB1_05, start: 498, style: photoreal, engine: cycles}
 B1_17: {scene: b1_atom, args: {variant: atom}, camera: CamB1_17, start: 1, style: energy, engine: eevee}
 B1_19: {scene: b1_atom, args: {variant: web}, camera: CamB1_19, start: 1, style: energy, engine: eevee}
 B1_20: {scene: b1_atom, args: {variant: web}, camera: CamB1_20, start: 150, style: energy, engine: eevee}
-B1_22: {scene: b1_laser, camera: CamB1_22, start: 1, style: blueprint, engine: eevee}
+# R1 (superseded by P1 round 2): B1_22: {scene: b1_laser, camera: CamB1_22, start: 1, style: blueprint, engine: eevee}
 B1_23: {scene: b1_laser, camera: CamB1_23, start: 40, style: photoreal, engine: cycles}
 B1_24: {scene: b1_laser, camera: CamB1_24, start: 140, style: energy, engine: eevee}
 B1_26: {scene: b1_laser, args: {explode: true}, camera: CamB1_26, start: 1, style: clay, engine: eevee}
@@ -34,12 +34,12 @@ B2_04: {scene: b2_scenes, args: {variant: ions}, camera: CamB2_04, start: 1, sty
 B2_05: {scene: b2_scenes, args: {variant: micro}, camera: CamB2_05, start: 1, style: sem, engine: eevee}
 B2_06: {scene: b2_scenes, args: {variant: ions_h2}, camera: CamB2_06, start: 1, style: energy, engine: eevee}
 B2_07: {scene: b2_scenes, args: {variant: bounce}, camera: CamB2_07, start: 1, style: energy, engine: eevee}
-B2_08: {scene: b2_scenes, args: {variant: clean}, camera: CamB2_08, start: 1, style: sem, engine: eevee}
+# R1 (superseded by P1 round 2): B2_08: {scene: b2_scenes, args: {variant: clean}, camera: CamB2_08, start: 1, style: sem, engine: eevee}
 B2_09: {scene: b2_scenes, args: {variant: pumps}, camera: CamB2_09, start: 1, style: xray, engine: eevee}
 B2_11: {scene: b2_scenes, args: {variant: glow}, camera: CamB2_11, start: 1, style: photoreal, engine: cycles}
 B2_12: {scene: b1_source, camera: CamB2_12, start: 262, style: photoreal, engine: cycles}
 B3_01: {scene: b3_scenes, args: {variant: burst}, camera: CamB3_01, start: 1, style: energy, engine: eevee}
-B3_02: {scene: b1_source, camera: CamB3_02, start: 1, step: 0.8, style: photoreal, engine: cycles}   # last frame sim 97: ends before the pre-pulse sheet (sim 106) and before the pre-pulse front leaves the hole
+# R1 (superseded by P1 round 2): B3_02: {scene: b1_source, camera: CamB3_02, start: 1, step: 0.8, style: photoreal, engine: cycles}   # last frame sim 97: ends before the pre-pulse sheet (sim 106) and before the pre-pulse front leaves the hole
 B3_05: {scene: b3_scenes, args: {variant: focus}, camera: CamB3_05, start: 1, style: energy, engine: eevee}
 B3_06: {scene: b3_scenes, args: {variant: handoff}, camera: CamB3_06, start: 1, style: xray, engine: eevee}
 B3_07: {scene: b3_scenes, args: {variant: nave}, camera: CamB3_07, start: 1, style: photoreal, engine: cycles}
@@ -47,15 +47,15 @@ B4_01: {scene: b4_scenes, args: {variant: silver}, camera: CamB4_01, start: 1, s
 B4_02: {scene: b4_scenes, args: {variant: stack}, camera: CamB4_02, start: 1, style: sem, engine: eevee}
 B4_04: {scene: b4_scenes, args: {variant: mirror}, camera: CamB4_04, start: 1, style: photoreal, engine: cycles}
 B4_05: {scene: b4_scenes, args: {variant: scan}, camera: CamB4_05, start: 1, style: photoreal, engine: cycles}
-B4_07: {scene: b4_scenes, args: {variant: atoms}, camera: CamB4_07, start: 1, style: sem, engine: eevee}
+# R1 (superseded by P1 round 2): B4_07: {scene: b4_scenes, args: {variant: atoms}, camera: CamB4_07, start: 1, style: sem, engine: eevee}
 B4_08: {scene: b4_scenes, args: {variant: atoms}, camera: CamB4_08, start: 1, style: sem, engine: eevee}
-B4_10: {scene: b4_scenes, args: {variant: space}, camera: CamB4_10, start: 1, style: photoreal, engine: cycles}
+# R1 (superseded by P1 round 2): B4_10: {scene: b4_scenes, args: {variant: space}, camera: CamB4_10, start: 1, style: photoreal, engine: cycles}
 B4_11: {scene: b4_scenes, args: {variant: space}, camera: CamB4_11, start: 1, style: photoreal, engine: cycles}
 B4_13: {scene: b4_scenes, args: {variant: hall}, camera: CamB4_13, start: 1, style: photoreal, engine: cycles}
 B4_14: {scene: b4_scenes, args: {variant: explode}, camera: CamB4_14, start: 1, style: clay, engine: eevee}
 B4_15: {scene: b4_scenes, args: {variant: bounce}, camera: CamB4_15, start: 1, style: energy, engine: eevee}
 B4_16: {scene: b4_scenes, args: {variant: bounce}, camera: CamB4_16, start: 1, style: energy, engine: eevee}
-B5_01: {scene: b5_scenes, args: {variant: machine}, camera: CamB5_01, start: 1, style: xray, engine: eevee}
+# R1 (superseded by P1 round 2): B5_01: {scene: b5_scenes, args: {variant: machine}, camera: CamB5_01, start: 1, style: xray, engine: eevee}
 B5_02: {scene: b5_scenes, args: {variant: module}, camera: CamB5_02, start: 1, style: xray, engine: eevee}
 B5_03: {scene: b5_scenes, args: {variant: terrain}, camera: CamB5_03, start: 1, style: energy, engine: eevee}
 B5_04: {scene: b5_scenes, args: {variant: facets}, camera: CamB5_04, start: 1, style: photoreal, engine: cycles}
@@ -66,13 +66,13 @@ B6_02: {scene: b6_scenes, args: {variant: section}, camera: CamB6_02, start: 1, 
 B6_03: {scene: b6_scenes, args: {variant: section}, camera: CamB6_03, start: 181, style: energy, engine: eevee}
 B6_08: {scene: b6_scenes, args: {variant: dust}, camera: CamB6_08, start: 1, style: photoreal, engine: eevee}
 B6_10: {scene: b6_scenes, args: {variant: robot}, camera: CamB6_10, start: 1, style: clay, engine: eevee}
-B6_12: {scene: b6_scenes, args: {variant: pellicle}, camera: CamB6_12, start: 1, style: xray, engine: cycles}
+# R1 (superseded by P1 round 2): B6_12: {scene: b6_scenes, args: {variant: pellicle}, camera: CamB6_12, start: 1, style: xray, engine: cycles}
 B6_13: {scene: b6_scenes, args: {variant: pellicle}, camera: CamB6_13, start: 1, style: photoreal, engine: cycles}
 B6_14: {scene: b6_scenes, args: {variant: pellicle}, camera: CamB6_14, start: 1, style: photoreal, engine: cycles}
 B6_17: {scene: b6_scenes, args: {variant: down}, camera: CamB6_17, start: 1, style: xray, engine: eevee}
 B7_01: {scene: b7_scenes, args: {variant: po}, camera: CamB7_01, start: 1, style: xray, engine: eevee}
 B7_05: {scene: b7_scenes, args: {variant: crate}, camera: CamB7_05, start: 1, style: photoreal, engine: cycles}
-B7_06: {scene: b7_scenes, args: {variant: turntable}, camera: CamB7_06, start: 1, style: clay, engine: eevee}
+# R1 (superseded by P1 round 2): B7_06: {scene: b7_scenes, args: {variant: turntable}, camera: CamB7_06, start: 1, style: clay, engine: eevee}
 B7_09: {scene: b7_scenes, args: {variant: cones}, camera: CamB7_09, start: 1, style: energy, engine: eevee}
 B7_11: {scene: b7_scenes, args: {variant: cones}, camera: CamB7_11, start: 101, style: energy, engine: eevee}
 B7_12: {scene: b7_scenes, args: {variant: cones}, camera: CamB7_12, start: 250, style: energy, engine: eevee}
@@ -80,7 +80,7 @@ B7_14: {scene: b7_scenes, args: {variant: holed}, camera: CamB7_14, start: 1, st
 B7_15: {scene: b7_scenes, args: {variant: holed}, camera: CamB7_15, start: 181, style: photoreal, engine: cycles}
 B8_01: {scene: b8_scenes, args: {variant: wafer}, camera: CamB8_01, start: 1, style: photoreal, engine: cycles}
 B8_02: {scene: b8_scenes, args: {variant: slit}, camera: CamB8_02, start: 1, style: energy, engine: eevee}
-B8_03: {scene: b8_scenes, args: {variant: scan}, camera: CamB8_03, start: 1, style: clay, engine: eevee}
+# R1 (superseded by P1 round 2): B8_03: {scene: b8_scenes, args: {variant: scan}, camera: CamB8_03, start: 1, style: clay, engine: eevee}
 B8_04: {scene: b8_scenes, args: {variant: scan}, camera: CamB8_04, start: 161, style: clay, engine: eevee}
 B8_07: {scene: b8_scenes, args: {variant: car}, camera: CamB8_07, start: 1, style: photoreal, engine: cycles}
 B8_08: {scene: b8_scenes, args: {variant: car}, camera: CamB8_08, start: 400, style: photoreal, engine: cycles}
@@ -89,27 +89,27 @@ B8_14: {scene: b8_scenes, args: {variant: maglev}, camera: CamB8_14, start: 1, s
 B8_15: {scene: b8_scenes, args: {variant: layers}, camera: CamB8_15, start: 1, style: clay, engine: eevee}
 B8_16: {scene: b8_scenes, args: {variant: dual}, camera: CamB8_16, start: 1, style: xray, engine: eevee}
 B9_04: {scene: b9_scenes, args: {variant: rain}, camera: CamB9_04, start: 1, style: energy, engine: eevee}
-B9_05: {scene: b9_scenes, args: {variant: rain}, camera: CamB9_05, start: 141, style: energy, engine: eevee}
+# R1 (superseded by P1 round 2): B9_05: {scene: b9_scenes, args: {variant: rain}, camera: CamB9_05, start: 141, style: energy, engine: eevee}
 B9_06: {scene: b9_scenes, args: {variant: rain}, camera: CamB9_06, start: 261, style: energy, engine: eevee}
-A0_01: {scene: b1_source, camera: CamA0_01, start: 1, step: 0.730, style: photoreal, engine: cycles}
-A0_02: {scene: a0_scenes, args: {variant: cargo}, camera: CamA0_02, start: 1, style: photoreal, engine: cycles}
+# R1 (superseded by P1 round 2): A0_01: {scene: b1_source, camera: CamA0_01, start: 1, step: 0.730, style: photoreal, engine: cycles}
+# R1 (superseded by P1 round 2): A0_02: {scene: a0_scenes, args: {variant: cargo}, camera: CamA0_02, start: 1, style: photoreal, engine: cycles}
 A0_05: {scene: a0_scenes, args: {variant: assemble}, camera: CamA0_05, start: 1, style: xray, engine: eevee}
 A0_07: {scene: a0_scenes, args: {variant: print}, camera: CamA0_07, start: 1, style: energy, engine: eevee}
 A0_08: {scene: a0_scenes, args: {variant: chip}, camera: CamA0_08, start: 1, style: photoreal, engine: cycles}
-A0_10: {scene: a0_scenes, args: {variant: title}, camera: CamA0_10, start: 1, style: energy, engine: eevee}
+# R1 (superseded by P1 round 2): A0_10: {scene: a0_scenes, args: {variant: title}, camera: CamA0_10, start: 1, style: energy, engine: eevee}
 A1_02: {scene: a1_scenes, args: {variant: cut}, camera: CamA1_02, start: 1, style: clay, engine: eevee}
 A1_03: {scene: a1_scenes, args: {variant: spin}, camera: CamA1_03, start: 1, style: photoreal, engine: cycles}
 A1_04: {scene: a1_scenes, args: {variant: expose}, camera: CamA1_04, start: 1, style: energy, engine: eevee}
 A1_06: {scene: a1_scenes, args: {variant: process}, camera: CamA1_06, start: 1, style: clay, engine: eevee}
 A1_07: {scene: a1_scenes, args: {variant: process}, camera: CamA1_07, start: 191, style: clay, engine: eevee}
 A1_09: {scene: a1_scenes, args: {variant: stack}, camera: CamA1_09, start: 1, style: xray, engine: eevee}
-A2_08: {scene: a23_scenes, args: {variant: ribbon}, camera: CamA2_08, start: 1, style: energy, engine: eevee}
+# R1 (superseded by P1 round 2): A2_08: {scene: a23_scenes, args: {variant: ribbon}, camera: CamA2_08, start: 1, style: energy, engine: eevee}
 A3_04: {scene: a23_scenes, args: {variant: lens}, camera: CamA3_04, start: 1, style: photoreal, engine: cycles}
 A3_05: {scene: a23_scenes, args: {variant: montage}, camera: CamA3_05, start: 1, style: photoreal, engine: cycles}
 A3_06: {scene: a23_scenes, args: {variant: tour}, camera: CamA3_06, start: 1, style: xray, engine: eevee}
 C_01: {scene: c_scenes, args: {variant: assemble}, camera: CamC_01, start: 1, style: clay, engine: eevee}
 C_02: {scene: b1_source, camera: CamC_02, start: 1, step: 0.73, style: photoreal, engine: cycles}
-C_03: {scene: c_scenes, args: {variant: ride}, camera: CamC_03, start: 1, style: xray, engine: eevee}
+# R1 (superseded by P1 round 2): C_03: {scene: c_scenes, args: {variant: ride}, camera: CamC_03, start: 1, style: xray, engine: eevee}
 C_04: {scene: c_scenes, args: {variant: ride}, camera: CamC_04, start: 431, style: energy, engine: eevee}
 C_05: {scene: c_scenes, args: {variant: ride}, camera: CamC_05, start: 911, style: energy, engine: eevee}
 C_06: {scene: c_scenes, args: {variant: pulses}, camera: CamC_06, start: 1, style: energy, engine: eevee}
@@ -120,5 +120,32 @@ D_08: {scene: b1_source, camera: CamA0_01, start: 6, style: photoreal, engine: c
 D_09: {scene: b1_source, camera: CamD_09, start: 90, step: 0.155, black_tail: 2, style: photoreal, engine: cycles}
 D_01: {scene: d_scenes, args: {variant: foup}, camera: CamD_01, start: 1, style: photoreal, engine: cycles}
 D_06: {scene: d_scenes, args: {variant: monolith}, camera: CamD_06, start: 1, style: photoreal, engine: eevee}
-D_07: {scene: d_scenes, args: {variant: crowd}, camera: CamD_07, start: 1, style: photoreal, engine: eevee}
-A0_03: {scene: a0_scenes, args: {variant: logistics}, camera: CamA0_03, start: 1, style: photoreal, engine: cycles}
+# R1 (superseded by P1 round 2): D_07: {scene: d_scenes, args: {variant: crowd}, camera: CamD_07, start: 1, style: photoreal, engine: eevee}
+# R1 (superseded by P1 round 2): A0_03: {scene: a0_scenes, args: {variant: logistics}, camera: CamA0_03, start: 1, style: photoreal, engine: cycles}
+
+
+# ---- P1 round 2 (2026-10-23, SCALE_E1 v2 / Carl picks; old R1 lines kept above as comments) ----
+A0_10: {scene: r2_cutaway, args: {variant: title, shot: A0_10}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B5_01: {scene: r2_cutaway, args: {variant: illum, shot: B5_01}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+C_03: {scene: r2_cutaway, args: {variant: tour, shot: C_03}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B3_02: {scene: r2_cutaway, args: {variant: collect, shot: B3_02}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B8_03: {scene: r2_cutaway, args: {variant: scan, shot: B8_03}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B7_06: {scene: r2_cutaway, args: {variant: po, shot: B7_06}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+A0_02: {scene: r2_plates, args: {variant: freighter, shot: A0_02}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+A0_03: {scene: r2_plates, args: {variant: crates, shot: A0_03}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+D_07: {scene: r2_plates, args: {variant: cleanroom, shot: D_07}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B4_10: {scene: r2_misc, args: {variant: space, shot: B4_10}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+A0_06: {scene: r2_misc, args: {variant: globe, shot: A0_06}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B4_07: {scene: r2_misc, args: {variant: mirror, shot: B4_07}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B6_12: {scene: r2_misc, args: {variant: pellicle, shot: B6_12}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B9_05: {scene: r2_misc, args: {variant: photons, shot: B9_05}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B8_17: {scene: r2_misc, args: {variant: wafer, shot: B8_17}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+A2_08: {scene: r2_misc, args: {variant: wave, shot: A2_08}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+A2_03: {scene: r2_misc, args: {variant: bokeh, shot: A2_03}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+A0_01: {scene: r2_source, args: {variant: cold, shot: A0_01}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B1_10: {scene: r2_source, args: {variant: prepulse, shot: B1_10}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B1_15: {scene: r2_source, args: {variant: contrast, shot: B1_15}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B1_08: {scene: r2_source, args: {variant: track, shot: B1_08}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B2_08: {scene: r2_source, args: {variant: clean, shot: B2_08}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B1_18: {scene: r2_source, args: {variant: spectrum, shot: B1_18}, camera: CamR2, start: 1, style: photoreal, engine: cycles}
+B1_22: {scene: r2_source, args: {variant: amps, shot: B1_22}, camera: CamR2, start: 1, style: photoreal, engine: cycles}

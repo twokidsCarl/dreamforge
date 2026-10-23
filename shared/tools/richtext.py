@@ -13,6 +13,12 @@ from PIL import ImageFont
 
 SUP = dict(zip("⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿ", "0123456789+-=()n"))
 SUB = dict(zip("₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎", "0123456789+-=()"))
+# U+00B7 middle dot (k₁ · λ, H· radical): CJK fonts draw it full-width with wide side bearings, so it is
+# typeset with a Latin font at body size instead (kind "dot").
+DOT = "·"
+LATIN = next((p for p in ("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                          "/System/Library/Fonts/Supplemental/Arial.ttf", "/Library/Fonts/Arial.ttf")
+              if __import__("os").path.exists(p)), None)
 SCALE = 0.62
 RAISE = 0.40      # superscript baseline shift, in body em
 LOWER = 0.14      # subscript baseline shift, in body em
@@ -20,14 +26,15 @@ _cache = {}
 
 
 def has_script(s):
-    return any(c in SUP or c in SUB for c in s or "")
+    return any(c in SUP or c in SUB or (c == DOT and LATIN) for c in s or "")
 
 
 def runs(s):
     """[(text, kind)] with kind None / 'sup' / 'sub'; script characters are mapped to plain ones."""
     out = []
     for c in s:
-        kind, ch = ("sup", SUP[c]) if c in SUP else ("sub", SUB[c]) if c in SUB else (None, c)
+        kind, ch = ("sup", SUP[c]) if c in SUP else ("sub", SUB[c]) if c in SUB else \
+            ("dot", c) if (c == DOT and LATIN) else (None, c)
         if out and out[-1][1] == kind:
             out[-1][0] += ch
         else:
@@ -45,11 +52,23 @@ def small(font):
     return _cache[key]
 
 
+def latin(font):
+    key = ("latin", font.size)
+    if key not in _cache:
+        _cache[key] = ImageFont.truetype(LATIN, font.size) if LATIN else font
+    return _cache[key]
+
+
 def _layout(draw, s, font):
     """[(text, font, dx, dy_from_baseline)], total advance."""
     sm = small(font)
     x, items = 0.0, []
     for t, k in runs(s):
+        if k == "dot":
+            f = latin(font)
+            items.append((t, f, x, 0))
+            x += draw.textlength(t, font=f)
+            continue
         f = font if k is None else sm
         dy = 0 if k is None else (-RAISE * font.size if k == "sup" else LOWER * font.size)
         items.append((t, f, x, dy))
