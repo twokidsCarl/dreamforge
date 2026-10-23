@@ -426,7 +426,7 @@ def _landing_spot(mb, p, nrm, r):
         mb.cyl(Vector(p) + Vector(nrm).normalized() * (0.004 + 0.002 * k), r * f, 0.001, rot=q.to_euler(), seg=40)
 
 
-def _r14_columns_factory(spots):
+def _r14_columns_factory(spots, keep=None):
     """Drop-in for K.beam_columns inside build_cutaway_r2.machine (only for the A2_03 / A2_08 backdrop): legs
     alternate opening / narrowing (wide footprint on one mirror, narrow on the next), no waists, no beads, open
     cones; landing spots are collected into `spots` and built once by the caller."""
@@ -437,9 +437,13 @@ def _r14_columns_factory(spots):
         for j in range(1, len(s) - 1):
             s[j] = s[j] if wide else s[j] * 0.38
             wide = not wide
-        for (a, b), (ra, rb) in zip(zip(pts, pts[1:]), zip(s, s[1:])):
-            _open_cone(mb, a, b, ra, rb, seg=seg)
-        for j in range(1, len(pts) - 1):
+        # R15 (root cause #4, A2_03 "背景 4–5 根光柱成网压公式"): keep = (lo, hi) draws only legs lo..hi-1 - ONE
+        # continuous W-shaped fold (the PO zig-zag), every other leg of the machine path is left out
+        lo, hi = keep if keep else (0, len(pts) - 1)
+        for i, ((a, b), (ra, rb)) in enumerate(zip(zip(pts, pts[1:]), zip(s, s[1:]))):
+            if lo <= i < hi:
+                _open_cone(mb, a, b, ra, rb, seg=seg)
+        for j in range(max(1, lo), min(len(pts) - 1, hi + 1)):
             spots.append((pts[j], K.mirror_normal(pts[j - 1], pts[j], pts[j + 1]), max(0.03, s[j] * 1.3)))
     return cols
 
@@ -495,7 +499,9 @@ def _space(sc, n):
         rl.tube(a_ + off, b_ + off, 0.03, seg=6)
     for p_ in (e0, m0):
         rl.tube(p_ + off + Vector((0, 0, -0.5)), p_ + off + Vector((0, 0, 0.5)), 0.035, seg=6)
-    rl.obj("DistanceRule", K.emit_mat("RuleInk", K.CYAN, 2.0))        # R14: metrology cyan (was white-ish)
+    # R15 (root cause #4, B4_10 "零碎青色虚线段像断掉的尺寸线"): the dashed rule passes the camera in the middle
+    # third and reads as broken fragments -> removed; the distance lives in the Moon tag only
+    rl.bm.free()
     spot = _uv_sphere("Spot", ball.location - dirb * ball_r * 0.15, ball_r * 0.35, 24, K.emit_mat("SpotM", COLD, 20.0))
     # R14 (B4_10 #3): contact shadow so the ball sits ON the regolith (soft dark disc under it)
     sh = _new_mat("BallContactShadow")
@@ -607,7 +613,25 @@ def _globe(sc, n):
         cd.keyframe_insert("bevel_factor_end", frame=st)
         cd.bevel_factor_end = 1.0
         cd.keyframe_insert("bevel_factor_end", frame=st + int(n * 0.25))
-    _uv_sphere("NLPoint", nl * 1.004, 0.022, 24, K.emit_mat("NLWhite", (1, 1, 1), 25.0))
+    # R15 (root cause #4, A0_06 "光点挤在西欧成一团白噪点，读不出一张网"): one glowing cluster node per supplier
+    # region (size ~ weight) that lights up when its arcs arrive; arcs land on these, NL main node one size up
+    hub_mat = K.emit_mat("HubCyan", (0.7, 0.95, 1.0), 9.0)
+    hub_halo = K.emit_mat("HubHalo", K.CYAN, 1.6, halo=0.6)
+    for k, (lon, lat, w) in enumerate(SUPPLIER_HUBS):
+        p = _ll(lon, lat, R * 1.003)
+        if (p - nl).length < 0.12:
+            continue
+        r_ = 0.011 + 0.0045 * math.sqrt(w)
+        core = _uv_sphere(f"Hub{k}", p, r_, 16, hub_mat)
+        halo = _uv_sphere(f"HubHalo{k}", p, r_ * 2.6, 16, hub_halo)
+        t_on = 1 + int(n * (0.1 + 0.5 * (k / len(SUPPLIER_HUBS))))
+        for ob in (core, halo):
+            ob.hide_render = True
+            ob.keyframe_insert("hide_render", frame=1)
+            ob.keyframe_insert("hide_render", frame=t_on - 1)
+            ob.hide_render = False
+            ob.keyframe_insert("hide_render", frame=t_on)
+    _uv_sphere("NLPoint", nl * 1.004, 0.032, 24, K.emit_mat("NLWhite", (1, 1, 1), 25.0))
     _uv_sphere("NLHalo", nl * 1.004, 0.06, 24, K.emit_mat("NLHaloM", (0.85, 0.95, 1.0), 3.0, halo=0.6))
     _sun("Sun", (math.radians(55), 0, math.radians(-30)), 2.6, (0.8, 0.88, 1.0))   # R14: key up, light ratio >= 8:1
     _sun("SunRim", (math.radians(100), 0, math.radians(160)), 3.0, (1.0, 0.92, 0.8))   # R8: terminator / rim light
@@ -615,8 +639,12 @@ def _globe(sc, n):
     g.rotation_euler = (0, 0, 0)
     cam, tgt = K.camera("CamR2", lens=50)
     cn = _ll(8, 38, 1).normalized()
+    # R15 (A0_06 "机位几乎不动"): the globe view turns ~40 deg west while pushing in, so the US clusters come over
+    # the limb in the last third (parallax + "a worldwide web")
+    ce = _ll(-28, 40, 1).normalized()
     K.key_path(cam, tgt, [(1, tuple(cn * 8.6 + Vector((0.4, 0, -0.6))), (0, 0, 0.35)),
-                          (n, tuple((cn * 6.8 + _ll(*NL, 1) * 0.6)), tuple(nl * 0.55))])
+                          (n, tuple(ce * 7.4), tuple(_ll(-12, 42, R) * 0.45))])
+    K.anchors("A0_06", {"nl": nl})
     return cam
 
 
@@ -668,6 +696,9 @@ def _mirror(sc, n):
     # R14 (root cause #6, B4_07 #1 "哑光白石膏 / 切开的蛋糕"): glass-ceramic blank - warm amber, part
     # translucent with internal depth (subsurface + some transmission), polished sides catching the studio
     sub = K.mat("GlassCeramicR14", (0.6, 0.55, 0.48), rough=0.12, transmission=0.45, ior=1.54, coat=0.4)
+    # R15 (root cause #4, B4_07 "右侧过曝白区 + 噪点斑"): the transmissive rim collected the strip light as a blown,
+    # noisy white patch -> fine-ground ULE-like blank: satin, faintly translucent (subsurface only, no transmission)
+    sub = K.mat("GlassCeramicR15", (0.58, 0.55, 0.5), rough=0.42, coat=0.1)
     _bs = next(x for x in sub.node_tree.nodes if x.type == "BSDF_PRINCIPLED")
     for _k, _v in (("Subsurface Weight", 0.35), ("Subsurface Scale", 0.08)):
         if _k in _bs.inputs:
@@ -720,6 +751,7 @@ def _mirror(sc, n):
     band = nn.new("ShaderNodeMath")
     band.operation = "LESS_THAN"
     band.inputs[1].default_value = 0.014                      # R14: a thin line, not a 3 cm stripe
+    band.inputs[1].default_value = 0.009                      # R15: thinner, brighter coating band
     l.new(dz.outputs[0], band.inputs[0])
     mix = nn.new("ShaderNodeMix")
     mix.data_type = "RGBA"
@@ -753,6 +785,7 @@ def _mirror(sc, n):
     em_ = nn.new("ShaderNodeMath")
     em_.operation = "MULTIPLY"
     em_.inputs[1].default_value = 0.9
+    em_.inputs[1].default_value = 2.6                         # R15 (B4_07 "切面上沿要一条极细亮的镀膜带")
     l.new(band.outputs[0], em_.inputs[0])
     l.new(em_.outputs[0], b.inputs["Emission Strength"])
     me.materials.append(cut)
@@ -811,6 +844,10 @@ def _mirror(sc, n):
     K.area("Key", (-3, -4, 5), (0, 0, 0), 4, 900, (0.95, 0.96, 1.0))
     K.area("Rim", (3, 4, 3), (0, 0, 0), 5, 700, (0.75, 0.8, 1.0))
     K.area("Strip", (-4, 2, 2.5), (0, 0, 0), 0.6, 300, (1, 1, 1), size_y=6)
+    for nm in ("Strip", "Key"):                  # R15 (B4_07 "镜面反射里有一块矩形文字块 / 过曝"): no softbox
+        bpy.data.objects[nm].visible_glossy = False   # images in the coating or the rim
+        bpy.data.objects[nm].visible_camera = False
+    bpy.data.objects["Strip"].data.energy = 160
     K.point("Glow", hit + Vector((0, 0, 0.3)), 60, K.VIOLET, 0.1)
     for nm in ("Glow", "BeamHitLight"):          # R14: the two point-light spheres (and their mirror images) were
         o_ = bpy.data.objects.get(nm)            # the white "capsule end" over the landing spot
@@ -826,8 +863,10 @@ def _mirror(sc, n):
     K.key_path(cam, tgt, [(1, tuple(gapdir * 3.6 + Vector((0, 0, 2.4))), (0, 0, -0.1)),
                           (round(n * 0.55), tuple(gapdir * 2.2 + Vector((0, 0, 0.8))), (edge * 0.6)),
                           (n, tuple(edge + gapdir * 0.55 + Vector((0, 0, 0.12)) + Vector((-math.sin(a_cut0), math.cos(a_cut0), 0)) * 0.35), edge)])
-    sc["hdri"] = "studio_small_09"
-    sc["hdri_strength"] = 0.6
+    # R15 (B4_07 "镜面反射里有一块模糊的矩形文字块"): that block is the studio HDRI's softbox panel mirrored in
+    # the coating -> the coating reflects a dim hangar interior instead (no hard rectangles)
+    sc["hdri"] = "hangar_interior"
+    sc["hdri_strength"] = 0.45
     # R7 (F): magnifier leader lands on the thin coating at the TOP of the cut face, not mid-substrate
     sc.camera = cam
     coat = {}
@@ -882,7 +921,11 @@ def _pellicle(sc, n):
     fz = 0.152 + gap / 2
     fr = K.MB()
     fw, fh, bar, ht = 1.32, 1.06, 0.014, gap
-    for (cx, cy, sx, sy) in [(0, fh / 2, fw, bar), (0, -fh / 2, fw, bar), (fw / 2, 0, bar, fh), (-fw / 2, 0, bar, fh)]:
+    # R15 (root cause #4, B6_12 "间距尺寸线量的是角块，不是膜面↔图形面"): the near bar is cut open over
+    # x in [nx0, nx1] (side micro-section) so the gap between membrane and pattern face is seen directly
+    nx0, nx1 = 0.18, 0.40
+    for (cx, cy, sx, sy) in [(0, fh / 2, fw, bar), (fw / 2, 0, bar, fh), (-fw / 2, 0, bar, fh),
+                             ((-fw / 2 + nx0) / 2, -fh / 2, nx0 + fw / 2, bar), ((fw / 2 + nx1) / 2, -fh / 2, fw / 2 - nx1, bar)]:
         fr.box((cx, cy, fz), (sx, sy, ht))
     for sx in (-1, 1):                         # vent holes / pins on the frame sides
         for k in range(7):
@@ -893,6 +936,8 @@ def _pellicle(sc, n):
     for (cx, cy, ax, L_) in [(0, -fh / 2, "x", fw), (0, fh / 2, "x", fw), (-fw / 2, 0, "y", fh), (fw / 2, 0, "y", fh)]:
         for k in range(9):
             t = -L_ / 2 + (k + 0.5) * L_ / 9
+            if ax == "x" and nx0 - 0.02 < t < nx1 + 0.02 and cy < 0:
+                continue
             if ax == "x":
                 vh.box((t, cy + math.copysign(bar / 2 + 0.0006, cy), fz), (0.03, 0.0015, ht * 0.32))
             else:
@@ -931,6 +976,7 @@ def _pellicle(sc, n):
     fres.inputs["Blend"].default_value = 0.25
     m1 = nn.new("ShaderNodeMixShader")
     m1.inputs["Fac"].default_value = 0.012              # R4: thinner haze, 5A: shown only by grazing sheen
+    m1.inputs["Fac"].default_value = 0.004              # R15 (B6_12 "膜像框上盖了一层灰雾"): ~90 % clear
     l.new(tr.outputs[0], m1.inputs[1])
     l.new(df.outputs[0], m1.inputs[2])
     m2 = nn.new("ShaderNodeMixShader")
@@ -938,6 +984,8 @@ def _pellicle(sc, n):
     fk.operation = "MULTIPLY"
     fk.inputs[1].default_value = 0.07                  # R5: less sheen, so it is not a dark lid
     fk.inputs[1].default_value = 0.11                  # R14: a little more sheen so the tension bands read
+    fk.inputs[1].default_value = 0.05                  # R15: no grey lid; the sweep strip draws ONE thin band
+    gl.inputs["Roughness"].default_value = 0.035
     l.new(fres.outputs["Fresnel"], fk.inputs[0])
     l.new(fk.outputs[0], m2.inputs["Fac"])
     l.new(m1.outputs[0], m2.inputs[1])
@@ -949,7 +997,7 @@ def _pellicle(sc, n):
                          fz + ht / 2 - 0.004 * math.sin(math.pi * i / nx) * math.sin(math.pi * j / ny)
                          # R14 (B6_12 #1 "膜面是一片乳白平面"): faint tension ripples so the sweep light
                          # draws long grazing highlight bands across the stretched film
-                         + 0.0012 * math.sin(math.pi * i / nx) * math.sin(math.pi * j / ny)
+                         + 0.0 * math.sin(math.pi * i / nx) * math.sin(math.pi * j / ny)
                          * math.sin(2 * math.pi * (3.0 * i / nx + 0.6 * j / ny))))
            for j in range(ny + 1)] for i in range(nx + 1)]
     for i in range(nx):
@@ -963,11 +1011,24 @@ def _pellicle(sc, n):
     sc.collection.objects.link(mo)
     me.materials.append(mem)
     # dust particles on the membrane (what the pellicle is for) - a few tiny specks
-    dm = K.MB()
-    rnd = random.Random(4)
-    for _ in range(9):
-        dm.sphere((rnd.uniform(-0.5, 0.5), rnd.uniform(-0.4, 0.4), fz + ht / 2 + 0.004), rnd.uniform(0.004, 0.009), 8)
-    dm.obj("Dust", K.mat("DustM", (0.25, 0.24, 0.22), rough=0.9))
+    # R15 (root cause #4, R14 H6 "膜面颗粒无说明"): no particles in this shot (they belong to a particle beat)
+    # gap dimension in the notch: cyan rule from the pattern face up to the membrane plane, end ticks on both
+    gx, gy = (nx0 + nx1) / 2, -fh / 2 + 0.02
+    z_bot, z_top = 0.1535, fz + ht / 2 - 0.001
+    dmb = K.MB()
+    dmb.tube(Vector((gx, gy, z_bot)), Vector((gx, gy, z_top)), 0.0022, seg=10)
+    for zz in (z_bot, z_top):
+        dmb.tube(Vector((gx - 0.03, gy, zz)), Vector((gx + 0.03, gy, zz)), 0.0018, seg=8)
+    dim_o = dmb.obj("GapRule", K.emit_mat("GapRuleInk", K.CYAN, 6.0))
+    f_dim = round(n * 0.58)
+    dim_o.hide_render = True
+    dim_o.keyframe_insert("hide_render", frame=1)
+    dim_o.keyframe_insert("hide_render", frame=f_dim - 1)
+    dim_o.hide_render = False
+    dim_o.keyframe_insert("hide_render", frame=f_dim)
+    K.anchors("B6_12", {"gap_top": Vector((gx, gy, z_top)), "gap_bot": Vector((gx, gy, z_bot)),
+                        "gap_mid": Vector((gx + 0.03, gy, (z_top + z_bot) / 2)),
+                        "film": Vector((-0.15, 0.1, z_top)), "mask": Vector((0.45, -0.62, 0.153))})
     # studio lights; one strip sweeps to drag a grazing highlight across the membrane
     K.area("Key", (-3, -3.5, 4.5), (0, 0, 0.3), 3, 900, (1, 0.99, 0.97))
     K.area("Fill", (3.5, -2, 2), (0, 0, 0.3), 3, 350, (0.9, 0.95, 1.0))
@@ -984,6 +1045,7 @@ def _pellicle(sc, n):
     # membrane only, and widen it so it draws a broad tension band across the film instead of a thin white line
     sw.data.size = 0.9
     sw.data.energy = 260
+    sw.data.size, sw.data.energy = 0.18, 160      # R15: one thin grazing highlight band, not a broad haze
     try:
         rc = bpy.data.collections.new("SweepReceivers")
         rc.objects.link(mo)
@@ -1246,8 +1308,10 @@ def _wafer(sc, n):
     # the field being exposed and a soft curtain of violet light comes down onto it (fading out upward, so it reads
     # as light from the optics above, not a solid bar); both track the scan, the field fills in behind it
     sm = K.MB()
-    sm.box((0, 0, 0), (0.25, 0.05, 0.002))
-    so = sm.obj("Slit", K.emit_mat("SlitM", K.VIOLET, 7.0))
+    # R15 (root cause #4, B8_17 "曝光光斑是方形辉光块，读不出狭缝"): a thin crisp slit line (field width x 1.6 cm)
+    # under a faint thin light sheet, instead of a 5 cm glow block under a bright frustum
+    sm.box((0, 0, 0), (0.26, 0.016, 0.002))
+    so = sm.obj("Slit", K.emit_mat("SlitM", (0.86, 0.8, 1.0), 18.0))
     cur = _new_mat("SlitCurtain")
     nt, nn, l = _nodes(cur)
     for x in list(nn):
@@ -1267,11 +1331,11 @@ def _wafer(sc, n):
     l.new(iv.outputs[0], pw.inputs[0])
     al_ = nn.new("ShaderNodeMath")
     al_.operation = "MULTIPLY"
-    al_.inputs[1].default_value = 0.55
+    al_.inputs[1].default_value = 0.22
     l.new(pw.outputs[0], al_.inputs[0])
     st_ = nn.new("ShaderNodeMath")
     st_.operation = "MULTIPLY"
-    st_.inputs[1].default_value = 2.2
+    st_.inputs[1].default_value = 0.9
     l.new(pw.outputs[0], st_.inputs[0])
     em_ = nn.new("ShaderNodeEmission")
     em_.inputs["Color"].default_value = (*K.lin(K.VIOLET), 1)
@@ -1284,8 +1348,8 @@ def _wafer(sc, n):
     l.new(mx_.outputs[0], out_.inputs["Surface"])
     cbm = bmesh.new()                                     # frustum: wide at the top, slit-sized at the wafer
     H = 0.75
-    vb = [cbm.verts.new((sx * 0.125, sy * 0.025, 0.0)) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
-    vt = [cbm.verts.new((sx * 0.2, sy * 0.11, H)) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+    vb = [cbm.verts.new((sx * 0.13, sy * 0.008, 0.0)) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+    vt = [cbm.verts.new((sx * 0.16, sy * 0.03, H)) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
     for i_ in range(4):
         j_ = (i_ + 1) % 4
         cbm.faces.new((vb[i_], vb[j_], vt[j_], vt[i_]))
@@ -1365,7 +1429,9 @@ def _wafer(sc, n):
     K.area("BackWash", (1.0, 1.0, 4.5), (1.0, 4.6, 1.5), 6, 700, (0.8, 0.85, 1.0))
     cam, tgt = K.camera("CamR2", lens=32)
     _dof(cam, 8.0, tgt)
-    K.key_path(cam, tgt, [(1, (-1.0, -5.6, 3.8), (1.0, 0.2, -0.1)), (n, (0.4, -5.4, 3.3), (1.3, 0.2, -0.1))])
+    # R15 (B8_17 "零件挤在上沿被裁掉一半"): camera ~10 deg lower, aim raised, so the optics bottom and the cassette
+    # sit whole in frame above the wafer
+    K.key_path(cam, tgt, [(1, (-1.0, -6.0, 3.0), (1.1, 0.5, 0.45)), (n, (0.4, -5.8, 2.7), (1.4, 0.5, 0.45))])
     sc["hdri"] = "studio_small_09"
     sc["hdri_strength"] = 0.35
     return cam
@@ -1408,7 +1474,7 @@ def _bokeh_backdrop(sc, y0=40.0, seed=0, count=26):
     K.area("BkKey", (0, y0 - 6, 18), (0, y0 + 10, 0), 30, 9000, (0.7, 0.75, 1.0))
 
 
-def _machine_backdrop(sc):
+def _machine_backdrop(sc, keep=None, dim=1.0):
     """R3 (H14 fix): the real de-cased machine (same cutaway kit as C_03 / B5_01) as the out-of-focus world behind
     data overlays, instead of a dark void with abstract bokeh."""
     import build_cutaway_r2 as B
@@ -1423,19 +1489,21 @@ def _machine_backdrop(sc):
     K.area("Top", (-3, 0, 12), (-3, 0, 0), 14, 600, (0.9, 0.92, 1.0), size_y=4)
     # R14 (root cause #1, A2_03 / A2_08 "等宽、满是条纹噪点的发光柱"): soft open cones that open / narrow between
     # mirror landing spots, no streak noise; K.beam_columns is swapped only for this call and restored after
-    M["beam_wide"] = _soft_beam_mat("EUVSoftR14", strength=2.4, alpha=0.7)
+    M["beam_wide"] = _soft_beam_mat("EUVSoftR14", strength=2.4 * dim, alpha=0.7 * min(1.0, 0.4 + dim))
     M["cone"] = _soft_beam_mat("EUVSoftConeR14", strength=1.9, alpha=0.6)
     spots = []
-    orig = K.beam_columns
-    K.beam_columns = _r14_columns_factory(spots)
+    orig, orig_cone = K.beam_columns, K.cone_beam
+    K.beam_columns = _r14_columns_factory(spots, keep)
+    if keep:                                   # R15: no collector cone either - one path only
+        K.cone_beam = lambda *a_, **k_: None
     try:
         B.machine(M, studio=False, cut=True)
     finally:
-        K.beam_columns = orig
+        K.beam_columns, K.cone_beam = orig, orig_cone
     smb = K.MB()
     for p, nrm, r in spots:
         _landing_spot(smb, p, nrm, r)
-    smb.obj("LandingSpotsR14", K.emit_mat("LandingSpotR14", (0.82, 0.72, 1.0), 7.0, halo=0.5))
+    smb.obj("LandingSpotsR14", K.emit_mat("LandingSpotR14", (0.82, 0.72, 1.0), 7.0 * dim, halo=0.5))
     sc["hdri"] = "hangar_interior"
     sc["hdri_strength"] = 0.25
     K.clean_cycles(sc)
@@ -1446,7 +1514,9 @@ def _wave(sc, n):
     """A2_08: 193 nm (grey) and 13.5 nm (violet) as two equal-length waves stacked above the wafer stage, in
     front of the out-of-focus projection optics; the violet period is the grey one / 14.3, so the viewer can
     count ~14 violet crests per grey crest. No floating boxes."""
-    B = _machine_backdrop(sc)
+    # R15 (root cause #4, A2_08 "背景紫光束与 13.5 nm 紫波同色抢眼"): one dim PO fold only (30 %), so violet
+    # belongs to the foreground wave
+    B = _machine_backdrop(sc, keep=(6, 11), dim=0.3)
     cx, y, span = 1.55, -2.6, 1.8
     lam193 = span / 2.0
     lam135 = lam193 / 14.3
@@ -1494,7 +1564,7 @@ def _wave(sc, n):
 def _bokeh(sc, n):
     """A2_03: out-of-focus machine (projection optics, violet path, wafer) under the formula overlay; anchors for
     the lambda -> beam and NA -> mirror leader lines."""
-    B = _machine_backdrop(sc)
+    B = _machine_backdrop(sc, keep=(6, 11), dim=0.75)    # R15: one W-shaped PO fold (was a net of 4-5 columns)
     # R14 (root cause #7 / review A2_03 #1 "NA 只有文字，没有画面"): the last PO mirror's full converging light cone
     # onto the wafer point (see-through, bright silhouette) + its half-angle theta drawn as a cyan arc at the apex
     # and a dashed cyan axis; it fades in when the narration reaches NA (~50 %)
