@@ -17,7 +17,7 @@ WORK = Path("/workspace/e1work/p1")
 SERIES = [
     ("R1", "scores_round1_recalibrated.json"),  # first v2 round (recal)
 ]
-SERIES += [(f"R{n}", f"scores_round{n}.json") for n in range(2, 12)]
+SERIES += [(f"R{n}", f"scores_round{n}.json") for n in range(2, 40)]
 
 
 def load_rounds():
@@ -27,11 +27,17 @@ def load_rounds():
         if not p.exists():
             continue
         d = json.loads(p.read_text())
-        rows.append((lab, float(d["avg"]), float(d["min"]), str(d.get("min_shot", ""))))
+        adj = d.get("drift_adjusted") or {}
+        rows.append((lab, float(d["avg"]), float(d["min"]), str(d.get("min_shot", "")),
+                     adj.get("avg"), adj.get("min"), d.get("delta")))
     return rows
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--ep", default="E1", choices=["E1"], help="episode (this script plots E1 P1 only)")
+    ap.parse_args()
     matplotlib.rcParams["font.sans-serif"] = [
         "Noto Sans CJK SC", "Noto Serif CJK SC", "WenQuanYi Micro Hei", "DejaVu Sans"
     ]
@@ -51,6 +57,16 @@ def main():
     ax.axhline(88, color="#ff7f0e", ls=":", lw=1.4, label="单张门槛 ≥ 88")
     ax.plot(x, avg, "o-", color="#1f77b4", lw=2.2, ms=8, label="独立审均分")
     ax.plot(x, mins, "s--", color="#d62728", lw=1.8, ms=7, label="最低单张")
+    # R12+: gold-control drift calibration (raw stays the line; adjusted = hollow markers, gate uses adjusted)
+    adj = [(i, r[4], r[5], r[6]) for i, r in enumerate(rows) if r[4] is not None]
+    if adj:
+        ax.plot([a[0] for a in adj], [a[1] for a in adj], "o", mfc="none", mec="#1f77b4", mew=2, ms=11,
+                label="均分（金控校正后，过线以此为准）")
+        ax.plot([a[0] for a in adj], [a[2] for a in adj], "s", mfc="none", mec="#d62728", mew=2, ms=10,
+                label="最低（金控校正后）")
+        for i, aa, am, dl in adj:
+            ax.annotate(f"校正 {aa:g} / {am:g}\nΔ={dl:+.2f}", (i, aa), textcoords="offset points", xytext=(-48, 18),
+                        ha="center", fontsize=8, color="#444444")
     for i, (a, m, lab) in enumerate(zip(avg, mins, min_labs)):
         ax.annotate(
             f"{a:g}", (i, a), textcoords="offset points", xytext=(0, 10),
