@@ -934,6 +934,11 @@ R31_HOOKS = [(R31_TIN, "source_r31"), (R31_SRC, "src_r31"), (R31_B208, "src_b208
 R32_TIN = {"A0_01", "B1_10"}   # main process: source_r32.py (row 2: tin = regular near-round thin disc, tin_r32 rebuilt mesh)
 R32_SRC = {"B1_15"}   # main process: src_r32.py (row 4: B1_15 haze disc off, hi mirror, cone off the face on screen, axial laser through the hole)
 R32_HOOKS = [(R32_TIN, "source_r32"), (R32_SRC, "src_r32")]
+# R33 (R33_ROOT_CAUSE.md, chain round 2): per-row shot sets + hook modules, pre-wired by the main process, layered AFTER the
+# R32 hooks but BEFORE beam_hook_r29 (stays LAST). Remove a shot id from its R33 set -> exact R32 pixels. Mutate, never rebind.
+R33_TIN = {"A0_01", "B1_10", "B1_08"}   # main process: source_r33.py (row 3: tin = opaque liquid metal - rolled thick lip, gentle wrinkles, laser-side glow; B1_08 droplets same material)
+R33_SRC = {"B1_15"}   # main process: src_r33.py (row 4: hollow cone shell from the whole rim to the IF, mirror readable through it)
+R33_HOOKS = [(R33_TIN, "source_r33"), (R33_SRC, "src_r33")]
 _SHOT = [None]
 
 
@@ -954,7 +959,7 @@ class _R30BeamGate:
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + R31_HOOKS + R32_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + R31_HOOKS + R32_HOOKS + R33_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):

@@ -84,6 +84,10 @@ R31_MISC = {"B8_17", "A0_06"}   # B6_12 row 6b: misc agent 8-spp Q4 no (sheen = 
 R31_BEAM = {"A2_03"}   # main process: beam_hook_r31.py (row 6e: A2_03 right-mirror -> top-mirror leg tapers between the two apertures; pre() only)
 R31_MAIN = {"B4_10"}   # main process: misc_main_r31.py (row 6f: B4_10 laser landing spot + scatter on the ball)
 R31_HOOKS = [(R31_MISC, "misc_r31"), (R31_MAIN, "misc_main_r31"), (R31_BEAM, "beam_hook_r31")]
+# R33 (R33_ROOT_CAUSE.md, chain round 2): per-row shot sets + hook modules, pre-wired by the main process, layered AFTER the
+# R31 hooks (no R32 misc hooks) but BEFORE beam_hook_r29 (stays LAST). Remove a shot id from its R33 set -> exact R32 (= R31) pixels. Mutate, never rebind.
+R33_MISC = {"B8_17"}   # misc agent: misc_r33.py (row 5: 188 rectangular 26 x 16.5 mm half-fields, serpentine exposure order, lit share = counter / 188)
+R33_HOOKS = [(R33_MISC, "misc_r33")]
 _CUR_SHOT = [None]
 
 
@@ -2204,7 +2208,7 @@ class _R30BeamGate:
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + R31_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + R31_HOOKS + R33_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):
