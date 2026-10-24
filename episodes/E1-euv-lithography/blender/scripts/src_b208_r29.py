@@ -15,7 +15,7 @@ room + SPOTS_R27 fading stains underneath). Remove B2_08 from R29_B208 -> exact 
 """
 import os
 
-MIRROR_R29 = True
+MIRROR_R29 = False   # 8-spp Q1 no (face still reads matte beige) -> R28 pixels; see SMOKE.md
 
 _E = os.environ
 # reflected camera-ray directions of the face (src_r27_b208 B208DIAG): x -0.3..+1, y +0.3..+0.96, z -0.6..+0.2
@@ -37,7 +37,7 @@ def _mirror(sc):
     import source_r25_tin as T25
     import tin_r29 as T
     for o in list(bpy.data.objects):
-        if o.name.startswith(("B208ReflRoomR27", "B208ReflPortsR27")):
+        if o.name.startswith(("B208ReflRoomR27", "B208ReflPortsR27", "B208SheenR23")):
             bpy.data.objects.remove(o, do_unlink=True)
     mir = bpy.data.objects.get("CollB208_mirror")
     if mir is None:

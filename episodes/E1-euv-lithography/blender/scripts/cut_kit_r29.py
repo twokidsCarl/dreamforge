@@ -9,7 +9,7 @@ R26_HERO wafer Si + cut_kit_r28 SCALE_R28). Remove a shot from R29_KIT -> exact 
   GRID_R29   row 4 (B8_03 + B8_03M): wafer die map re-laid as 188 landscape half-fields 26 x 16.5 (exposed stripe logic
              unchanged). See cut_kit_r29_b803.py.
 """
-SCALE_R29 = True
+SCALE_R29 = False   # 8-spp Q4 no (ruler squeezed under the PIP, labels 11-14 px) -> R28 bar kept; see SMOKE.md
 GRID_R29 = True
 
 

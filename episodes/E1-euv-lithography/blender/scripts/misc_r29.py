@@ -13,7 +13,7 @@ R29_ROOT_CAUSE row 6 (主角件 / 材质: B4_07 hero part, B6_12 background cont
   The R28 FILM / FACE / HOSE rows stay ON underneath and are not touched.
 """
 
-B407_R29 = True
+B407_R29 = False   # misc 8-spp Q4 no (grain sub-pixel, f36 wall not defocused) -> R28 pixels
 B612BG_R29 = True
 
 

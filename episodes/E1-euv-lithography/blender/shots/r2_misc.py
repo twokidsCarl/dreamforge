@@ -70,8 +70,8 @@ R28_MISC = {"B6_12", "A2_03"}   # misc agent: misc_r28.py (row 4: B6_12 pellicle
 R28_HOOKS = [(R28_MISC, "misc_r28")]
 # R29 (R29_ROOT_CAUSE.md): per-row shot sets + hook modules, pre-wired by the main process, layered AFTER the R28
 # hooks. Remove a shot id from its R29 set -> exact R28 pixels. Mutate these sets, never rebind them.
-R29_BEAM = {"A2_03"}   # main process: beam_hook_r29.py (row 1; LAST)
-R29_MISC = {"B4_07", "B6_12"}   # misc agent: misc_r29.py (row 6: B4_07 ceramic body + flexure mount + chamber wall; B6_12 machine context behind the mask)
+R29_BEAM = {"A2_03", "B8_17"}   # main process: beam_hook_r29.py (row 1; LAST)
+R29_MISC = {"B6_12"}   # misc agent: misc_r29.py (row 6: B4_07 ceramic body + flexure mount + chamber wall; B6_12 machine context behind the mask)
 R29_HOOKS = [(R29_MISC, "misc_r29"), (R29_BEAM, "beam_hook_r29")]
 _CUR_SHOT = [None]
 

@@ -24,6 +24,8 @@ WIN_R29 = True
 
 _E = os.environ
 WIN_FRAME = 222
+WIN_SATIN = _E.get("R29_WIN_SATIN", "1") == "1"
+WIN_NOGLASS = _E.get("R29_WIN_NOGLASS", "1") == "1"
 WIN_DIST = float(_E.get("R29_WIN_DIST", "1.7"))
 FFM_W = float(_E.get("R29_FFM_W", "1.3"))
 FFM_H = float(_E.get("R29_FFM_H", "1.0"))
@@ -187,6 +189,32 @@ def _c03(sc):
     newc = wc + d * WIN_DIST
     hc = _set_key(cam, WIN_FRAME, newc)
     ht = _set_key(tgt, WIN_FRAME, wc + Vector((0.0, 1.0, 0.05))) if tgt is not None else 0
+    fac = bpy.data.objects.get("R8Kit2_facet")
+    n_m = 0
+    if fac is not None and WIN_SATIN:
+        # the push magnifies two glossy facet discs that sparkle as white discs with black specks (EUVMirrorHiR19,
+        # already in R28 at 1/4 the size) -> the same satin coating as the B5_01 facets
+        for s_ in fac.material_slots:
+            m = s_.material
+            if m is None or not m.use_nodes:
+                continue
+            m2 = m.copy()
+            m2.name = m.name + "_R29satin"
+            b = next((n for n in m2.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
+            if b is not None:
+                b.inputs["Roughness"].default_value = max(b.inputs["Roughness"].default_value, FACET_ROUGH)
+                try:
+                    b.inputs["Coat Weight"].default_value = 0.0
+                except KeyError:
+                    pass
+            s_.material = m2
+            n_m += 1
+    g = bpy.data.objects.get("C03R28Window")
+    if g is not None and WIN_NOGLASS:
+        # 32 spp f222: the glass pane refracts the landing glow into a blown disc with black / green specks (dice
+        # read, magnified by the push) -> open window (frame + flange stay); 32-spp test without it = clean landing
+        g.hide_render = True
+    print(f"[r29s] C_03 satin facet materials {n_m}; window glass hidden {WIN_NOGLASS}", flush=True)
     print(f"[r29s] C_03 WIN f{WIN_FRAME} camera -> {tuple(round(v, 2) for v in newc)} ({WIN_DIST} m from the window "
           f"centre {tuple(round(v, 2) for v in wc)}), keys moved cam {hc} tgt {ht}", flush=True)
 

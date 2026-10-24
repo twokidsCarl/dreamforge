@@ -114,7 +114,7 @@ def splash(sc, shot, frame):
 # A0_01 f72: with tin_r29.drop_bands the key glint (upper-left) and the warm glint (right, same height) sit side by
 # side on the ball = a pair of 'eyes' (R28 「?」脸形 risk). Move the warm box down-right so the two glints form a
 # diagonal (as on B1_08). Same recipe, same sources, only the warm box direction; tin_r29.py untouched.
-DROP_WARM_R29 = {"A0_01": (0.85, -0.55)}          # (right, up) weights of the warm box
+DROP_WARM_R29 = {"A0_01": (0.85, -0.55, 0.4)}   # main process R29 (after the tin agent stopped): the agent's own fix, warm box moved down-right AND dimmed to 40 % -> one dominant key glint + a faint warm kick (8 spp f72: no "pair of eyes"); (right, up, gain)
 
 
 def drop_override(sc, shot, frame):
@@ -123,7 +123,7 @@ def drop_override(sc, shot, frame):
     import source_r23_tin as T23
     import source_r24 as H24
     import tin_r29 as T
-    wr, wu = DROP_WARM_R29[shot]
+    wr, wu, *wg = DROP_WARM_R29[shot]            # optional 3rd value: warm-box gain (main process R29: 0.4)
     n = 0
     for e in list(bpy.data.objects):
         if not e.name.startswith("TinEnvR27_") or e.parent is None:
@@ -131,7 +131,7 @@ def drop_override(sc, shot, frame):
         tc, rt, up = H24._cam_dirs(sc, frame, e.parent.matrix_world.translation.copy())
         bands = T.drop_bands(tc, rt, up)
         c, a, w, g, col = bands[2]
-        bands[2] = (T._n(tc + up * wu + rt * wr), a, w, g, col)
+        bands[2] = (T._n(tc + up * wu + rt * wr), a, w, g * (wg[0] if wg else 1.0), col)
         mm = T23._env_mat_r23("TinEnvR29bMat_" + e.parent.name, bands, T.DROP_BASE, 1.0, 0.05)
         e.data.materials.clear()
         e.data.materials.append(mm)
