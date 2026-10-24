@@ -884,6 +884,12 @@ R23_HOOKS = [(R23_SRC, "src_r23"), (R23_TIN, "source_r23"), (R23_PANEL, "panel_r
 R24_TIN = {"B1_08"}   # A0_01 (f160 film reads as black rubber sheet) / B1_10 (black glass/plastic sheet, no liquid-metal read): main 32-spp Q4 no -> R23 pixels   # tin agent: source_r24.py (row 2: ultra-thin film + droplet-ring edge, opaque liquid metal)
 R24_SRC = {"B1_15"}   # B2_08: main 32-spp Q4 no (9 parallel streams read as a flat translucent ribbon cable, no gain over R23) -> R23 pixels   # srcb agent: src_r24.py (row 3: soft cone to IF / tapered gas ribbons via beam_r24)
 R24_HOOKS = [(R24_TIN, "source_r24"), (R24_SRC, "src_r24")]
+# R25 (R25_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R24
+# hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R25 set ->
+# exact R24 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
+R25_TIN = {"A0_01", "B1_10", "B1_08"}   # tin agent: source_r25.py (row 3: lit structured environment for the liquid tin)
+R25_SRC = {"B1_15"}   # B2_08: srcb Q4 no (post-fix streams read as glass shards, start off the deposit patch) -> R24 (= R23) pixels   # srcb agent: src_r25.py (row 2: taper shell via beam_r25)
+R25_HOOKS = [(R25_TIN, "source_r25"), (R25_SRC, "src_r25")]
 _SHOT = [None]
 
 
@@ -898,7 +904,7 @@ def _r20(shot_id):
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):

@@ -53,6 +53,12 @@ R23_HOOKS = [(R23_HERO, "cut_hero_r23"), (R23_2B, "cut_2b_r23")]
 R24_BEAM = {"A0_10", "B5_01", "C_03"}                   # cbeam agent: cut_beam_r24.py (row 3: one path per screen, beam_r24)
 R24_HERO = {"B7_06", "B8_03", "B8_03M"}   # B3_02: chero agent-written risk (laser line + cone reflection overlap the dish face) = auto Q4 no -> R23 pixels   # chero agent: cut_hero_r24.py (rows 3 / 5: collector geometry, M5/M6 solid rings + 3-leg path, wafer glint)
 R24_HOOKS = [(R24_BEAM, "cut_beam_r24"), (R24_HERO, "cut_hero_r24")]
+# R25 (R25_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R24
+# hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R25 set ->
+# exact R24 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
+R25_BEAM = set()   # B5_01: main 32-spp Q4 no (legs = hard-edged flat translucent sheets, "violet glass panels / ribbon" - same new negative read as B2_08 R24) -> R24 pixels; A0_10: cbeam self-flagged risks (roof touches the f184 subtitle, mask turn a small corner, PFM reads as the white back of a dish) = auto Q4 no; C_03: BEAMCHECK25 NOGO f222 (FFM/G1/G2 edge-on) -> R24 pixels   # cbeam agent: cut_beam_r25.py (rows 1 / 2 / 4: turn mirrors via beam_r25, taper, machine density)
+R25_HERO = {"B3_02", "B7_06"}   # B8_03(+M): main 32-spp Q4 no (slit cone = hard-edged translucent wedge, same flat-sheet read; mad <0.01) -> R24 pixels   # chero agent: cut_hero_r25.py (rows 2 / 4 / 5: B3_02 dish into the set, taper)
+R25_HOOKS = [(R25_BEAM, "cut_beam_r25"), (R25_HERO, "cut_hero_r25")]
 _R21 = [None]
 
 
@@ -83,7 +89,7 @@ def _lights_studio():
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):
