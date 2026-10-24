@@ -8,3 +8,6 @@
 4. **旁白脊骨断了**：音画硬切破坏 `script_zh.md` 连续旁白；预览无完整 VO 对齐也不算有效交付（PREFERENCES v1.3）。
 
 Cut10 方向：按 SHOT_REDESIGN 镜表重建；先交 **B 段缩放链 2–3 min 样段**（带旁白）给 Carl，再铺全片。
+
+## Process gate added (Carl t302, 2026-10-24)
+B-chain v1 was published without a full self-watch; solid caption bar + Ken-Burns stations were obvious on first watch. Going forward: dense frame audit (≥1/2s) before any files publish / Carl ping; fail on (a) solid caption bar or (b) Ken-Burns-only stations. Only push if self-score ≥95 on those two. See cut10 REVIEW for v2 admission + fixes.
