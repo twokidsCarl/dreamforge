@@ -42,6 +42,13 @@ R22_HOOKS = [({"B8_17"} & R22_SHOTS, "misc_b817_r22"), ({"B6_12"} & R22_SHOTS, "
 R23_MISC = {"B6_12"}   # B4_10: main 32-spp Q4 no (pebbles read as upright spikes, ball shadow = black column); B8_17: main Q4 no (exposed vs unexposed fields no longer separate -> R22 counter-sync win lost) -> R22 pixels   # misc agent: misc_r23.py
 R23_PANEL = set()   # A0_06: panel agent Q4 no (cluster push not built) -> R22 pixels   # panel agent: panel_r23.py (row 4)
 R23_HOOKS = [(R23_MISC, "misc_r23"), (R23_PANEL, "panel_r23")]
+# R24 (R24_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R23
+# hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R24 set ->
+# exact R23 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
+R24_BEAM = {"B4_07", "A2_03", "B8_17"}   # mbeam agent: misc_beam_r24h.py (row 3: one path per screen, beam_r24)
+R24_MOON = {"B4_10"}                     # moon agent: moon_r24.py (row 4: real lunar texture / DEM + grounded rocks)
+R24_PANEL = {"A0_06"}                    # panel agent: panel_r24.py (row 3: links as great-circle arcs on the globe)
+R24_HOOKS = [(R24_BEAM, "misc_beam_r24h"), (R24_MOON, "moon_r24"), (R24_PANEL, "panel_r24")]
 _CUR_SHOT = [None]
 
 
@@ -2156,7 +2163,7 @@ VARIANTS = {"space": _space, "globe": _globe, "mirror": _mirror, "pellicle": _pe
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS if shot in s_]   # R23: R23 hooks after R22
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23
 
 
 def _r22_pre(variant, shot):
