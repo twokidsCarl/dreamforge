@@ -12,3 +12,4 @@ lroc_color_2k.jpg (LROC WAC colour mosaic, 2k)
   Data: NASA LRO LOLA / LROC teams. License: public domain (NASA imagery is not copyrighted; credit NASA's SVS).
   Use: ldem crop (southern highlands around Tycho) = large-scale real lunar relief of the close-up ground
   (distant hills / horizon); lroc_color_2k = colour of the Moon globe in the 55 % frame (near side toward Earth).
+Re-encoded for the repo's 2 MiB file limit (R24): gravelly_sand_diff_2k.jpg q90, gravelly_sand_nor_gl_2k.jpg q80 4:2:2 (same 2k resolution).
