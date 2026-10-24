@@ -63,7 +63,7 @@ R25_HOOKS = [(R25_BEAM, "cut_beam_r25"), (R25_HERO, "cut_hero_r25")]
 # hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R26 set ->
 # exact R25 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
 R26_A010 = {"A0_10"}   # main process: a010_r26.py (row 1: scene-level title path - illuminator housing, one front-facing mask turn, projection barrel)
-R26_BEAM = {"C_03", "B5_01"}   # cbeam agent: cut_beam_r26.py (rows 2 / 4: beam_r26 soft shell, hero-part materials)
+R26_BEAM = {"B5_01"}   # C_03: cbeam self-flagged risks (PFM->mask leg over the unlit G1 mirror at f222, mask landing a dot not a slit) = auto Q4 no -> R25 pixels   # cbeam agent: cut_beam_r26.py (rows 2 / 4: beam_r26 soft shell, hero-part materials)
 R26_HERO = {"B8_03", "B8_03M", "B3_02"}   # chero agent: cut_hero_r26.py (rows 2 / 4 / 5: B8_03 wafer + slit beam, B3_02 D row)
 R26_HOOKS = [(R26_A010, "a010_r26"), (R26_BEAM, "cut_beam_r26"), (R26_HERO, "cut_hero_r26")]
 _R21 = [None]

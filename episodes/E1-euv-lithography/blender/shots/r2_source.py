@@ -894,7 +894,7 @@ R25_HOOKS = [(R25_TIN, "source_r25"), (R25_SRC, "src_r25")]
 # hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R26 set ->
 # exact R25 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
 R26_TIN = {"A0_01", "B1_08"}   # tin agent: source_r26.py (row 3: camera push toward the plasma, laser landing, thinner film; material frozen)
-R26_SRC = {"B2_08", "B1_15"}   # srcb agent: src_r26.py (row 2: beam_r26 soft shell)
+R26_SRC = {"B1_15"}   # B2_08: srcb self-flagged risks (streams do not rise from the labelled deposit patch; cyan streaks may read as light rays) = auto Q4 no -> R25 pixels   # srcb agent: src_r26.py (row 2: beam_r26 soft shell)
 R26_HOOKS = [(R26_TIN, "source_r26"), (R26_SRC, "src_r26")]
 _SHOT = [None]
 

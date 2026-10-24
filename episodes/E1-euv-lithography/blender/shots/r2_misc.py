@@ -57,7 +57,7 @@ R25_HOOKS = [(R25_BEAM, "misc_beam_r25h")]
 # R26 (R26_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R25
 # hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R26 set ->
 # exact R25 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
-R26_BEAM = {"B4_07", "A2_03", "B8_17"}   # mbeam agent: misc_beam_r26h.py (row 2: beam_r26 soft shell)
+R26_BEAM = {"A2_03", "B8_17"}   # B4_07: mbeam BEAMCHECK25 NOGO f79 (coating edge-on 0.36 at the R24 camera) -> R25 pixels   # mbeam agent: misc_beam_r26h.py (row 2: beam_r26 soft shell)
 R26_HOOKS = [(R26_BEAM, "misc_beam_r26h")]
 _CUR_SHOT = [None]
 
