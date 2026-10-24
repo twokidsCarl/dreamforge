@@ -73,6 +73,10 @@ R28_HOOKS = [(R28_MISC, "misc_r28")]
 R29_BEAM = {"A2_03", "B8_17"}   # main process: beam_hook_r29.py (row 1; LAST)
 R29_MISC = {"B6_12"}   # misc agent: misc_r29.py (row 6: B4_07 ceramic body + flexure mount + chamber wall; B6_12 machine context behind the mask)
 R29_HOOKS = [(R29_MISC, "misc_r29"), (R29_BEAM, "beam_hook_r29")]
+# R30 (R30_ROOT_CAUSE.md): per-row sets, layered AFTER the R29 hooks, BEFORE beam_hook_r29 (stays LAST).
+R30_MISC = {"B4_07", "A0_06"}   # A2_03 row 6e: misc agent did not build it (switch off) -> R29 pixels;   # misc agent: misc_r30.py (row 6c: B4_07 three-point flexure + cooling bundle + substrate/coating line; row 6d: A0_06 real globe + tapered arcs; row 6e: A2_03 mixed right wall)
+R30_BEAM = {"A2_03", "B8_17"}   # main process: beam_hook_r30.py (row 2; pre() only)
+R30_HOOKS = [(R30_MISC, "misc_r30"), (R30_BEAM, "beam_hook_r30")]
 _CUR_SHOT = [None]
 
 
@@ -2184,10 +2188,16 @@ VARIANTS = {"space": _space, "globe": _globe, "mirror": _mirror, "pellicle": _pe
             "wafer": _wafer, "wave": _wave, "bokeh": _bokeh}
 
 
+class _R30BeamGate:
+    """beam_hook_r29 stays LAST (R30 HARD) and converts the legs of every shot in R29_BEAM or R30_BEAM."""
+    def __contains__(self, shot):
+        return shot in R29_BEAM or shot in R30_BEAM
+
+
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):
