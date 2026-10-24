@@ -144,6 +144,12 @@ R26 起追加（R25 RETRO）：
 - **HARD（NS-17 / R25 pgrep 自锁）**：主进程等独立审**禁止** `pgrep -f … | tail --pid`（会匹配 wait 自身）。三路 `p*/STATUS.txt` 齐即 merge；用 `wait-review-lanes.sh` 或等价文件轮询。COMMON_AGENT / 子任务同样禁止 `pgrep -f` / `while pgrep` 等渲染或等审。等渲染：前台跑或 done-file。验收：独立审结束后 ≤5 分钟必 merge 或明确失败 STATUS。详见 `WAIT_HARD.md`。
 - **下一轮 PROMPT 必抄（默认必带）**：job `PROMPT.md` 必须继承 R26 `(d)`——Never wait with `pgrep -f … | tail --pid`；只检查 lanes 的 `STATUS.txt`。复制 `r{N}smoke/COMMON_AGENT.md` 时 Waiting 段必须含同条 HARD（可附本目录 `WAIT_HARD.md`）。
 
+
+R27 起追加（R26 RETRO）：
+- 光束读法以**渲染后像素横截面**为准：冒烟对每条光束腿在 32 spp 合成帧上量一条横截面（边缘亮于中心、6–15 px 软过渡、背景透得出来）；`BEAMCHECK26` 只验着色器曲线，暗背景下 strength ≳1.8 会被 tone-map 成平顶 =「扁平梯形」（R26 mbeam 实测）。
+- 代理 hook 每条根因行一个开关（例 `cut_hero_r26_b302.CONE_R26`）：主进程 32 spp Q4 可以只退回其中一行、保留另一行，不必整镜回退或重派代理（R26 B3_02 保留推近、退回软锥）。
+- 「共享根因铺开」只铺到**剩余扣分点确实是光束**的镜；退回原因不是光束本身（C_03 残留 G1、B2_08 斑点几何、B4_07 机位侧立）的镜，下一轮按单镜结构行处理，不再算进共享铺开。
+
 ---
 
 ## C. GPU 渲
