@@ -1,0 +1,93 @@
+{
+  "sf10_camA": {
+    "head_yaw_monotonic": true,
+    "walk_dist_monotonic": true,
+    "head_yaw_range": [
+      0.0,
+      0.0
+    ],
+    "walk_dist_range": [
+      0.0,
+      0.0
+    ],
+    "no_full_period_sin": true
+  },
+  "sf10_camB": {
+    "head_yaw_monotonic": true,
+    "walk_dist_monotonic": true,
+    "head_yaw_range": [
+      0.0,
+      0.01
+    ],
+    "walk_dist_range": [
+      0.0,
+      0.14
+    ],
+    "no_full_period_sin": true
+  },
+  "sf10_camC": {
+    "head_yaw_monotonic": true,
+    "walk_dist_monotonic": true,
+    "head_yaw_range": [
+      0.0,
+      0.0
+    ],
+    "walk_dist_range": [
+      0.0,
+      0.22
+    ],
+    "no_full_period_sin": true
+  },
+  "cage_envA": {
+    "head_yaw_monotonic": true,
+    "walk_dist_monotonic": true,
+    "head_yaw_range": [
+      0.0,
+      0.008
+    ],
+    "walk_dist_range": [
+      0.0,
+      0.18
+    ],
+    "no_full_period_sin": true
+  },
+  "cage_envB": {
+    "head_yaw_monotonic": true,
+    "walk_dist_monotonic": true,
+    "head_yaw_range": [
+      -0.008,
+      -0.0
+    ],
+    "walk_dist_range": [
+      0.0,
+      0.15
+    ],
+    "no_full_period_sin": true
+  },
+  "cage_nphr": {
+    "head_yaw_monotonic": true,
+    "walk_dist_monotonic": true,
+    "head_yaw_range": [
+      0.0,
+      0.0
+    ],
+    "walk_dist_range": [
+      0.0,
+      0.04
+    ],
+    "no_full_period_sin": true
+  },
+  "cage_comm": {
+    "head_yaw_monotonic": true,
+    "walk_dist_monotonic": true,
+    "head_yaw_range": [
+      0.0,
+      0.0
+    ],
+    "walk_dist_range": [
+      0.0,
+      0.0
+    ],
+    "no_full_period_sin": true
+  }
+}

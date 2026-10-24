@@ -17,6 +17,19 @@ from PIL import Image, ImageDraw, ImageFont
 W, H, FPS = 960, 540, 24
 CAP_Y = int(H * 0.79)  # 426px — strictly above bottom 100px (720p) subtitle bar
 
+# Carl HARD (cut7 postmortem): cross-scale PIP + dense lower-left cards turned every
+# SF into a PPT template and inflated the (now-void) 5-axis self-score. Default OFF.
+# Cross-scale PIP may be re-enabled only for 1–2 true molecule↔in-vivo contrast beats.
+ENABLE_CROSS_SCALE_PIP = False
+# Cut8: molecular heroes must be Goodsell / SF08e·SF09e illustration language.
+# True-3D mol_retina_3d sequences are NOT allowed as molecular main picture.
+# Keep true 3D only for macro mouse/cage. F6: do not pad runtime with 6 long 3D mol seqs.
+USE_TRUE3D_MOLECULAR = False
+# Lower-left info cards: only at chapter open (first ~12% of each SF), not every frame.
+ENABLE_DENSE_LOWER_HUD = False
+CHAPTER_OPEN_FRAC = 0.12
+_HUD_CHAPTER_OPEN = False
+
 ROOT = '/workspace/e2work/v8'
 OUT_DIR = f'{ROOT}/styleframes'
 GEN_DIR = f'{ROOT}/gen'
@@ -131,13 +144,14 @@ def init_assets():
     SEQS['envB'] = _load_seq_dir(f'{REND_DIR}/mouse_v2_seqs/cage_envB_*.png', pingpong=True)
     SEQS['nphr'] = _load_seq_dir(f'{REND_DIR}/mouse_v2_seqs/cage_nphr_*.png', pingpong=True)
     SEQS['comm'] = _load_seq_dir(f'{REND_DIR}/mouse_v2_seqs/cage_comm_*.png', pingpong=True)
-    # True-3D Molecular, Microbial, Retinal & Neural Circuit Sequences
-    SEQS['microbe_3d'] = _load_seq_dir(f'{REND_DIR}/mol_retina_3d/microbe_3d_*.png', pingpong=True)
-    SEQS['chr2_3d'] = _load_seq_dir(f'{REND_DIR}/mol_retina_3d/chr2_3d_*.png', pingpong=True)
-    SEQS['br_pump_3d'] = _load_seq_dir(f'{REND_DIR}/mol_retina_3d/br_pump_3d_*.png', pingpong=True)
-    SEQS['nphr_3d'] = _load_seq_dir(f'{REND_DIR}/mol_retina_3d/nphr_3d_*.png', pingpong=True)
-    SEQS['retina_3d'] = _load_seq_dir(f'{REND_DIR}/mol_retina_3d/retina_3d_*.png', pingpong=True)
-    SEQS['hippo_cone_3d'] = _load_seq_dir(f'{REND_DIR}/mol_retina_3d/hippo_cone_3d_*.png', pingpong=True)
+    # True-3D mol sequences only if explicitly re-enabled (Cut8 default: illustration plates)
+    if USE_TRUE3D_MOLECULAR:
+        SEQS['microbe_3d'] = _load_seq_dir(f'{REND_DIR}/mol_retina_3d/microbe_3d_*.png', pingpong=True)
+        SEQS['chr2_3d'] = _load_seq_dir(f'{REND_DIR}/mol_retina_3d/chr2_3d_*.png', pingpong=True)
+        SEQS['br_pump_3d'] = _load_seq_dir(f'{REND_DIR}/mol_retina_3d/br_pump_3d_*.png', pingpong=True)
+        SEQS['nphr_3d'] = _load_seq_dir(f'{REND_DIR}/mol_retina_3d/nphr_3d_*.png', pingpong=True)
+        SEQS['retina_3d'] = _load_seq_dir(f'{REND_DIR}/mol_retina_3d/retina_3d_*.png', pingpong=True)
+        SEQS['hippo_cone_3d'] = _load_seq_dir(f'{REND_DIR}/mol_retina_3d/hippo_cone_3d_*.png', pingpong=True)
     SEQS['wave01'] = _load_vid_seq(f'{GEN_DIR}/vid/sf01_wave.mp4', 120)
     SEQS['swim03'] = _load_vid_seq(f'{GEN_DIR}/vid/sf03_swim.mp4', 120)
     SEQS['real20'] = _load_vid_seq(f'{GEN_DIR}/vid/sf10_real20.mp4', 226)
@@ -152,6 +166,7 @@ def init_assets():
         ('relay', f'{GEN_DIR}/sf08f_relay.png'),
         ('relay_b', f'{GEN_DIR}/sf08e_relay.png'),
         ('chr2', f'{GEN_DIR}/sf09e_chr2.png'),
+        ('chr2_goodsell', f'{GEN_DIR}/sf09_chr2_goodsell.png'),
         ('chr2_noret', f'{GEN_DIR}/sf09f_noret.png'),
         ('eye', f'{GEN_DIR}/sf11_eye.png'),
         ('eye_b', f'{GEN_DIR}/sf11b_eye.png'),
@@ -242,6 +257,8 @@ def place_inset(dst: np.ndarray, src_spec: tuple, t_local: float, span: float,
                 box: tuple[int, int, int, int], accent: tuple[int, int, int] = CYAN,
                 alpha: float = 0.94) -> np.ndarray:
     """Place a sleek cross-scale magnifier inset in the upper-right with rounded mask & glowing border."""
+    if not ENABLE_CROSS_SCALE_PIP:
+        return dst
     if alpha <= 0.02:
         return dst
     x0, y0, x1, y1 = box
@@ -314,6 +331,9 @@ class FastHUD:
             self.text((194, 52), sub, SANS, 12, fill=MUTED, alpha=0.92 * alpha, anchor='ls')
 
     def hud_card(self, box, title: str, sub: str = '', accent=CYAN, alpha=1.0, badge: str = ''):
+        # Dense lower-left cards off by default; chapter-open window sets _HUD_CHAPTER_OPEN.
+        if not ENABLE_DENSE_LOWER_HUD and not globals().get('_HUD_CHAPTER_OPEN', False):
+            return
         if alpha <= 0.01:
             return
         x0, y0, x1, y1 = box
@@ -341,6 +361,8 @@ class FastHUD:
         self.hud_card((bx, by, min(W - 20, bx + w), by + (54 if sub else 34)), title, sub, accent=accent, alpha=alpha)
 
     def inset_frame(self, box, label_txt: str, anchor_xy=None, accent=CYAN, alpha=1.0):
+        if not ENABLE_CROSS_SCALE_PIP:
+            return
         if alpha <= 0.01:
             return
         x0, y0, x1, y1 = box
@@ -380,6 +402,33 @@ def blend_hud(rgb_u8: np.ndarray, hud_pair: tuple[np.ndarray, np.ndarray]) -> np
 # SCENE DEFINITIONS: 23 Full-Bleed 16:9 Multi-Camera Styleframes
 # ==============================================================================
 
+
+def mol_src(kind: str, pan_x: float = 0.02, pan_y: float = 0.03):
+    """Molecular / micro hero source. Illustration plates when USE_TRUE3D_MOLECULAR is False.
+    kind: microbes|chr2|relay|pump|nphr|retina|circuit
+    """
+    if USE_TRUE3D_MOLECULAR:
+        seq_map = {
+            'microbes': mol_src('microbes'),
+            'chr2': mol_src('chr2'),
+            'relay': mol_src('chr2'),
+            'pump': mol_src('pump'),
+            'nphr': mol_src('nphr'),
+            'retina': mol_src('retina'),
+            'circuit': mol_src('circuit'),
+        }
+        return seq_map[kind]
+    plate_map = {
+        'microbes': ('plate', 'microbes', pan_x, pan_y),
+        'chr2': ('plate', 'chr2', pan_x, pan_y),          # sf09e_chr2
+        'relay': ('plate', 'relay_b', pan_x, pan_y),      # sf08e_relay
+        'pump': ('plate', 'relay', pan_x * 0.8, pan_y),   # sf08f as pump-family stand-in
+        'nphr': ('plate', 'chr2_noret', pan_x, pan_y),
+        'retina': ('plate', 'eye', pan_x, pan_y),
+        'circuit': ('plate', 'neuron', pan_x, pan_y),
+    }
+    return plate_map[kind]
+
 def _eval_scene(name: str, t: float) -> tuple[np.ndarray, int]:
     """Return (bg_rgb_with_scrim, hud_state_key) for scene `name` at time `t`."""
     q = int(t * 2.0)
@@ -387,11 +436,11 @@ def _eval_scene(name: str, t: float) -> tuple[np.ndarray, int]:
     if name == 'SF01_open_title':
         beats = [
             (0.0, 2.4, ('seq', 'm6', 0.35, False)),
-            (2.4, 5.0, ('seq', 'hippo_cone_3d', 0.45, False)),
+            (2.4, 5.0, mol_src('circuit')),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
         if b_idx == 0:
-            rgb = place_inset(rgb, ('seq', 'hippo_cone_3d', 0.45, False), loc, span, (650, 74, 932, 232), CYAN, 0.92)
+            rgb = place_inset(rgb, mol_src('circuit'), loc, span, (650, 74, 932, 232), CYAN, 0.92)
         else:
             rgb = place_inset(rgb, ('seq', 'envA', 0.38, False), loc, span, (650, 74, 932, 232), GOLD, 0.92)
         return rgb, q
@@ -402,40 +451,40 @@ def _eval_scene(name: str, t: float) -> tuple[np.ndarray, int]:
             (2.0, 4.0, ('plate', 'crowd', -0.02, 0.04)),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
-        rgb = place_inset(rgb, ('seq', 'hippo_cone_3d', 0.45, False), t, 4.0, (660, 74, 932, 230), GOLD, 0.90)
+        rgb = place_inset(rgb, mol_src('circuit'), t, 4.0, (660, 74, 932, 230), GOLD, 0.90)
         return rgb, q
 
     elif name == 'SF03_microbe_clues':
         beats = [
-            (0.0, 4.0, ('seq', 'microbe_3d', 0.45, False)),
-            (4.0, 8.0, ('seq', 'br_pump_3d', 0.45, False)),
+            (0.0, 4.0, mol_src('microbes', 0.02, 0.03)),
+            (4.0, 8.0, mol_src('pump', -0.02, 0.03)),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
-        rgb = place_inset(rgb, ('seq', 'chr2_3d', 0.45, False), t, 8.0, (650, 74, 932, 232), AMBER, 0.92)
+        rgb = place_inset(rgb, mol_src('chr2'), t, 8.0, (650, 74, 932, 232), AMBER, 0.92)
         return rgb, q
 
     elif name == 'SF04_crick_quote':
         beats = [
             (0.0, 5.5, ('plate', 'crick', 0.025, 0.04)),
-            (5.5, 11.0, ('seq', 'hippo_cone_3d', 0.42, False)),
+            (5.5, 11.0, mol_src('circuit')),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
         if b_idx == 0:
-            rgb = place_inset(rgb, ('seq', 'hippo_cone_3d', 0.45, False), loc, span, (650, 74, 932, 232), GOLD, 0.92)
+            rgb = place_inset(rgb, mol_src('circuit'), loc, span, (650, 74, 932, 232), GOLD, 0.92)
         else:
             rgb = place_inset(rgb, ('plate', 'crick', 0.01, 0.02), loc, span, (650, 74, 932, 232), CYAN, 0.92)
         return rgb, q
 
     elif name == 'SF12_neuron_select':
         beats = [
-            (0.0, 5.0, ('seq', 'hippo_cone_3d', 0.45, False)),
+            (0.0, 5.0, mol_src('circuit')),
             (5.0, 10.0, ('seq', 'envA', 0.35, False)),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
         if b_idx == 0:
             rgb = place_inset(rgb, ('seq', 'm6', 0.35, False), loc, span, (650, 74, 932, 232), CYAN, 0.92)
         else:
-            rgb = place_inset(rgb, ('seq', 'chr2_3d', 0.45, False), loc, span, (650, 74, 932, 232), GOLD, 0.92)
+            rgb = place_inset(rgb, mol_src('chr2'), loc, span, (650, 74, 932, 232), GOLD, 0.92)
         return rgb, q
 
     elif name == 'SF05_nobel_portraits':
@@ -450,28 +499,28 @@ def _eval_scene(name: str, t: float) -> tuple[np.ndarray, int]:
 
     elif name == 'SF06_switch_diagram':
         beats = [
-            (0.0, 4.5, ('seq', 'chr2_3d', 0.45, False)),
+            (0.0, 4.5, mol_src('chr2', 0.025, 0.03)),
             (4.5, 9.0, ('seq', 'm5', 0.35, False)),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
         if b_idx == 0:
             rgb = place_inset(rgb, ('seq', 'envA', 0.35, False), loc, span, (650, 74, 932, 232), CYAN, 0.92)
         else:
-            rgb = place_inset(rgb, ('seq', 'chr2_3d', 0.45, False), loc, span, (650, 74, 932, 232), GOLD, 0.92)
+            rgb = place_inset(rgb, mol_src('chr2'), loc, span, (650, 74, 932, 232), GOLD, 0.92)
         return rgb, q
 
     elif name == 'SF07_main_title':
         beats = [
-            (0.0, 3.5, ('seq', 'hippo_cone_3d', 0.45, False)),
+            (0.0, 3.5, mol_src('circuit')),
             (3.5, 7.0, ('seq', 'envA', 0.35, False)),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
-        rgb = place_inset(rgb, ('seq', 'chr2_3d', 0.45, False), t, 7.0, (650, 74, 932, 232), GOLD, 0.92)
+        rgb = place_inset(rgb, mol_src('chr2'), t, 7.0, (650, 74, 932, 232), GOLD, 0.92)
         return rgb, q
 
     elif name == 'SF13_spike_causality':
         beats = [
-            (0.0, 10.4, ('seq', 'hippo_cone_3d', 0.42, False)),
+            (0.0, 10.4, mol_src('circuit')),
             (10.4, 20.8, ('seq', 'm6', 0.35, False)),
             (20.8, 31.2, ('seq', 'envA', 0.35, False)),
             (31.2, 41.6, ('seq', 'comm', 0.35, False)),
@@ -480,19 +529,19 @@ def _eval_scene(name: str, t: float) -> tuple[np.ndarray, int]:
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
         ins_map = [
             ('seq', 'sf10_gpu', 0.35, False),
-            ('seq', 'hippo_cone_3d', 0.45, False),
-            ('seq', 'chr2_3d', 0.45, False),
-            ('seq', 'hippo_cone_3d', 0.45, True),
-            ('seq', 'chr2_3d', 0.45, True),
+            mol_src('circuit'),
+            mol_src('chr2'),
+            mol_src('circuit', -0.02, 0.02),
+            mol_src('chr2', -0.02, 0.02),
         ]
         rgb = place_inset(rgb, ins_map[b_idx], loc, span, (650, 74, 932, 232), CYAN if b_idx % 2 == 0 else GOLD, 0.92)
         return rgb, q
 
     elif name == 'SF08_early_attempts':
         beats = [
-            (0.0, 5.5, ('seq', 'br_pump_3d', 0.45, False)),
-            (5.5, 11.0, ('seq', 'hippo_cone_3d', 0.42, True)),
-            (11.0, 16.0, ('seq', 'chr2_3d', 0.45, False)),
+            (0.0, 5.5, mol_src('relay', 0.02, 0.03)),
+            (5.5, 11.0, mol_src('pump', -0.02, 0.025)),
+            (11.0, 16.0, mol_src('chr2', 0.02, 0.03)),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
         rgb = place_inset(rgb, ('seq', 'sf10_gpu', 0.35, False), t, 16.0, (650, 74, 932, 232), AMBER, 0.90)
@@ -500,8 +549,8 @@ def _eval_scene(name: str, t: float) -> tuple[np.ndarray, int]:
 
     elif name == 'SF09_chr2_channel':
         beats = [
-            (0.0, 4.0, ('seq', 'chr2_3d', 0.45, False)),
-            (4.0, 8.0, ('seq', 'br_pump_3d', 0.45, True)),
+            (0.0, 4.0, mol_src('chr2', 0.025, 0.03)),
+            (4.0, 8.0, mol_src('relay', -0.02, 0.025)),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
         rgb = place_inset(rgb, ('seq', 'm6', 0.35, False), t, 8.0, (650, 74, 932, 232), CYAN, 0.92)
@@ -509,12 +558,12 @@ def _eval_scene(name: str, t: float) -> tuple[np.ndarray, int]:
 
     elif name == 'SF14_orexin_q':
         beats = [
-            (0.0, 5.3, ('seq', 'hippo_cone_3d', 0.45, False)),
+            (0.0, 5.3, mol_src('circuit')),
             (5.3, 10.6, ('seq', 'sf10_gpu', 0.35, False)),
             (10.6, 16.0, ('seq', 'comm', 0.35, False)),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
-        ins = ('seq', 'sf10_gpu', 0.35, False) if b_idx == 0 else ('seq', 'hippo_cone_3d', 0.45, False)
+        ins = ('seq', 'sf10_gpu', 0.35, False) if b_idx == 0 else mol_src('circuit')
         rgb = place_inset(rgb, ins, loc, span, (650, 74, 932, 232), GOLD if b_idx == 0 else CYAN, 0.92)
         return rgb, q
 
@@ -527,33 +576,33 @@ def _eval_scene(name: str, t: float) -> tuple[np.ndarray, int]:
             (14.5, 19.2, ('seq', 'envA', 0.35, False)),     # Cam D: High-angle 3/4 experimental cage exploration
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t, fade_dur=0.35)
-        rgb = place_inset(rgb, ('seq', 'hippo_cone_3d', 0.45, False), t, 19.0, (664, 72, 932, 224), CYAN if t >= 3.5 else MUTED, 0.90)
+        rgb = place_inset(rgb, mol_src('circuit'), t, 19.0, (664, 72, 932, 224), CYAN if t >= 3.5 else MUTED, 0.90)
         return rgb, q
 
     elif name == 'SF15_br_pump_channel':
         beats = [
-            (0.0, 12.4, ('seq', 'microbe_3d', 0.42, False)),
-            (12.4, 24.8, ('seq', 'br_pump_3d', 0.42, False)),
-            (24.8, 37.2, ('seq', 'chr2_3d', 0.42, False)),
-            (37.2, 49.6, ('seq', 'br_pump_3d', 0.42, True)),
+            (0.0, 12.4, mol_src('microbes')),
+            (12.4, 24.8, mol_src('pump')),
+            (24.8, 37.2, mol_src('chr2')),
+            (37.2, 49.6, mol_src('pump', -0.02, 0.02)),
             (49.6, 62.0, ('seq', 'comm', 0.35, False)),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
-        ins = ('seq', 'envA', 0.35, False) if b_idx < 4 else ('seq', 'chr2_3d', 0.45, False)
+        ins = ('seq', 'envA', 0.35, False) if b_idx < 4 else mol_src('chr2')
         rgb = place_inset(rgb, ins, loc, span, (650, 74, 932, 232), GOLD if b_idx < 2 else CYAN, 0.92)
         return rgb, q
 
     elif name == 'SF16_chr_path':
         beats = [
-            (0.0, 20.0, ('seq', 'microbe_3d', 0.42, False)),
-            (20.0, 40.0, ('seq', 'br_pump_3d', 0.42, False)),
-            (40.0, 60.0, ('seq', 'chr2_3d', 0.42, False)),
-            (60.0, 80.0, ('seq', 'chr2_3d', 0.42, True)),
-            (80.0, 100.0, ('seq', 'hippo_cone_3d', 0.42, False)),
+            (0.0, 20.0, mol_src('microbes')),
+            (20.0, 40.0, mol_src('pump')),
+            (40.0, 60.0, mol_src('chr2')),
+            (60.0, 80.0, mol_src('chr2', -0.02, 0.02)),
+            (80.0, 100.0, mol_src('circuit')),
             (100.0, 120.0, ('seq', 'm6', 0.35, False)),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
-        ins = ('seq', 'm5', 0.35, False) if b_idx < 5 else ('seq', 'chr2_3d', 0.45, False)
+        ins = ('seq', 'm5', 0.35, False) if b_idx < 5 else mol_src('chr2')
         rgb = place_inset(rgb, ins, loc, span, (650, 74, 932, 232), CYAN, 0.92)
         return rgb, q
 
@@ -561,10 +610,10 @@ def _eval_scene(name: str, t: float) -> tuple[np.ndarray, int]:
         beats = [
             (0.0, 7.5, ('plate', 'deisseroth', 0.02, 0.035)),
             (7.5, 15.0, ('seq', 'envA', 0.35, False)),
-            (15.0, 22.5, ('seq', 'hippo_cone_3d', 0.45, False)),
+            (15.0, 22.5, mol_src('circuit')),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
-        rgb = place_inset(rgb, ('seq', 'chr2_3d', 0.45, False), t, 22.0, (650, 74, 932, 232), GOLD, 0.90)
+        rgb = place_inset(rgb, mol_src('chr2'), t, 22.0, (650, 74, 932, 232), GOLD, 0.90)
         return rgb, q
 
     elif name == 'SF18_invivo_dual':
@@ -574,7 +623,7 @@ def _eval_scene(name: str, t: float) -> tuple[np.ndarray, int]:
             (9.6, 19.2, ('seq', 'comm', 0.35, False)),
             (19.2, 28.8, ('seq', 'm6', 0.35, False)),
             (28.8, 38.4, ('seq', 'nphr', 0.35, False)),
-            (38.4, 48.0, ('seq', 'nphr_3d', 0.42, False)),
+            (38.4, 48.0, mol_src('nphr')),
             (48.0, 57.6, ('seq', 'envA', 0.35, True)),
             (57.6, 65.0, ('seq', 'nphr', 0.35, True)),
             (65.0, 75.5, ('plate', 'deisseroth', 0.02, 0.035)),
@@ -583,9 +632,9 @@ def _eval_scene(name: str, t: float) -> tuple[np.ndarray, int]:
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
         if t < 32.0:
-            rgb = place_inset(rgb, ('seq', 'chr2_3d', 0.45, False), loc, span, (650, 74, 932, 232), CYAN, 0.92)
+            rgb = place_inset(rgb, mol_src('chr2'), loc, span, (650, 74, 932, 232), CYAN, 0.92)
         elif t < 64.0:
-            ins = ('seq', 'envA', 0.35, False) if b_idx in (3, 4, 6) else ('seq', 'nphr_3d', 0.45, False)
+            ins = ('seq', 'envA', 0.35, False) if b_idx in (3, 4, 6) else mol_src('nphr')
             rgb = place_inset(rgb, ins, loc, span, (650, 74, 932, 232), AMBER if b_idx in (3, 4, 6) else CYAN, 0.94)
         else:
             rgb = place_inset(rgb, ('seq', 'envA', 0.35, False), loc, span, (650, 74, 932, 232), GOLD, 0.92)
@@ -595,16 +644,16 @@ def _eval_scene(name: str, t: float) -> tuple[np.ndarray, int]:
         # 88s: 7 distinct multi-cam 3D cage & hippocampal light-cone beats
         beats = [
             (0.0, 12.5, ('seq', 'envA', 0.35, False)),         # Context A exploration
-            (12.5, 25.0, ('seq', 'hippo_cone_3d', 0.42, False)), # Hippocampus DG ChR2 tagging in situ
+            (12.5, 25.0, mol_src('circuit')), # Hippocampus DG ChR2 tagging in situ
             (25.0, 38.0, ('seq', 'envB', 0.35, False)),        # Context B shock + blue light recall
-            (38.0, 51.0, ('seq', 'hippo_cone_3d', 0.42, True)),# DG engram reactivation
+            (38.0, 51.0, mol_src('circuit', -0.02, 0.02)),# DG engram reactivation
             (51.0, 64.0, ('seq', 'envB', 0.35, True)),         # Context B conditioning
             (64.0, 76.0, ('seq', 'comm', 0.35, False)),        # Return to Context A: fear-freezing micro-breathing!
             (76.0, 88.5, ('seq', 'envA', 0.32, True)),         # Context A verification
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
         if b_idx in (0, 1):
-            rgb = place_inset(rgb, ('seq', 'hippo_cone_3d', 0.45, False) if b_idx == 0 else ('seq', 'envA', 0.35, False), loc, span, (650, 74, 932, 232), CYAN, 0.92)
+            rgb = place_inset(rgb, mol_src('circuit') if b_idx == 0 else ('seq', 'envA', 0.35, False), loc, span, (650, 74, 932, 232), CYAN, 0.92)
         elif b_idx in (2, 3, 4):
             rgb = place_inset(rgb, ('seq', 'envA', 0.35, False), loc, span, (650, 74, 932, 232), AMBER, 0.94)
         else:
@@ -613,8 +662,8 @@ def _eval_scene(name: str, t: float) -> tuple[np.ndarray, int]:
 
     elif name == 'SF20_retina_intro':
         beats = [
-            (0.0, 8.0, ('seq', 'retina_3d', 0.45, False)),
-            (8.0, 16.0, ('seq', 'chr2_3d', 0.45, False)),
+            (0.0, 8.0, mol_src('retina')),
+            (8.0, 16.0, mol_src('chr2')),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
         rgb = place_inset(rgb, ('plate', 'eye_inset', 0.02, 0.03), t, 16.0, (650, 74, 932, 232), AMBER, 0.92)
@@ -622,50 +671,50 @@ def _eval_scene(name: str, t: float) -> tuple[np.ndarray, int]:
 
     elif name == 'SF11_eye_goggles':
         beats = [
-            (0.0, 8.0, ('seq', 'retina_3d', 0.45, False)),
+            (0.0, 8.0, mol_src('retina')),
             (8.0, 16.0, ('plate', 'goggles', -0.025, 0.04)),
-            (16.0, 24.0, ('seq', 'retina_3d', 0.45, True)),
+            (16.0, 24.0, mol_src('retina', -0.02, 0.02)),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
-        ins = ('plate', 'goggles', 0.02, 0.03) if b_idx != 1 else ('seq', 'retina_3d', 0.45, False)
+        ins = ('plate', 'goggles', 0.02, 0.03) if b_idx != 1 else mol_src('retina')
         rgb = place_inset(rgb, ins, loc, span, (650, 74, 932, 232), AMBER, 0.92)
         return rgb, q
 
     elif name == 'SF21_partial_vision':
         beats = [
-            (0.0, 15.0, ('seq', 'retina_3d', 0.45, False)),
+            (0.0, 15.0, mol_src('retina')),
             (15.0, 31.0, ('plate', 'goggles', -0.025, 0.04)),
-            (31.0, 46.5, ('seq', 'retina_3d', 0.45, True)),
+            (31.0, 46.5, mol_src('retina', -0.02, 0.02)),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
-        ins = ('plate', 'goggles', 0.02, 0.03) if b_idx != 1 else ('seq', 'retina_3d', 0.45, False)
+        ins = ('plate', 'goggles', 0.02, 0.03) if b_idx != 1 else mol_src('retina')
         rgb = place_inset(rgb, ins, loc, span, (650, 74, 932, 232), AMBER, 0.92)
         return rgb, q
 
     elif name == 'SF22_regulatory':
         beats = [
-            (0.0, 18.8, ('seq', 'retina_3d', 0.42, False)),
+            (0.0, 18.8, mol_src('retina')),
             (18.8, 37.6, ('plate', 'goggles', -0.025, 0.04)),
-            (37.6, 56.4, ('seq', 'retina_3d', 0.42, True)),
-            (56.4, 75.2, ('seq', 'chr2_3d', 0.42, False)),
+            (37.6, 56.4, mol_src('retina', -0.02, 0.02)),
+            (56.4, 75.2, mol_src('chr2')),
             (75.2, 94.5, ('seq', 'envA', 0.35, False)),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
-        ins = ('plate', 'goggles', 0.02, 0.03) if b_idx != 1 else ('seq', 'retina_3d', 0.45, False)
+        ins = ('plate', 'goggles', 0.02, 0.03) if b_idx != 1 else mol_src('retina')
         rgb = place_inset(rgb, ins, loc, span, (650, 74, 932, 232), GOLD, 0.92)
         return rgb, q
 
     elif name == 'SF23_limits_close':
         beats = [
-            (0.0, 16.5, ('seq', 'chr2_3d', 0.42, False)),
+            (0.0, 16.5, mol_src('chr2')),
             (16.5, 33.0, ('seq', 'envA', 0.35, False)),
             (33.0, 49.5, ('seq', 'comm', 0.35, False)),
             (49.5, 66.0, ('seq', 'm6', 0.35, False)),
-            (66.0, 82.5, ('seq', 'hippo_cone_3d', 0.42, False)),
+            (66.0, 82.5, mol_src('circuit')),
             (82.5, 100.5, ('seq', 'm5', 0.35, False)),
         ]
         rgb, b_idx, loc, span = multi_cam_bg(beats, t)
-        ins = ('seq', 'retina_3d', 0.45, False) if b_idx < 2 else (('seq', 'chr2_3d', 0.45, False) if b_idx < 4 else ('seq', 'envA', 0.35, False))
+        ins = mol_src('retina') if b_idx < 2 else (mol_src('chr2') if b_idx < 4 else ('seq', 'envA', 0.35, False))
         rgb = place_inset(rgb, ins, loc, span, (650, 74, 932, 232), CYAN if b_idx < 4 else GOLD, 0.92)
         return rgb, q
 
@@ -676,6 +725,9 @@ def _build_hud(name: str, q: int, dur: float) -> np.ndarray:
     """Build supersampled 16:9 widescreen HUD overlay for quantized time `q * 0.25`."""
     t = min(q * 0.5, dur - 0.02)
     frac = min(max(t / max(dur, 1e-5), 0.0), 1.0)
+    # Chapter-open only: allow lower-left card in the first CHAPTER_OPEN_FRAC of each SF.
+    global _HUD_CHAPTER_OPEN
+    _HUD_CHAPTER_OPEN = bool(frac <= CHAPTER_OPEN_FRAC)
     H_hud = FastHUD()
     IBOX = (650, 74, 932, 232)
 
