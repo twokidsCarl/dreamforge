@@ -908,6 +908,13 @@ R27_HOOKS = [(R27_TIN, "source_r27"), (R27_SRC, "src_r27")]
 R28_TIN = {"B1_08"}   # A0_01 / B1_10: main 32-spp Q4 no -> R27 pixels (sheet rig = white decals / letters 「P9」 on a black disc; with it returned the sheets still read grey plastic, now with burnt-looking holes = only one bad read fewer)   # tin agent: source_r28.py (row 1: discrete structured reflections + breakup; A0_01 2nd pulse)
 R28_SRC = {"B1_15"}   # main process: b115_r28.py (row 2: camera on the mouth side, cone converges away from the bowl; row 2m: continuous env highlight + plasma image in the bowl)
 R28_HOOKS = [(R28_TIN, "source_r28"), (R28_SRC, "b115_r28")]
+# R29 (R29_ROOT_CAUSE.md): per-row shot sets + hook modules, pre-wired by the main process, layered AFTER the R28
+# hooks. Remove a shot id from its R29 set -> exact R28 pixels. Mutate these sets, never rebind them.
+R29_TIN = {"B1_10", "B1_08", "A0_01"}   # tin agent: source_r29.py (row 2: tin step 3 on the main-process material look)
+R29_SRC = {"B1_15"}   # main process: src_r29.py (row 5: B1_15 push / focus pull, nozzle out of the cone, full-mouth volume cone)
+R29_BEAM = {"B1_15"}   # main process: beam_hook_r29.py (row 1; LAST)
+R29_B208 = set()   # kit agent: src_b208_r29.py (row 2m: B2_08 collector = high-reflective coating on the tin_r29 soft-source recipe)
+R29_HOOKS = [(R29_TIN, "source_r29"), (R29_SRC, "src_r29"), (R29_B208, "src_b208_r29"), (R29_BEAM, "beam_hook_r29")]
 _SHOT = [None]
 
 
@@ -922,7 +929,7 @@ def _r20(shot_id):
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):
