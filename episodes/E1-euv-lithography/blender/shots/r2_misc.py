@@ -36,6 +36,12 @@ R21_SHOTS = {"B8_17", "B6_12"}
 # set -> exact R21 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
 R22_SHOTS = {"B8_17", "B4_10"}  # B6_12: misc Q4 no (haze milky, no crisp band) -> R21 pixels; # misc agent: misc_b817_r22.py / misc_b612_r22.py / misc_b410_r22.py
 R22_HOOKS = [({"B8_17"} & R22_SHOTS, "misc_b817_r22"), ({"B6_12"} & R22_SHOTS, "misc_b612_r22"), ({"B4_10"} & R22_SHOTS, "misc_b410_r22")]
+# R23 (R23_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R22
+# hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R23 set ->
+# exact R22 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
+R23_MISC = {"B6_12", "B4_10", "B8_17"}   # misc agent: misc_r23.py (rows 1 / 2 / 6)
+R23_PANEL = {"A0_06"}                    # panel agent: panel_r23.py (row 4)
+R23_HOOKS = [(R23_MISC, "misc_r23"), (R23_PANEL, "panel_r23")]
 _CUR_SHOT = [None]
 
 
@@ -2150,7 +2156,7 @@ VARIANTS = {"space": _space, "globe": _globe, "mirror": _mirror, "pellicle": _pe
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS if shot in s_]
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS if shot in s_]   # R23: R23 hooks after R22
 
 
 def _r22_pre(variant, shot):

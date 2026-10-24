@@ -15,6 +15,18 @@ import bpy
 import common as C
 import kit_r2 as K
 
+# R23 (R23_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R22
+# hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R23 set ->
+# exact R22 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
+R23_PANEL = {"A0_03"}   # panel agent: panel_r23.py (rows 2 / 4); A0_02 / D_07 are gold -> never in a set
+R23_HOOKS = [(R23_PANEL, "panel_r23")]
+
+
+def _r23_hooks(shot):
+    import importlib
+    return [importlib.import_module(h) for s_, h in R23_HOOKS if shot in s_]
+
+
 PLATES = {"freighter": "r2_a002.png", "crates": "r2_a003_r10.png", "cleanroom": "r2_d007.png"}
 # R16 tried a wide image2 plate (r2_a003_r16.png, ~hundreds of crates) -> review: counts don't match (crates >> 250,
 # ~10 ULDs, 1-2 trucks). R17 (root cause 6): back to the R15 close documentary plate r2_a003_r10.png + R15 camera;
@@ -63,6 +75,9 @@ def _freighter_life(n, H, aspect):
 
 
 def build(variant="freighter", shot=None):
+    for h in _r23_hooks(shot):
+        if hasattr(h, "pre"):
+            h.pre(variant, shot, __import__(__name__))
     n = K.nframes(shot) if shot else 120
     sc = C.reset_scene(n)
     K.world_dark(0.2)
@@ -130,4 +145,7 @@ def build(variant="freighter", shot=None):
     sc["hdri_world"] = True
     sc.view_settings.view_transform = "Standard"
     sc.camera = cam
+    for h in _r23_hooks(shot):
+        if hasattr(h, "post"):
+            h.post(sc, variant, shot)
     return sc
