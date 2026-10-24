@@ -1,0 +1,111 @@
+{
+  "duration": 208.041667,
+  "VO_START": 183.76,
+  "n_frames": 208,
+  "a_bar_hits": 0,
+  "a_top_pill_hits": 0,
+  "a_burned_center_hits": 0,
+  "a_burned_secs": [],
+  "a_score": 100,
+  "b_longest_mad_lt1_s": 1,
+  "b_bad_spans_ge3s": [],
+  "b_residual_p50": 19.395023345947266,
+  "b_score": 100,
+  "c_chain_ok": true,
+  "c_score": 100,
+  "d_mouse_st": 15.083333,
+  "d_loop": false,
+  "d_still_head": false,
+  "d_mouse_head_motion": 5.925674642835345,
+  "d_pre_mouse_freeze_seconds": 0,
+  "d_score": 100,
+  "av_median_abs_lag": 7.105427357601002e-15,
+  "av_n_pairs": 55,
+  "av_sample_ok": "7/8",
+  "av_samples": [
+    {
+      "ass_t": 0.0,
+      "ass": "这枚开关不是在神经科学里设计出来的",
+      "asr_t": 0.0,
+      "asr": "这枚开关不是在神经科学里设计出来的",
+      "lag": 0.0,
+      "score": 1.0,
+      "ok": true
+    },
+    {
+      "ass_t": 22.8,
+      "ass": "1973 年",
+      "asr_t": 22.8,
+      "asr": "1973年",
+      "lag": 0.0,
+      "score": 1.0,
+      "ok": true
+    },
+    {
+      "ass_t": 41.2,
+      "ass": "泵和通道不是一回事",
+      "asr_t": 41.2,
+      "asr": "论和通道不是一回事",
+      "lag": 0.0,
+      "score": 0.8888888888888888,
+      "ok": true
+    },
+    {
+      "ass_t": 98.0,
+      "ass": "关键的一句在这里",
+      "asr_t": 98.0,
+      "asr": "关键的一句在这里,早先的方案要靠好几步信号接力。",
+      "lag": 0.0,
+      "score": 1.0,
+      "ok": true
+    },
+    {
+      "ass_t": 116.0,
+      "ass": "哪怕只保留蛋白里形成通道的那一段",
+      "asr_t": 115.66666666666667,
+      "asr": "诺奖科学背景显明,哪怕只保留蛋白里形成通道的那一段。",
+      "lag": -0.3333333333333286,
+      "score": 1.0,
+      "ok": true
+    },
+    {
+      "ass_t": 128.0,
+      "ass": "同一个合作组报告了第二种蛋白",
+      "asr_t": 127.0,
+      "asr": "2003年,同一个合作组报告了第二种蛋白。",
+      "lag": -1.0,
+      "score": 1.0,
+      "ok": false
+    },
+    {
+      "ass_t": 160.6,
+      "ass": "实验里用的也是一串短脉冲，不是一直照着",
+      "asr_t": 160.48000000000002,
+      "asr": "实验里用的也是一串短麦冲",
+      "lag": -0.11999999999997613,
+      "score": 0.7222222222222222,
+      "ok": true
+    },
+    {
+      "ass_t": 194.76,
+      "ass": "2006 年",
+      "asr_t": 194.8,
+      "asr": "2006年",
+      "lag": 0.040000000000020464,
+      "score": 1.0,
+      "ok": true
+    }
+  ],
+  "av_score": 100,
+  "oo_pptish_frames": 0,
+  "oo_n": 20,
+  "oo_ok": true,
+  "oo_score": 100,
+  "vivian_subjective": 96,
+  "first_ass": [
+    0.0,
+    2.8,
+    "这枚开关不是在神经科学里设计出来的"
+  ],
+  "pass": true
+}
