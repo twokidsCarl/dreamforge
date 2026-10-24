@@ -219,7 +219,7 @@ def light_current(tt, mode, t_on):
 def f_chr2b(t):
     p = R.P('chr2')
     u = (t - 306.5) / 38.0
-    rgb, v = p.cam(1.02 + 0.10 * ease(u), 0.50, 0.47)
+    rgb, v = p.cam(1.0 + 0.20 * ease(u), 0.46 + 0.08 * u, 0.47)
     mode, t_on = ('step', 325.6) if t < 336.85 else ('pulse', 337.0)
     lit_cur = 0.0; cur = 0.0
     if 317.2 <= t < 325.4:
@@ -314,7 +314,7 @@ def f_neuron(t):
 
 def f_authors(t):
     p = R.P('laur')
-    rgb, v = p.cam(1.0 + 0.03 * ramp(t, 366.6, 376.0), 0.5, 0.46)
+    rgb, v = p.cam(1.0 + 0.09 * ramp(t, 366.6, 376.0), 0.5, 0.46)
     rgb = dim_all(rgb, 0.35)
     a = win(t, 367.4, 376.3, 0.4, 0.4)
     paste(rgb, text_sprite('当年论文的署名', 30, CREAM), W / 2 - 230, 70, a)
@@ -329,7 +329,7 @@ def f_authors(t):
 def f_term(t):
     p = R.P('open')
     u = (t - 375.6) / 15.0
-    rgb, v = p.cam(1.10 + 0.08 * ease(u), 0.62, 0.48)
+    rgb, v = p.cam(1.04 + 0.16 * ease(u), 0.60 + 0.04 * u, 0.48)
     # targeted class (cyan pyramidal) glows on 「基因决定哪一类」; beam pulses on 「光决定什么时候拨」
     cls = win(t, 384.5, 390.6, 0.4, 0.4)
     if cls > 0:
@@ -359,9 +359,9 @@ def f_term(t):
 def f_motor(t):
     pw, pf = R.P('mwake'), TP('mfront')
     u = (t - 389.8) / 28.0
-    xf = ramp(t, 404.3, 405.6)
-    rw, vw = pw.cam(1.08 + 0.05 * u, 0.50, 0.44)
-    rf, vf = pf.cam(1.05 + 0.04 * u, 0.52, 0.46)
+    xf = 1.0 if t >= 404.3 else 0.0   # hard cut: two poses must not ghost
+    rw, vw = pw.cam(1.02 + 0.16 * u, 0.46 + 0.06 * u, 0.44)
+    rf, vf = pf.cam(1.00 + 0.14 * u, 0.50 + 0.04 * u, 0.46)
     L = win(t, 395.8, 412.0, 0.3, 0.6)
     for rgb_, v_, top, imp, w_ in ((rw, vw, (0.60, 0.0), (0.595, 0.37), 1 - xf), (rf, vf, (0.61, 0.0), (0.63, 0.24), xf)):
         if w_ > 0:
@@ -458,9 +458,10 @@ def f_nphr(t):
 
 def f_dual(t):
     if t < 442.4:
-        a, va = R.P('chr2').cam(1.15, 0.49, 0.47)
+        kz = (t - 435.3) / 7.5
+        a, va = R.P('chr2').cam(1.08 + 0.12 * kz, 0.49, 0.47)
         a = chr2_state(t, a, va, 1.0, 1.0)
-        b, vb = TP('nphr').cam(1.15, 0.40, 0.47)
+        b, vb = TP('nphr').cam(1.08 + 0.12 * kz, 0.40, 0.47)
         rgb = np.concatenate([a[:, 320:960], b[:, 320:960]], axis=1)
         ov = overlay_layer()
         cv2.line(ov, (640, 0), (640, H), col(CREAM, 0.8), 2, cv2.LINE_AA)
@@ -551,7 +552,7 @@ def f_chrimson(t):
 
 def f_honor(t):
     p = R.P('laur')
-    rgb, v = p.cam(1.0 + 0.03 * ramp(t, 468.0, 488.0), 0.5, 0.46)
+    rgb, v = p.cam(1.0 + 0.12 * ramp(t, 468.0, 488.0), 0.5, 0.46)
     a = win(t, 469.3, 487.6, 0.4, 0.5)
     if a > 0:
         # two lists: 2013 (6 people, these 3 included) vs 2026 Nobel (3)
@@ -591,7 +592,7 @@ def dg_frame(t, z, cx, cy, gold=0.0, cells_on=1.0, chr2=0.0, blue=0.0):
 
 def f_mem_intro(t):
     u = (t - 487.1) / 12.0
-    rgb, v = dg_frame(t, 1.04 + 0.06 * u, 0.5, 0.5, cells_on=0.0)
+    rgb, v = dg_frame(t, 1.00 + 0.16 * u, 0.48 + 0.04 * u, 0.5, cells_on=0.0)
     chip(rgb, '开关能在活体里只拨某一类细胞', t, 488.4, 492.0, CYAN)
     chip(rgb, '→ 拿来问：记忆存在哪里', t, 492.0, 494.7, GOLD, '小鼠海马 · 齿状回')
     chip(rgb, '只深讲一件事，而且只讲小鼠', t, 494.7, 499.5, CREAM)
@@ -611,7 +612,7 @@ def dg_pip(t, gold, chr2, blue, r=110):
 def f_envA(t):
     p = TP('envA')
     u = (t - 498.9) / 14.6
-    rgb, v = p.cam(1.06 + 0.05 * u, 0.48, 0.47)
+    rgb, v = p.cam(1.02 + 0.16 * u, 0.44 + 0.06 * u, 0.47)
     on = ramp(t, 504.5, 505.5)
     chr2 = ramp(t, 509.9, 510.8)
     pa = win(t, 502.2, 513.5, 0.4, 0.4)
@@ -632,7 +633,7 @@ def f_envA(t):
 def f_envB(t):
     p = TP('envB')
     u = (t - 513.0) / 15.6
-    rgb, v = p.cam(1.06 + 0.05 * u, 0.50, 0.47)
+    rgb, v = p.cam(1.02 + 0.16 * u, 0.46 + 0.06 * u, 0.47)
     # foot shock: grid sparks
     sh = max(flash_pulse(t, 517.2, 0.1), flash_pulse(t, 518.4, 0.1), flash_pulse(t, 521.0, 0.1))
     if sh > 0.02:
@@ -685,7 +686,7 @@ def f_meaning(t):
     u = (t - 540.7) / 36.0
     gold = 0.55 * win(t, 541.0, 556.0, 0.5, 0.5)
     blue = 0.6 * win(t, 548.2, 553.8, 0.3, 0.4) * (0.6 + 0.4 * math.sin(t * 5))
-    rgb, v = dg_frame(t, 1.06 + 0.10 * ease(u), 0.52, 0.48, gold=gold, cells_on=1.0, blue=blue)
+    rgb, v = dg_frame(t, 1.02 + 0.24 * ease(u), 0.50 + 0.06 * u, 0.48, gold=gold, cells_on=1.0, blue=blue)
     chip(rgb, '写进去的：一批选定细胞的活动', t, 544.8, 548.2, GOLD, '不是一句话，也不是一段人生')
     ba = win(t, 548.2, 554.0, 0.4, 0.4)
     if ba > 0:
@@ -716,7 +717,7 @@ RGC = [(0.21, 0.28), (0.50, 0.28), (0.80, 0.29)]
 def f_retina(t):
     p = TP('retina')
     u = (t - 576.6) / 17.6
-    rgb, v = p.cam(1.04 + 0.08 * ease(u), 0.5, 0.5)
+    rgb, v = p.cam(1.02 + 0.16 * ease(u), 0.48 + 0.04 * u, 0.5)
     pr = win(t, 579.5, 594.4, 0.6, 0.4)
     rgb = dim(rgb, p.warp_mask(TMASK('retina_pr'), v), 0.75 * pr * ramp(t, 579.5, 582.5), 0.9)
     x, y = v.pt(0.30, 0.66)
@@ -743,7 +744,7 @@ def f_retina(t):
 def f_trial(t):
     p = TP('eye')
     u = (t - 593.7) / 25.0
-    rgb, v = p.cam(1.04 + 0.08 * ease(u), 0.52, 0.48)
+    rgb, v = p.cam(1.02 + 0.16 * ease(u), 0.52, 0.48)
     inj = win(t, 600.2, 610.3, 0.4, 0.4)
     if inj > 0:
         vit = v.pt(0.60, 0.48)
@@ -782,7 +783,7 @@ def f_patient(t):
     if t < 643.8:
         p = TP('goggles')
         u = (t - 618.3) / 26.0
-        rgb, v = p.cam(1.04 + 0.06 * ease(u), 0.45, 0.47)
+        rgb, v = p.cam(1.02 + 0.18 * ease(u), 0.42 + 0.06 * u, 0.47)
         beam_on = 1.0
         off = win(t, 630.5, 635.6, 0.3, 0.3)
         if off > 0:
@@ -813,7 +814,7 @@ def f_patient(t):
 def f_patient_retina(t):
     p = TP('retina')
     u = (t - 643.3) / 22.0
-    rgb, v = p.cam(1.04 - 0.02 * ease(u), 0.5, 0.45)
+    rgb, v = p.cam(1.00 + 0.12 * ease(u), 0.48 + 0.04 * u, 0.45)
     rgb = dim(rgb, p.warp_mask(TMASK('retina_pr'), v), 0.75, 0.9)
     # 哪里亮度变了 → 对应位置打一束光 → 打开那里的通道
     seq = [(648.3, 0), (650.2, 2), (652.0, 1), (654.4, 0), (656.0, 2)]
@@ -824,8 +825,8 @@ def f_patient_retina(t):
             x, y = v.pt(fx, fy)
             ov = overlay_layer()
             cv2.line(ov, (int(x - 120), 0), (int(x), int(y)), (1, 1, 1, 1), 10, cv2.LINE_AA)
-            rgb = add_glow(rgb, cv2.GaussianBlur(ov[..., 3], (0, 0), 6), (255, 140, 70), 0.8 * a)
-            add_radial(rgb, x, y, 60, (255, 160, 90), 0.9 * a)
+            rgb = add_glow(rgb, cv2.GaussianBlur(ov[..., 3], (0, 0), 6), (255, 140, 70), 1.6 * a)
+            add_radial(rgb, x, y, 70, (255, 160, 90), 1.5 * a)
     chip(rgb, '所见 = 护目镜把亮度变化译成的光脉冲', t, 644.2, 650.1, (255, 150, 90))
     chip(rgb, '对应位置打一束光 → 打开那里新装的通道', t, 650.1, 656.4, (255, 150, 90))
     chip(rgb, '不是不依赖设备的日常视觉', t, 656.4, 659.4, CREAM)
@@ -866,7 +867,7 @@ def f_reg(t):
         p = TP('regdocs')
         u = (t - 665.3) / 60.3
         cx = 0.62 - 0.10 * ramp(t, 701.5, 703.5)
-        rgb, v = p.cam(1.06 + 0.10 * ease(u), cx, 0.52)
+        rgb, v = p.cam(1.02 + 0.30 * ease(u), cx + 0.04 * math.sin(u * 3.0), 0.52)
         stamp = v.pt(0.87, 0.50)
         sa = win(t, 679.5, 701.3, 0.4, 0.4)
         rgb = ring(rgb, stamp[0], stamp[1], 46, (255, 140, 140), sa, 3)
@@ -891,7 +892,7 @@ def f_reg(t):
 def f_reg_numbers(t):
     if t < 753.6:
         p = TP('goggles')
-        rgb, v = p.cam(1.10 + 0.04 * ramp(t, 725.0, 754.0), 0.40, 0.47)
+        rgb, v = p.cam(1.04 + 0.16 * ramp(t, 725.0, 754.0), 0.38 + 0.06 * ramp(t, 725.0, 754.0), 0.47)
         rgb = dim_all(rgb, 0.5)
         chip(rgb, '数字要连同分母一起说 · 出自公司公告', t, 726.3, 731.9, GOLD)
         a1 = win(t, 731.8, 753.8, 0.4, 0.4)
@@ -907,7 +908,7 @@ def f_reg_numbers(t):
 def f_reg_foot(t):
     if t < 761.6:
         p = TP('regdocs')
-        rgb, v = p.cam(1.20, 0.80, 0.58)
+        rgb, v = p.cam(1.14 + 0.10 * ramp(t, 753.0, 761.6), 0.80, 0.58)
         stamp = v.pt(0.87, 0.50)
         a = win(t, 754.2, 761.8, 0.4, 0.3)
         rgb = ring(rgb, stamp[0], stamp[1], 60, (255, 140, 140), a, 3)
@@ -920,7 +921,7 @@ def f_reg_foot(t):
 
 def f_cochlea(t):
     p = TP('cochlea')
-    rgb, v = p.cam(1.04 + 0.06 * ramp(t, 761.0, 772.5), 0.45, 0.5)
+    rgb, v = p.cam(1.02 + 0.16 * ramp(t, 761.0, 772.5), 0.43 + 0.04 * ramp(t, 761.0, 772.5), 0.5)
     chip(rgb, '光学人工耳蜗', t, 762.3, 772.6, (255, 150, 90), '按 2023 年综述：仍是临床前')
     if t > 772.0:
         rgb = mix(rgb, f_bound(t), ramp(t, 772.0, 772.6))
@@ -929,7 +930,7 @@ def f_cochlea(t):
 
 def f_bound(t):
     if t < 784.3:
-        rgb, v = R.P('chr2').cam(1.10, 0.49, 0.47)
+        rgb, v = R.P('chr2').cam(1.04 + 0.12 * ramp(t, 772.0, 784.3), 0.49, 0.47)
         rgb = chr2_state(t, rgb, v, 1.0, 0.6)
         rgb = current_panel(rgb, t, win(t, 776.6, 784.6, 0.4, 0.4), 'step', 777.0)
         chip(rgb, '边界停在已发表的事实上', t, 774.2, 776.8, GOLD)
@@ -942,7 +943,7 @@ def f_bound(t):
 
 def f_bound2(t):
     if t < 789.4:
-        rgb, v = R.P('brain').cam(1.15, 0.42, 0.40)
+        rgb, v = R.P('brain').cam(1.10 + 0.08 * ramp(t, 783.9, 789.4), 0.42, 0.40)
         tip = v.pt(0.425, 0.29); add_radial(rgb, tip[0], tip[1], 30, CYAN, 0.9)
         chip(rgb, '光得送到细胞旁边：2007 年在脑里用光纤', t, 784.6, 789.5, CYAN)
         if t > 788.8:
@@ -954,7 +955,7 @@ def f_bound2(t):
 def f_bound3(t):
     if t < 794.6:
         p = TP('goggles')
-        rgb, v = p.cam(1.08, 0.45, 0.47)
+        rgb, v = p.cam(1.04 + 0.08 * ramp(t, 788.8, 794.6), 0.45, 0.47)
         m = hue_mask(p, 0, 20, smin=80, vmin=120, blur=31, region=(0.52, 0.2, 1.0, 0.75)) if not hasattr(f_patient, 'bm') else f_patient.bm
         f_patient.bm = m
         rgb = dim(rgb, p.warp_mask(m, v), 0.95 * ramp(t, 791.0, 792.2), 0.4)
@@ -968,7 +969,7 @@ def f_bound3(t):
 def f_bound4(t):
     if t < 811.4:
         p = TP('regdocs')
-        rgb, v = p.cam(1.10 + 0.06 * ramp(t, 794.0, 811.5), 0.62, 0.52)
+        rgb, v = p.cam(1.04 + 0.18 * ramp(t, 794.0, 811.5), 0.60 + 0.05 * ramp(t, 794.0, 811.5), 0.52)
         rgb = fact_card(rgb, t, 795.1, 811.5, '已发表 / 已申请的，到此为止',
                         [('人体视觉：部分功能 · 绑在装置上', CREAM, 795.2),
                          ('一条申请：尚未获批', (255, 160, 140), 801.7),
@@ -996,7 +997,7 @@ def f_can(t):
 
 def f_cannot(t):
     if t < 828.4:
-        rgb, v = dg_frame(t, 1.10, 0.52, 0.48, gold=0.4, cells_on=1.0)
+        rgb, v = dg_frame(t, 1.04 + 0.10 * ramp(t, 820.8, 828.5), 0.52, 0.48, gold=0.4, cells_on=1.0)
         rgb = dim_all(rgb, 0.3)
         tag(rgb, '小鼠海马里的一段恐惧  ≠  改写了某个人的人生', W / 2, 300, win(t, 821.6, 828.6, 0.4, 0.3), (255, 150, 150), 26)
         chip(rgb, '做不到', t, 821.6, 835.0, (255, 140, 140))
@@ -1009,7 +1010,7 @@ def f_cannot(t):
 def f_cannot2(t):
     if t < 836.4:
         p = TP('goggles')
-        rgb, v = p.cam(1.12, 0.45, 0.47)
+        rgb, v = p.cam(1.06 + 0.08 * ramp(t, 827.9, 836.4), 0.45, 0.47)
         rgb = dim_all(rgb, 0.3)
         tag(rgb, '离不开装置的部分视觉  ≠  失明已经结束', W / 2, 300, win(t, 828.5, 836.6, 0.4, 0.3), (255, 150, 150), 26)
         chip(rgb, '做不到', t, 821.6, 836.6, (255, 140, 140))
