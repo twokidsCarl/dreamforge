@@ -81,7 +81,7 @@ R14 起（Carl HARD 2026-10-23 20:51，取代「只冒烟改过的少数镜」�
 - 共用代码 / 材质改动 → **全部非金控引用镜都要真改并重渲**，冒烟集合 = 最低 ∪ 全部重渲的非金控镜 ∪ 工单门槛镜；禁止故意让引用镜像素不变。
 - 开工前先写「根因 → 对症」表（`p1/R{N}_ROOT_CAUSE.md`），每条改动对应上一轮审稿写明的根因；同一旋钮不连拧两轮。
 - STATUS / 推送文案必须报 `changed_vs_prev = N/24`（合成帧 mean abs diff > 0），有共享光路 / 材质根因时 N ≥ 12。
-- 审稿三路 `STATUS.txt` 都出现即 merge，不等进程退出、不 pgrep 轮询。
+- 审稿三路 `STATUS.txt` 都出现即 merge，不等进程退出、**禁止** `pgrep -f` + `tail --pid` / `while pgrep`（主进程与 subagent；R25 自锁 ≥33 分钟）。推荐 `/workspace/luna-ops/claude-hooks/scripts/wait-review-lanes.sh <review_rN>`（默认 900s）；或自写轮询 `p*/STATUS.txt` / `lane_p*.out`。必须等进程时：pidfile + `timeout`，pgrep 排除 `$$`（FLEET-HARD NS-17）。
 
 R13 起追加（RETRO）：
 - 改过机位的镜：首尾两帧 960×540，量机位位移 / 视差（R12 B3_02 H2 教训）。
@@ -112,7 +112,7 @@ R20 起追加（R19 RETRO）：
 - 冒烟第三问对每段光加问「从哪面镜来、到哪面镜去、两端落点都在画内吗」；一端出画 / 在空中拐弯 / 箭头指回入射 = NO-GO（R19 B5_01 最低、B7_06 S 形弯体）。
 
 R21 起追加（R20 RETRO）：
-- 子任务禁止用 `pgrep -f` / `while pgrep` 等渲染（R20 cut 匹配到自身 shell 空等 30 分）；用 done 文件或前台跑。cut 子任务只给 ≤2 主角镜 + 共用件；第 25 分钟还没有一张 32 spp 三帧冒烟 → 主进程接手。
+- **主进程与**子任务禁止用 `pgrep -f` / `while pgrep` 等渲染或等审（R20 cut / R25 主进程均曾自锁）；用 done/`STATUS.txt` 文件、`wait-review-lanes.sh`、或前台跑。cut 子任务只给 ≤2 主角镜 + 共用件；第 25 分钟还没有一张 32 spp 三帧冒烟 → 主进程接手。
 - 镜面主角镜冒烟第三问加：倒影是否与另一亮元素（激光线 / 光轴 / 光锥）重叠——重叠 = NO-GO（R20 B1_15 倒影压在激光线上读成悬空白点）。细小几何（液丝 / 针 / 点）量 960×540 下最小特征像素宽，< 3 px 视为会读成刺 / 噪点。
 
 R22 起追加（R21 RETRO）：
@@ -141,6 +141,7 @@ R26 起追加（R25 RETRO）：
 - 主进程写的共用着色器 / 共用件（beam_rN 等）派代理前，先在一个导入镜上 8 spp 实渲一帧并**看图**（R25 `1 − Facing` 符号错让 3 个代理在错的着色器上调参）；结果图路径写进 COMMON_AGENT。
 - 草算显示「hook 层面达不到」的光学根因（R25 A0_10 侧看剖面拐点镜），主进程先做**场景模块级**结构改动（减拐点、移部件）并 8 spp 实渲，再派代理；不再让代理两轮在 pre/post 里调深度。
 - 光束新读法清单加「扁平玻璃板 / 硬边楔形」（R25 B5_01 / B8_03 / B2_08）：壳锥默认软边参数（edge ≈1.3、core ≈0.28、alpha ≈0.45），硬边 = 不交候选。铺开数不足时如实报 `changed_vs_prev`，不为凑数硬铺。
+- **HARD（NS-17 / R25 pgrep 自锁）**：主进程等独立审**禁止** `pgrep -f … | tail --pid`（会匹配 wait 自身）。三路 `p*/STATUS.txt` 齐即 merge；用 `wait-review-lanes.sh` 或等价文件轮询。COMMON_AGENT / 子任务同样禁止 `pgrep -f` / `while pgrep` 等渲染。验收：独立审结束后 ≤5 分钟必 merge 或明确失败 STATUS。
 
 ---
 
