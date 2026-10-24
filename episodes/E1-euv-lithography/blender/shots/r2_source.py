@@ -929,6 +929,11 @@ R31_SRC = set()   # B1_15 row 3c: main 32-spp Q4 no (mirror shows lit wall parts
 R31_B208 = {"B2_08"}   # src agent: src_b208_r31.py (row 6d: B2_08 floating white / grey specks removed or made dark tin spots)
 R31_BEAM = set()   # B1_15 returned with row 3c;  # main process: beam_hook_r31.py (row 3c: B1_15 cone base on the whole rim; pre() only)
 R31_HOOKS = [(R31_TIN, "source_r31"), (R31_SRC, "src_r31"), (R31_B208, "src_b208_r31"), (R31_BEAM, "beam_hook_r31")]
+# R32 (R32_ROOT_CAUSE.md, Carl route 2): per-row shot sets + hook modules, pre-wired by the main process, layered AFTER the
+# R31 hooks but BEFORE beam_hook_r29 (stays LAST). Remove a shot id from its R32 set -> exact R31 pixels. Mutate, never rebind.
+R32_TIN = {"A0_01", "B1_10"}   # main process: source_r32.py (row 2: tin = regular near-round thin disc, tin_r32 rebuilt mesh)
+R32_SRC = {"B1_15"}   # main process: src_r32.py (row 4: B1_15 haze disc off, hi mirror, cone off the face on screen, axial laser through the hole)
+R32_HOOKS = [(R32_TIN, "source_r32"), (R32_SRC, "src_r32")]
 _SHOT = [None]
 
 
@@ -949,7 +954,7 @@ class _R30BeamGate:
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + R31_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + R31_HOOKS + R32_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):

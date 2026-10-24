@@ -100,6 +100,11 @@ R31_SCENE = set()   # B7_06 row 4: main 8-spp Q4 no (shared-aperture cones M5 ->
 R31_KIT = {"B8_03", "B8_03M"}   # kit agent: cut_kit_r31.py (row 5: wafer-stage reference ruler + moving pointer, PIP mask pattern face)
 R31_BEAM = {"B5_01", "C_03"}   # main process: beam_hook_r31.py (rows 3a / 3b / 3d: IF exit cone, rim cone, mask-face V; pre() only)
 R31_HOOKS = [(R31_A010, "a010_r31"), (R31_SCENE, "cut_scene_r31"), (R31_KIT, "cut_kit_r31"), (R31_BEAM, "beam_hook_r31")]
+# R32 (R32_ROOT_CAUSE.md, Carl route 2): per-row shot sets + hook modules, pre-wired by the main process, layered AFTER the
+# R31 hooks but BEFORE beam_hook_r29 (stays LAST). Remove a shot id from its R32 set -> exact R31 pixels. Mutate, never rebind.
+R32_A010 = {"A0_10"}   # main process: a010_r32.py (row 1: whole light path visible - occluders cut along every leg, thick turn mirrors + mounts)
+R32_SCENE = {"B3_02"}   # main process: cut_scene_r32.py (row 3: B3_02 scene-level rebuild - drum around the dish cut, rim + mount, new camera, rim cone)
+R32_HOOKS = [(R32_A010, "a010_r32"), (R32_SCENE, "cut_scene_r32")]
 _R21 = [None]
 
 
@@ -136,7 +141,7 @@ class _R30BeamGate:
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + R31_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + R31_HOOKS + R32_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):
