@@ -902,6 +902,12 @@ R26_HOOKS = [(R26_TIN, "source_r26"), (R26_SRC, "src_r26")]
 R27_TIN = {"A0_01", "B1_08", "B1_10"}   # tin agent: source_r27.py (row 1: unfrozen liquid-tin material, rim light, thin-disc edge; A0_01 second pulse; B1_08 cyan aim)
 R27_SRC = {"B1_15", "B2_08"}   # srcb agent: src_r27.py (row 2: B1_15 exit cone from the mirror mouth; row 1b: B2_08 polished collector + deposits that shrink)
 R27_HOOKS = [(R27_TIN, "source_r27"), (R27_SRC, "src_r27")]
+# R28 (R28_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R27
+# hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R28 set ->
+# exact R27 pixels. Mutate these sets, never rebind them (the hook list captures the set objects at import time).
+R28_TIN = {"B1_08"}   # A0_01 / B1_10: main 32-spp Q4 no -> R27 pixels (sheet rig = white decals / letters 「P9」 on a black disc; with it returned the sheets still read grey plastic, now with burnt-looking holes = only one bad read fewer)   # tin agent: source_r28.py (row 1: discrete structured reflections + breakup; A0_01 2nd pulse)
+R28_SRC = {"B1_15"}   # main process: b115_r28.py (row 2: camera on the mouth side, cone converges away from the bowl; row 2m: continuous env highlight + plasma image in the bowl)
+R28_HOOKS = [(R28_TIN, "source_r28"), (R28_SRC, "b115_r28")]
 _SHOT = [None]
 
 
@@ -916,7 +922,7 @@ def _r20(shot_id):
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):
