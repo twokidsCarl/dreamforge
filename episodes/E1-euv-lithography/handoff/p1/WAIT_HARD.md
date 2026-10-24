@@ -1,6 +1,6 @@
 # WAIT_HARD — 禁止 pgrep 自锁等审 / 等渲（Carl / Luna · NS-17 · R25）
 
-**适用**：主进程与一切 subagent（冒烟代理、审稿 lane、cut/helper）。复制 `r{N}smoke/COMMON_AGENT.md` 时 **Waiting 段必须含本文件要点**；下一轮 job `PROMPT.md` 必须继承 R26 `(d)`。
+**适用**：主进程与一切 subagent（冒烟代理、审稿 lane、cut/helper）。复制 `r{N}smoke/COMMON_AGENT.md` 时 **Waiting 段必须含本文件要点**，**派工约束段必须含下方 t331 段**；下一轮 job `PROMPT.md` 必须继承 R26 `(d)` 与 t331 三句。分数停滞的完整规则在 `ROUND_PIPELINE.md` 文首「常设 HARD」，这里只放要复制进代理提示词的句子。
 
 ## 根因（写清，勿再犯）
 
@@ -36,8 +36,30 @@ for P in $(pgrep -f "run_lane.sh p"); do tail --pid=$P -f /dev/null; done
 - For your own smokes/renders: run in the FOREGROUND of a Bash call, or background with a done-file and do other work. Never pgrep-wait.
 ```
 
+## COMMON_AGENT 派工约束（t331，复制用）
+
+主进程在派代理之前已经做完常设 HARD 第 1、2 条。代理侧只守这四句，避免在错的几何或错的 Facing 上继续调参：
+
+```text
+## Dispatch constraints (t331 — main process already applied)
+- Optical/layout recipes in this task were sketched and checked on an 8 spp frame before they entered the work order. If your frame shows the read is geometrically impossible, stop that shot and keep prior-round pixels. Do not invent a camera rotate or a hook tweak to force it.
+- Shared shaders/modules were looked at by the main process on one importer at 8 spp before dispatch. Do not replace Facing or the shared default params. A new misread (solid column, glass plate, glow dot, wire cage, light appearing from nowhere) means that shot keeps prior-round pixels.
+- A shot marked structural (recurring minimum, or a turn path such as A0_10) is a scene-level rebuild into the frame. Hook depth, edge, alpha, and small camera nudges do not satisfy it.
+- Report real pixels. Do not edit extra importers to inflate changed_vs_prev.
+```
+
+## PROMPT 必抄（t331，主进程写进下一轮 job PROMPT）
+
+与 R26 `(d)` 一起默认必带。讨论之后就迭代，不要等 Carl 再问。
+
+```text
+(t331) Discussed process changes are already in ROUND_PIPELINE.md 常设 HARD. Apply them this round. Do not wait to be asked to iterate.
+Optical/layout work-order rows need a sketch plus an 8 spp frame proving the fix is on screen before dispatch. Impossible recipes are banned.
+Look at one importer at 8 spp before dispatching agents onto a shared shader. If Q4 fails or a new misread appears, keep prior-round pixels and report the real changed_vs_prev.
+```
+
 ## 交叉引用
 
-- `ROUND_PIPELINE.md` §B（R14 / R21 / R26 追加）、§E 审分并行、禁止事项表
-- `WORK_ORDER.md`「每轮流程」§5
-- job PROMPT R25 RETRO `(d)`（R26 起默认必带，后续轮继承）
+- `ROUND_PIPELINE.md` 文首常设 HARD、§B（R14 / R21 / R26 追加）、§E 审分并行、禁止事项表
+- `WORK_ORDER.md`「每轮流程」§0–§1、§5、§6
+- job PROMPT R25 RETRO `(d)`（R26 起默认必带，后续轮继承）+ 上面的 t331 三句
