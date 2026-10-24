@@ -8,6 +8,8 @@
 
 频道硬门全文：[`docs/aesthetics/PROCESS_LOOP_v3.md`](../../../../../docs/aesthetics/PROCESS_LOOP_v3.md) §B「声画同构 / VO–visual isomorphism」。本文件只记**原始时间码 + 映射**，供下一刀自审勾选；**本回合不改成片**（成片修复另刀）。
 
+**审美工作假说（t363/t366 已同意）**：[`docs/aesthetics/AESTHETIC_HYPOTHESIS_t366.md`](../../../../../docs/aesthetics/AESTHETIC_HYPOTHESIS_t366.md) · E2 镜像 [`../AESTHETIC_HYPOTHESIS_t366.md`](../AESTHETIC_HYPOTHESIS_t366.md)。四层判断叠在七硬门之上；修片按四层分组，不按本表时间码打补丁。
+
 权威副本在本仓库 `docs/aesthetics/`。`/workspace/e2work/standards/` 若落后，以 repo 为准，勿另起口径。
 
 ---

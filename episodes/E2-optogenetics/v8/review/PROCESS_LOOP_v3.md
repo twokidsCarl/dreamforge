@@ -57,6 +57,11 @@ Cut7 错误：用「五维成片自评」把 L0 小技巧和 UI 覆盖率混进 
 
 旁白事件同拍可见；粒子/标注有语义；禁程序简笔画主画面；开场运镜连播自审；关键图解突出；声情绪连续；片头 logo+片名必有。任一条失败 → 不得因「整体感觉还行 / 技术四门过」宣称诚实 ≥95 可交。案例：`cut10/CUT10_CARL_NOTES_20261024.md`。
 
+
+### HARD · 审美工作假说（Carl t363/t366 · 镜像）
+
+权威源：[`docs/aesthetics/AESTHETIC_HYPOTHESIS_t366.md`](../../../../docs/aesthetics/AESTHETIC_HYPOTHESIS_t366.md) 与频道 `PROCESS_LOOP_v3.md` 同名节。E2 镜像短文：[`AESTHETIC_HYPOTHESIS_t366.md`](AESTHETIC_HYPOTHESIS_t366.md)。**不删**上方声画同构七硬门；本条是判断层。
+
 ### HARD · t341/t342 镜像（不得放宽；全文在频道文件）
 
 权威全文：[`docs/aesthetics/PROCESS_LOOP_v3.md`](../../../../docs/aesthetics/PROCESS_LOOP_v3.md) §B 与文末「复盘沉淀」。E2 不得另起流程。
