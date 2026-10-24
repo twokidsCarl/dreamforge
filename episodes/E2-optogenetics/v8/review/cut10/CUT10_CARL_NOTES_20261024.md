@@ -44,7 +44,7 @@
 - [ ] 风格路由：无程序简笔画/PPT 图解当主画面；微观锁 Goodsell
 - [ ] 连续观看：开场数秒与运镜段已连播；人物裁切完整；复用镜已锚定当前旁白
 - [ ] 信息层次：关键图解突出
-- [ ] 声情绪连续
+- [x] 声情绪连续（Carl t391 耳听 PASS；音频锁定 fix_v6）
 - [ ] 片头 logo + 片名
 
 叠加上：t327 通看→改→再通看→认可；t334 未过线不交；t341 技术四门不够。
@@ -63,3 +63,17 @@
 ## fix_v6 状态（2026-10-24 ≈23:55）
 
 内部诚实通看 **90**（Round 3；未过 95，未交、未 scp）。画面侧笔记 1–15 已关；硬门 4 r3 已过；硬门 6（声情绪）未验证。详见 [`SELFWATCH_v6.md`](SELFWATCH_v6.md)。
+
+---
+
+## 门 6 耳听 · Carl t391 PASS（2026-10-25 ≈07:17 Asia/Shanghai）
+
+Carl 对 fix_v6 音轨耳听片段回复「过了」：
+
+- [3:00–3:20 情绪段（含 A→B 交界）](https://files.grolar-wage.ts.net/e2/cut10/E2_cut10_gate6_ear_3m00-3m20.mp4)
+- [A→B 交界加长版](https://files.grolar-wage.ts.net/e2/cut10/E2_cut10_gate6_A_to_B_junction.mp4)
+
+**结论**：硬门 6（声情绪连续 / A→B 底乐桥）**PASS**。底乐与情绪桥保持 fix_v6 原样，**无需**再铺统一低底乐；VO / duck / 桥均锁定。
+
+**推送含义**：门 6 不再阻塞 Checkpoint。仍须画面修复（监管段动画化、缓推 ≤5 px/帧 等）+ 诚实通看 **≥95** 才允许 scp 公开 share + 推 Carl Checkpoint（HARD 95–98）。fix_v7 工单已写入 `gate6=PASS (Carl t391)`。
+
