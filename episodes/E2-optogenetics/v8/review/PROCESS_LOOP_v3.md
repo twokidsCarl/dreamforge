@@ -50,6 +50,18 @@ Cut7 错误：用「五维成片自评」把 L0 小技巧和 UI 覆盖率混进 
 
 **低于认可线 = 绝不 Checkpoint 给 Carl。** 诚实再通看分低于认可线（E2 全片偏好约 **95–98**；不得低于已写明的再通看门槛）时，不得 scp、push、SendToUser 成片或可看地址。技术门假高分不算。中途刀只留内部；失败的自看不要报成一版，也不要给出可看地址。先改到再通看认可，再交一次。t327 环不变：通看 → 列出具体修改 → 改 → 再通看 → 认可 → 才 Checkpoint。Cut10 全片诚实通看 74（技术门假 96）即此门。I01–I05 后诚实 90 只是恢复地板，不是频道目标；残留继续往 95–98。
 
+
+### HARD · 声画同构 / VO–visual isomorphism（Carl t353–t360 · 2026-10-24）
+
+权威全文：[`docs/aesthetics/PROCESS_LOOP_v3.md`](../../../../docs/aesthetics/PROCESS_LOOP_v3.md) §B。E2 不得放宽。
+
+旁白事件同拍可见；粒子/标注有语义；禁程序简笔画主画面；开场运镜连播自审；关键图解突出；声情绪连续；片头 logo+片名必有。任一条失败 → 不得因「整体感觉还行 / 技术四门过」宣称诚实 ≥95 可交。案例：`cut10/CUT10_CARL_NOTES_20261024.md`。
+
+
+### HARD · 审美工作假说（Carl t363/t366 · 镜像）
+
+权威源：[`docs/aesthetics/AESTHETIC_HYPOTHESIS_t366.md`](../../../../docs/aesthetics/AESTHETIC_HYPOTHESIS_t366.md) 与频道 `PROCESS_LOOP_v3.md` 同名节。E2 镜像短文：[`AESTHETIC_HYPOTHESIS_t366.md`](AESTHETIC_HYPOTHESIS_t366.md)。**不删**上方声画同构七硬门；本条是判断层。
+
 ### HARD · t341/t342 镜像（不得放宽；全文在频道文件）
 
 权威全文：[`docs/aesthetics/PROCESS_LOOP_v3.md`](../../../../docs/aesthetics/PROCESS_LOOP_v3.md) §B 与文末「复盘沉淀」。E2 不得另起流程。
