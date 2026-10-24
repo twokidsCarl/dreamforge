@@ -890,6 +890,12 @@ R24_HOOKS = [(R24_TIN, "source_r24"), (R24_SRC, "src_r24")]
 R25_TIN = {"A0_01", "B1_10", "B1_08"}   # tin agent: source_r25.py (row 3: lit structured environment for the liquid tin)
 R25_SRC = {"B1_15"}   # B2_08: srcb Q4 no (post-fix streams read as glass shards, start off the deposit patch) -> R24 (= R23) pixels   # srcb agent: src_r25.py (row 2: taper shell via beam_r25)
 R25_HOOKS = [(R25_TIN, "source_r25"), (R25_SRC, "src_r25")]
+# R26 (R26_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R25
+# hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R26 set ->
+# exact R25 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
+R26_TIN = {"A0_01", "B1_08"}   # tin agent: source_r26.py (row 3: camera push toward the plasma, laser landing, thinner film; material frozen)
+R26_SRC = {"B2_08", "B1_15"}   # srcb agent: src_r26.py (row 2: beam_r26 soft shell)
+R26_HOOKS = [(R26_TIN, "source_r26"), (R26_SRC, "src_r26")]
 _SHOT = [None]
 
 
@@ -904,7 +910,7 @@ def _r20(shot_id):
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):

@@ -54,6 +54,11 @@ R24_HOOKS = [(R24_BEAM, "misc_beam_r24h"), (R24_MOON, "moon_r24"), (R24_PANEL, "
 # exact R24 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
 R25_BEAM = {"A2_03", "B8_17"}   # B4_07: main 32-spp Q4 no (f36 landing lost in the window glare -> V meets in mid-air; R24 crisp spot was an adjusted >=88 shot) -> R24 pixels   # mbeam agent: misc_beam_r25h.py (rows 1 / 2 / 4: turn mirrors + taper via beam_r25, density)
 R25_HOOKS = [(R25_BEAM, "misc_beam_r25h")]
+# R26 (R26_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R25
+# hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R26 set ->
+# exact R25 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
+R26_BEAM = {"B4_07", "A2_03", "B8_17"}   # mbeam agent: misc_beam_r26h.py (row 2: beam_r26 soft shell)
+R26_HOOKS = [(R26_BEAM, "misc_beam_r26h")]
 _CUR_SHOT = [None]
 
 
@@ -2168,7 +2173,7 @@ VARIANTS = {"space": _space, "globe": _globe, "mirror": _mirror, "pellicle": _pe
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):

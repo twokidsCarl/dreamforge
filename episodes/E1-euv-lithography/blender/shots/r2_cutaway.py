@@ -59,6 +59,13 @@ R24_HOOKS = [(R24_BEAM, "cut_beam_r24"), (R24_HERO, "cut_hero_r24")]
 R25_BEAM = set()   # B5_01: main 32-spp Q4 no (legs = hard-edged flat translucent sheets, "violet glass panels / ribbon" - same new negative read as B2_08 R24) -> R24 pixels; A0_10: cbeam self-flagged risks (roof touches the f184 subtitle, mask turn a small corner, PFM reads as the white back of a dish) = auto Q4 no; C_03: BEAMCHECK25 NOGO f222 (FFM/G1/G2 edge-on) -> R24 pixels   # cbeam agent: cut_beam_r25.py (rows 1 / 2 / 4: turn mirrors via beam_r25, taper, machine density)
 R25_HERO = {"B3_02", "B7_06"}   # B8_03(+M): main 32-spp Q4 no (slit cone = hard-edged translucent wedge, same flat-sheet read; mad <0.01) -> R24 pixels   # chero agent: cut_hero_r25.py (rows 2 / 4 / 5: B3_02 dish into the set, taper)
 R25_HOOKS = [(R25_BEAM, "cut_beam_r25"), (R25_HERO, "cut_hero_r25")]
+# R26 (R26_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R25
+# hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R26 set ->
+# exact R25 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
+R26_A010 = {"A0_10"}   # main process: a010_r26.py (row 1: scene-level title path - illuminator housing, one front-facing mask turn, projection barrel)
+R26_BEAM = {"C_03", "B5_01"}   # cbeam agent: cut_beam_r26.py (rows 2 / 4: beam_r26 soft shell, hero-part materials)
+R26_HERO = {"B8_03", "B8_03M", "B3_02"}   # chero agent: cut_hero_r26.py (rows 2 / 4 / 5: B8_03 wafer + slit beam, B3_02 D row)
+R26_HOOKS = [(R26_A010, "a010_r26"), (R26_BEAM, "cut_beam_r26"), (R26_HERO, "cut_hero_r26")]
 _R21 = [None]
 
 
@@ -89,7 +96,7 @@ def _lights_studio():
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):
