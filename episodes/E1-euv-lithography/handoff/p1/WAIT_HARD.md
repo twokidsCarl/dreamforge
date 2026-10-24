@@ -56,6 +56,8 @@ for P in $(pgrep -f "run_lane.sh p"); do tail --pid=$P -f /dev/null; done
 (t331) Discussed process changes are already in ROUND_PIPELINE.md 常设 HARD. Apply them this round. Do not wait to be asked to iterate.
 Optical/layout work-order rows need a sketch plus an 8 spp frame proving the fix is on screen before dispatch. Impossible recipes are banned.
 Look at one importer at 8 spp before dispatching agents onto a shared shader. If Q4 fails or a new misread appears, keep prior-round pixels and report the real changed_vs_prev.
+(Carl t381/t383, ROUND_PIPELINE 常设 HARD 7) Only visibly different structural changes count: prove each with an R(N-1) vs R(N) side-by-side + SELFCHECK sentence; invisible parameter tweaks = not delivered, not counted. The whole light path IF → illuminator → mask → projection → wafer stays complete and visible. Physical objects use regular, correct shapes (tin = regular near-round thin disc). Render quality is already good enough: target Carl's visible issues and gate gaps only; no cosmetic polish; shots Carl is happy with stay frozen.
+(Carl t383) Never stop to wait for Carl between rounds: self-check → fix → if adjusted pass=no write r{N+1}job and launch it (tmux e1r{N+1}) before PUBLISHED/STATUS; the PUBLISHED push to Carl is reporting. Stop only on gate pass, budget limit, or a real blocker.
 ```
 
 ## 交叉引用
