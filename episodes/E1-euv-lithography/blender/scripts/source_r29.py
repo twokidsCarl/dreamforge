@@ -7,11 +7,12 @@ R29_ROOT_CAUSE row 2 (material, tin step 3). One switch per sub-fix:
               uniform env (grey plastic) AND the R28 hard emitter shapes (decals / 「P9」 / 「?」 face). The R28 droplet
               rig (source_r28.REFL_R28) is switched off for R29 shots.
   SPLASH_R29  (row 2, A0_01 / B1_10; tin agent) the rim beads are replaced by 3-5 back-lit ligaments on the far side.
+              Helper source_r29_tin.splash (hides PancakeLigR28 / PancakeDrops, adds PancakeLigR29: 4 tapered bent threads).
 
 Remove a shot from r2_source.R29_TIN -> exact R28 pixels; set a switch False -> that sub-fix off.
 """
 TIN_R29 = True
-SPLASH_R29 = False
+SPLASH_R29 = True
 
 DROP_FRAME = {"A0_01": 72, "B1_10": 69, "B1_08": 51}
 SHEET_FRAME = {"A0_01": 160, "B1_10": 69}
@@ -27,5 +28,10 @@ def post(sc, variant, shot):
     if TIN_R29:
         import tin_r29
         tin_r29.apply(sc, shot, DROP_FRAME[shot], SHEET_FRAME.get(shot))
+        import source_r29_tin
+        source_r29_tin.drop_override(sc, shot, DROP_FRAME[shot])   # A0_01 only: warm glint moved (no 'eyes')
+    if SPLASH_R29 and shot in SHEET_FRAME:
+        import source_r29_tin
+        source_r29_tin.splash(sc, shot, SHEET_FRAME[shot])
     sc.frame_set(1)
     return sc

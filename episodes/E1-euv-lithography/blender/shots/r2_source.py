@@ -911,7 +911,7 @@ R28_HOOKS = [(R28_TIN, "source_r28"), (R28_SRC, "b115_r28")]
 # R29 (R29_ROOT_CAUSE.md): per-row shot sets + hook modules, pre-wired by the main process, layered AFTER the R28
 # hooks. Remove a shot id from its R29 set -> exact R28 pixels. Mutate these sets, never rebind them.
 R29_TIN = {"B1_10", "B1_08", "A0_01"}   # tin agent: source_r29.py (row 2: tin step 3 on the main-process material look)
-R29_SRC = set()   # main process: src_r29.py (row 5: B1_15 push / focus pull, nozzle out of the cone, full-mouth volume cone)
+R29_SRC = {"B1_15"}   # main process: src_r29.py (row 5: B1_15 push / focus pull, nozzle out of the cone, full-mouth volume cone)
 R29_BEAM = {"B1_15"}   # main process: beam_hook_r29.py (row 1; LAST)
 R29_B208 = {"B2_08"}   # kit agent: src_b208_r29.py (row 2m: B2_08 collector = high-reflective coating on the tin_r29 soft-source recipe)
 R29_HOOKS = [(R29_TIN, "source_r29"), (R29_SRC, "src_r29"), (R29_B208, "src_b208_r29"), (R29_BEAM, "beam_hook_r29")]

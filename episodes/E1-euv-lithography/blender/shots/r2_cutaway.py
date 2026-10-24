@@ -80,7 +80,7 @@ R28_KIT = {"B3_02", "B8_03", "B8_03M"}   # kit agent: cut_kit_r28.py (row 5b: B3
 R28_HOOKS = [(R28_C03, "c03_r28"), (R28_CUT, "cut_r28"), (R28_KIT, "cut_kit_r28")]
 # R29 (R29_ROOT_CAUSE.md): per-row shot sets + hook modules, pre-wired by the main process, layered AFTER the R28
 # hooks. Remove a shot id from its R29 set -> exact R28 pixels. Mutate these sets, never rebind them.
-R29_SCENE = set()   # main process: cut_scene_r29.py (rows 3 / 4: B5_01 field-facet hero, C_03 f222 window, B8_03 scale + 188 half-fields)
+R29_SCENE = {"B5_01", "C_03"}   # main process: cut_scene_r29.py (rows 3 / 4: B5_01 field-facet hero, C_03 f222 window, B8_03 scale + 188 half-fields)
 R29_BEAM = {"B5_01", "B7_06", "C_03", "B3_02", "A0_10", "B8_03"}   # main process: beam_hook_r29.py (row 1: beam_r29 volume legs; LAST so it converts every leg the other hooks built)
 R29_KIT = {"B8_03", "B8_03M"}   # kit agent: cut_kit_r29.py (row 4: B8_03 readable wafer scale + pointer, 188 landscape half-fields)
 R29_HOOKS = [(R29_SCENE, "cut_scene_r29"), (R29_KIT, "cut_kit_r29"), (R29_BEAM, "beam_hook_r29")]

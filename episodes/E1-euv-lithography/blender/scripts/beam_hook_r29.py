@@ -12,7 +12,7 @@ import beam_r29 as B29
 
 BEAM_R29 = True
 
-STRENGTH = {}          # per-shot centre-line radiance B (default beam_r29.B_DEFAULT); filled after the 8-spp looks
+STRENGTH = {"B1_15": 1.1, "B3_02": 1.0}   # per-shot centre-line radiance B (default beam_r29.B_DEFAULT 1.6): the two collector cones whose wide end lies over the mirror face are dimmer (8 spp: violet haze over the bowl)
 SKIP = {}              # per-shot leg name prefixes kept as they were (e.g. gas streams that are not light)
 WINDOWS = {
     "B5_01": ("IllumPathR24", [(0, 0.0, 0.40), (1, 0.40, 0.70), (2, 0.70, 1.0)]),
