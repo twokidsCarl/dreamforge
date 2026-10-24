@@ -36,7 +36,7 @@ E1 P1 drift-adjusted 停在 ~87（门槛 ≥92）。审稿写得出原因，分�
    - **整条光路完整可见。** IF → 照明箱（FFM → PFM）→ 掩模 → 投影物镜 → 晶圆，凡是画光路的镜，每段每帧连续可见；不许断段、不许悬空落点（落点贴在实心镜面上）。
    - **物体用规则、物理正确的形状。** 锡 = 规则近圆薄盘、连续边缘（预脉冲把锡滴压成近圆薄饼）；不做撕纸缺口 / 锯齿 / 碎片。其它实物同理：先按真实形状建，不为「看起来像液体」加不规则。
    - **渲染画质 Carl 认为已经够好。** 每轮只打 Carl 看得出的问题和门槛缺口（drift-adjusted 均分 ≥ 92、单镜 ≥ 88 差在哪）；不做画质 / 美化抛光，不回头动 Carl 已满意的镜（冻结 = 保留上轮像素）。`changed_vs_prev ≥ 12` 不再是目标，只报真实 N（已交付的）。
-   - **链式推进，不等 Carl。** 每轮收尾：并排图自检 → 未交付项改列下一轮结构行 → 未过线则同回合写 `r{N+1}job` 并 launch（tmux `e1r{N+1}`），再写 PUBLISHED / STATUS。收尾推 Carl（校正后分数 + score_timeline + 并排接触表路径）是**汇报，不是等待**。只在三种情况停：过线（校正后均 ≥ 92 且单镜 ≥ 88）、预算到线（舰队日 $30 / 周 $120；E1 $60）、真阻塞（STATUS 写明原因）。
+   - **链式推进，不等 Carl。** 每轮收尾：并排图自检 → 未交付项改列下一轮结构行 → 未过线则同回合写 `r{N+1}job` 并 launch（tmux `e1r{N+1}`），再写 PUBLISHED / STATUS。收尾推 Carl（校正后分数 + **必须同时附** `score_timeline.png` 与 `CONTACT_R{N-1}_vs_R{N}.jpg`，常设 HARD 9）是**汇报，不是等待**。只在三种情况停：过线（校正后均 ≥ 92 且单镜 ≥ 88）、预算到线（舰队日 $30 / 周 $120；E1 $60）、真阻塞（STATUS 写明原因）。
 
 8. **R34 检查点：再走 3 轮看分数涨不涨（Carl t384，2026-10-25 00:41 · HARD）。**
    Carl：「再继续走3轮，看分数有没有提高，如果分数不提高了，那么就从里面找一个高的作为图，去开始拼低清全片」（取代此前「边迭代边拼」）。
@@ -50,6 +50,12 @@ E1 P1 drift-adjusted 停在 ~87（门槛 ≥92）。审稿写得出原因，分�
      - 金控 A0_02 / D_07 / B9_05 / B1_22 用最新一轮像素（它们像素未变）。
      - 同分（差 ≤ 0.3）取较晚一轮；同一部件跨镜必须同一模型 / 材质（收集镜、FFM、锡），混轮冲突时改取较晚一轮并在表里注明。
      - 表格列：镜 / 选中轮 / 校正后分 / 次高轮与分 / 约束说明 / 帧路径；附 `best_pick/CONTACT_BEST_PICK.jpg`（`/workspace/e1work/p1/best_pick/`）。这一套就是 E1 低清全片的镜头来源。
+
+9. **Carl 结账推送固定两图（t390，2026-10-25 07:13 · HARD）。**
+   Carl：「对比分呢？每次跑完一轮都有对比图，这是流程啊，流程怎么老忘记」（R33 结账只推了 CONTACT 并排、漏了 `score_timeline.png`）。
+   - **每轮推 Carl 必须同时附两张图**：(1) `score_timeline.png`（本轮已入轴的分数时间线，SCALE_v2 only，仅已完成点；regime 切换要标断）；(2) `CONTACT_R{N-1}_vs_R{N}.jpg`（上轮 vs 本轮并排接触表）。**缺一不算交付**——PUBLISHED / STATUS 不得写「已推 Carl」，主 bot 不得只发其中一张。
+   - 文案仍用 drift-adjusted 均分 / 最低 / 是否过线 + 每个改动镜一句可见差别；两张图都挂在同一条推送里。
+   - 复制句在 `WAIT_HARD.md`「PROMPT 必抄」；下一轮 job PROMPT 收尾交付物清单必须显式列这两张。
 ---
 
 ## 阶段一览（墙钟目标）
@@ -345,7 +351,7 @@ R11 教训：未动 14 镜平均 +3.42，raw 均分 89.14 被尺度放宽淹掉�
 4. **写 `PIPELINE_RETRO.md` 本轮 1–3 条**（见下节「持续改进」）  
 5. feature 分支 → 就绪非 draft PR → **Vivian squash-merge 自合**，只报「已合并 + link」（不要 force-push main）  
 6. **并排图自检（常设 HARD 7）**：`carl_struct_review_r{N}/` 并排图 + `CONTACT_R{N-1}_vs_R{N}.jpg` + `SELFCHECK.md`；看不出差别的镜标未交付、改列下一轮结构行。
-6b. **推 Carl = 汇报不是等待**：`score_timeline.png` + 并排接触表路径（文案用 **drift-adjusted** 均分/最低/是否过线 + 每个改动镜一句可见差别）  
+6b. **推 Carl = 汇报不是等待（常设 HARD 9 · t390）**：**同一条推送必须同时附两张图**——(1) `score_timeline.png`；(2) `CONTACT_R{N-1}_vs_R{N}.jpg`。**缺一不算交付**。文案用 **drift-adjusted** 均分/最低/是否过线 + 每个改动镜一句可见差别。  
 7. 若 `pass=no`（校正后）：**同回合**开下一轮 job（写好 `r{N+1}job/PROMPT.md` + `run_e1_r{N+1}.sh` 并 launch）；不要等 Carl 问「下一轮呢」。PROMPT 已带上本轮写进流程的 HARD 句（R26 `(d)` + t331，见 `WAIT_HARD.md`），不要等 Carl 再问「请迭代」。
 7b. **R34（及之后每轮）收尾先跑 3 轮提分检查（常设 HARD 8）**：不再提高 → 不开下一轮，写 BEST_PICK.md + STATUS「可开拼低清全片」。
 8. 若 `pass=yes`（校正后）：停在 P1 过线，准备 P2；丢掉预先起草的 R(n+1) 结构草稿  
@@ -414,7 +420,7 @@ Carl t331（2026-10-24）：**讨论之后就迭代，写进流程，不要等�
 | 审分未完就租下一轮 GPU | 过线风险 + 账本混乱 |
 | sleep 轮询等分 / 空等 Carl | NO-IDLE-WAIT |
 | `pgrep -f` + `tail --pid` / `while pgrep` 等独立审或等渲染 | R25 主进程自锁 ≥33 min；R20 cut 空等 30 min。只盯 `p*/STATUS.txt` / done-file / 前台跑（`WAIT_HARD.md`） |
-| 推 Carl 塞接触表或长 REVIEW | 只要 score_timeline.png |
+| 推 Carl 只附 score_timeline 或只附 CONTACT（缺一）/ 塞长 REVIEW | Carl t390 HARD：结账固定两图 `score_timeline.png` + `CONTACT_R{N-1}_vs_R{N}.jpg`，缺一不算交付；文案短，不塞长 REVIEW |
 | 渲完不 Terminate | 烧钱；确认 E1 pods=[] |
 | force-push main / 提交 secrets | 硬禁 |
 | 两份 WORK_ORDER 打架 | 以 repo `handoff/p1/WORK_ORDER.md` 为准；`e1work/p1/` 不另存副本 |
@@ -432,6 +438,6 @@ Carl t331（2026-10-24）：**讨论之后就迭代，写进流程，不要等�
 - 独立审全量 24 镜 + **3–4 金控**，2–3 路合并为一篇 REVIEW + 一份 scores；STATUS 含 raw、Δ、drift-adjusted；**pass 以校正后为准**。
 - `score_timeline.png` 含本轮，SCALE_v2 only（可旁注 Δ）。
 - `PIPELINE_RETRO.md` 已追加本轮 1–3 条。
-- PR 已 squash-merge；Carl 已收到时间轴图（文案用校正后分数）。
+- PR 已 squash-merge；Carl 已同时收到 `score_timeline.png` **和** `CONTACT_R{N-1}_vs_R{N}.jpg`（常设 HARD 9；文案用校正后分数）；缺一 = 收尾未完成。
 - 未过线则下一轮 job 已在同回合 launch（tmux `e1r{N+1}`，launch.log 有 self-check OK）；不停下等 Carl（常设 HARD 7）。
 - 每个改动镜都有上轮 vs 本轮并排图 + SELFCHECK 一句可见差别；看不出的标未交付、不计入 changed。

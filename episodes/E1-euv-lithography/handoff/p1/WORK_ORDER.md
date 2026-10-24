@@ -32,7 +32,7 @@
 
 每镜取镜头时长 25 % / 55 % / 85 % 三帧（帧号见 `round1_jobs*.txt`），960×540 sample；`handoff/tools/compose_styleframes.py` 叠片中标签和字幕后出 strip 和接触表。
 
-## Carl 偏好（t381 / t383，2026-10-25 · 每轮必守；细则 = `ROUND_PIPELINE.md` 常设 HARD 7）
+## Carl 偏好（t381 / t383 / t390，2026-10-25 · 每轮必守；细则 = `ROUND_PIPELINE.md` 常设 HARD 7 + 9）
 
 Carl t383（00:26）：「不用等我啊，R32之后，就自我检查和纠错，然后进入R33，持续做和评分。我给了一些偏好的输入，你根据我偏好来调整流程。我现在觉得这个渲染图，其实已经足够好了。」
 
@@ -40,8 +40,9 @@ Carl t383（00:26）：「不用等我啊，R32之后，就自我检查和纠错
 2. **整条光路完整可见**：IF → 照明箱 → 掩模 → 投影物镜 → 晶圆，每段每帧连续，无断段、无悬空落点。
 3. **规则、物理正确的形状**：锡 = 规则近圆薄盘 + 连续边缘；不做撕纸 / 锯齿 / 碎片。
 4. **画质已够好**：只打 Carl 看得出的问题 + 门槛缺口；不做美化抛光；Carl 满意的镜冻结（保留上轮像素）。
-5. **链式推进不等 Carl**：收尾自检 → 纠错 → 未过线同回合写 `r{N+1}job` 并 launch（tmux `e1r{N+1}`）；推 Carl 的收尾（校正后分数 + 时间轴 + 并排接触表）是汇报不是等待。停：过线（校正后均 ≥ 92 且单镜 ≥ 88）/ 预算到线 / 真阻塞。
+5. **链式推进不等 Carl**：收尾自检 → 纠错 → 未过线同回合写 `r{N+1}job` 并 launch（tmux `e1r{N+1}`）；推 Carl 的收尾是汇报不是等待。停：过线（校正后均 ≥ 92 且单镜 ≥ 88）/ 预算到线 / 真阻塞。
 6. **R34 检查点（t384，00:41）**：R32–R34 再走 3 轮；R34 收尾按 `ROUND_PIPELINE.md` 常设 HARD 8 跑提分检查——还在提高（R34 校正后均 ≥ 89.27 且最低 > 84.65 且 R32–R34 均分平均 > 88.49）→ 开 R35；否则不开 R35，写 `BEST_PICK.md`（逐镜选最高轮，锡只从 R32 起、光路完整轮次起），STATUS 写「可开拼低清全片」，不自动拼。
+7. **结账固定两图（t390，07:13 · HARD）**：每轮推 Carl **必须同时附** (1) `score_timeline.png` 与 (2) `CONTACT_R{N-1}_vs_R{N}.jpg`。**缺一不算交付**（R33 漏了分数时间线）。细则 = `ROUND_PIPELINE.md` 常设 HARD 9。
 
 ## 每轮流程（加速版 · Carl 2026-10-23 批准；**~20:51 北京 HARD：根因驱动 + 反鬼打墙**；**2026-10-24 t331：讨论之后就迭代**）
 
@@ -53,7 +54,7 @@ Carl t383（00:26）：「不用等我啊，R32之后，就自我检查和纠错
 3. **GPU 渲**：`handoff/tools/pod_styleframes.py p1/roundN_jobs.txt --cap-usd 2`（1×A40）→ 拉回 → **必定 Terminate**，确认本会话 E1 pods=`[]`；2D 在 box 上跑。
 4. **重叠**：帧一拉回 → 立刻起隔离独立审；同时可按上轮 + 本轮已知缺口起草 R(n+1) 结构草稿（**未过线才落地改代码**；若本轮过线则丢弃草稿）。**审分未出完前不要租下一轮 GPU**。
 5. **审分并行 + 金控校准**：隔离审拆成 **2–3 路**并行（按镜头分组），每路写部分 scores；主进程合并 `scores_roundN.json` + 一篇 `REVIEW_roundN_independent.md`。仍 **全量盲审**，禁止只审改过的镜。审稿包另加 **3–4 张金控帧**（上轮已评分、本轮像素未改；文件名 `ctrl_<shot>_r{prev}.png`）；审稿**盲打**金控（不给历史分）；主进程算 Δ = mean(金控盲分 − 历史分)，全部镜头分减 Δ 得 drift-adjusted；**过线只认校正后**（均分≥92 且单张≥88）；STATUS/REVIEW 双轨写 raw 与 adjusted。审稿目录只放 SCALE / BRIEF / FACTS / refs / frames（含 ctrl），不给改动说明、不给历史分。**HARD（R25 / NS-17）**：等审用 `/workspace/luna-ops/claude-hooks/scripts/wait-review-lanes.sh <review_rN>`（或等价：只盯 `review_rN/p*/STATUS.txt` / `lane_p*.out` done）三路齐了立刻 merge；**禁止** `pgrep -f` + `tail --pid` / `while pgrep` 自锁等审（R25 空转 ≥33 min；见 `WAIT_HARD.md`）。
-6. **收尾钉死**（同一回合、禁止 sleep 轮询）：REVIEW/STATUS 一出（含 Δ；另含根因 → 改法 → 预期外行读法、「not repeating: …」、真实 `changed_vs_prev / 24`。金控翻转 = |本轮 Δ − 上轮 Δ| ≥ 1 且大于未改非金控镜 raw 均差时，首段标「金控翻转大于未改镜 raw 变化」，不把校正后涨跌写成真实胜负）→ 更新 `score_timeline.png`（仅 SCALE_v2，`--ep E1`，可旁注 Δ）→ 写 `PIPELINE_RETRO.md` 本轮 1–3 条 → 把已讨论的流程改动写进 `ROUND_PIPELINE.md` / 本文件 / 下一轮 PROMPT（t331：讨论之后就迭代，不要等 Carl 再问「请迭代」）→ squash-merge 自合 → **立刻推 Carl（只要时间轴图，文案用校正后分数）** → 若未过线同回合开下一轮 job。用文件出现 / 进程退出叫醒，禁止空等。
+6. **收尾钉死**（同一回合、禁止 sleep 轮询）：REVIEW/STATUS 一出（含 Δ；另含根因 → 改法 → 预期外行读法、「not repeating: …」、真实 `changed_vs_prev / 24`。金控翻转 = |本轮 Δ − 上轮 Δ| ≥ 1 且大于未改非金控镜 raw 均差时，首段标「金控翻转大于未改镜 raw 变化」，不把校正后涨跌写成真实胜负）→ 更新 `score_timeline.png`（仅 SCALE_v2，`--ep E1`，可旁注 Δ）→ 写 `PIPELINE_RETRO.md` 本轮 1–3 条 → 把已讨论的流程改动写进 `ROUND_PIPELINE.md` / 本文件 / 下一轮 PROMPT（t331：讨论之后就迭代，不要等 Carl 再问「请迭代」）→ squash-merge 自合 → **立刻推 Carl（固定两图：`score_timeline.png` + `CONTACT_R{N-1}_vs_R{N}.jpg`，缺一不算交付；文案用校正后分数；常设 HARD 9 / t390）** → 若未过线同回合开下一轮 job。用文件出现 / 进程退出叫醒，禁止空等。
 
 旧 5 步精神保留：改 → 渲 → 合成 → 独立审 → 记账推送；加速点是重叠、冒烟减量、审分并行、收尾立刻推。
 每轮 GPU 仍约 4–10 分钟（约 $0.04–0.10）；墙钟瓶颈在改结构 + 审分。
