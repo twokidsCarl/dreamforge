@@ -66,6 +66,12 @@ R26_A010 = {"A0_10"}   # main process: a010_r26.py (row 1: scene-level title pat
 R26_BEAM = {"B5_01"}   # C_03: cbeam self-flagged risks (PFM->mask leg over the unlit G1 mirror at f222, mask landing a dot not a slit) = auto Q4 no -> R25 pixels   # cbeam agent: cut_beam_r26.py (rows 2 / 4: beam_r26 soft shell, hero-part materials)
 R26_HERO = {"B8_03", "B8_03M", "B3_02"}   # chero agent: cut_hero_r26.py (rows 2 / 4 / 5: B8_03 wafer + slit beam, B3_02 D row)
 R26_HOOKS = [(R26_A010, "a010_r26"), (R26_BEAM, "cut_beam_r26"), (R26_HERO, "cut_hero_r26")]
+# R27 (R27_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R26
+# hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R27 set ->
+# exact R26 pixels. Mutate these sets, never rebind them (the hook list captures the set objects at import time).
+R27_CUT = {"C_03", "B7_06", "B3_02"}   # cut agent: cut_r27.py (row 3: one open turn + housings; B3_02 cone from the rim + orbit, D row)
+R27_KIT = {"A0_10", "B5_01"}   # kit agent: cut_kit_r27.py (row 4: kit_r27 named parts replace the plain box / repeated wall; B5_01 facets)
+R27_HOOKS = [(R27_CUT, "cut_r27"), (R27_KIT, "cut_kit_r27")]
 _R21 = [None]
 
 
@@ -96,7 +102,7 @@ def _lights_studio():
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):
