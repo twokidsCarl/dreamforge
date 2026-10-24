@@ -915,6 +915,12 @@ R29_SRC = {"B1_15"}   # main process: src_r29.py (row 5: B1_15 push / focus pull
 R29_BEAM = {"B1_15"}   # main process: beam_hook_r29.py (row 1; LAST)
 R29_B208 = set()   # kit agent: src_b208_r29.py (row 2m: B2_08 collector = high-reflective coating on the tin_r29 soft-source recipe)
 R29_HOOKS = [(R29_TIN, "source_r29"), (R29_SRC, "src_r29"), (R29_B208, "src_b208_r29"), (R29_BEAM, "beam_hook_r29")]
+# R30 (R30_ROOT_CAUSE.md): per-row sets, layered AFTER the R29 hooks, BEFORE beam_hook_r29 (stays LAST).
+R30_TIN = {"A0_01", "B1_10"}   # main process: source_r30.py (row 3: tin step 4 = liquid SHAPE via tin_r30; row 3b: A0_01 converging orange laser)
+R30_SRC = {"B1_15"}   # main process: src_r30.py (row 5b: B1_15 grey C-band removed)
+R30_B208 = {"B2_08"}   # kit agent: src_b208_r30.py (row 6b: B2_08 collector = the B1_15 accepted mirror + chamber reflection, no rings / wedge)
+R30_BEAM = {"B1_15"}   # main process: beam_hook_r30.py (row 2; pre() only)
+R30_HOOKS = [(R30_TIN, "source_r30"), (R30_SRC, "src_r30"), (R30_B208, "src_b208_r30"), (R30_BEAM, "beam_hook_r30")]
 _SHOT = [None]
 
 
@@ -926,10 +932,16 @@ def _r20(shot_id):
     return _SHOT[0] == shot_id and shot_id in R20_SHOTS
 
 
+class _R30BeamGate:
+    """beam_hook_r29 stays LAST (R30 HARD) and converts the legs of every shot in R29_BEAM or R30_BEAM."""
+    def __contains__(self, shot):
+        return shot in R29_BEAM or shot in R30_BEAM
+
+
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):

@@ -84,6 +84,14 @@ R29_SCENE = {"B5_01", "C_03"}   # main process: cut_scene_r29.py (rows 3 / 4: B5
 R29_BEAM = {"B5_01", "C_03", "B3_02", "A0_10", "B8_03"}   # B7_06: main 32-spp Q4 no (whole path every frame -> roof->M5 / M5->M6 / M6->hole legs overlap between the mirrors = crossing legs) -> R28 pixels   # main process: beam_hook_r29.py (row 1: beam_r29 volume legs; LAST so it converts every leg the other hooks built)
 R29_KIT = {"B8_03", "B8_03M"}   # kit agent: cut_kit_r29.py (row 4: B8_03 readable wafer scale + pointer, 188 landscape half-fields)
 R29_HOOKS = [(R29_SCENE, "cut_scene_r29"), (R29_KIT, "cut_kit_r29"), (R29_BEAM, "beam_hook_r29")]
+# R30 (R30_ROOT_CAUSE.md): per-row shot sets + hook modules, pre-wired by the main process, layered AFTER the R29
+# hooks but BEFORE beam_hook_r29 (which stays LAST and also converts every R30_BEAM shot). Remove a shot id from its R30
+# set -> exact R29 pixels. Mutate these sets, never rebind them.
+R30_A010 = {"A0_10"}   # main process: a010_r30.py (row 1: whole-machine path - opened illuminator with two facet-mirror bounces + PO barrel window)
+R30_SCENE = {"C_03"}   # B3_02 row 5a: wall part 32-spp Q4 no (pale matte drum); IF-tip spot alone mad 0.0006 (< 1e-3, not visible) -> removed, R29 pixels; B7_06 row 5c: main 8-spp Q4 no (M6-aperture cone + whole path -> three legs still cross between M5 and M6, the R29 return reason) -> R29 pixels;   # main process: cut_scene_r30.py (row 4 C_03 same FFM model + FFM->PFM leg + no f101 debris; row 5a B3_02 mirror >=1/3 + dark wall + IF on the tip; row 5c B7_06 legs apart in depth)
+R30_KIT = {"B8_03", "B8_03M"}   # kit agent: cut_kit_r30.py (row 6: B8_03 wafer-stage ruler in its own screen space + moving alignment mark)
+R30_BEAM = {"A0_10", "B5_01", "C_03", "B3_02"}   # B7_06: see R30_SCENE (returned); B8_03: main 32-spp Q4 no (slit fan nearly vanishes, the slit line reads as a diagonal white scratch) -> R29 beam, kit row kept;   # main process: beam_hook_r30.py (row 2: taper focus ends <= 1/4 + 6 px screen floor; pre() only - beam_hook_r29 stays LAST)
+R30_HOOKS = [(R30_A010, "a010_r30"), (R30_SCENE, "cut_scene_r30"), (R30_KIT, "cut_kit_r30"), (R30_BEAM, "beam_hook_r30")]
 _R21 = [None]
 
 
@@ -111,10 +119,16 @@ def _lights_studio():
     K.area("Top", (-3, 0, 14), (-3, 0, 0), 20, 5000, (1, 1, 1), size_y=8)
 
 
+class _R30BeamGate:
+    """beam_hook_r29 stays LAST (R30 HARD) and converts the legs of every shot in R29_BEAM or R30_BEAM."""
+    def __contains__(self, shot):
+        return shot in R29_BEAM or shot in R30_BEAM
+
+
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):
