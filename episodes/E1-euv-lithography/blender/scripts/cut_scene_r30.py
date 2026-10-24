@@ -19,7 +19,7 @@ from mathutils import Vector
 
 FFM_R30 = True
 DEBRIS_R30 = True
-B302_R30 = True
+B302_R30 = False   # main 32-spp Q4 no (pale matte drum) -> R29 pixels
 
 C03_WIN_FRAME = 222
 

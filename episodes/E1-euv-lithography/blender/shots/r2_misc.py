@@ -75,7 +75,7 @@ R29_MISC = {"B6_12"}   # misc agent: misc_r29.py (row 6: B4_07 ceramic body + fl
 R29_HOOKS = [(R29_MISC, "misc_r29"), (R29_BEAM, "beam_hook_r29")]
 # R30 (R30_ROOT_CAUSE.md): per-row sets, layered AFTER the R29 hooks, BEFORE beam_hook_r29 (stays LAST).
 R30_MISC = {"B4_07", "A0_06"}   # A2_03 row 6e: misc agent did not build it (switch off) -> R29 pixels;   # misc agent: misc_r30.py (row 6c: B4_07 three-point flexure + cooling bundle + substrate/coating line; row 6d: A0_06 real globe + tapered arcs; row 6e: A2_03 mixed right wall)
-R30_BEAM = {"A2_03", "B8_17"}   # main process: beam_hook_r30.py (row 2; pre() only)
+R30_BEAM = {"A2_03"}   # B8_17: main 32-spp Q4 no (slit fan still reads as one thin column, slit line not visible from this camera; not better than R29) -> R29 pixels;   # main process: beam_hook_r30.py (row 2; pre() only)
 R30_HOOKS = [(R30_MISC, "misc_r30"), (R30_BEAM, "beam_hook_r30")]
 _CUR_SHOT = [None]
 

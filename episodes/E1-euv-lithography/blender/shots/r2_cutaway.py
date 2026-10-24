@@ -88,7 +88,7 @@ R29_HOOKS = [(R29_SCENE, "cut_scene_r29"), (R29_KIT, "cut_kit_r29"), (R29_BEAM, 
 # hooks but BEFORE beam_hook_r29 (which stays LAST and also converts every R30_BEAM shot). Remove a shot id from its R30
 # set -> exact R29 pixels. Mutate these sets, never rebind them.
 R30_A010 = {"A0_10"}   # main process: a010_r30.py (row 1: whole-machine path - opened illuminator with two facet-mirror bounces + PO barrel window)
-R30_SCENE = {"C_03", "B3_02"}   # B7_06 row 5c: main 8-spp Q4 no (M6-aperture cone + whole path -> three legs still cross between M5 and M6, the R29 return reason) -> R29 pixels;   # main process: cut_scene_r30.py (row 4 C_03 same FFM model + FFM->PFM leg + no f101 debris; row 5a B3_02 mirror >=1/3 + dark wall + IF on the tip; row 5c B7_06 legs apart in depth)
+R30_SCENE = {"C_03"}   # B3_02 row 5a: main 32-spp Q4 no (dark-blast copy on R2_vessel turned the big polished drum into a pale matte barrel - mirror read lost) -> R29 pixels; B7_06 row 5c: main 8-spp Q4 no (M6-aperture cone + whole path -> three legs still cross between M5 and M6, the R29 return reason) -> R29 pixels;   # main process: cut_scene_r30.py (row 4 C_03 same FFM model + FFM->PFM leg + no f101 debris; row 5a B3_02 mirror >=1/3 + dark wall + IF on the tip; row 5c B7_06 legs apart in depth)
 R30_KIT = {"B8_03", "B8_03M"}   # kit agent: cut_kit_r30.py (row 6: B8_03 wafer-stage ruler in its own screen space + moving alignment mark)
 R30_BEAM = {"A0_10", "B5_01", "C_03", "B3_02", "B8_03"}   # B7_06: see R30_SCENE (returned) ;   # main process: beam_hook_r30.py (row 2: taper focus ends <= 1/4 + 6 px screen floor; pre() only - beam_hook_r29 stays LAST)
 R30_HOOKS = [(R30_A010, "a010_r30"), (R30_SCENE, "cut_scene_r30"), (R30_KIT, "cut_kit_r30"), (R30_BEAM, "beam_hook_r30")]

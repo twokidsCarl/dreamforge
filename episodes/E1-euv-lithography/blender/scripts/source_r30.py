@@ -12,7 +12,7 @@ import bpy
 from mathutils import Vector
 
 SHAPE_R30 = True
-LASER_R30 = True
+LASER_R30 = False   # main 32-spp Q4 no: the volume cone reads as a solid orange capsule with a ring at the port (worse than R29) -> R29 laser
 
 SHEET_FRAME = {"A0_01": 160, "B1_10": 69}
 ORANGE = (1.0, 0.55, 0.18)
