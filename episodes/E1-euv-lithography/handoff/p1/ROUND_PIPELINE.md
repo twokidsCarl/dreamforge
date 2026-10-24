@@ -30,6 +30,13 @@ E1 P1 drift-adjusted 停在 ~87（门槛 ≥92）。审稿写得出原因，分�
 
 6. **讨论之后就迭代。** 见本节开头。下一轮 job 的 `PROMPT.md` 默认必抄本段新 HARD 句，复制文本在 `WAIT_HARD.md`「PROMPT 必抄」。与 R26 `(d)` 一样，不靠 Carl 再点名。
 
+
+7. **Carl 偏好（t381 / t383，2026-10-25 · HARD，优先于第 3 条的 ≥12 目标）。**
+   - **看得出来才算交付。** 每轮改动必须是外行一眼看得出的结构级改动，用上轮 vs 本轮并排图自证（`/workspace/e1work/p1/carl_struct_review_r{N}/`：`NN_<镜>_R{N-1}.png` / `NN_<镜>_R{N}.png` / `sbs_<镜>.jpg` + `CONTACT_R{N-1}_vs_R{N}.jpg` + `SELFCHECK.md`，每个改动镜一句「外行一眼看到的差别 + 在画面哪里」）。看不出的参数级增量、或 mad 只落在局部小区域 = **未交付**，不计入 `changed_vs_prev`，下一轮改列结构行（不是再拧同一旋钮）。
+   - **整条光路完整可见。** IF → 照明箱（FFM → PFM）→ 掩模 → 投影物镜 → 晶圆，凡是画光路的镜，每段每帧连续可见；不许断段、不许悬空落点（落点贴在实心镜面上）。
+   - **物体用规则、物理正确的形状。** 锡 = 规则近圆薄盘、连续边缘（预脉冲把锡滴压成近圆薄饼）；不做撕纸缺口 / 锯齿 / 碎片。其它实物同理：先按真实形状建，不为「看起来像液体」加不规则。
+   - **渲染画质 Carl 认为已经够好。** 每轮只打 Carl 看得出的问题和门槛缺口（drift-adjusted 均分 ≥ 92、单镜 ≥ 88 差在哪）；不做画质 / 美化抛光，不回头动 Carl 已满意的镜（冻结 = 保留上轮像素）。`changed_vs_prev ≥ 12` 不再是目标，只报真实 N（已交付的）。
+   - **链式推进，不等 Carl。** 每轮收尾：并排图自检 → 未交付项改列下一轮结构行 → 未过线则同回合写 `r{N+1}job` 并 launch（tmux `e1r{N+1}`），再写 PUBLISHED / STATUS。收尾推 Carl（校正后分数 + score_timeline + 并排接触表路径）是**汇报，不是等待**。只在三种情况停：过线（校正后均 ≥ 92 且单镜 ≥ 88）、预算到线（舰队日 $30 / 周 $120；E1 $60）、真阻塞（STATUS 写明原因）。
 ---
 
 ## 阶段一览（墙钟目标）
@@ -313,7 +320,8 @@ R11 教训：未动 14 镜平均 +3.42，raw 均分 89.14 被尺度放宽淹掉�
 3. 记账 `E1_SPEND.md`；需要的 handoff 文件进 git  
 4. **写 `PIPELINE_RETRO.md` 本轮 1–3 条**（见下节「持续改进」）  
 5. feature 分支 → 就绪非 draft PR → **Vivian squash-merge 自合**，只报「已合并 + link」（不要 force-push main）  
-6. **立刻推 Carl：只要 `score_timeline.png`**（文案用 **drift-adjusted** 均分/最低/是否过线；不要塞接触表 / 长文）  
+6. **并排图自检（常设 HARD 7）**：`carl_struct_review_r{N}/` 并排图 + `CONTACT_R{N-1}_vs_R{N}.jpg` + `SELFCHECK.md`；看不出差别的镜标未交付、改列下一轮结构行。
+6b. **推 Carl = 汇报不是等待**：`score_timeline.png` + 并排接触表路径（文案用 **drift-adjusted** 均分/最低/是否过线 + 每个改动镜一句可见差别）  
 7. 若 `pass=no`（校正后）：**同回合**开下一轮 job（写好 `r{N+1}job/PROMPT.md` + `run_e1_r{N+1}.sh` 并 launch）；不要等 Carl 问「下一轮呢」。PROMPT 已带上本轮写进流程的 HARD 句（R26 `(d)` + t331，见 `WAIT_HARD.md`），不要等 Carl 再问「请迭代」。
 8. 若 `pass=yes`（校正后）：停在 P1 过线，准备 P2；丢掉预先起草的 R(n+1) 结构草稿  
 
@@ -400,4 +408,5 @@ Carl t331（2026-10-24）：**讨论之后就迭代，写进流程，不要等�
 - `score_timeline.png` 含本轮，SCALE_v2 only（可旁注 Δ）。
 - `PIPELINE_RETRO.md` 已追加本轮 1–3 条。
 - PR 已 squash-merge；Carl 已收到时间轴图（文案用校正后分数）。
-- 未过线则下一轮 job 已在同回合 launch（或至少 PROMPT 就绪且回报写明一键开）。
+- 未过线则下一轮 job 已在同回合 launch（tmux `e1r{N+1}`，launch.log 有 self-check OK）；不停下等 Carl（常设 HARD 7）。
+- 每个改动镜都有上轮 vs 本轮并排图 + SELFCHECK 一句可见差别；看不出的标未交付、不计入 changed。
