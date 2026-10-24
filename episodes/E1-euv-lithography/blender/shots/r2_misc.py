@@ -77,6 +77,13 @@ R29_HOOKS = [(R29_MISC, "misc_r29"), (R29_BEAM, "beam_hook_r29")]
 R30_MISC = {"B4_07", "A0_06"}   # A2_03 row 6e: misc agent did not build it (switch off) -> R29 pixels;   # misc agent: misc_r30.py (row 6c: B4_07 three-point flexure + cooling bundle + substrate/coating line; row 6d: A0_06 real globe + tapered arcs; row 6e: A2_03 mixed right wall)
 R30_BEAM = {"A2_03"}   # B8_17: main 32-spp Q4 no (slit fan still reads as one thin column, slit line not visible from this camera; not better than R29) -> R29 pixels;   # main process: beam_hook_r30.py (row 2; pre() only)
 R30_HOOKS = [(R30_MISC, "misc_r30"), (R30_BEAM, "beam_hook_r30")]
+# R31 (R31_ROOT_CAUSE.md): per-row shot sets + hook modules, pre-wired by the main process, layered AFTER the R30
+# hooks but BEFORE beam_hook_r29 (stays LAST and also converts every R31_BEAM shot). Remove a shot id from its R31 set ->
+# exact R30 pixels. Mutate these sets, never rebind them.
+R31_MISC = {"B8_17", "A0_06"}   # B6_12 row 6b: misc agent 8-spp Q4 no (sheen = hard glass plate; frame shadow invisible on the dark pattern face) -> PELL_R31 off, B6_12 out -> R30 pixels;  # misc agent: misc_r31.py (row 6a B8_17 exposure progress = counter; 6b B6_12 pellicle frame + shadow; 6c A0_06 cool city lights + sharp dots)
+R31_BEAM = {"A2_03"}   # main process: beam_hook_r31.py (row 6e: A2_03 right-mirror -> top-mirror leg tapers between the two apertures; pre() only)
+R31_MAIN = {"B4_10"}   # main process: misc_main_r31.py (row 6f: B4_10 laser landing spot + scatter on the ball)
+R31_HOOKS = [(R31_MISC, "misc_r31"), (R31_MAIN, "misc_main_r31"), (R31_BEAM, "beam_hook_r31")]
 _CUR_SHOT = [None]
 
 
@@ -2189,15 +2196,15 @@ VARIANTS = {"space": _space, "globe": _globe, "mirror": _mirror, "pellicle": _pe
 
 
 class _R30BeamGate:
-    """beam_hook_r29 stays LAST (R30 HARD) and converts the legs of every shot in R29_BEAM or R30_BEAM."""
+    """beam_hook_r29 stays LAST (R30 HARD) and converts the legs of every shot in R29_BEAM, R30_BEAM or R31_BEAM."""
     def __contains__(self, shot):
-        return shot in R29_BEAM or shot in R30_BEAM
+        return shot in R29_BEAM or shot in R30_BEAM or shot in R31_BEAM
 
 
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + R31_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):
