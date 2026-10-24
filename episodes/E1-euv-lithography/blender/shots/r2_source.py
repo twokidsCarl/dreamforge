@@ -875,7 +875,7 @@ R22_HOOKS = [({"B1_15"} & R22_SRC, "b115_r22"), ({"B2_08"} & R22_SRC, "b208_r22"
 # hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R23 set ->
 # exact R22 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
 R23_SRC = {"B1_15", "B2_08"}          # srca agent: src_r23.py (row 5: collector mirror face reads black / matte)
-R23_TIN = {"A0_01", "B1_10", "B1_08"}  # tin agent: source_r23.py (row 3: tin pancake mid frames; shared tin -> all tin importers)
+R23_TIN = {"B1_10"}  # A0_01: main 32-spp Q4 no (f160 sheet reads as a matte white plastic bowl, not liquid tin) -> R22 pixels; B1_08: droplets only, shared pancake change does not touch it -> R22 pixels   # tin agent: source_r23.py (row 3)
 R23_PANEL = {"B1_18"}                 # panel agent: panel_r23.py (row 4: info panel as an object)
 R23_HOOKS = [(R23_SRC, "src_r23"), (R23_TIN, "source_r23"), (R23_PANEL, "panel_r23")]
 _SHOT = [None]

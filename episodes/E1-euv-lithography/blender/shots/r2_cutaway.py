@@ -44,7 +44,7 @@ R22_HOOKS = [(R22_HERO, "cut_hero_r22"), (R22_2B, "cut_2b_r22")]
 # R23 (R23_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R22
 # hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R23 set ->
 # exact R22 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
-R23_HERO = {"B3_02", "B5_01", "C_03"}            # cuth agent: cut_hero_r23.py (rows 2 / 3)
+R23_HERO = {"C_03"}   # B3_02: agent-written risk (CO2 laser line dropped at the 55° camera) = auto Q4 no -> R22 pixels; B5_01: no change needed -> R22   # cuth agent: cut_hero_r23.py (rows 2 / 3)
 R23_2B = {"B7_06", "A0_10", "B8_03", "B8_03M"}   # cutb agent: cut_2b_r23.py (rows 2 / 3 / 5)
 R23_HOOKS = [(R23_HERO, "cut_hero_r23"), (R23_2B, "cut_2b_r23")]
 _R21 = [None]
