@@ -20,6 +20,11 @@ R31_ROOT_CAUSE row 5 (B8_03), R30 p2: 「晶圆台反向移动看不出来（−
 import json
 import os
 
+# repo-relative fonts (cut_kit_r29_b803.FONT_L is an absolute box path -> missing on the pod; R31 GPU run 1 + 2 lost B8_03)
+_EP = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+FONT_L = os.path.join(_EP, "textures", "fonts", "DejaVuSans-Bold.ttf")
+FONT_C = os.path.join(_EP, "textures", "fonts", "NotoSansSC-Bold-gb2312l1.otf")
+
 RULER_R31 = True
 PIP_R31 = True
 
@@ -114,7 +119,7 @@ def _ruler(sc):
         w_ = 0.0032 if major else 0.002
         ticks.append((uu - w_, 0.0, uu + w_, 0.03 if major else 0.016))
     objs.append(H._quads("WRulerTickR31", ticks, wh, piv, coll))
-    fl = bpy.data.fonts.load(H.FONT_L, check_existing=True)
+    fl = bpy.data.fonts.load(FONT_L, check_existing=True)
     yl = 0.036
     for mm in (0, 5, 10):
         objs.append(H._text(f"WRulerLab{mm}R31", str(mm), fl, lab, (-k * mm, yl), piv, coll, wh))
