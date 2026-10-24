@@ -72,6 +72,12 @@ R26_HOOKS = [(R26_A010, "a010_r26"), (R26_BEAM, "cut_beam_r26"), (R26_HERO, "cut
 R27_CUT = {"B7_06", "B3_02"}   # C_03: cut agent ran out of the 40-min box before the housing restructure (no candidate) -> R26 pixels; plan in r27smoke/cut/SMOKE.md R28 notes   # cut agent: cut_r27.py (row 3: one open turn + housings; B3_02 cone from the rim + orbit, D row)
 R27_KIT = {"A0_10", "B5_01"}   # kit agent: cut_kit_r27.py (row 4: kit_r27 named parts replace the plain box / repeated wall; B5_01 facets)
 R27_HOOKS = [(R27_CUT, "cut_r27"), (R27_KIT, "cut_kit_r27")]
+# R28 (R28_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R27
+# hooks. Remove a shot id from its R28 set -> exact R27 pixels. Mutate these sets, never rebind them.
+R28_C03 = {"C_03"}   # main process: c03_r28.py (row 3: scene-level illuminator housing + front window + one open mask turn + arc-slit landing)
+R28_CUT = {"B5_01", "B7_06"}   # cut agent: cut_r28.py (row 3b: one main path per screen - non-current legs <= 20 %; row 5: named parts on the B5_01 right wall)
+R28_KIT = {"B3_02", "B8_03", "B8_03M"}   # kit agent: cut_kit_r28.py (row 5b: B3_02 shroud cut open + named-part background; B8_03 wafer-side scale)
+R28_HOOKS = [(R28_C03, "c03_r28"), (R28_CUT, "cut_r28"), (R28_KIT, "cut_kit_r28")]
 _R21 = [None]
 
 
@@ -102,7 +108,7 @@ def _lights_studio():
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):
