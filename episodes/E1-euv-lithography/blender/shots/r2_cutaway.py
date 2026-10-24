@@ -47,6 +47,12 @@ R22_HOOKS = [(R22_HERO, "cut_hero_r22"), (R22_2B, "cut_2b_r22")]
 R23_HERO = {"C_03"}   # B3_02: agent-written risk (CO2 laser line dropped at the 55° camera) = auto Q4 no -> R22 pixels; B5_01: no change needed -> R22   # cuth agent: cut_hero_r23.py (rows 2 / 3)
 R23_2B = {"B7_06", "A0_10", "B8_03", "B8_03M"}   # cutb agent: cut_2b_r23.py (rows 2 / 3 / 5)
 R23_HOOKS = [(R23_HERO, "cut_hero_r23"), (R23_2B, "cut_2b_r23")]
+# R24 (R24_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R23
+# hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R24 set ->
+# exact R23 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
+R24_BEAM = {"A0_10", "B5_01", "C_03"}                   # cbeam agent: cut_beam_r24.py (row 3: one path per screen, beam_r24)
+R24_HERO = {"B7_06", "B8_03", "B8_03M"}   # B3_02: chero agent-written risk (laser line + cone reflection overlap the dish face) = auto Q4 no -> R23 pixels   # chero agent: cut_hero_r24.py (rows 3 / 5: collector geometry, M5/M6 solid rings + 3-leg path, wafer glint)
+R24_HOOKS = [(R24_BEAM, "cut_beam_r24"), (R24_HERO, "cut_hero_r24")]
 _R21 = [None]
 
 
@@ -77,7 +83,7 @@ def _lights_studio():
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS if shot in s_]   # R23: R23 hooks after R22
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23
 
 
 def _r22_pre(variant, shot):

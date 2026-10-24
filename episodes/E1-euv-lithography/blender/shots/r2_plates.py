@@ -18,13 +18,18 @@ import kit_r2 as K
 # R23 (R23_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R22
 # hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R23 set ->
 # exact R22 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
-R23_PANEL = {"A0_03"}   # panel agent: panel_r23.py (rows 2 / 4); A0_02 / D_07 are gold -> never in a set
+R23_PANEL = set()   # R24 #1: A0_03 retreats to R22 pixels as the floor (R23 default-material props + tofu CJK = H4); panel_r23.py no longer runs
 R23_HOOKS = [(R23_PANEL, "panel_r23")]
+# R24 (R24_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R23
+# hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R24 set ->
+# exact R22 pixels (A0_03 floor). Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
+R24_PANEL = {"A0_03"}   # panel agent: panel_r24.py (row 1: real-looking props only + repo CJK font); A0_02 / D_07 are gold -> never in a set
+R24_HOOKS = [(R24_PANEL, "panel_r24")]
 
 
 def _r23_hooks(shot):
     import importlib
-    return [importlib.import_module(h) for s_, h in R23_HOOKS if shot in s_]
+    return [importlib.import_module(h) for s_, h in R23_HOOKS + R24_HOOKS if shot in s_]
 
 
 PLATES = {"freighter": "r2_a002.png", "crates": "r2_a003_r10.png", "cleanroom": "r2_d007.png"}
