@@ -1,6 +1,6 @@
 # WAIT_HARD — 禁止 pgrep 自锁等审 / 等渲（Carl / Luna · NS-17 · R25）
 
-**适用**：主进程与一切 subagent（冒烟代理、审稿 lane、cut/helper）。复制 `r{N}smoke/COMMON_AGENT.md` 时 **Waiting 段必须含本文件要点**，**派工约束段必须含下方 t331 段**；下一轮 job `PROMPT.md` 必须继承 R26 `(d)` 与 t331 三句。分数停滞的完整规则在 `ROUND_PIPELINE.md` 文首「常设 HARD」，这里只放要复制进代理提示词的句子。**Carl 结账两图（t390 / 常设 HARD 9）也在下方「PROMPT 必抄」。**
+**适用**：主进程与一切 subagent（冒烟代理、审稿 lane、cut/helper）。复制 `r{N}smoke/COMMON_AGENT.md` 时 **Waiting 段必须含本文件要点**，**派工约束段必须含下方 t331 段**；下一轮 job `PROMPT.md` 必须继承 R26 `(d)` 与 t331 三句。分数停滞的完整规则在 `ROUND_PIPELINE.md` 文首「常设 HARD」，这里只放要复制进代理提示词的句子。**Carl 结账两图（t390 / 常设 HARD 9）与 R34 之后等 Carl（t392 / 常设 HARD 10）也在下方「PROMPT 必抄」。**
 
 ## 根因（写清，勿再犯）
 
@@ -60,10 +60,11 @@ Look at one importer at 8 spp before dispatching agents onto a shared shader. If
 (Carl t383) Never stop to wait for Carl between rounds: self-check → fix → if adjusted pass=no write r{N+1}job and launch it (tmux e1r{N+1}) before PUBLISHED/STATUS; the PUBLISHED push to Carl is reporting. Stop only on gate pass, budget limit, or a real blocker.
 (Carl t384, ROUND_PIPELINE 常设 HARD 8) R34 closeout (and every later round, rolling vs 3 rounds back) runs the 3-round improvement check on drift-adjusted scores: improving = R34 adj avg >= 89.27 (R31 88.27 + 1.0) AND R34 adj min > 84.65 (R31 min) AND mean adj avg of R32-R34 > 88.49 (R26-R31 plateau top). Improving -> write r35job and launch. Not improving -> NO R35: write handoff/p1/BEST_PICK.md (per shot best adjusted score R19-R34 with frames present; tin shots only R32+, full-light-path shots only from rounds that meet Carl t381; gold controls latest; ties <=0.3 -> later round; one model per part across shots) + /workspace/e1work/p1/best_pick/CONTACT_BEST_PICK.jpg, and STATUS/PUBLISHED say 'E1 iteration stopped (no improvement over 3 rounds), BEST_PICK ready for low-res full-film assembly'. Do not start assembly.
 (Carl t390, ROUND_PIPELINE 常设 HARD 9) Carl closeout push MUST attach BOTH images every round: (1) score_timeline.png and (2) CONTACT_R{N-1}_vs_R{N}.jpg. Missing either = not delivered; do not write PUBLISHED/STATUS as pushed. R33 forgot the score chart — never again.
+(Carl t392, ROUND_PIPELINE 常设 HARD 10) After R34 STATUS/PR only: also push a short problem list (stuck/not-delivered shots, what's still wrong, scores vs R31/R32/R33, improvement-check numbers). Then STOP — do NOT open R35, do NOT write BEST_PICK, do NOT start low-res assembly. Wait for Carl. Supersedes HARD 8 auto-branch for the post-R34 decision only; still finish R34 scoring/PR and report HARD 8 numbers.
 ```
 
 ## 交叉引用
 
 - `ROUND_PIPELINE.md` 文首常设 HARD、§B（R14 / R21 / R26 追加）、§E 审分并行、禁止事项表
 - `WORK_ORDER.md`「每轮流程」§0–§1、§5、§6
-- job PROMPT R25 RETRO `(d)`（R26 起默认必带，后续轮继承）+ 上面的 t331 三句 + t381/t383/t384/t390 句
+- job PROMPT R25 RETRO `(d)`（R26 起默认必带，后续轮继承）+ 上面的 t331 三句 + t381/t383/t384/t390/t392 句
