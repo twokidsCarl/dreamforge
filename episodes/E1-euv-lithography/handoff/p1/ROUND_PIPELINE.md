@@ -81,7 +81,7 @@ R14 起（Carl HARD 2026-10-23 20:51，取代「只冒烟改过的少数镜」�
 - 共用代码 / 材质改动 → **全部非金控引用镜都要真改并重渲**，冒烟集合 = 最低 ∪ 全部重渲的非金控镜 ∪ 工单门槛镜；禁止故意让引用镜像素不变。
 - 开工前先写「根因 → 对症」表（`p1/R{N}_ROOT_CAUSE.md`），每条改动对应上一轮审稿写明的根因；同一旋钮不连拧两轮。
 - STATUS / 推送文案必须报 `changed_vs_prev = N/24`（合成帧 mean abs diff > 0），有共享光路 / 材质根因时 N ≥ 12。
-- 审稿三路 `STATUS.txt` 都出现即 merge，不等进程退出、不 pgrep 轮询。
+- **HARD（NS-17 / R25）**：审稿三路 `review_rN/p{1,2,3}/STATUS.txt`（或 `lane_p*.out` 已写 done）**都出现即 merge**，立刻跑 `merge.py`。**不等**进程退出。**禁止** `pgrep -f` + `tail --pid` / `while pgrep` / sleep 轮询等审（主进程与 subagent 一律）。根因：R25 `for P in $(pgrep -f "run_lane.sh p"); do tail --pid=$P` —— pgrep 匹配到等待 shell 自己的 cmdline，三路 13:27 已 exit 0 却空转 ≥33 min（R20 cut 也曾自匹配空等 30 min）。推荐 Luna 的 `wait-review-lanes.sh <review_rN>`（文件轮询，默认 900s）；或自写只盯 `p*/STATUS.txt`。详见同目录 `WAIT_HARD.md`。
 
 R13 起追加（RETRO）：
 - 改过机位的镜：首尾两帧 960×540，量机位位移 / 视差（R12 B3_02 H2 教训）。
@@ -112,7 +112,7 @@ R20 起追加（R19 RETRO）：
 - 冒烟第三问对每段光加问「从哪面镜来、到哪面镜去、两端落点都在画内吗」；一端出画 / 在空中拐弯 / 箭头指回入射 = NO-GO（R19 B5_01 最低、B7_06 S 形弯体）。
 
 R21 起追加（R20 RETRO）：
-- 子任务禁止用 `pgrep -f` / `while pgrep` 等渲染（R20 cut 匹配到自身 shell 空等 30 分）；用 done 文件或前台跑。cut 子任务只给 ≤2 主角镜 + 共用件；第 25 分钟还没有一张 32 spp 三帧冒烟 → 主进程接手。
+- **主进程与**子任务禁止用 `pgrep -f` / `while pgrep` 等渲染或等审（R20 cut / R25 主进程均曾自锁）；用 done/`STATUS.txt` 文件、`wait-review-lanes.sh`、或前台跑。cut 子任务只给 ≤2 主角镜 + 共用件；第 25 分钟还没有一张 32 spp 三帧冒烟 → 主进程接手。
 - 镜面主角镜冒烟第三问加：倒影是否与另一亮元素（激光线 / 光轴 / 光锥）重叠——重叠 = NO-GO（R20 B1_15 倒影压在激光线上读成悬空白点）。细小几何（液丝 / 针 / 点）量 960×540 下最小特征像素宽，< 3 px 视为会读成刺 / 噪点。
 
 R22 起追加（R21 RETRO）：
@@ -141,6 +141,8 @@ R26 起追加（R25 RETRO）：
 - 主进程写的共用着色器 / 共用件（beam_rN 等）派代理前，先在一个导入镜上 8 spp 实渲一帧并**看图**（R25 `1 − Facing` 符号错让 3 个代理在错的着色器上调参）；结果图路径写进 COMMON_AGENT。
 - 草算显示「hook 层面达不到」的光学根因（R25 A0_10 侧看剖面拐点镜），主进程先做**场景模块级**结构改动（减拐点、移部件）并 8 spp 实渲，再派代理；不再让代理两轮在 pre/post 里调深度。
 - 光束新读法清单加「扁平玻璃板 / 硬边楔形」（R25 B5_01 / B8_03 / B2_08）：壳锥默认软边参数（edge ≈1.3、core ≈0.28、alpha ≈0.45），硬边 = 不交候选。铺开数不足时如实报 `changed_vs_prev`，不为凑数硬铺。
+- **HARD（NS-17 / R25 pgrep 自锁）**：主进程等独立审**禁止** `pgrep -f … | tail --pid`（会匹配 wait 自身）。三路 `p*/STATUS.txt` 齐即 merge；用 `wait-review-lanes.sh` 或等价文件轮询。COMMON_AGENT / 子任务同样禁止 `pgrep -f` / `while pgrep` 等渲染或等审。等渲染：前台跑或 done-file。验收：独立审结束后 ≤5 分钟必 merge 或明确失败 STATUS。详见 `WAIT_HARD.md`。
+- **下一轮 PROMPT 必抄（默认必带）**：job `PROMPT.md` 必须继承 R26 `(d)`——Never wait with `pgrep -f … | tail --pid`；只检查 lanes 的 `STATUS.txt`。复制 `r{N}smoke/COMMON_AGENT.md` 时 Waiting 段必须含同条 HARD（可附本目录 `WAIT_HARD.md`）。
 
 ---
 
@@ -185,13 +187,13 @@ handoff/tools/pod_styleframes.py p1/roundN_jobs.txt --cap-usd 2
 - `scores_partial.json`（只含本路镜头）
 - `REVIEW_partial.md`（本路逐镜意见）
 
-**主进程**等 2–3 路都退出后：
-1. 合并 `scores_partial.json` → `scores.json`（含金控盲分）
+**主进程**等 2–3 路 `p*/STATUS.txt` **都出现后**（不要等进程退出、不要 pgrep）：
+1. 合并 `scores_partial.json` → `scores.json`（含金控盲分）——立刻跑 `merge.py`
 2. **金控校准**（见下节）：算 Δ，写出 raw 与 drift-adjusted；**过线只认校正后**
 3. 拼一篇完整 `REVIEW_roundN_independent.md`（含分数表 raw+adjusted + 汇总 +「下一轮最值钱的改法」）
 4. 写审稿 `STATUS.txt`（必须同时写 raw 与 drift-adjusted；`pass=` 以校正后为准）。另写：每条根因 → 本轮改法 → 预期外行读法；「not repeating: …」；`changed_vs_prev / 24`（mean abs diff > 0；有共享根因时期望 ≥12）
 
-叫醒方式：等子进程退出 / `STATUS` 或 `scores_partial.json` **文件出现**；**禁止** `sleep` 轮询空转。
+叫醒方式：**只盯** `review_rN/p1/STATUS.txt`、`p2/STATUS.txt`、`p3/STATUS.txt`（或 `lane_p*.out` 已写 done）；三路齐了立刻 merge。**HARD 禁止** `pgrep -f … | tail --pid` / `while pgrep` / `sleep` 轮询等审（R25 自锁）。详见 `WAIT_HARD.md`。
 
 ---
 
@@ -296,6 +298,7 @@ Carl HARD（2026-10-23）：**流程要持续改进，一边做一边看怎么�
 | 单镜微雕 / 标签 polish 当主活 | Carl HARD：结构性 only |
 | 审分未完就租下一轮 GPU | 过线风险 + 账本混乱 |
 | sleep 轮询等分 / 空等 Carl | NO-IDLE-WAIT |
+| `pgrep -f` + `tail --pid` / `while pgrep` 等独立审或等渲染 | R25 主进程自锁 ≥33 min；R20 cut 空等 30 min。只盯 `p*/STATUS.txt` / done-file / 前台跑（`WAIT_HARD.md`） |
 | 推 Carl 塞接触表或长 REVIEW | 只要 score_timeline.png |
 | 渲完不 Terminate | 烧钱；确认 E1 pods=[] |
 | force-push main / 提交 secrets | 硬禁 |
