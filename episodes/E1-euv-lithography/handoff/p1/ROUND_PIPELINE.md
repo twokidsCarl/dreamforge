@@ -56,6 +56,13 @@ E1 P1 drift-adjusted 停在 ~87（门槛 ≥92）。审稿写得出原因，分�
    - **每轮推 Carl 必须同时附两张图**：(1) `score_timeline.png`（本轮已入轴的分数时间线，SCALE_v2 only，仅已完成点；regime 切换要标断）；(2) `CONTACT_R{N-1}_vs_R{N}.jpg`（上轮 vs 本轮并排接触表）。**缺一不算交付**——PUBLISHED / STATUS 不得写「已推 Carl」，主 bot 不得只发其中一张。
    - 文案仍用 drift-adjusted 均分 / 最低 / 是否过线 + 每个改动镜一句可见差别；两张图都挂在同一条推送里。
    - 复制句在 `WAIT_HARD.md`「PROMPT 必抄」；下一轮 job PROMPT 收尾交付物清单必须显式列这两张。
+10. **R34 之后下一步由 Carl 拍板（t392，2026-10-25 07:19 · HARD）。**
+   Carl：「R34 之后，把渲染图 和问题给我，让我看和确认。我来判断是继续做几轮，还是可以进全片低分辩率了」
+   - **只覆盖 R34 收尾之后的「下一步」**；R34 本身仍照常跑完：审分、时间轴、`carl_struct_review_r34/`、RETRO、PR + squash-merge、WORK_ORDER「第 34 轮结果」、以及常设 HARD 8 的 3 轮提分检查**数字**（只报、不自动执行分支）。
+   - **取代**常设 HARD 8 在 R34 收尾处的自动分支（「还在提高 → 开 R35 / 不再提高 → BEST_PICK」），仅这一次。HARD 8 的三条判定公式仍要算进 STATUS / PUBLISHED。
+   - **推 Carl 交付**：(a) 常设 HARD 9 两图 `score_timeline.png` + `CONTACT_R33_vs_R34.jpg`（缺一不算）；(b) 短问题清单：卡住 / 未交付镜、还差什么（每镜一行）、相对 R31/R32/R33 的分数摘要（raw + 校正后）、提分检查三数；(c) **STOP** — 文案写明「等 Carl（t392），未开 R35 / BEST_PICK / 低清全片」。
+   - **禁止**：写 `r35job` / launch `e1r35`；写 `BEST_PICK.md` / `CONTACT_BEST_PICK.jpg`；开始低清全片拼接。等 Carl 明确说继续几轮或进全片。
+
 ---
 
 ## 阶段一览（墙钟目标）
@@ -353,7 +360,7 @@ R11 教训：未动 14 镜平均 +3.42，raw 均分 89.14 被尺度放宽淹掉�
 6. **并排图自检（常设 HARD 7）**：`carl_struct_review_r{N}/` 并排图 + `CONTACT_R{N-1}_vs_R{N}.jpg` + `SELFCHECK.md`；看不出差别的镜标未交付、改列下一轮结构行。
 6b. **推 Carl = 汇报不是等待（常设 HARD 9 · t390）**：**同一条推送必须同时附两张图**——(1) `score_timeline.png`；(2) `CONTACT_R{N-1}_vs_R{N}.jpg`。**缺一不算交付**。文案用 **drift-adjusted** 均分/最低/是否过线 + 每个改动镜一句可见差别。  
 7. 若 `pass=no`（校正后）：**同回合**开下一轮 job（写好 `r{N+1}job/PROMPT.md` + `run_e1_r{N+1}.sh` 并 launch）；不要等 Carl 问「下一轮呢」。PROMPT 已带上本轮写进流程的 HARD 句（R26 `(d)` + t331，见 `WAIT_HARD.md`），不要等 Carl 再问「请迭代」。
-7b. **R34（及之后每轮）收尾先跑 3 轮提分检查（常设 HARD 8）**：不再提高 → 不开下一轮，写 BEST_PICK.md + STATUS「可开拼低清全片」。
+7b. **R34 收尾（Carl t392 / 常设 HARD 10）**：跑 3 轮提分检查数字（HARD 8）但**不**自动开 R35 / 写 BEST_PICK；推两图 + 问题清单后 STOP，等 Carl。R35 及之后若 Carl 批准继续，再恢复 HARD 8 滚动规则。
 8. 若 `pass=yes`（校正后）：停在 P1 过线，准备 P2；丢掉预先起草的 R(n+1) 结构草稿  
 
 `STATUS.txt` / `PUBLISHED.txt`（job 目录）只在 PR 已合并、时间轴已更新后写。
@@ -439,5 +446,5 @@ Carl t331（2026-10-24）：**讨论之后就迭代，写进流程，不要等�
 - `score_timeline.png` 含本轮，SCALE_v2 only（可旁注 Δ）。
 - `PIPELINE_RETRO.md` 已追加本轮 1–3 条。
 - PR 已 squash-merge；Carl 已同时收到 `score_timeline.png` **和** `CONTACT_R{N-1}_vs_R{N}.jpg`（常设 HARD 9；文案用校正后分数）；缺一 = 收尾未完成。
-- 未过线则下一轮 job 已在同回合 launch（tmux `e1r{N+1}`，launch.log 有 self-check OK）；不停下等 Carl（常设 HARD 7）。
+- 未过线则下一轮 job 已在同回合 launch（tmux `e1r{N+1}`，launch.log 有 self-check OK）；不停下等 Carl（常设 HARD 7）。**例外：R34 收尾（t392 / HARD 10）推两图 + 问题清单后 STOP，不开 R35。**
 - 每个改动镜都有上轮 vs 本轮并排图 + SELFCHECK 一句可见差别；看不出的标未交付、不计入 changed。
