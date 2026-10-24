@@ -868,8 +868,8 @@ R21_SHOTS = {"B1_15", "B1_10", "A0_01"}   # main process 32-spp smoke re-enabled
 # build() calls <hook>.pre(variant, shot, module) first (may patch module globals / functions) and
 # <hook>.post(sc, variant, shot) last (may add / replace / delete objects, move the camera). Remove a shot id from its
 # set -> exact R21 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
-R22_SRC = {"B1_15", "B2_08"}            # src-a agent: b115_r22.py (B1_15) / b208_r22.py (B2_08)
-R22_TIN = {"A0_01", "B1_10", "B1_08"}   # tin agent: source_r22.py
+R22_SRC = {"B1_15"}  # B2_08: srca Q4 no (band only holds at frame 133) -> R21 pixels;           # src-a agent: b115_r22.py (B1_15) / b208_r22.py (B2_08)
+R22_TIN = {"B1_08"}   # A0_01 (f160 lumpy disc, f246 lavender wash) / B1_10 (f69 crumpled blob): tin agent wrote risks = auto Q4 no -> R21 pixels   # tin agent: source_r22.py
 R22_HOOKS = [({"B1_15"} & R22_SRC, "b115_r22"), ({"B2_08"} & R22_SRC, "b208_r22"), (R22_TIN, "source_r22")]
 _SHOT = [None]
 

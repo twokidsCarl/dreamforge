@@ -38,8 +38,8 @@ R21_SHOTS = R21_HERO | R21_2B
 # <hook>.post(sc, variant, shot) last (may add / replace / delete objects, move the camera). Remove a shot id from its
 # set -> exact R21 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
 #   cuth owns R22_HERO + scripts/cut_hero_r22.py + scripts/kit_r22.py; cutb owns R22_2B + scripts/cut_2b_r22.py.
-R22_HERO = {"B3_02", "B5_01", "C_03"}
-R22_2B = {"B7_06", "A0_10", "B8_03", "B8_03M"}
+R22_HERO = {"B5_01"}   # B3_02: main 32-spp smoke Q4 no (cone toward IF gone at 85 %, agent-written risk) -> R21 pixels; # C_03: cuth not built (FFM move needs pre-build patch) -> R21 pixels
+R22_2B = {"B7_06"}   # B8_03(+M): main 32-spp smoke Q4 no (mirror wafer: bright blotch reflections hide the field grid) -> R21 pixels; # A0_10: cutb Q4 no (path still breaks mid-bay) -> R21 pixels
 R22_HOOKS = [(R22_HERO, "cut_hero_r22"), (R22_2B, "cut_2b_r22")]
 _R21 = [None]
 

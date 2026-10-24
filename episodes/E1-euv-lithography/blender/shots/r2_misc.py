@@ -34,7 +34,7 @@ R21_SHOTS = {"B8_17", "B6_12"}
 # build() calls <hook>.pre(variant, shot, module) first (may patch module globals / functions) and
 # <hook>.post(sc, variant, shot) last (may add / replace / delete objects, move the camera). Remove a shot id from its
 # set -> exact R21 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
-R22_SHOTS = {"B8_17", "B6_12", "B4_10"}   # misc agent: misc_b817_r22.py / misc_b612_r22.py / misc_b410_r22.py
+R22_SHOTS = {"B8_17", "B4_10"}  # B6_12: misc Q4 no (haze milky, no crisp band) -> R21 pixels; # misc agent: misc_b817_r22.py / misc_b612_r22.py / misc_b410_r22.py
 R22_HOOKS = [({"B8_17"} & R22_SHOTS, "misc_b817_r22"), ({"B6_12"} & R22_SHOTS, "misc_b612_r22"), ({"B4_10"} & R22_SHOTS, "misc_b410_r22")]
 _CUR_SHOT = [None]
 
