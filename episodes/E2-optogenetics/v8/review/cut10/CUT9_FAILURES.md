@@ -16,4 +16,4 @@ B-chain v1 was published without a full self-watch; solid caption bar + Ken-Burn
 t302 的抽帧、字幕条、冻帧、自评 ≥95 只能拦截，不能授权推送。样段、低清全片、1080p 及同类 Checkpoint：Vivian 通看完整条 → 列出具体修改 → 改 → 再通看完整条 → 自己认可才交。全文见 `docs/aesthetics/PROCESS_LOOP_v3.md` §B。
 
 ## 未过线不得 Checkpoint（Carl HARD t334，2026-10-24）
-诚实再通看低于认可线（E2 全片偏好约 95–98；不得低于已写明的再通看门槛）= 绝不交给 Carl。不得 scp、push、SendToUser，也不得把失败自看当成一版并附可看地址。Cut10 全片诚实通看 74、技术门假 96，即此门。先内部改到再通看认可，再交一次。t327 环不变：通看 → 列出具体修改 → 改 → 再通看 → 认可 → 才 Checkpoint。
+诚实再通看低于认可线（E2 全片偏好约 95–98；不得低于已写明的再通看门槛）= 绝不交给 Carl。不得 scp、push、SendToUser，也不得把失败自看当成一版并附可看地址。Cut10 全片诚实通看 74、技术门假 96，即此门。I01–I05 后诚实 90 只是恢复地板，不是频道目标；残留继续往 95–98。先内部改到再通看认可，再交一次。t327 环不变：通看 → 列出具体修改 → 改 → 再通看 → 认可 → 才 Checkpoint。范例已升格为频道规则（Carl HARD t341/t342），全文 `docs/aesthetics/PROCESS_LOOP_v3.md`，本文件不另起流程。
