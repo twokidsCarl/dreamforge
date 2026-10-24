@@ -27,11 +27,18 @@ FOCUS = {
     "A2_03": {"A203R24Leg0": {"ra": 0.02, "rb": 0.13, "screen": "a"}},
 }
 
+# B1_15: the rim-wide cone lies over the whole mirror face -> dimmer (32 spp at 1.1: mirror-area 90/10 2.86 < 4, violet
+# haze hides the reflection)
+STRENGTH = {"B1_15": 0.6}
+
 
 def pre(variant, shot, mod):
     if not CONE_R31:
         return
     import beam_hook_r30 as H30
+    if shot in STRENGTH:
+        import beam_hook_r29 as H29
+        H29.STRENGTH[shot] = STRENGTH[shot]
     focus = dict(H30.FOCUS.get(shot, {}))
     focus.update(FOCUS.get(shot, {}))
     B31.install(shot, focus, gain=H30.GAIN.get(shot))

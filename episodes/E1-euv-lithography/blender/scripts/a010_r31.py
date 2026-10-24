@@ -161,7 +161,7 @@ def _refl_card(name, P, n, cam, dist=1.0, size=0.9, strength=2.5):
 def _grey_people(col=(0.13, 0.135, 0.15)):
     """the two scale figures: white suits -> dark grey (copies of their materials; only Eng* objects)."""
     n = 0
-    for ob in [o for o in bpy.data.objects if o.name.startswith("Eng") and o.type == "MESH"]:
+    for ob in [o for o in bpy.data.objects if o.name.startswith("Eng") and o.type in ("MESH", "META")]:
         for s_ in ob.material_slots:
             m = s_.material
             if not (m and m.use_nodes):

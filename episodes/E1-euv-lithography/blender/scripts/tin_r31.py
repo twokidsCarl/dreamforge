@@ -30,6 +30,7 @@ HOT_COL = (1.0, 0.26, 0.04)
 HOT_BACK = 0.60            # far-face share of the glow
 HOT_R = 0.55               # hot core radius (sheet units)
 RIPPLE = (2.3, 0.6, 0.21)  # molten surface: noise scale / detail / bump strength (breaks the one soft key into flowing highlights)
+RIPPLE_SHOT = {"B1_10": (2.0, 0.4, 0.15)}   # 32 spp: the smaller B1_10 sheet broke into high-contrast patches (90/10 11.1 > 10)
 LASER_DIR = Vector((1.0, 0.0, 0.0))   # the pulses travel +X (LaserLight at -X of the drop)
 
 
@@ -95,13 +96,13 @@ def disc(sc, shot, frame, seed=31, name="Pancake"):
     for o in bpy.data.objects:
         if o.name.startswith("PancakeDrops"):
             o.hide_render = True
-    _material(sh)
+    _material(sh, RIPPLE_SHOT.get(shot, RIPPLE))
     print(f"[tin_r31] {shot} {name}: disc flat x{FLAT}, {NOTCHES} edge notches, no crown / drops / rim glow, hot face "
           f"{HOT}, {n_f} riders follow", flush=True)
     return sh
 
 
-def _material(ob):
+def _material(ob, ripple=RIPPLE):
     for s in ob.material_slots:
         m = s.material
         if m is None or not m.use_nodes or m.get("r31disc"):
@@ -115,9 +116,9 @@ def _material(ob):
             continue
         for n in N:
             if n.type == "TEX_NOISE":
-                n.inputs["Scale"].default_value, n.inputs["Detail"].default_value = RIPPLE[0], RIPPLE[1]
+                n.inputs["Scale"].default_value, n.inputs["Detail"].default_value = ripple[0], ripple[1]
             elif n.type == "BUMP":
-                n.inputs["Strength"].default_value = RIPPLE[2]
+                n.inputs["Strength"].default_value = ripple[2]
         b.inputs["Metallic"].default_value = 1.0
         b.inputs["Roughness"].default_value = ROUGH
         if not b.inputs["Base Color"].is_linked:

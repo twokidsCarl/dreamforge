@@ -297,4 +297,31 @@ def post(sc, variant, shot):
         _ruler(sc)
     if shot == "B8_03M" and PIP_R31:
         _pip(sc)
+        _dim_slit()
     return sc
+
+
+SLIT_DIM = 0.4   # main-process 32-spp smoke: seen face-on from the new PIP camera the slit footprint blew out with black
+                 # specks inside (speck31 DARK-IN-BLOWN, R30 0) -> MaskSlit + LandingSpots glow x SLIT_DIM (B8_03M only)
+
+
+def _dim_slit():
+    import bpy
+    n = 0
+    for o in bpy.data.objects:
+        if not o.name.startswith(("MaskSlit", "LandingSpots")) or o.type != "MESH":
+            continue
+        for sl in o.material_slots:
+            m = sl.material
+            if m is None or not m.use_nodes or m.get("r31dim"):
+                continue
+            for nd in m.node_tree.nodes:
+                if nd.type == "EMISSION":
+                    lk = nd.inputs["Strength"].links
+                    if lk and lk[0].from_node.type == "MATH":
+                        lk[0].from_node.inputs[1].default_value *= SLIT_DIM
+                    else:
+                        nd.inputs["Strength"].default_value *= SLIT_DIM
+                    n += 1
+            m["r31dim"] = True
+    print(f"[r31k pip] slit / landing glow x{SLIT_DIM} on {n} emission nodes", flush=True)

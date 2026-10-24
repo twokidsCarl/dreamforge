@@ -925,9 +925,9 @@ R30_HOOKS = [(R30_TIN, "source_r30"), (R30_SRC, "src_r30"), (R30_B208, "src_b208
 # hooks but BEFORE beam_hook_r29 (stays LAST and also converts every R31_BEAM shot). Remove a shot id from its R31 set ->
 # exact R30 pixels. Mutate these sets, never rebind them.
 R31_TIN = {"A0_01", "B1_10"}   # main process: source_r31.py (row 2: tin step 5 = thin curved disc, broken edge, hot face; drops removed)
-R31_SRC = {"B1_15"}   # main process: src_r31.py (row 3c: B1_15 collector = the B2_08 R30 mirror material on the picked mirror slots)
+R31_SRC = set()   # B1_15 row 3c: main 32-spp Q4 no (mirror shows lit wall parts but the rim-wide cone haze keeps mirror-area 90/10 at 2.86 (cone 1.1) / 3.12 (cone 0.6) < 4 = matte read risk) -> R30 pixels;  # main process: src_r31.py (row 3c: B1_15 collector = the B2_08 R30 mirror material on the picked mirror slots)
 R31_B208 = {"B2_08"}   # src agent: src_b208_r31.py (row 6d: B2_08 floating white / grey specks removed or made dark tin spots)
-R31_BEAM = {"B1_15"}   # main process: beam_hook_r31.py (row 3c: B1_15 cone base on the whole rim; pre() only)
+R31_BEAM = set()   # B1_15 returned with row 3c;  # main process: beam_hook_r31.py (row 3c: B1_15 cone base on the whole rim; pre() only)
 R31_HOOKS = [(R31_TIN, "source_r31"), (R31_SRC, "src_r31"), (R31_B208, "src_b208_r31"), (R31_BEAM, "beam_hook_r31")]
 _SHOT = [None]
 
