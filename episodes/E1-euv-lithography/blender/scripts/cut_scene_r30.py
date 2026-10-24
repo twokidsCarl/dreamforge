@@ -19,7 +19,8 @@ from mathutils import Vector
 
 FFM_R30 = True
 DEBRIS_R30 = True
-B302_R30 = False   # main 32-spp Q4 no (pale matte drum) -> R29 pixels
+B302_R30 = True        # IF tip spot only (row 5a, part 2)
+B302WALL_R30 = False   # row 5a part 1: main 32-spp Q4 no (dark-blast copy on R2_vessel = pale matte drum, mirror read lost) -> R29 vessel
 
 C03_WIN_FRAME = 222
 
@@ -87,7 +88,7 @@ def _b302(sc):
     import beam_r30 as B30
     import build_cutaway_r2 as B
     v = bpy.data.objects.get("R2_vessel")
-    k = _mat_copy(v, "_R30blast", base=(0.07, 0.072, 0.08), rough=0.62, metal=0.4) if v is not None else 0
+    k = _mat_copy(v, "_R30blast", base=(0.07, 0.072, 0.08), rough=0.62, metal=0.4) if (v is not None and B302WALL_R30) else 0
     sc.frame_set(67)
     cam = sc.camera.matrix_world.translation
     to_cam = (cam - Vector(B.IF)).normalized()
