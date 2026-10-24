@@ -13,6 +13,9 @@ Shadowless Camera Fill Light + Proud Corneal Eye Catchlights:
 import bpy, mathutils, math, sys, os, random
 import numpy as np
 from mathutils import Vector
+import sys as _sys
+_sys.path.insert(0, '/workspace/e2work/v8/blender')
+from mouse_eye_anatomy import place_c57_eyes, apply_eye_fur_gap
 
 argv = sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []
 OUT_DIR = argv[0] if argv else '/workspace/e2work/v8/renders/mouse_v2_seqs'
@@ -119,14 +122,17 @@ paw_fac = np.clip((0.056 - co[:, 2]) / 0.012, 0.0, 1.0)
 tail_fac = np.clip((0.42 - dist_tail) / 0.03, 0.0, 1.0)
 nose_fac = np.clip((0.025 - dist_nose) / 0.008, 0.0, 1.0)
 is_ear = ((co[:, 2] > (imp0[2] - 0.002)) & (dist_nose > 0.12) & (dist_nose < 0.25) & (np.abs(co[:, 0] - x_mid) > 0.045) & (v_pink > 0.095)).astype(np.float32)
-ebox = (dist_nose > 0.055) & (dist_nose < 0.145) & (co[:, 2] > 0.105) & (co[:, 2] < 0.185) & (np.abs(co[:, 0] - x_mid) > 0.025)
-is_eye = ebox & (v_lum <= np.percentile(v_lum[ebox], 15))
+# Anatomical orbital anchors (NO luminance-percentile ebox)
+is_eye, eye_centers, eye_radius = place_c57_eyes(
+    co, ynose=ynose, sgn=sgn, x_mid=x_mid, imp_z=float(imp0[2]),
+    v_lum=v_lum, v_pink=v_pink,
+)
+print('EYE_ANATOMY', 'n=', int(is_eye.sum()), 'radius=', round(eye_radius, 5),
+      'centers=', [list(map(float, c)) for _, c in eye_centers], flush=True)
 
 pink_mask = np.maximum(np.maximum(paw_fac, tail_fac), np.maximum(nose_fac, is_ear)).astype(np.float32)
 w = (1.0 - pink_mask) * (1.0 - is_eye.astype(np.float32))
-if is_eye.sum() > 0:
-    for ept in co[is_eye][::3]:
-        w *= np.clip((np.linalg.norm(co - ept, axis=1) - 0.022) / 0.010, 0.0, 1.0)
+w = apply_eye_fur_gap(w, co, eye_centers, eye_radius)
 
 cns_boost = 1.0 + 0.85 * np.exp(-((dist_nose - 0.19) / 0.14) ** 2)
 w_dens = (w * cns_boost).astype(np.float32)
@@ -548,23 +554,22 @@ sc.collection.objects.link(head_piv)
 head_piv.parent = m
 head_piv.location = imp0 - m.location
 
-if is_eye.sum() > 0:
-    mat_cornea = bpy.data.materials.new('cornea_gloss')
-    mat_cornea.use_nodes = True
-    cbsdf = mat_cornea.node_tree.nodes['Principled BSDF']
-    cbsdf.inputs['Base Color'].default_value = (0.002, 0.002, 0.003, 1.0)
-    cbsdf.inputs['Roughness'].default_value = 0.015
-    if 'Specular IOR Level' in cbsdf.inputs:
-        cbsdf.inputs['Specular IOR Level'].default_value = 1.0
-    for esgn in (-1, 1):
-        esub = is_eye & ((co[:, 0] - x_mid) * esgn > 0)
-        if esub.any():
-            ec = (Vector(co[esub].mean(axis=0)) - imp0) + Vector((esgn * 0.006, 0.0, 0.002))
-            bpy.ops.mesh.primitive_uv_sphere_add(segments=24, ring_count=14, radius=0.0125, location=ec)
-            eob = bpy.context.object
-            for poly in eob.data.polygons: poly.use_smooth = True
-            eob.data.materials.append(mat_cornea)
-            eob.parent = head_piv
+mat_cornea = bpy.data.materials.new('cornea_gloss')
+mat_cornea.use_nodes = True
+cbsdf = mat_cornea.node_tree.nodes['Principled BSDF']
+cbsdf.inputs['Base Color'].default_value = (0.002, 0.002, 0.003, 1.0)
+cbsdf.inputs['Roughness'].default_value = 0.015
+if 'Specular IOR Level' in cbsdf.inputs:
+    cbsdf.inputs['Specular IOR Level'].default_value = 1.0
+for esgn, ctr in eye_centers:
+    ec = Vector(ctr) - imp0
+    bpy.ops.mesh.primitive_uv_sphere_add(
+        segments=24, ring_count=14, radius=eye_radius, location=ec)
+    eob = bpy.context.object
+    for poly in eob.data.polygons:
+        poly.use_smooth = True
+    eob.data.materials.append(mat_cornea)
+    eob.parent = head_piv
 
 wm = bpy.data.materials.new('whisker')
 wm.use_nodes = True
@@ -740,9 +745,10 @@ def set_pose_and_fiber(head_pitch, head_yaw, breathe_amp, walk_dist, stride_phas
     if abs(stride_phase) > 1e-4:
         sA = math.sin(stride_phase)
         sB = -sA
-        liftA = max(0.0, math.cos(stride_phase)) * 0.022
-        liftB = max(0.0, -math.cos(stride_phase)) * 0.022
-        v[:, 1] += (-sgn * 0.024 * sA) * diag_A + (-sgn * 0.024 * sB) * diag_B
+        # Half lift / half paw-Y: forward travel, not in-place rock
+        liftA = max(0.0, math.cos(stride_phase)) * 0.010
+        liftB = max(0.0, -math.cos(stride_phase)) * 0.010
+        v[:, 1] += (-sgn * 0.012 * sA) * diag_A + (-sgn * 0.012 * sB) * diag_B
         v[:, 2] += liftA * diag_A + liftB * diag_B
 
     m.data.vertices.foreach_set('co', v.ravel())
@@ -771,130 +777,156 @@ def set_pose_and_fiber(head_pitch, head_yaw, breathe_amp, walk_dist, stride_phas
 
 N_F = 5
 
-if GROUP in ('all', 'part1'):
-    # 1. sf10_camA: Slow-wave sleep breathing -> 470nm blue fiber pulse turns ON
+def ease_mono(u):
+    """Smoothstep 0→1. Monotonic. No return sweep."""
+    u = max(0.0, min(1.0, u))
+    return u * u * (3.0 - 2.0 * u)
+
+# MOTION RULE (Carl): every mouse SF clip advances one way only.
+# Forbidden: sin(2πu)/cos(2πu) head_yaw, breathe, stride reverse, camera orbit ping-pong.
+
+if GROUP in ('all', 'part1', 'sf10_camA'):
     for g in grid_objs: g.hide_render = True
     for f in range(1, N_F + 1):
         u = (f - 1) / (N_F - 1)
-        light_on = max(0.0, min(1.0, (u - 0.35) / 0.25))
-        breathe = math.sin(u * math.pi * 2)
+        eu = ease_mono(u)
+        light_on = max(0.0, min(1.0, (eu - 0.35) / 0.25))
         set_pose_and_fiber(
             head_pitch=-0.022 * (1.0 - 0.4 * light_on), head_yaw=0.0,
-            breathe_amp=breathe, walk_dist=0.0, stride_phase=0.0,
+            breathe_amp=0.06, walk_dist=0.0, stride_phase=0.0,
             fiber_col=(0.12, 0.55, 1.0), fiber_str=1.5 * light_on, glow_str=6.5 * light_on
         )
-        co_.location = ctr0 + Vector((1.35 - 0.18 * u, -sgn * (0.85 - 0.12 * u), 0.34 - 0.04 * u))
+        co_.location = ctr0 + Vector((1.35 - 0.18 * eu, -sgn * (0.85 - 0.12 * eu), 0.34 - 0.04 * eu))
         tgt.location = ctr0
         sc.render.filepath = os.path.join(OUT_DIR, f'sf10_camA_{f:04d}.png')
         bpy.ops.render.render(write_still=True)
         print(f'[sf10_camA] {f}/{N_F}', flush=True)
 
-    # 2. sf10_camB: Front-3/4 close-up of 470nm pulse -> head lift, awakening & forward stride start
+if GROUP in ('all', 'part1', 'sf10_camB'):
+    for g in grid_objs: g.hide_render = True
     for f in range(1, N_F + 1):
         u = (f - 1) / (N_F - 1)
-        wake_u = 0.5 - 0.5 * math.cos(u * math.pi)
-        walk_u = max(0.0, (u - 0.3) / 0.7)
-        pulse = 0.75 + 0.25 * math.sin(u * math.pi * 4)
+        eu = ease_mono(u)
+        wake_u = eu
+        walk_u = max(0.0, (eu - 0.25) / 0.75)
+        pulse = 0.75 + 0.25 * eu
         set_pose_and_fiber(
-            head_pitch=-0.012 + 0.038 * wake_u, head_yaw=0.015 * math.sin(u * math.pi * 2),
-            breathe_amp=0.5 * math.cos(u * math.pi * 2), walk_dist=0.14 * walk_u, stride_phase=walk_u * math.pi * 2,
+            head_pitch=-0.012 + 0.038 * wake_u,
+            head_yaw=0.010 * wake_u,
+            breathe_amp=0.08,
+            walk_dist=0.14 * walk_u,
+            stride_phase=walk_u * math.pi * 0.9,
             fiber_col=(0.12, 0.55, 1.0), fiber_str=1.6 * pulse, glow_str=7.5 * pulse
         )
         cur_ctr = ctr0 + Vector((0, -sgn * 0.10 * walk_u, 0.01 * wake_u))
         tgt.location = cur_ctr
-        co_.location = cur_ctr + Vector((1.05 - 0.10 * u, -sgn * (1.12 - 0.10 * u), 0.38 - 0.04 * u))
+        co_.location = cur_ctr + Vector((1.05 - 0.10 * eu, -sgn * (1.12 - 0.10 * eu), 0.38 - 0.04 * eu))
         sc.render.filepath = os.path.join(OUT_DIR, f'sf10_camB_{f:04d}.png')
         bpy.ops.render.render(write_still=True)
         print(f'[sf10_camB] {f}/{N_F}', flush=True)
 
-    # 3. sf10_camC: Low-angle hero tracking shot of active walking stride across dark wood-chip bedding
+if GROUP in ('all', 'part1', 'sf10_camC'):
+    for g in grid_objs: g.hide_render = True
     for f in range(1, N_F + 1):
         u = (f - 1) / (N_F - 1)
-        pulse = 0.8 + 0.2 * math.sin(u * math.pi * 4)
+        eu = ease_mono(u)
+        pulse = 0.8 + 0.2 * eu
         set_pose_and_fiber(
-            head_pitch=0.022, head_yaw=-0.012 * math.cos(u * math.pi * 2),
-            breathe_amp=0.4 * math.sin(u * math.pi * 4), walk_dist=0.22 * u, stride_phase=u * math.pi * 4 + 0.4,
+            head_pitch=0.022, head_yaw=0.0,
+            breathe_amp=0.08,
+            walk_dist=0.22 * eu,
+            stride_phase=eu * math.pi * 1.0,
             fiber_col=(0.12, 0.55, 1.0), fiber_str=1.6 * pulse, glow_str=7.5 * pulse
         )
-        cur_ctr = ctr0 + Vector((0, -sgn * 0.18 * u, 0.01))
+        cur_ctr = ctr0 + Vector((0, -sgn * 0.18 * eu, 0.01))
         tgt.location = cur_ctr
-        co_.location = cur_ctr + Vector((1.18 - 0.12 * u, -sgn * (0.55 - 0.25 * u), 0.24 + 0.04 * u))
+        co_.location = cur_ctr + Vector((1.18 - 0.12 * eu, -sgn * (0.55 - 0.25 * eu), 0.24 + 0.04 * eu))
         sc.render.filepath = os.path.join(OUT_DIR, f'sf10_camC_{f:04d}.png')
         bpy.ops.render.render(write_still=True)
         print(f'[sf10_camC] {f}/{N_F}', flush=True)
 
-    # 4. cage_envA: High-angle 3/4 view inside Transparent Acrylic Cage A (470nm blue pulse + exploration walk)
+if GROUP in ('all', 'part1', 'cage_envA'):
     for g in grid_objs: g.hide_render = True
     hs.inputs['Value'].default_value = 0.34
     key_l.data.color = (0.95, 0.97, 1.0)
     rim_l.data.color = (0.65, 0.82, 1.0)
     for f in range(1, N_F + 1):
         u = (f - 1) / (N_F - 1)
-        pulse = 0.7 + 0.3 * math.sin(u * math.pi * 4)
+        eu = ease_mono(u)
+        pulse = 0.7 + 0.3 * eu
         set_pose_and_fiber(
-            head_pitch=0.020, head_yaw=0.018 * math.sin(u * math.pi * 2),
-            breathe_amp=0.5 * math.sin(u * math.pi * 2), walk_dist=0.18 * u, stride_phase=u * math.pi * 4,
+            head_pitch=0.020, head_yaw=0.008 * eu,
+            breathe_amp=0.08,
+            walk_dist=0.18 * eu,
+            stride_phase=eu * math.pi * 1.0,
             fiber_col=(0.10, 0.52, 1.0), fiber_str=1.7 * pulse, glow_str=8.0 * pulse
         )
-        cur_ctr = ctr0 + Vector((0, -sgn * 0.14 * u, 0.0))
+        cur_ctr = ctr0 + Vector((0, -sgn * 0.14 * eu, 0.0))
         tgt.location = cur_ctr
-        co_.location = cur_ctr + Vector((1.15 - 0.15 * u, sgn * (0.75 - 0.20 * u), 0.72 - 0.08 * u))
+        co_.location = cur_ctr + Vector((1.15 - 0.15 * eu, sgn * (0.75 - 0.20 * eu), 0.72 - 0.08 * eu))
         sc.render.filepath = os.path.join(OUT_DIR, f'cage_envA_{f:04d}.png')
         bpy.ops.render.render(write_still=True)
         print(f'[cage_envA] {f}/{N_F}', flush=True)
 
-if GROUP in ('all', 'part2'):
-    # 5. cage_envB: Conditioning Chamber B with metal shock-grid floor rods + warm amber light + 470nm blue recall
+if GROUP in ('all', 'part2', 'cage_envB'):
     for g in grid_objs: g.hide_render = False
     hs.inputs['Value'].default_value = 0.20
     key_l.data.color = (1.0, 0.65, 0.38)
     rim_l.data.color = (1.0, 0.48, 0.28)
     for f in range(1, N_F + 1):
         u = (f - 1) / (N_F - 1)
-        pulse = 0.75 + 0.25 * math.sin(u * math.pi * 4)
+        eu = ease_mono(u)
+        pulse = 0.75 + 0.25 * eu
         set_pose_and_fiber(
-            head_pitch=0.015, head_yaw=-0.016 * math.sin(u * math.pi * 2),
-            breathe_amp=0.6 * math.sin(u * math.pi * 4), walk_dist=0.15 * u, stride_phase=u * math.pi * 4 + 1.0,
+            head_pitch=0.015, head_yaw=-0.008 * eu,
+            breathe_amp=0.08,
+            walk_dist=0.15 * eu,
+            stride_phase=eu * math.pi * 1.0,
             fiber_col=(0.12, 0.56, 1.0), fiber_str=1.9 * pulse, glow_str=8.5 * pulse
         )
-        cur_ctr = ctr0 + Vector((0, -sgn * 0.12 * u, 0.0))
+        cur_ctr = ctr0 + Vector((0, -sgn * 0.12 * eu, 0.0))
         tgt.location = cur_ctr
-        co_.location = cur_ctr + Vector((1.10 - 0.12 * u, -sgn * (1.05 - 0.18 * u), 0.62 - 0.06 * u))
+        co_.location = cur_ctr + Vector((1.10 - 0.12 * eu, -sgn * (1.05 - 0.18 * eu), 0.62 - 0.06 * eu))
         sc.render.filepath = os.path.join(OUT_DIR, f'cage_envB_{f:04d}.png')
         bpy.ops.render.render(write_still=True)
         print(f'[cage_envB] {f}/{N_F}', flush=True)
 
-    # 6. cage_nphr: Transparent cage under 590nm yellow-amber NpHR chloride-pump light inhibition
+if GROUP in ('all', 'part2', 'cage_nphr'):
     for g in grid_objs: g.hide_render = True
     hs.inputs['Value'].default_value = 0.30
     key_l.data.color = (1.0, 0.90, 0.78)
     rim_l.data.color = (1.0, 0.75, 0.32)
     for f in range(1, N_F + 1):
         u = (f - 1) / (N_F - 1)
+        eu = ease_mono(u)
         set_pose_and_fiber(
-            head_pitch=-0.008 * u, head_yaw=0.008 * math.sin(u * math.pi * 2),
-            breathe_amp=0.45 * math.sin(u * math.pi * 2), walk_dist=0.04 * (1.0 - (1.0 - u) ** 2), stride_phase=u * math.pi,
+            head_pitch=-0.008 * eu, head_yaw=0.0,
+            breathe_amp=0.07,
+            walk_dist=0.04 * eu,
+            stride_phase=eu * math.pi * 0.6,
             fiber_col=(1.0, 0.68, 0.12), fiber_str=2.0, glow_str=9.0
         )
         tgt.location = ctr0
-        co_.location = ctr0 + Vector((0.98 + 0.12 * u, -sgn * (0.88 - 0.15 * u), 0.42 + 0.05 * u))
+        co_.location = ctr0 + Vector((0.98 + 0.12 * eu, -sgn * (0.88 - 0.15 * eu), 0.42 + 0.05 * eu))
         sc.render.filepath = os.path.join(OUT_DIR, f'cage_nphr_{f:04d}.png')
         bpy.ops.render.render(write_still=True)
         print(f'[cage_nphr] {f}/{N_F}', flush=True)
 
-    # 7. cage_comm: Overhead rotary commutator joint + Context A fear-freezing micro-breathing posture
+if GROUP in ('all', 'part2', 'cage_comm'):
     key_l.data.color = (0.92, 0.96, 1.0)
     rim_l.data.color = (0.55, 0.78, 1.0)
     for f in range(1, N_F + 1):
         u = (f - 1) / (N_F - 1)
-        pulse = 0.7 + 0.3 * math.sin(u * math.pi * 4)
+        eu = ease_mono(u)
+        pulse = 0.7 + 0.3 * eu
         set_pose_and_fiber(
-            head_pitch=-0.015, head_yaw=0.004 * math.sin(u * math.pi * 4),
-            breathe_amp=0.35 * math.sin(u * math.pi * 4), walk_dist=0.0, stride_phase=0.0,
+            head_pitch=-0.015 - 0.004 * eu, head_yaw=0.0,
+            breathe_amp=0.05,
+            walk_dist=0.0, stride_phase=0.0,
             fiber_col=(0.12, 0.55, 1.0), fiber_str=1.6 * pulse, glow_str=7.5 * pulse
         )
         tgt.location = ctr0 + Vector((0, 0, 0.18))
-        co_.location = ctr0 + Vector((1.28 - 0.15 * u, -sgn * (0.65 - 0.25 * u), 0.78 - 0.08 * u))
+        co_.location = ctr0 + Vector((1.28 - 0.15 * eu, -sgn * (0.65 - 0.25 * eu), 0.78 - 0.08 * eu))
         sc.render.filepath = os.path.join(OUT_DIR, f'cage_comm_{f:04d}.png')
         bpy.ops.render.render(write_still=True)
         print(f'[cage_comm] {f}/{N_F}', flush=True)

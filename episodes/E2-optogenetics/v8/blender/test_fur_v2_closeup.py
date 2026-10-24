@@ -10,6 +10,9 @@ Complete 3D Darboux-Frame + Shadowless Fill Solution:
 import bpy, mathutils, math, sys, os, random
 import numpy as np
 from mathutils import Vector
+import sys as _sys
+_sys.path.insert(0, '/workspace/e2work/v8/blender')
+from mouse_eye_anatomy import place_c57_eyes, apply_eye_fur_gap
 
 OUT_PATH = '/workspace/e2work/v8/renders/fur_v2_closeup.png'
 GLB = '/workspace/e2work/v8/tripo/mouse_c57.glb'
@@ -117,30 +120,32 @@ paw_fac = np.clip((0.056 - co[:, 2]) / 0.012, 0.0, 1.0)
 tail_fac = np.clip((0.42 - dist_tail) / 0.03, 0.0, 1.0)
 nose_fac = np.clip((0.025 - dist_nose) / 0.008, 0.0, 1.0)
 is_ear = ((co[:, 2] > (imp[2] - 0.002)) & (dist_nose > 0.12) & (dist_nose < 0.25) & (np.abs(co[:, 0] - x_mid) > 0.045) & (v_pink > 0.095)).astype(np.float32)
-ebox = (dist_nose > 0.055) & (dist_nose < 0.145) & (co[:, 2] > 0.105) & (co[:, 2] < 0.185) & (np.abs(co[:, 0] - x_mid) > 0.025)
-is_eye = ebox & (v_lum <= np.percentile(v_lum[ebox], 15))
+# Anatomical orbital anchors (NO luminance-percentile ebox — that parked eyes on neck/shoulder)
+is_eye, eye_centers, eye_radius = place_c57_eyes(
+    co, ynose=ynose, sgn=sgn, x_mid=x_mid, imp_z=float(imp[2]),
+    v_lum=v_lum, v_pink=v_pink,
+)
+print('EYE_ANATOMY', 'n=', int(is_eye.sum()), 'radius=', round(eye_radius, 5),
+      'centers=', [list(map(float, c)) for _, c in eye_centers], flush=True)
 
 pink_mask = np.maximum(np.maximum(paw_fac, tail_fac), np.maximum(nose_fac, is_ear)).astype(np.float32)
 w = (1.0 - pink_mask) * (1.0 - is_eye.astype(np.float32))
-if is_eye.sum() > 0:
-    for ept in co[is_eye][::3]:
-        w *= np.clip((np.linalg.norm(co - ept, axis=1) - 0.022) / 0.010, 0.0, 1.0)
-    # Add proud glossy corneal eye spheres on both sides so eye catchlight is 100% unobstructed by cheek fur!
-    mat_cornea = bpy.data.materials.new('cornea_gloss')
-    mat_cornea.use_nodes = True
-    cbsdf = mat_cornea.node_tree.nodes['Principled BSDF']
-    cbsdf.inputs['Base Color'].default_value = (0.002, 0.002, 0.003, 1.0)
-    cbsdf.inputs['Roughness'].default_value = 0.015
-    if 'Specular IOR Level' in cbsdf.inputs:
-        cbsdf.inputs['Specular IOR Level'].default_value = 1.0
-    for esgn in (-1, 1):
-        esub = is_eye & ((co[:, 0] - x_mid) * esgn > 0)
-        if esub.any():
-            ec = Vector(co[esub].mean(axis=0)) + Vector((esgn * 0.006, 0.0, 0.002))
-            bpy.ops.mesh.primitive_uv_sphere_add(segments=24, ring_count=14, radius=0.0125, location=ec)
-            eob = bpy.context.object
-            for poly in eob.data.polygons: poly.use_smooth = True
-            eob.data.materials.append(mat_cornea)
+w = apply_eye_fur_gap(w, co, eye_centers, eye_radius)
+# Proud glossy corneal spheres on skull-side orbits only
+mat_cornea = bpy.data.materials.new('cornea_gloss')
+mat_cornea.use_nodes = True
+cbsdf = mat_cornea.node_tree.nodes['Principled BSDF']
+cbsdf.inputs['Base Color'].default_value = (0.002, 0.002, 0.003, 1.0)
+cbsdf.inputs['Roughness'].default_value = 0.015
+if 'Specular IOR Level' in cbsdf.inputs:
+    cbsdf.inputs['Specular IOR Level'].default_value = 1.0
+for esgn, ctr in eye_centers:
+    bpy.ops.mesh.primitive_uv_sphere_add(
+        segments=24, ring_count=14, radius=eye_radius, location=Vector(ctr))
+    eob = bpy.context.object
+    for poly in eob.data.polygons:
+        poly.use_smooth = True
+    eob.data.materials.append(mat_cornea)
 
 cns_boost = 1.0 + 0.85 * np.exp(-((dist_nose - 0.19) / 0.14) ** 2)
 w_dens = (w * cns_boost).astype(np.float32)
@@ -665,7 +670,16 @@ try:
 except Exception:
     pass
 sc.render.resolution_x, sc.render.resolution_y = (1280, 720)
-sc.cycles.samples = 40
+sc.cycles.samples = 20
 sc.render.filepath = OUT_PATH
 bpy.ops.render.render(write_still=True)
 print('SAVED_FUR_V2_DARBOUX_FILL', OUT_PATH, flush=True)
+
+# Second verification angle: awake three-quarter (fiber ON already from ferrule emission)
+THREEQ = '/workspace/e2work/v8/renders/eye_fix/mouse_awake_threeq.png'
+os.makedirs(os.path.dirname(THREEQ), exist_ok=True)
+co_.location = ctr + Vector((1.10, -sgn * 1.35, 0.48))
+cam.lens = 50
+sc.render.filepath = THREEQ
+bpy.ops.render.render(write_still=True)
+print('SAVED_MOUSE_AWAKE_THREEQ', THREEQ, flush=True)
