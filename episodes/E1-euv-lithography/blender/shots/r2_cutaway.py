@@ -41,6 +41,12 @@ R21_SHOTS = R21_HERO | R21_2B
 R22_HERO = {"B5_01"}   # B3_02: main 32-spp smoke Q4 no (cone toward IF gone at 85 %, agent-written risk) -> R21 pixels; # C_03: cuth not built (FFM move needs pre-build patch) -> R21 pixels
 R22_2B = {"B7_06"}   # B8_03(+M): main 32-spp smoke Q4 no (mirror wafer: bright blotch reflections hide the field grid) -> R21 pixels; # A0_10: cutb Q4 no (path still breaks mid-bay) -> R21 pixels
 R22_HOOKS = [(R22_HERO, "cut_hero_r22"), (R22_2B, "cut_2b_r22")]
+# R23 (R23_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R22
+# hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R23 set ->
+# exact R22 pixels. Gold shots (A0_02 / D_07 / B9_05 / B1_22) are never in a set.
+R23_HERO = {"C_03"}   # B3_02: agent-written risk (CO2 laser line dropped at the 55° camera) = auto Q4 no -> R22 pixels; B5_01: no change needed -> R22   # cuth agent: cut_hero_r23.py (rows 2 / 3)
+R23_2B = {"B7_06", "A0_10", "B8_03", "B8_03M"}   # cutb agent: cut_2b_r23.py (rows 2 / 3 / 5)
+R23_HOOKS = [(R23_HERO, "cut_hero_r23"), (R23_2B, "cut_2b_r23")]
 _R21 = [None]
 
 
@@ -71,7 +77,7 @@ def _lights_studio():
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS if shot in s_]
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS if shot in s_]   # R23: R23 hooks after R22
 
 
 def _r22_pre(variant, shot):
