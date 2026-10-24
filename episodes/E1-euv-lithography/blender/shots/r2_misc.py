@@ -68,6 +68,11 @@ R27_HOOKS = [(R27_MISC, "misc_r27")]
 # hooks. Remove a shot id from its R28 set -> exact R27 pixels. Mutate these sets, never rebind them.
 R28_MISC = {"B6_12", "A2_03"}   # misc agent: misc_r28.py (row 4: B6_12 pellicle hair-line + dark multilayer/absorber face + grey hoses; row 5: A2_03 violet NA cone, cyan marks)
 R28_HOOKS = [(R28_MISC, "misc_r28")]
+# R29 (R29_ROOT_CAUSE.md): per-row shot sets + hook modules, pre-wired by the main process, layered AFTER the R28
+# hooks. Remove a shot id from its R29 set -> exact R28 pixels. Mutate these sets, never rebind them.
+R29_BEAM = {"A2_03"}   # main process: beam_hook_r29.py (row 1; LAST)
+R29_MISC = {"B4_07", "B6_12"}   # misc agent: misc_r29.py (row 6: B4_07 ceramic body + flexure mount + chamber wall; B6_12 machine context behind the mask)
+R29_HOOKS = [(R29_MISC, "misc_r29"), (R29_BEAM, "beam_hook_r29")]
 _CUR_SHOT = [None]
 
 
@@ -2182,7 +2187,7 @@ VARIANTS = {"space": _space, "globe": _globe, "mirror": _mirror, "pellicle": _pe
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):
