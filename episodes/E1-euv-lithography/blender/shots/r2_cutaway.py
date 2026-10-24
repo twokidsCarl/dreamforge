@@ -92,6 +92,14 @@ R30_SCENE = {"C_03"}   # B3_02 row 5a: wall part 32-spp Q4 no (pale matte drum);
 R30_KIT = {"B8_03", "B8_03M"}   # kit agent: cut_kit_r30.py (row 6: B8_03 wafer-stage ruler in its own screen space + moving alignment mark)
 R30_BEAM = {"A0_10", "B5_01", "C_03", "B3_02"}   # B7_06: see R30_SCENE (returned); B8_03: main 32-spp Q4 no (slit fan nearly vanishes, the slit line reads as a diagonal white scratch) -> R29 beam, kit row kept;   # main process: beam_hook_r30.py (row 2: taper focus ends <= 1/4 + 6 px screen floor; pre() only - beam_hook_r29 stays LAST)
 R30_HOOKS = [(R30_A010, "a010_r30"), (R30_SCENE, "cut_scene_r30"), (R30_KIT, "cut_kit_r30"), (R30_BEAM, "beam_hook_r30")]
+# R31 (R31_ROOT_CAUSE.md): per-row shot sets + hook modules, pre-wired by the main process, layered AFTER the R30
+# hooks but BEFORE beam_hook_r29 (stays LAST and also converts every R31_BEAM shot). Remove a shot id from its R31 set ->
+# exact R30 pixels. Mutate these sets, never rebind them.
+R31_A010 = {"A0_10"}   # main process: a010_r31.py (row 1: flat landing spots, bigger facet mirrors + mounts, leg above the power cabinet)
+R31_SCENE = set()   # B7_06 row 4: main 8-spp Q4 no (shared-aperture cones M5 -> M6 -> hole are hidden behind the R27 metrology deck between the mirrors; only the incoming leg reads) -> R30 pixels;  # B3_02 row 3b: main 8-spp sketch not reached (cone-from-rim seen side-on = triangle; darkening the picked vessel faces also darkens the dish reflection) -> row withdrawn, R30 pixels;  # main process: cut_scene_r31.py (row 3b B3_02 rim cone + mirror rim / mount + picked walls; row 4 B7_06 re-layout)
+R31_KIT = {"B8_03", "B8_03M"}   # kit agent: cut_kit_r31.py (row 5: wafer-stage reference ruler + moving pointer, PIP mask pattern face)
+R31_BEAM = {"B5_01", "C_03"}   # main process: beam_hook_r31.py (rows 3a / 3b / 3d: IF exit cone, rim cone, mask-face V; pre() only)
+R31_HOOKS = [(R31_A010, "a010_r31"), (R31_SCENE, "cut_scene_r31"), (R31_KIT, "cut_kit_r31"), (R31_BEAM, "beam_hook_r31")]
 _R21 = [None]
 
 
@@ -120,15 +128,15 @@ def _lights_studio():
 
 
 class _R30BeamGate:
-    """beam_hook_r29 stays LAST (R30 HARD) and converts the legs of every shot in R29_BEAM or R30_BEAM."""
+    """beam_hook_r29 stays LAST (R30 HARD) and converts the legs of every shot in R29_BEAM, R30_BEAM or R31_BEAM."""
     def __contains__(self, shot):
-        return shot in R29_BEAM or shot in R30_BEAM
+        return shot in R29_BEAM or shot in R30_BEAM or shot in R31_BEAM
 
 
 def _r22_hooks(shot):
     """R22: hook modules for this shot (in set order)."""
     import importlib
-    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
+    return [importlib.import_module(h) for s_, h in R22_HOOKS + R23_HOOKS + R24_HOOKS + R25_HOOKS + R26_HOOKS + R27_HOOKS + R28_HOOKS + R29_HOOKS[:-1] + R30_HOOKS + R31_HOOKS + [(_R30BeamGate(), R29_HOOKS[-1][1])] if shot in s_]   # R23 hooks after R22, R24 after R23, R25 after R24
 
 
 def _r22_pre(variant, shot):
