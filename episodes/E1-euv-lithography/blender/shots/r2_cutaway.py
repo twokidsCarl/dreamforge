@@ -69,7 +69,7 @@ R26_HOOKS = [(R26_A010, "a010_r26"), (R26_BEAM, "cut_beam_r26"), (R26_HERO, "cut
 # R27 (R27_ROOT_CAUSE.md): per-agent shot sets + hook modules, pre-wired by the main process, layered AFTER the R26
 # hooks (same pre(variant, shot, module) / post(sc, variant, shot) interface). Remove a shot id from its R27 set ->
 # exact R26 pixels. Mutate these sets, never rebind them (the hook list captures the set objects at import time).
-R27_CUT = {"C_03", "B7_06", "B3_02"}   # cut agent: cut_r27.py (row 3: one open turn + housings; B3_02 cone from the rim + orbit, D row)
+R27_CUT = {"B7_06", "B3_02"}   # C_03: cut agent ran out of the 40-min box before the housing restructure (no candidate) -> R26 pixels; plan in r27smoke/cut/SMOKE.md R28 notes   # cut agent: cut_r27.py (row 3: one open turn + housings; B3_02 cone from the rim + orbit, D row)
 R27_KIT = {"A0_10", "B5_01"}   # kit agent: cut_kit_r27.py (row 4: kit_r27 named parts replace the plain box / repeated wall; B5_01 facets)
 R27_HOOKS = [(R27_CUT, "cut_r27"), (R27_KIT, "cut_kit_r27")]
 _R21 = [None]
