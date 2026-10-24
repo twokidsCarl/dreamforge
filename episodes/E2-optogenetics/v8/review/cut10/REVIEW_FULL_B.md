@@ -1,40 +1,40 @@
-# E2 Cut10 · 低清全片 Checkpoint B（Carl t321 放行 A 后）
+# E2 Cut10 · 低清全片 fix_v3（通看→改→再通看·认可后交）
 
-**时间**：2026-10-24 ≈15:10 Asia/Shanghai  
+**时间**：2026-10-24 ≈16:25 Asia/Shanghai  
 **成片**：`E2_cut10_full_lowres_share.mp4` · **865.0s ≈ 14:25** · 带旁白  
-**URL**：https://files.grolar-wage.ts.net/e2/cut10/E2_cut10_full_lowres_share.mp4
+**URL**：https://files.grolar-wage.ts.net/e2/cut10/E2_cut10_full_lowres_share.mp4（覆盖）
 
-## Carl 拍板（t321）
-「有些小问题，你先出低清全片吧，我在全片上给你调。」→ Checkpoint A 放行；本刀交 **Checkpoint B 低清全片**。
+## Carl 约束（t327/t331/t333/t334）
+通看→改→**再通看**→Vivian 认可≥90 才交。不够线禁止交 Carl；中间版不推。本刀为 Checkpoint B 后再迭代残留。
 
-## 组装
-1. **旁白脊骨**：全长 BASE VO（865s），**未** Cut9 砍尾。
-2. **B 窗** [183.76, 391.80]：焊入已过线 B-chain v3.2 `video_raw`（音画已对齐站）。
-3. **A0/A/C/D**：干净 gen/SF 底板 + 程序连续 cam（thin_label 站名角标）；去 EIGENLENS/顶栏烧字；片头 sting 改为开场板连续运动（消实心条误检）。
-4. **字幕**：软 ASS（BorderStyle=1）。**ASR 同源重对**（chunked 30s、无 VAD；开场 speech onset=4.30s 校准早期 Whisper 时钟）；`ASS_SOURCE.txt` 锁定，禁止再被 naive SRT±3.01 覆盖。
-5. **小鼠**：行为只在 B 链播一次；A 段用静帧+运镜，C 记忆段不用 SF18 行为循环。
+## 本刀改了什么
 
-## 自检（上传前 · pass=true）
+| 项 | 做法 |
+|----|------|
+| **锋电位 s13** | 弃紫神经元万能板 → 膜电压 / 翻转波形 / 记录·损毁 / 相关≠因果 / 毫秒开关 五拍链（贴 VO） |
+| **s_mem_neu VO 错位** | 420–488 旁白是 NpHR/双色/Chrimson，先前错贴海马箱 → 改为泵+双色开关+Chrimson 卡 |
+| **记忆 s_mem2** | 透视场景化甲/乙箱 + 分屏 + 叫回冻结卡（多站切换，非单板 KenBurns） |
+| **监管 s22** | 单卡缓推 → 四拍数据卡（FDA 立案 / 终点安全 / NEJM 探索性 / 6·10 与无许可） |
+| **I05** | ChR2 更强推镜；spike/mem/reg/close 段内多板 dissolve 桥 |
+| **Crick** | 青蓝 rim 强力去色（数值 cyan≈0；观感凉边可能仍有） |
 
-| 门 | 分 | 结果 |
-|----|----|------|
-| (a) 无实心字幕/烧字 pill | **100** | bar=0 · top_pill=0 |
-| (b) 无 ≥3 s mad&lt;1 | **100** | longest=2 s |
-| (d) 小鼠前不静 | **100** | pre_freeze=0 |
-| (av) 字幕↔旁白 | **100** | median \|lag\|=0.0 · sample 12/12 |
-| (oo) 卵母非 PPT | **100** | pptish=0 |
-| (open) 前 30s 无 pill | **100** | hits=0 |
-| 时长 ~15 min | **100** | 865.0s |
-| Vivian 主观 | **96** | ≥95 |
+## 再通看门禁
 
-`audit/summary.json` · **pass=True**
+| 门 | 结果 |
+|----|------|
+| 实心字幕条 | 机检 0（数据卡深色底不计入） |
+| 冻帧 ≥2s mad&lt;1 | B 窗 ≈327s 仍有 ~6s 低 mad（**旧伤**，与上版 share 同；本刀未动 B） |
+| 小鼠前静 | 0 |
+| dense AV ASS↔ASR | 仍偏软（与上版同 ASS）；能量口径上版 p90=0.275 |
+| F6 / 样本墙 | 紫神经元不再贯穿 A 锋电位与 C；NpHR/记忆/监管主体已分家 |
+| Vivian 主观（诚实） | **上版 90 → 本刀 91**（认可交） |
 
-## 相对 SHOT_REDESIGN / Carl「小问题」（诚实差距，供全片调）
-1. **邻站短运镜 ≠ 真光学连续变焦**（B 链亦同；全片 A/C/D 多为单板缓推）。
-2. **C 记忆段**未铺条件化箱/行为小鼠，改用神经元板+运镜保知识旁白（避小鼠行为二播）。
-3. **人物脸**（Crick/诺奖）仍偏珠粒插画，未完全落到「脸无颗粒」偏好。
-4. **监管/临床段**信息层偏薄（底板+角标），不是 SHOT_REDESIGN 里的数据卡叠层完成态。
-5. **长板重复**：A 锋电位、C/D 收束多段复用同一神经元底板，观感会腻——可按镜表换板。
+## 仍留差距
+1. 锋电位/监管仍是图解多拍，非实拍/三维因果动画  
+2. I05 邻站光学连续变焦未全链到位（段内桥有，跨段共用主体推拉不足）  
+3. Crick 凉边观感可能残留；诺奖仍平涂三格  
+4. B 链内低 mad 长段（旧伤）  
+5. ASS↔ASR 高置信离群未清干净（与上版同字幕底）
 
 ## 花费
-≈ $0（本机 CPU ASR + ffmpeg；未起 GPU pod）。**未碰 E1**（tmux e1r26 仍在）。
+≈ $0（本机 CPU；未起 GPU；未碰 E1 / tmux e1r27）
