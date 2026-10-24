@@ -41,7 +41,7 @@
 2. **冒烟减量**：开卡前只冒烟「最低分镜 ∪ 本轮改过的镜 ∪ 本轮工单烟测门槛镜」。共享根因时改过集按设计变大，冒烟跟着变大。**禁止**对未改镜凑满 24 镜冒烟。
 3. **GPU 渲**：`handoff/tools/pod_styleframes.py p1/roundN_jobs.txt --cap-usd 2`（1×A40）→ 拉回 → **必定 Terminate**，确认本会话 E1 pods=`[]`；2D 在 box 上跑。
 4. **重叠**：帧一拉回 → 立刻起隔离独立审；同时可按上轮 + 本轮已知缺口起草 R(n+1) 结构草稿（**未过线才落地改代码**；若本轮过线则丢弃草稿）。**审分未出完前不要租下一轮 GPU**。
-5. **审分并行 + 金控校准**：隔离审拆成 **2–3 路**并行（按镜头分组），每路写部分 scores；主进程合并 `scores_roundN.json` + 一篇 `REVIEW_roundN_independent.md`。仍 **全量盲审**，禁止只审改过的镜。审稿包另加 **3–4 张金控帧**（上轮已评分、本轮像素未改；文件名 `ctrl_<shot>_r{prev}.png`）；审稿**盲打**金控（不给历史分）；主进程算 Δ = mean(金控盲分 − 历史分)，全部镜头分减 Δ 得 drift-adjusted；**过线只认校正后**（均分≥92 且单张≥88）；STATUS/REVIEW 双轨写 raw 与 adjusted。审稿目录只放 SCALE / BRIEF / FACTS / refs / frames（含 ctrl），不给改动说明、不给历史分。
+5. **审分并行 + 金控校准**：隔离审拆成 **2–3 路**并行（按镜头分组），每路写部分 scores；主进程合并 `scores_roundN.json` + 一篇 `REVIEW_roundN_independent.md`。仍 **全量盲审**，禁止只审改过的镜。审稿包另加 **3–4 张金控帧**（上轮已评分、本轮像素未改；文件名 `ctrl_<shot>_r{prev}.png`）；审稿**盲打**金控（不给历史分）；主进程算 Δ = mean(金控盲分 − 历史分)，全部镜头分减 Δ 得 drift-adjusted；**过线只认校正后**（均分≥92 且单张≥88）；STATUS/REVIEW 双轨写 raw 与 adjusted。审稿目录只放 SCALE / BRIEF / FACTS / refs / frames（含 ctrl），不给改动说明、不给历史分。**HARD（R25 / NS-17）**：等审**只盯** `review_rN/p*/STATUS.txt`（或 `lane_p*.out` done）三路齐了立刻 merge；**禁止** `pgrep -f` + `tail --pid` / `while pgrep` 自锁等审（R25 空转 ≥33 min；见 `WAIT_HARD.md`）。
 6. **收尾钉死**（同一回合、禁止 sleep 轮询）：REVIEW/STATUS 一出（含 Δ；另含根因 → 改法 → 预期外行读法、「not repeating: …」、`changed_vs_prev / 24`）→ 更新 `score_timeline.png`（仅 SCALE_v2，`--ep E1`，可旁注 Δ）→ 写 `PIPELINE_RETRO.md` 本轮 1–3 条 → squash-merge 自合 → **立刻推 Carl（只要时间轴图，文案用校正后分数）** → 若未过线同回合开下一轮 job。用文件出现 / 进程退出叫醒，禁止空等。
 
 旧 5 步精神保留：改 → 渲 → 合成 → 独立审 → 记账推送；加速点是重叠、冒烟减量、审分并行、收尾立刻推。
