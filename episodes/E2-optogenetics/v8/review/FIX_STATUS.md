@@ -125,4 +125,4 @@ mol_src('chr2'|'relay'|'microbes'|…)  # → gen/sf09e_chr2 · sf08e_relay · s
 - `tools/cinematic_fullbleed_v8.py`
 
 ## PR
-（同步 eigenlens 后填）
+https://github.com/twokidsCarl/eigenlens/pull/87
